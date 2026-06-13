@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Positionssystemet – Trippmätare</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f4ff;
+    --surface: #fff;
+    --surface2: #eae6ff;
+    --border: #ccc5f0;
+    --text: #100e28;
+    --muted: #585078;
+    --accent: #306BF0;
+    --accent2: #EC6095;
+    --shadow: rgba(48,107,240,.12);
+    --DH: 56px;
+    --DW: 54px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 1rem 3rem;
+  }
+
+  /* ODOMETER SHELL */
+  .odo-wrap {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 1.2rem 1.6rem 1rem;
+    box-shadow: 0 4px 24px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 1.4rem;
+  }
+
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+  }
+
+  .drum-col {
+    width: var(--DW);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dot-col {
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  .sep-col {
+    width: 10px;
+    flex-shrink: 0;
+  }
+
+  /* +/- buttons */
+  .drum-btn {
+    width: 34px;
+    height: 24px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s, border-color 0.1s, transform 0.08s;
+    font-family: 'Sora', sans-serif;
+    line-height: 1;
+    user-select: none;
+  }
+  .drum-btn:hover { background: var(--surface2); border-color: var(--accent); }
+  .drum-btn:active { transform: scale(0.92); }
+  .drum-btn.minus { color: var(--accent2); }
+  .drum-btn.minus:hover { border-color: var(--accent2); }
+
+  /* DRUM ROW */
+  .drums-row {
+    display: flex;
+    align-items: center;
+    background: #18131f;
+    border-radius: 10px;
+    padding: 5px 8px;
+    box-shadow: inset 0 4px 14px rgba(0,0,0,0.6), 0 2px 8px var(--shadow);
+    position: relative;
+  }
+
+  /* center highlight window */
+  .drums-row::after {
+    content: '';
+    position: absolute;
+    left: 8px; right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: var(--DH);
+    border-top: 1px solid rgba(255,255,255,0.18);
+    border-bottom: 1px solid rgba(255,255,255,0.18);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  /* individual drum */
+  .drum {
+    width: var(--DW);
+    height: var(--DH);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* fade top/bottom */
+  .drum::before, .drum::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 14px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .drum::before { top: 0;    background: linear-gradient(to bottom, rgba(24,19,31,0.92), transparent); }
+  .drum::after  { bottom: 0; background: linear-gradient(to top,   rgba(24,19,31,0.92), transparent); }
+
+  /* the scrolling tape — contains 0–9 then 0 again (11 digits total for wrap illusion) */
+  .tape {
+    position: absolute;
+    width: 100%;
+    will-change: transform;
+  }
+
+  .tape-digit {
+    width: 100%;
+    height: var(--DH);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: rgba(240,236,252,0.55);
+    user-select: none;
+    transition: color 0.15s;
+  }
+  .tape-digit.lit { color: #ffffff; }
+
+  /* decimal dot */
+  .dec-dot {
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #F4A261;
+    flex-shrink: 0;
+    padding-bottom: 3px;
+  }
+
+  /* thin separator */
+  .drum-sep {
+    width: 1px;
+    height: 36px;
+    background: rgba(255,255,255,0.1);
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  /* INPUT PANEL */
+  .input-section {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 0.6rem 1.1rem;
+    box-shadow: 0 2px 12px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .input-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .divider {
+    width: 1px;
+    height: 22px;
+    background: var(--border);
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+  input[type="text"] {
+    width: 90px;
+    height: 30px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 0 0.5rem;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  .action-btn {
+    height: 30px;
+    padding: 0 0.75rem;
+    border: 1.5px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    border-radius: 7px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.12s, transform 0.08s;
+  }
+  .action-btn:hover { opacity: 0.85; }
+  .action-btn:active { transform: scale(0.97); }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .reset-btn { background: transparent; border-color: var(--border); color: var(--muted); }
+  .reset-btn:hover { border-color: var(--accent2); color: var(--accent2); opacity: 1; }
+  .error-msg { font-size: 0.72rem; color: #e02020; min-height: 1em; padding-left: 2px; }
+  .val-disp { font-size: 0.78rem; color: var(--muted); text-align: center; }
+  .val-disp strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="odo-wrap">
+  <div class="ctrl-row" id="plusRow"></div>
+  <div class="drums-row" id="drumsRow"></div>
+  <div class="ctrl-row" id="minusRow"></div>
+</div>
+
+<div class="input-section">
+  <div class="input-row">
+    <span class="input-label">Ange tal:</span>
+    <input type="text" id="setInput" autocomplete="off">
+    <button class="action-btn" onclick="applySet()">Sätt</button>
+    <button class="action-btn reset-btn" onclick="resetAll()">Nollställ</button>
+    <div class="divider"></div>
+    <span class="input-label">Beräkna:</span>
+    <input type="text" id="addInput" autocomplete="off">
+    <button class="action-btn" id="addBtn" onclick="startAdd()">Utför</button>
+  </div>
+  <div class="error-msg" id="errorMsg"></div>
+</div>
+
+<script>
+// 9 drums: index 0=hundratusental … 5=ental, 6=tiondel, 7=hundradel, 8=tusendel
+const PLACE_VALUES = [100000, 10000, 1000, 100, 10, 1, 0.1, 0.01, 0.001];
+
+let digits = [0,0,0,0,0,0,0,0,0];
+let busy = false;
+
+// ── Build DOM ────────────────────────────────────────────────────────────────
+function buildUI() {
+  const plusRow  = document.getElementById('plusRow');
+  const drumsRow = document.getElementById('drumsRow');
+  const minusRow = document.getElementById('minusRow');
+
+  for (let i = 0; i < 9; i++) {
+
+    // Separators & decimal dot BEFORE drum
+    if (i === 3) {
+      // thin sep between group 1 and group 2
+      ['plusRow','drumsRow','minusRow'].forEach(id => {
+        const el = document.createElement('div');
+        el.className = id === 'drumsRow' ? 'drum-sep' : 'sep-col';
+        document.getElementById(id).appendChild(el);
+      });
+    }
+    if (i === 6) {
+      // decimal dot in drum row, spacer in ctrl rows
+      const dot = document.createElement('div');
+      dot.className = 'dec-dot'; dot.textContent = ',';
+      drumsRow.appendChild(dot);
+      ['plusRow','minusRow'].forEach(id => {
+        const el = document.createElement('div');
+        el.className = 'dot-col';
+        document.getElementById(id).appendChild(el);
+      });
+    }
+
+    // + button column
+    const pc = document.createElement('div'); pc.className = 'drum-col';
+    const pb = document.createElement('button');
+    pb.className = 'drum-btn plus'; pb.textContent = '+';
+    pb.addEventListener('click', () => userStep(i, 1));
+    pc.appendChild(pb); plusRow.appendChild(pc);
+
+    // drum
+    const drum = document.createElement('div');
+    drum.className = 'drum'; drum.id = `d${i}`;
+    drum.appendChild(makeTape(0));
+    drumsRow.appendChild(drum);
+
+    // − button column
+    const mc = document.createElement('div'); mc.className = 'drum-col';
+    const mb = document.createElement('button');
+    mb.className = 'drum-btn minus'; mb.textContent = '−';
+    mb.addEventListener('click', () => userStep(i, -1));
+    mc.appendChild(mb); minusRow.appendChild(mc);
+  }
+  refreshDisplay();
+}
+
+// ── Tape construction ────────────────────────────────────────────────────────
+// Tape has 11 cells: 0,1,2,…,9,0  — the trailing 0 lets us animate wrap-up
+// and 11 cells going the other way: 0,9,8,…,1,0 for wrap-down
+// We rebuild the tape each animation so we can always do a straight slide.
+function makeTape(currentDigit) {
+  const tape = document.createElement('div');
+  tape.className = 'tape';
+  // build 0–9 + extra 0 at bottom for wrap
+  for (let d = 0; d <= 10; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'tape-digit';
+    const val = d % 10;
+    cell.textContent = val;
+    if (val === currentDigit && d < 10) cell.classList.add('lit');
+    tape.appendChild(cell);
+  }
+  positionTapeInstant(tape, currentDigit);
+  return tape;
+}
+
+const DH = () => parseInt(getComputedStyle(document.documentElement).getPropertyValue('--DH')) || 56;
+
+function positionTapeInstant(tape, digit) {
+  tape.style.transition = 'none';
+  tape.style.transform = `translateY(${-digit * DH()}px)`;
+}
+
+// ── Single drum step with real CSS transition ─────────────────────────────────
+// Strategy: always slide the tape by exactly one cell-height.
+// For wrap 9→0 (dir +1): position tape at row 9, animate to row 10 (which shows "0"),
+//   then snap tape back to row 0 without transition.
+// For wrap 0→9 (dir -1): position tape at row 0, animate to row -1,
+//   then snap to row 9.
+function animateDrum(i, dir) {
+  return new Promise(resolve => {
+    const drum = document.getElementById(`d${i}`);
+    const h = DH();
+    const cur = digits[i];
+    const next = (cur + dir + 10) % 10;
+
+    const tape = drum.querySelector('.tape');
+
+    // Determine start and end Y for the animation
+    let startY, endY;
+    if (dir > 0) {
+      // scrolling upward visually (numbers increase): translate decreases
+      if (cur === 9) {
+        // wrap: show 9, animate to the extra "0" at index 10
+        startY = -9 * h;
+        endY   = -10 * h;
+      } else {
+        startY = -cur * h;
+        endY   = -(cur + 1) * h;
+      }
+    } else {
+      // scrolling downward visually (numbers decrease): translate increases
+      if (cur === 0) {
+        // wrap: we'll append a "9" above by repositioning tape to show 9 above 0
+        // Snap tape to position 10 (the extra 0 maps to 0, so 10-1=9 is at index 9)
+        // Actually: just snap to row 1 (showing "1" in window) then appear to come from above
+        // Simpler: snap to -(-1)*h = +h (one step above 0), then slide down to 0
+        startY = h;      // one cell above 0
+        endY   = 0;
+      } else {
+        startY = -cur * h;
+        endY   = -(cur - 1) * h;
+      }
+    }
+
+    // Snap to start position
+    tape.style.transition = 'none';
+    tape.style.transform = `translateY(${startY}px)`;
+    // Update lit state for current
+    tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
+      el.classList.toggle('lit', idx % 10 === cur);
+    });
+
+    // Force reflow
+    tape.getBoundingClientRect();
+
+    // Animate to end
+    tape.style.transition = `transform 0.22s cubic-bezier(0.25, 0.8, 0.35, 1)`;
+    tape.style.transform = `translateY(${endY}px)`;
+
+    tape.addEventListener('transitionend', function onEnd() {
+      tape.removeEventListener('transitionend', onEnd);
+      digits[i] = next;
+
+      // Snap to correct resting position
+      tape.style.transition = 'none';
+      tape.style.transform = `translateY(${-next * h}px)`;
+
+      // Update lit
+      tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
+        el.classList.toggle('lit', idx % 10 === next && idx < 10);
+      });
+      resolve();
+    }, { once: true });
+
+    // Fallback in case transitionend doesn't fire
+    setTimeout(() => {
+      digits[i] = next;
+      tape.style.transition = 'none';
+      tape.style.transform = `translateY(${-next * h}px)`;
+      tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
+        el.classList.toggle('lit', idx % 10 === next && idx < 10);
+      });
+      resolve();
+    }, 350);
+  });
+}
+
+// ── User button press: animate this drum, then carry if needed ───────────────
+async function userStep(i, dir) {
+  if (busy) return;
+  busy = true;
+  await cascadeStep(i, dir);
+  refreshDisplay();
+  busy = false;
+}
+
+// Step drum i in dir; if it wraps (9→0 when +1, or 0→9 when -1) carry into i-1
+async function cascadeStep(i, dir) {
+  const before = digits[i];
+  await animateDrum(i, dir);
+  const after = digits[i];
+
+  const wrappedUp   = (dir === 1  && before === 9 && after === 0);
+  const wrappedDown = (dir === -1 && before === 0 && after === 9);
+
+  if ((wrappedUp || wrappedDown) && i > 0) {
+    await cascadeStep(i - 1, dir);
+  }
+}
+
+// ── Instant set (no animation) ───────────────────────────────────────────────
+function setDigitsInstant(newDigits) {
+  digits = [...newDigits];
+  for (let i = 0; i < 9; i++) {
+    const drum = document.getElementById(`d${i}`);
+    drum.innerHTML = '';
+    drum.appendChild(makeTape(digits[i]));
+  }
+  refreshDisplay();
+}
+
+function parseToDigits(str) {
+  str = str.trim().replace(',', '.');
+  const n = parseFloat(str);
+  if (isNaN(n)) return null;
+  const clamped = Math.max(0, Math.min(n, 999999.999));
+  const r = Math.round(clamped * 1000) / 1000;
+  const intP = Math.floor(r);
+  const fracP = Math.round((r - intP) * 1000);
+  return [
+    Math.floor(intP / 100000) % 10,
+    Math.floor(intP / 10000)  % 10,
+    Math.floor(intP / 1000)   % 10,
+    Math.floor(intP / 100)    % 10,
+    Math.floor(intP / 10)     % 10,
+    intP % 10,
+    Math.floor(fracP / 100)   % 10,
+    Math.floor(fracP / 10)    % 10,
+    fracP % 10,
+  ];
+}
+
+function applySet() {
+  clearErr();
+  const d = parseToDigits(document.getElementById('setInput').value);
+  if (!d) { showErr('Ogiltigt tal. Ange t.ex. 3456.78'); return; }
+  setDigitsInstant(d);
+}
+
+// ── Animated add ─────────────────────────────────────────────────────────────
+async function startAdd() {
+  if (busy) return;
+  clearErr();
+  const raw = document.getElementById('addInput').value.trim().replace(',', '.');
+  const delta = parseFloat(raw);
+  if (isNaN(delta)) { showErr('Ange t.ex. +124 eller -50.5'); return; }
+  const dr = Math.round(delta * 1000) / 1000;
+  if (dr === 0) return;
+
+  busy = true;
+  document.getElementById('addBtn').disabled = true;
+
+  const sign = dr > 0 ? 1 : -1;
+  // Work in milli-units (×1000) to avoid float issues
+  const absMilli = Math.round(Math.abs(dr) * 1000);
+
+  // placeUnits in milli: tusendel=1, hundradel=10, tiondel=100, ental=1000, ...
+  const milliPerPlace = [100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1];
+
+  for (let i = 8; i >= 0; i--) {
+    const unit = milliPerPlace[i];
+    const steps = Math.floor(absMilli / unit) % 10;
+    // skip zero steps
+    for (let s = 0; s < steps; s++) {
+      await animateDrum(i, sign);
+      // carry cascade from this drum if it wrapped
+      // (handled inside cascadeStep, but here we do manual per-step carry)
+      refreshDisplay();
+      await sleep(55);
+    }
+  }
+
+  busy = false;
+  document.getElementById('addBtn').disabled = false;
+  refreshDisplay();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function getCurrentValue() {
+  let v = 0;
+  digits.forEach((d, i) => v += d * PLACE_VALUES[i]);
+  return Math.round(v * 1000) / 1000;
+}
+
+function refreshDisplay() {}
+
+function resetAll() {
+  clearErr();
+  setDigitsInstant([0,0,0,0,0,0,0,0,0]);
+  document.getElementById('setInput').value = '';
+  document.getElementById('addInput').value = '';
+}
+
+function showErr(msg) { document.getElementById('errorMsg').textContent = msg; }
+function clearErr()   { document.getElementById('errorMsg').textContent = ''; }
+
+document.getElementById('setInput').addEventListener('keydown', e => { if (e.key==='Enter') applySet(); });
+document.getElementById('addInput').addEventListener('keydown', e => { if (e.key==='Enter') startAdd(); });
+
+buildUI();
+</script>
+</body>
+</html>

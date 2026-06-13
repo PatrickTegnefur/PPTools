@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tärning</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #f6f4ff;
+      --surface: #ffffff;
+      --surface2:#eae6ff;
+      --border:  #ccc5f0;
+      --text:    #100e28;
+      --muted:   #585078;
+      --accent:  #306BF0;
+    }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+    }
+    .subtitle { font-size: .88rem; color: var(--muted); margin-top: -1.5rem; }
+
+    /* ─── 3D CUBE ─────────────────────────────────────
+       CRITICAL: filter on the cube parent breaks preserve-3d in Chrome/Edge.
+       Shadow is placed on the .scene wrapper instead.
+    ─────────────────────────────────────────────────── */
+    .scene {
+      width: 180px;
+      height: 180px;
+      perspective: 600px;
+      cursor: pointer;
+      /* shadow here — NOT on the cube element itself */
+      filter: drop-shadow(0 16px 32px rgba(48,107,240,.18));
+    }
+
+    .cube {
+      width: 160px;
+      height: 160px;
+      margin: 10px;
+      position: relative;
+      transform-style: preserve-3d;
+      /* start at a nice 3-face-visible angle */
+      transform: rotateX(-25deg) rotateY(30deg);
+    }
+
+    /* ── Face base ── */
+    .face {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border: 2.5px solid var(--border);
+      border-radius: 22px;
+      display: grid;
+      padding: 22px;
+      gap: 0;
+    }
+
+    /* Face colours — lighter/darker for perceived lighting */
+    .face.front  { background: #ffffff; }
+    .face.back   { background: #f5f3ff; }
+    .face.top    { background: #fafafe; }
+    .face.bottom { background: #eae6fc; }
+    .face.right  { background: #f0eeff; }
+    .face.left   { background: #ece8ff; }
+
+    /* ── Positions: half-size = 80px ── */
+    .face.front  { transform: translateZ(80px); }
+    .face.back   { transform: rotateY(180deg)  translateZ(80px); }
+    .face.right  { transform: rotateY( 90deg)  translateZ(80px); }
+    .face.left   { transform: rotateY(-90deg)  translateZ(80px); }
+    .face.top    { transform: rotateX( 90deg)  translateZ(80px); }
+    .face.bottom { transform: rotateX(-90deg)  translateZ(80px); }
+
+    /* ── Dots ── */
+    .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 2px 5px rgba(48,107,240,.35);
+      align-self: center;
+      justify-self: center;
+    }
+
+    /* ── Dot layouts (3×3 grid, only occupied cells) ──
+       Grid areas:
+         tl tc tr
+         ml mc mr
+         bl bc br
+    ── */
+    .face { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+
+    /* 1 — center */
+    .face[data-n="1"] .dot:nth-child(1) { grid-area: 2 / 2; }
+
+    /* 2 — top-right, bottom-left */
+    .face[data-n="2"] .dot:nth-child(1) { grid-area: 1 / 3; }
+    .face[data-n="2"] .dot:nth-child(2) { grid-area: 3 / 1; }
+
+    /* 3 — top-right, center, bottom-left */
+    .face[data-n="3"] .dot:nth-child(1) { grid-area: 1 / 3; }
+    .face[data-n="3"] .dot:nth-child(2) { grid-area: 2 / 2; }
+    .face[data-n="3"] .dot:nth-child(3) { grid-area: 3 / 1; }
+
+    /* 4 — four corners */
+    .face[data-n="4"] .dot:nth-child(1) { grid-area: 1 / 1; }
+    .face[data-n="4"] .dot:nth-child(2) { grid-area: 1 / 3; }
+    .face[data-n="4"] .dot:nth-child(3) { grid-area: 3 / 1; }
+    .face[data-n="4"] .dot:nth-child(4) { grid-area: 3 / 3; }
+
+    /* 5 — four corners + center */
+    .face[data-n="5"] .dot:nth-child(1) { grid-area: 1 / 1; }
+    .face[data-n="5"] .dot:nth-child(2) { grid-area: 1 / 3; }
+    .face[data-n="5"] .dot:nth-child(3) { grid-area: 2 / 2; }
+    .face[data-n="5"] .dot:nth-child(4) { grid-area: 3 / 1; }
+    .face[data-n="5"] .dot:nth-child(5) { grid-area: 3 / 3; }
+
+    /* 6 — two columns of three */
+    .face[data-n="6"] .dot:nth-child(1) { grid-area: 1 / 1; }
+    .face[data-n="6"] .dot:nth-child(2) { grid-area: 1 / 3; }
+    .face[data-n="6"] .dot:nth-child(3) { grid-area: 2 / 1; }
+    .face[data-n="6"] .dot:nth-child(4) { grid-area: 2 / 3; }
+    .face[data-n="6"] .dot:nth-child(5) { grid-area: 3 / 1; }
+    .face[data-n="6"] .dot:nth-child(6) { grid-area: 3 / 3; }
+
+    /* ── Result ── */
+    .result-area {
+      display: flex; flex-direction: column;
+      align-items: center; gap: .3rem; min-height: 64px;
+    }
+    .result-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.8rem; font-weight: 700;
+      color: var(--accent); line-height: 1;
+      opacity: 0; transform: scale(.6);
+      transition: opacity .3s, transform .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .result-number.show { opacity: 1; transform: scale(1); }
+    .result-label { font-size: .85rem; color: var(--muted); opacity: 0; transition: opacity .3s .1s; }
+    .result-label.show { opacity: 1; }
+
+    /* ── Button ── */
+    .roll-btn {
+      font-family: 'Sora', sans-serif;
+      font-size: .95rem; font-weight: 600;
+      padding: 12px 34px; border-radius: 12px;
+      border: 2px solid var(--accent);
+      background: var(--accent); color: #fff;
+      cursor: pointer; letter-spacing: .02em;
+      transition: background .15s, transform .1s;
+      box-shadow: 0 4px 16px rgba(48,107,240,.22);
+    }
+    .roll-btn:hover   { background: #1f58d4; border-color: #1f58d4; }
+    .roll-btn:active  { transform: scale(.96); }
+    .roll-btn:disabled{ opacity: .45; cursor: not-allowed; }
+
+    /* ── Speed toggle ── */
+    .toggle-wrap {
+      display: flex; align-items: center; gap: .75rem;
+      font-size: .85rem; color: var(--muted);
+    }
+    .toggle-wrap span { transition: color .2s; }
+    .toggle-wrap span.active { color: var(--accent); font-weight: 600; }
+
+    .toggle {
+      position: relative; width: 52px; height: 28px; flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--surface2); border: 2px solid var(--border);
+      border-radius: 99px; cursor: pointer;
+      transition: background .25s, border-color .25s;
+    }
+    .toggle input:checked ~ .toggle-track {
+      background: var(--accent); border-color: var(--accent);
+    }
+    .toggle-thumb {
+      position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+      pointer-events: none;
+    }
+    .toggle input:checked ~ .toggle-track .toggle-thumb {
+      transform: translateX(24px);
+    }
+
+    /* Suspense: tärningen glöder medan den rullar */
+    @keyframes suspenseGlow {
+      from { filter: drop-shadow(0 0 2px rgba(48,107,240,.1)); }
+      to   { filter: drop-shadow(0 0 22px rgba(48,107,240,.6)); }
+    }
+    .scene.suspense-rolling {
+      animation: suspenseGlow .55s ease-in-out infinite alternate;
+    }
+
+    /* ── History ── */
+    .hist-label { font-size: .75rem; color: var(--muted); text-align: center; margin-bottom: 6px; }
+    .history { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 340px; min-height: 36px; }
+    .hist-chip {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--accent);
+      animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn { from { transform:scale(0);opacity:0; } to { transform:scale(1);opacity:1; } }
+  </style>
+</head>
+<body>
+
+<h1>Tärning</h1>
+<p class="subtitle">Klicka för att slå</p>
+
+<div class="toggle-wrap">
+  <span id="labelSnabb" class="active">Snabbt</span>
+  <label class="toggle">
+    <input type="checkbox" id="suspenseToggle" onchange="updateToggleLabel()">
+    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+  </label>
+  <span id="labelSpanning">🎭 Spänningsläge</span>
+</div>
+
+<div class="scene" id="scene" onclick="rollDice()" title="Slå tärningen">
+  <div class="cube" id="cube">
+    <!--
+      Standard dice: opposite faces sum to 7
+        front=1 ↔ back=6
+        right=2 ↔ left=5
+        top=3   ↔ bottom=4
+    -->
+    <div class="face front"  data-n="1"><div class="dot"></div></div>
+    <div class="face back"   data-n="6"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="face right"  data-n="2"><div class="dot"></div><div class="dot"></div></div>
+    <div class="face left"   data-n="5"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="face top"    data-n="3"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="face bottom" data-n="4"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>
+</div>
+
+<div class="result-area">
+  <div class="result-number" id="resultNum"></div>
+  <div class="result-label"  id="resultLbl"></div>
+</div>
+
+<button class="roll-btn" id="rollBtn" onclick="rollDice()">🎲 Slå tärningen</button>
+
+<div>
+  <p class="hist-label">Senaste kast</p>
+  <div class="history" id="history"></div>
+</div>
+
+<script>
+/*
+  Face placement and the rotation needed to face it toward the viewer:
+
+  Face    CSS-transform              → Cube rotation to show face
+  front   translateZ(80)             → rx=0,   ry=0
+  back    rotateY(180) translateZ    → rx=0,   ry=180
+  right   rotateY(90)  translateZ    → rx=0,   ry=-90
+  left    rotateY(-90) translateZ    → rx=0,   ry=90
+  top     rotateX(90)  translateZ    → rx=90,  ry=0
+  bottom  rotateX(-90) translateZ    → rx=-90, ry=0
+
+  data-n on each face element tells us its pip value.
+  We build the lookup from face class → {rx,ry} and read data-n after landing.
+*/
+/*
+  Single source of truth — face class, pip value, and the cube rotation
+  needed to bring that face toward the viewer are all defined here together.
+  No DOM reading, no order assumptions.
+
+  Face transform in CSS         → inverse cube rotation to show it
+  front:  translateZ(80)        → rx=0,   ry=0
+  back:   rotateY(180)+Z        → rx=0,   ry=180
+  right:  rotateY(90)+Z         → rx=0,   ry=-90   (counter-rotate)
+  left:   rotateY(-90)+Z        → rx=0,   ry=90
+  top:    rotateX(90)+Z         → rx=-90, ry=0
+  bottom: rotateX(-90)+Z        → rx=90,  ry=0
+*/
+const FACES = [
+  { cls: 'front',  val: 1, rx:   0, ry:   0 },
+  { cls: 'back',   val: 6, rx:   0, ry: 180 },
+  { cls: 'right',  val: 2, rx:   0, ry: -90 },
+  { cls: 'left',   val: 5, rx:   0, ry:  90 },
+  { cls: 'top',    val: 3, rx: -90, ry:   0 },
+  { cls: 'bottom', val: 4, rx:  90, ry:   0 },
+];
+
+// Verify that data-n in the HTML matches our table — warn in console if not
+FACES.forEach(f => {
+  const el = document.querySelector(`.face.${f.cls}`);
+  const domVal = el ? parseInt(el.dataset.n, 10) : null;
+  if (domVal !== f.val) console.warn(`Face mismatch: .${f.cls} has data-n="${domVal}" but FACES says ${f.val}`);
+});
+
+const names = ['','etta','tvåa','trea','fyra','femma','sexa'];
+let rolling = false;
+const rolls = [];
+const cube  = document.getElementById('cube');
+const scene = document.getElementById('scene');
+
+applyTransform(0, 0, 0);
+
+function applyTransform(rx, ry, ms, easing) {
+  cube.style.transition = ms > 0
+    ? `transform ${ms}ms ${easing || 'cubic-bezier(.22,1,.36,1)'}`
+    : 'none';
+  cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+}
+
+function isSuspense() {
+  return document.getElementById('suspenseToggle').checked;
+}
+
+function updateToggleLabel() {
+  const on = isSuspense();
+  document.getElementById('labelSnabb').classList.toggle('active', !on);
+  document.getElementById('labelSpanning').classList.toggle('active', on);
+}
+
+function rollDice() {
+  if (rolling) return;
+  rolling = true;
+
+  const numEl = document.getElementById('resultNum');
+  const lblEl = document.getElementById('resultLbl');
+  const btn   = document.getElementById('rollBtn');
+  btn.disabled = true;
+  numEl.classList.remove('show');
+  lblEl.classList.remove('show');
+
+  const target = FACES[Math.floor(Math.random() * 6)];
+  const val    = target.val;
+
+  if (isSuspense()) {
+    runSuspenseRoll(target, val, numEl, lblEl, btn);
+  } else {
+    runQuickRoll(target, val, numEl, lblEl, btn);
+  }
+}
+
+/* Räknar ut slutvinkeln från 0 med exakt 'spins' hela varv + target.
+   target normaliseras till [0, 360) så vi alltid snurrar framåt. */
+function finalAngle(targetDeg, spins) {
+  const t = ((targetDeg % 360) + 360) % 360;   // alltid 0–359
+  return spins * 360 + t;
+}
+
+/* ── Snabbt läge ── */
+function runQuickRoll(target, val, numEl, lblEl, btn) {
+  const fx = finalAngle(target.rx, 3);
+  const fy = finalAngle(target.ry, 3);
+
+  applyTransform(0, 0, 0);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    applyTransform(fx, fy, 900, 'cubic-bezier(.22,1,.36,1)');
+  }));
+
+  // Ingen snap — animationen landar redan rätt
+  setTimeout(() => showResult(val, numEl, lblEl, btn), 920);
+}
+
+/* ── Spänningsläge ──
+   En enda lång CSS-transition med custom cubic-bezier som
+   börjar snabbt och bromsar kraftigt in mot slutet.
+   Ingen osynlig snap — slutvinkeln är exakt rätt från start.
+── */
+function runSuspenseRoll(target, val, numEl, lblEl, btn) {
+  // Många extra varv i fas 1, sen ett sista varv in mot rätt sida
+  const fx = finalAngle(target.rx, 7);
+  const fy = finalAngle(target.ry, 7);
+
+  scene.classList.add('suspense-rolling');
+  applyTransform(0, 0, 0);
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    // cubic-bezier: startar fort, bromsar kraftigt in på slutet
+    applyTransform(fx, fy, 3500, 'cubic-bezier(.15,.5,.2,1)');
+  }));
+
+  setTimeout(() => scene.classList.remove('suspense-rolling'), 3480);
+  setTimeout(() => showResult(val, numEl, lblEl, btn), 3520);
+}
+
+function showResult(val, numEl, lblEl, btn) {
+  numEl.textContent = val;
+  lblEl.textContent = 'Du slog en ' + names[val];
+  numEl.classList.add('show');
+  lblEl.classList.add('show');
+
+  rolls.unshift(val);
+  if (rolls.length > 9) rolls.pop();
+  document.getElementById('history').innerHTML =
+    rolls.map(v => `<div class="hist-chip">${v}</div>`).join('');
+
+  rolling = false;
+  btn.disabled = false;
+}
+</script>
+
+</body>
+</html>

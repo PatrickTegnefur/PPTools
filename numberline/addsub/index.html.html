@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tallinje – Addition & Subtraktion</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f6f4ff;--surface:#fff;--surface2:#eae6ff;--border:#ccc5f0;
+    --text:#100e28;--muted:#585078;--accent:#306BF0;--accent2:#EC6095;
+    --shadow:rgba(48,107,240,.12);
+    --grad:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+    --pos-arc:#306BF0;   /* positive-side hop = blue  */
+    --neg-arc:#EC6095;   /* negative-side hop = pink  */
+    --total-arc:#7c3aed; /* total arc = deep purple   */
+  }
+  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center}
+  header{width:100%;background:var(--grad);padding:10px 24px;display:flex;align-items:center}
+  header h1{font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff;letter-spacing:.02em}
+  main{width:100%;max-width:960px;padding:16px 14px 40px;display:flex;flex-direction:column;gap:14px}
+
+  .card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px 12px;box-shadow:0 2px 12px var(--shadow)}
+
+  .freetext-row{display:flex;align-items:center;gap:8px}
+  #freeInput{flex:1;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:600;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s;max-width:180px}
+  #freeInput:focus{border-color:var(--accent)}
+  #freeInput.error{border-color:#e02020}
+  .parse-hint{font-size:.78rem;color:var(--muted)}
+
+  .fallback-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+  .fallback-row label{font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+  .fallback-row input[type="number"]{width:58px;padding:6px 7px;border:1.5px solid var(--border);border-radius:7px;font-family:'Sora',sans-serif;font-size:.95rem;font-weight:600;color:var(--text);background:var(--bg);outline:none;text-align:center;transition:border-color .15s;-moz-appearance:textfield}
+  .fallback-row input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none}
+  .fallback-row input[type="number"]:focus{border-color:var(--accent)}
+  .fallback-row select{width:46px;padding:6px 4px;border:1.5px solid var(--border);border-radius:7px;font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);background:var(--bg);outline:none;cursor:pointer;text-align:center;transition:border-color .15s}
+  .fallback-row select:focus{border-color:var(--accent)}
+  .equals-lbl{font-size:1.1rem;font-weight:700;color:var(--muted)}
+
+  .expr-preview{margin:10px 0 4px;font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--text);text-align:center;min-height:2rem;letter-spacing:.02em}
+  .expr-preview .ans{color:var(--accent2);opacity:0;transition:opacity .3s}
+  .expr-preview .ans.visible{opacity:1}
+
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .btn{padding:8px 16px;border-radius:9px;border:none;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:filter .15s,transform .1s}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover:not(:disabled){filter:brightness(1.1)}
+  .btn-secondary{background:var(--surface2);color:var(--accent);border:1.5px solid var(--border)}
+  .btn-secondary:hover:not(:disabled){filter:brightness(.96)}
+  .btn-reveal{background:var(--accent2);color:#fff;margin-left:auto}
+  .btn-reveal:hover:not(:disabled){filter:brightness(1.1)}
+  .btn-next{background:#18a348;color:#fff}
+  .btn-next:hover:not(:disabled){filter:brightness(1.1)}
+
+  .toggle-kang,.toggle-total{display:flex;align-items:center;gap:6px;font-size:.83rem;color:var(--muted);font-weight:600;cursor:pointer;user-select:none}
+  .toggle-kang input{accent-color:var(--accent2);width:15px;height:15px;cursor:pointer}
+  .toggle-total input{accent-color:var(--total-arc);width:15px;height:15px;cursor:pointer}
+
+  .step-strip{text-align:center;font-size:.88rem;color:var(--muted);font-weight:600;min-height:1.3em;margin-top:6px}
+
+  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:hidden;padding:20px 10px 16px}
+  canvas{display:block;width:100%;height:auto}
+</style>
+</head>
+<body>
+<header><h1>Tallinje – Addition &amp; Subtraktion</h1></header>
+<main>
+  <div class="card">
+    <div class="freetext-row">
+      <input type="text" id="freeInput" placeholder="t.ex. 5 − 7" autocomplete="off" spellcheck="false">
+      <span class="parse-hint">Skriv t.ex. <em>−4 + 7</em> och tryck Enter</span>
+    </div>
+    <div class="fallback-row">
+      <label>eller använd fälten:</label>
+      <input type="number" id="term1" value="5">
+      <select id="operator"><option value="+">+</option><option value="−">−</option></select>
+      <input type="number" id="term2" value="7">
+      <span class="equals-lbl">=</span>
+    </div>
+    <div class="expr-preview">
+      <span id="exprLeft"></span><span class="ans" id="exprAns"></span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary"   id="btnAnimate">▶ Animera</button>
+      <button class="btn btn-next"      id="btnNext" style="display:none">Nästa hopp ▶</button>
+      <button class="btn btn-secondary" id="btnReset">↺ Återställ</button>
+      <label class="toggle-kang">
+        <input type="checkbox" id="kangToggle" checked> 🦘 Känguruhopp
+      </label>
+      <label class="toggle-total">
+        <input type="checkbox" id="totalToggle"> ↔ Visa totalt hopp
+      </label>
+      <button class="btn btn-reveal" id="btnReveal" style="display:none">Visa svar</button>
+    </div>
+    <div class="step-strip" id="stepStrip">&nbsp;</div>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="tl" width="960" height="280"></canvas>
+  </div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  COLOURS
+//  Positive-side movement (on the right / positive number line) = blue
+//  Negative-side movement (crossing into negatives)             = pink
+//  We determine colour by where the hop LANDS relative to 0.
+// ═══════════════════════════════════════════════════════════════════
+const C_POS   = '#306BF0';   // blue
+const C_NEG   = '#EC6095';   // pink
+const C_TOTAL = '#7c3aed';   // purple
+
+function hopColor(from, to) {
+  // Use destination to decide colour
+  // If the hop is entirely on the positive side (or ends at 0 from positive): blue
+  // If it ends on or crosses into negative: pink
+  const dest = to;
+  if (dest >= 0 && from >= 0) return C_POS;
+  if (dest < 0)  return C_NEG;
+  if (dest >= 0 && from < 0) return C_POS;
+  return C_POS;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════
+const S = {
+  t1:5, op:'−', t2:7, answer:-2,
+  robotPos:5,
+  animating:false,
+  kangMode:true,
+  showTotal:false,
+  phase:'idle',          // idle|leg1|paused|leg2|done
+  completedArcs:[],      // [{from,to,color}]
+  revealedPositions:[],  // world-x values
+  // robot flip animation
+  flipAnim:null,         // {startTs, fromFacing, toFacing, duration}
+  facingRight:true,      // current display facing
+};
+
+// ═══════════════════════════════════════════════════════════════════
+//  DOM
+// ═══════════════════════════════════════════════════════════════════
+const canvas   = document.getElementById('tl');
+const ctx      = canvas.getContext('2d');
+const freeInp  = document.getElementById('freeInput');
+const inT1     = document.getElementById('term1');
+const inT2     = document.getElementById('term2');
+const selOp    = document.getElementById('operator');
+const btnAnim  = document.getElementById('btnAnimate');
+const btnNext  = document.getElementById('btnNext');
+const btnReset = document.getElementById('btnReset');
+const btnRevl  = document.getElementById('btnReveal');
+const kangChk  = document.getElementById('kangToggle');
+const totalChk = document.getElementById('totalToggle');
+const stripEl  = document.getElementById('stepStrip');
+const exprLeft = document.getElementById('exprLeft');
+const exprAns  = document.getElementById('exprAns');
+
+// ═══════════════════════════════════════════════════════════════════
+//  LAYOUT  —  STABLE RANGE
+//  Range is symmetric around t1 ± |t2| so that changing operator
+//  never shifts the number line.
+// ═══════════════════════════════════════════════════════════════════
+const CW=960, CH=280;
+const LINE_Y  = 188;
+const TICK_H  = 13;
+const LABEL_Y = LINE_Y + TICK_H + 14;
+const BOX_Y   = LINE_Y + TICK_H + 30;
+
+let range = {lo:-4, hi:14};
+
+function computeRange(t1, t2) {
+  // Symmetric: always show t1-|t2| … t1+|t2|
+  const abs2 = Math.abs(t2);
+  let lo = t1 - abs2;
+  let hi = t1 + abs2;
+  // also ensure 0 is visible
+  if (lo > 0) lo = 0;
+  if (hi < 0) hi = 0;
+  const span = hi - lo;
+  const minSpan = 10;
+  if (span < minSpan) {
+    const extra = Math.ceil((minSpan - span) / 2);
+    lo -= extra; hi += extra;
+  }
+  const pad = Math.ceil((hi-lo)*0.18 + 1);
+  return { lo: Math.floor(lo - pad), hi: Math.ceil(hi + pad) };
+}
+
+function worldToX(w) {
+  return 48 + (w-range.lo)/(range.hi-range.lo)*(CW-96);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — number line
+// ═══════════════════════════════════════════════════════════════════
+function drawLine() {
+  const lo=range.lo, hi=range.hi;
+  ctx.strokeStyle='#100e28'; ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(worldToX(lo)-20,LINE_Y);
+  ctx.lineTo(worldToX(hi)+20,LINE_Y);
+  ctx.stroke();
+  for (const [sx,d] of [[worldToX(hi)+20,1],[worldToX(lo)-20,-1]]) {
+    ctx.fillStyle='#100e28';
+    ctx.beginPath();
+    ctx.moveTo(sx+d*9,LINE_Y); ctx.lineTo(sx-d*5,LINE_Y-5); ctx.lineTo(sx-d*5,LINE_Y+5);
+    ctx.closePath(); ctx.fill();
+  }
+  for (let n=lo; n<=hi; n++) {
+    const x=worldToX(n);
+    ctx.strokeStyle='#100e28'; ctx.lineWidth=n===0?2:1;
+    ctx.beginPath(); ctx.moveTo(x,LINE_Y-TICK_H); ctx.lineTo(x,LINE_Y+TICK_H); ctx.stroke();
+    ctx.font=n===0?'bold 13px Sora':'12px Sora';
+    ctx.fillStyle=n===0?'#100e28':'#444';
+    ctx.textAlign='center';
+    ctx.fillText(n,x,LABEL_Y);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — arc segment
+// ═══════════════════════════════════════════════════════════════════
+function drawArcSegment(from, to, frac, color, arcHeightOverride) {
+  if (frac<=0 || from===to) return;
+  const x1=worldToX(from), x2=worldToX(to), xMid=(x1+x2)/2;
+  const span=Math.abs(x2-x1);
+  const arcH = arcHeightOverride !== undefined
+    ? arcHeightOverride
+    : Math.min(62, span*0.42+14);
+
+  ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.setLineDash([]);
+  ctx.beginPath();
+  const N=60;
+  for (let i=0;i<=N;i++) {
+    const t=(i/N)*frac;
+    const bx=(1-t)*(1-t)*x1+2*(1-t)*t*xMid+t*t*x2;
+    const by=(1-t)*(1-t)*LINE_Y+2*(1-t)*t*(LINE_Y-arcH)+t*t*LINE_Y;
+    i===0?ctx.moveTo(bx,by):ctx.lineTo(bx,by);
+  }
+  ctx.stroke();
+
+  // size pill — show when frac > 0.44
+  if (frac>0.44 && arcHeightOverride===undefined) {
+    const size=Math.abs(to-from);
+    const lt=0.5*frac;
+    const lx=(1-lt)*(1-lt)*x1+2*(1-lt)*lt*xMid+lt*lt*x2;
+    const ly=(1-lt)*(1-lt)*LINE_Y+2*(1-lt)*lt*(LINE_Y-arcH)+lt*lt*LINE_Y-6;
+    const label=size+' steg';
+    ctx.font='bold 12px Sora';
+    const tw=ctx.measureText(label).width;
+    ctx.fillStyle=color;
+    roundRect(ctx,lx-tw/2-6,ly-14,tw+12,18,4); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(label,lx,ly-5); ctx.textBaseline='alphabetic';
+  }
+
+  // arrowhead
+  if (frac>=0.98) {
+    const t0=0.96;
+    const bx0=(1-t0)*(1-t0)*x1+2*(1-t0)*t0*xMid+t0*t0*x2;
+    const by0=(1-t0)*(1-t0)*LINE_Y+2*(1-t0)*t0*(LINE_Y-arcH)+t0*t0*LINE_Y;
+    const ang=Math.atan2(LINE_Y-by0,x2-bx0);
+    ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(x2,LINE_Y);
+    ctx.lineTo(x2-10*Math.cos(ang-0.4),LINE_Y-10*Math.sin(ang-0.4));
+    ctx.lineTo(x2-10*Math.cos(ang+0.4),LINE_Y-10*Math.sin(ang+0.4));
+    ctx.closePath(); ctx.fill();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — total arc overlay  (shown when toggle on AND phase=done|paused)
+// ═══════════════════════════════════════════════════════════════════
+function drawTotalArc() {
+  if (!S.showTotal) return;
+  if (S.phase!=='done' && S.phase!=='paused') return;
+  if (S.t1===S.answer) return;
+
+  const x1=worldToX(S.t1), x2=worldToX(S.answer), xMid=(x1+x2)/2;
+  const span=Math.abs(x2-x1);
+  const arcH=Math.min(105, span*0.58+32);   // higher than segment arcs
+
+  // dashed arc
+  ctx.strokeStyle=C_TOTAL; ctx.lineWidth=2.2; ctx.setLineDash([6,4]);
+  ctx.beginPath();
+  const N=60;
+  for (let i=0;i<=N;i++) {
+    const t=i/N;
+    const bx=(1-t)*(1-t)*x1+2*(1-t)*t*xMid+t*t*x2;
+    const by=(1-t)*(1-t)*LINE_Y+2*(1-t)*t*(LINE_Y-arcH)+t*t*LINE_Y;
+    i===0?ctx.moveTo(bx,by):ctx.lineTo(bx,by);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // arrowhead
+  const t0=0.96;
+  const bx0=(1-t0)*(1-t0)*x1+2*(1-t0)*t0*xMid+t0*t0*x2;
+  const by0=(1-t0)*(1-t0)*LINE_Y+2*(1-t0)*t0*(LINE_Y-arcH)+t0*t0*LINE_Y;
+  const ang=Math.atan2(LINE_Y-by0,x2-bx0);
+  ctx.fillStyle=C_TOTAL;
+  ctx.beginPath();
+  ctx.moveTo(x2,LINE_Y);
+  ctx.lineTo(x2-10*Math.cos(ang-0.4),LINE_Y-10*Math.sin(ang-0.4));
+  ctx.lineTo(x2-10*Math.cos(ang+0.4),LINE_Y-10*Math.sin(ang+0.4));
+  ctx.closePath(); ctx.fill();
+
+  // label pill with calculation
+  const lx=xMid, ly=LINE_Y-arcH-9;
+  let label;
+  if (S.completedArcs.length===2) {
+    const d1=Math.abs(S.completedArcs[0].to - S.completedArcs[0].from);
+    const d2=Math.abs(S.completedArcs[1].to - S.completedArcs[1].from);
+    label=`Totalt: ${d1} + ${d2} = ${d1+d2} steg`;
+  } else {
+    label=`Totalt: ${Math.abs(S.answer-S.t1)} steg`;
+  }
+  ctx.font='bold 12px Sora';
+  const tw=ctx.measureText(label).width;
+  ctx.fillStyle=C_TOTAL;
+  roundRect(ctx,lx-tw/2-7,ly-14,tw+14,18,4); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(label,lx,ly-5); ctx.textBaseline='alphabetic';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — position boxes under line
+// ═══════════════════════════════════════════════════════════════════
+function drawPositionBoxes() {
+  for (const pos of S.revealedPositions) {
+    const x=worldToX(pos);
+    const label=String(pos);
+    ctx.font='bold 13px Sora';
+    const tw=ctx.measureText(label).width;
+    const bw=tw+14, bh=20;
+    const bx=x-bw/2, by=BOX_Y-2;
+    ctx.strokeStyle='#aaa'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(x,LINE_Y+TICK_H+2); ctx.lineTo(x,by); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#fff'; ctx.strokeStyle='#ccc5f0'; ctx.lineWidth=1.5;
+    roundRect(ctx,bx,by,bw,bh,4); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#100e28'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(label,x,by+bh/2); ctx.textBaseline='alphabetic';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — start marker
+// ═══════════════════════════════════════════════════════════════════
+function drawStartMarker() {
+  const sx=worldToX(S.t1);
+  ctx.strokeStyle='#306BF0'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(sx,LINE_Y-TICK_H-72); ctx.lineTo(sx,LINE_Y+TICK_H); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font='bold 11px Sora'; ctx.fillStyle='#306BF0'; ctx.textAlign='center';
+  ctx.fillText('start',sx,LINE_Y-TICK_H-75);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — robot   (scaleX drives the flip animation)
+// ═══════════════════════════════════════════════════════════════════
+function drawRobot(worldX, scaleX, walkPhase) {
+  // scaleX: +1 = facing right, -1 = facing left, intermediate = mid-flip
+  const x     = worldToX(worldX);
+  const baseY = LINE_Y;
+  const swing = Math.sin(walkPhase*Math.PI*2)*6;
+  const bob   = Math.abs(Math.sin(walkPhase*Math.PI*2))*2;
+  const facingRight = scaleX >= 0;
+
+  ctx.save();
+  ctx.translate(x, baseY-bob);
+  ctx.scale(scaleX, 1);  // handles both facing and mid-flip squash
+
+  // legs
+  ctx.fillStyle='#4a5568';
+  ctx.save(); ctx.translate(-6,0); ctx.rotate(swing*0.04); ctx.fillRect(-3.5,-20,7,20); ctx.restore();
+  ctx.save(); ctx.translate(6,0);  ctx.rotate(-swing*0.04); ctx.fillRect(-3.5,-20,7,20); ctx.restore();
+
+  // body
+  ctx.fillStyle='#4a5568'; roundRect(ctx,-14,-54,28,36,4); ctx.fill();
+  ctx.fillStyle='#718096'; ctx.fillRect(-10,-48,20,3); ctx.fillRect(-10,-42,20,3);
+
+  // arms
+  ctx.fillStyle='#718096';
+  ctx.save(); ctx.translate(-14,-46); ctx.rotate(-swing*0.05); ctx.fillRect(-9,0,9,6); ctx.restore();
+  ctx.save(); ctx.translate(14,-46);  ctx.rotate(swing*0.05);  ctx.fillRect(0,0,9,6);  ctx.restore();
+
+  // head
+  ctx.fillStyle='#2d3748'; roundRect(ctx,-16,-90,32,36,5); ctx.fill();
+
+  // window
+  ctx.fillStyle='#e8f4fd'; ctx.strokeStyle='#63b3ed'; ctx.lineWidth=2;
+  roundRect(ctx,-13,-87,26,25,4); ctx.fill(); ctx.stroke();
+
+  // number — always upright regardless of scaleX
+  const numStr = String(Math.round(worldX));
+  const fontSize = numStr.length > 2 ? 12 : 15;
+  ctx.save();
+  ctx.scale(scaleX < 0 ? -1 : 1, 1);  // un-mirror text
+  ctx.fillStyle='#1a365d'; ctx.font=`bold ${fontSize}px Sora`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(numStr, 0, -74);
+  ctx.textBaseline='alphabetic';
+  ctx.restore();
+
+  // antenna
+  ctx.strokeStyle='#718096'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(0,-90); ctx.lineTo(0,-98); ctx.stroke();
+  ctx.fillStyle='#EC6095'; ctx.beginPath(); ctx.arc(0,-101,4,0,Math.PI*2); ctx.fill();
+
+  ctx.restore();
+
+  // direction arrow (world space — never mirrored)
+  drawDirectionArrow(x, baseY-bob-118, facingRight);
+}
+
+function drawDirectionArrow(cx,cy,pointRight) {
+  const aw=28,ah=10;
+  ctx.save(); ctx.translate(cx,cy);
+  if (!pointRight) ctx.scale(-1,1);
+  ctx.fillStyle='#306BF0';
+  ctx.fillRect(-aw/2,-ah/2+2,aw-8,ah-4);
+  ctx.beginPath(); ctx.moveTo(aw/2,0); ctx.lineTo(aw/2-10,-ah/2-2); ctx.lineTo(aw/2-10,ah/2+2); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — full frame
+// ═══════════════════════════════════════════════════════════════════
+function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robotScaleX) {
+  ctx.clearRect(0,0,CW,CH);
+  drawLine();
+  drawStartMarker();
+
+  // already completed arcs
+  for (const a of S.completedArcs) drawArcSegment(a.from,a.to,1,a.color);
+
+  // active animating arc
+  if (activeFrom!==undefined && arcProgress>0)
+    drawArcSegment(activeFrom,activeTo,arcProgress,activeColor);
+
+  drawTotalArc();
+  drawPositionBoxes();
+
+  const sx = robotScaleX !== undefined ? robotScaleX : (S.op==='+' ? 1 : -1);
+  drawRobot(S.robotPos, sx, walkPhase||0);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  ROBOT FLIP ANIMATION
+// ═══════════════════════════════════════════════════════════════════
+let flipRAF = null;
+
+function animateFlip(fromRight, toRight, onDone) {
+  // Quick flip: scaleX goes from ±1 → 0 (squash) → ±1 (new dir) with a bounce
+  if (flipRAF) cancelAnimationFrame(flipRAF);
+  const DURATION = 220;
+  let startTs = null;
+  const fromScale = fromRight ? 1 : -1;
+  const toScale   = toRight   ? 1 : -1;
+
+  function step(ts) {
+    if (!startTs) startTs = ts;
+    const p = Math.min((ts-startTs)/DURATION, 1);
+    // p 0→0.5: squash to 0 ; 0.5→1: expand to new dir with slight overshoot
+    let sx;
+    if (p < 0.5) {
+      sx = fromScale * (1 - p*2);
+    } else {
+      const q = (p-0.5)*2;          // 0→1
+      const bounce = 1 + 0.25*Math.sin(q*Math.PI); // overshoot at midpoint
+      sx = toScale * q * bounce;
+      if (Math.abs(sx) > 1) sx = toScale; // clamp
+    }
+    render(undefined, 0, undefined, undefined, undefined, sx);
+    if (p<1) {
+      flipRAF = requestAnimationFrame(step);
+    } else {
+      render(undefined, 0, undefined, undefined, undefined, toScale);
+      if (onDone) onDone();
+    }
+  }
+  flipRAF = requestAnimationFrame(step);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  ANIMATION ENGINE
+// ═══════════════════════════════════════════════════════════════════
+let animRAF = null;
+
+function animateLeg(from, to, color, onDone) {
+  const distPx  = Math.abs(worldToX(to)-worldToX(from));
+  const DURATION = Math.max(800, distPx*3.0);
+  let startTime = null;
+
+  function step(ts) {
+    if (!startTime) startTime=ts;
+    const raw=Math.min((ts-startTime)/DURATION,1);
+    const p=raw<0.5?2*raw*raw:-1+(4-2*raw)*raw;
+
+    S.robotPos = from+(to-from)*p;
+    const dt=Math.abs(worldToX(S.robotPos)-worldToX(from));
+    const walkPhase=(dt/60)%1;
+
+    render(p, walkPhase, from, to, color);
+
+    const rem=Math.round(Math.abs(to-S.robotPos));
+    setStrip(rem>0?`${rem} steg kvar…`:'');
+
+    if (p<1) {
+      animRAF=requestAnimationFrame(step);
+    } else {
+      S.robotPos=to;
+      render(1,0,from,to,color);
+      onDone();
+    }
+  }
+  animRAF=requestAnimationFrame(step);
+}
+
+function kangApplies() {
+  const steps=S.op==='+'?S.t2:-S.t2;
+  return S.kangMode &&
+    ((S.t1>0 && steps<0 && S.t1+steps<0)||
+     (S.t1<0 && steps>0 && S.t1+steps>0));
+}
+
+function startAnimation() {
+  if (S.animating) return;
+  readInputs();
+
+  // range is fixed at start; same for + and - with same numbers
+  range=computeRange(S.t1,S.t2);
+  S.robotPos=S.t1;
+  S.animating=true;
+  S.completedArcs=[];
+  S.revealedPositions=[];
+
+  btnAnim.disabled=true;
+  btnNext.style.display='none';
+  btnRevl.style.display='none';
+  exprAns.classList.remove('visible');
+  addRevealedPos(S.t1);
+
+  const kang=kangApplies();
+
+  if (kang) {
+    // hop 1: t1 → 0
+    S.phase='leg1';
+    const c1=hopColor(S.t1,0);
+    setStrip(`Hopp 1: ${Math.abs(S.t1)} steg mot nollan…`);
+    animateLeg(S.t1,0,c1,()=>{
+      S.completedArcs.push({from:S.t1,to:0,color:c1});
+      addRevealedPos(0);
+      S.phase='paused';
+      S.animating=false;
+      setStrip('🦘 Vid nollan! Tryck "Nästa hopp" för att fortsätta.');
+      btnNext.style.display='';
+      render(1,0);
+    });
+  } else {
+    S.phase='leg1';
+    const c=hopColor(S.t1,S.answer);
+    animateLeg(S.t1,S.answer,c,()=>{
+      S.completedArcs.push({from:S.t1,to:S.answer,color:c});
+      addRevealedPos(S.answer);
+      finishAnimation();
+    });
+  }
+}
+
+function continueAnimation() {
+  if (S.phase!=='paused') return;
+  S.animating=true;
+  S.phase='leg2';
+  btnNext.style.display='none';
+  const c2=hopColor(0,S.answer);
+  setStrip(`Hopp 2: ${Math.abs(S.answer)} steg mot svaret…`);
+  animateLeg(0,S.answer,c2,()=>{
+    S.completedArcs.push({from:0,to:S.answer,color:c2});
+    addRevealedPos(S.answer);
+    finishAnimation();
+  });
+}
+
+function finishAnimation() {
+  S.animating=false;
+  S.phase='done';
+  btnAnim.disabled=false;
+  btnRevl.style.display='';
+  render(1,0);
+  setStrip('Klar – tryck "Visa svar" när du är redo.');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  FREE TEXT PARSING
+// ═══════════════════════════════════════════════════════════════════
+function parseFreeText(raw) {
+  let s=raw.trim().replace(/−/g,'-').replace(/–/g,'-').replace(/\s+/g,'');
+  const m=s.match(/^(-?\d+)([+\-])(-?\d+)$/);
+  if (!m) return null;
+  const t1=parseInt(m[1]), op=m[2]==='-'?'−':'+', t2=parseInt(m[3]);
+  if (isNaN(t1)||isNaN(t2)) return null;
+  return {t1,op,t2};
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  INPUTS & PREVIEW
+// ═══════════════════════════════════════════════════════════════════
+function readInputs() {
+  S.t1     =parseInt(inT1.value)||0;
+  S.op     =selOp.value;
+  S.t2     =parseInt(inT2.value)||0;
+  S.answer =S.op==='+'?S.t1+S.t2:S.t1-S.t2;
+  S.kangMode=kangChk.checked;
+  S.showTotal=totalChk.checked;
+}
+
+let prevOp = '+';
+
+function updatePreview(triggerFlip) {
+  const oldOp = prevOp;
+  readInputs();
+  prevOp = S.op;
+
+  const opChar=S.op==='+'?'+':'−';
+  exprLeft.textContent=`${S.t1} ${opChar} ${S.t2} = `;
+  exprAns.textContent=S.answer;
+  exprAns.classList.remove('visible');
+  btnRevl.style.display='none';
+  btnNext.style.display='none';
+
+  // Recompute range — stable across operator changes
+  range=computeRange(S.t1,S.t2);
+  S.robotPos=S.t1;
+  S.phase='idle';
+  S.completedArcs=[];
+  S.revealedPositions=[S.t1];
+  setStrip('\u00a0');
+
+  const newFacingRight = S.op==='+';
+
+  // Trigger flip animation only when operator actually changed
+  if (triggerFlip && oldOp !== S.op && !S.animating) {
+    animateFlip(S.facingRight, newFacingRight, ()=>{
+      S.facingRight = newFacingRight;
+    });
+  } else {
+    S.facingRight = newFacingRight;
+    render(undefined,0);
+  }
+}
+
+function resetAll() {
+  if (animRAF) { cancelAnimationFrame(animRAF); animRAF=null; }
+  if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF=null; }
+  S.animating=false; S.phase='idle';
+  btnAnim.disabled=false;
+  updatePreview(false);
+}
+
+function addRevealedPos(pos) {
+  if (!S.revealedPositions.includes(pos)) S.revealedPositions.push(pos);
+}
+function setStrip(msg) { stripEl.textContent=msg||'\u00a0'; }
+
+// ═══════════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  EVENTS
+// ═══════════════════════════════════════════════════════════════════
+freeInp.addEventListener('keydown',e=>{
+  if (e.key==='Enter') {
+    const p=parseFreeText(freeInp.value);
+    if (p) {
+      freeInp.classList.remove('error');
+      inT1.value=p.t1; selOp.value=p.op; inT2.value=p.t2;
+      updatePreview(true); freeInp.blur();
+    } else { freeInp.classList.add('error'); }
+  }
+});
+freeInp.addEventListener('input',()=>freeInp.classList.remove('error'));
+
+// operator change triggers flip
+selOp.addEventListener('change',()=>updatePreview(true));
+// other inputs just update
+[inT1,inT2,kangChk].forEach(el=>el.addEventListener('input',()=>updatePreview(false)));
+totalChk.addEventListener('change',()=>{ S.showTotal=totalChk.checked; render(1,0); });
+
+btnAnim.addEventListener('click',startAnimation);
+btnNext.addEventListener('click',continueAnimation);
+btnReset.addEventListener('click',resetAll);
+btnRevl.addEventListener('click',()=>{
+  exprAns.classList.add('visible');
+  setStrip(`Svaret är ${S.answer}.`);
+  render(1,0);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════
+prevOp = selOp.value;
+S.facingRight = selOp.value==='+';
+updatePreview(false);
+</script>
+</body>
+</html>
