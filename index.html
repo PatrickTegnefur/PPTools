@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PT Verktyg — Matematikportalen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Sora:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── PT Ljus tokens ── */
+    :root {
+      --bg:        #f6f4ff;
+      --surface:   #ffffff;
+      --surface2:  #eae6ff;
+      --border:    #ccc5f0;
+      --text:      #100e28;
+      --muted:     #585078;
+      --accent:    #306BF0;
+      --accent2:   #EC6095;
+      --gradient:  linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+      --ak7:       #66C7C2;
+      --ak8:       #F4A261;
+      --ak9:       #EC6095;
+      --correct:   #18a348;
+      --wrong:     #e02020;
+      --shadow:    rgba(48, 107, 240, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Navbar ── */
+    header {
+      background: var(--gradient);
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-logo span {
+      font-style: italic;
+      opacity: 0.85;
+    }
+
+    .nav-divider {
+      width: 1.5px;
+      height: 24px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 2px;
+    }
+
+    .nav-subtitle {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      padding: 40px 24px 64px;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Page heading ── */
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .page-header p {
+      font-size: 0.92rem;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+
+    /* ── App grid ── */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    /* ── App tile ── */
+    .app-tile {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      transition: box-shadow 0.18s, transform 0.18s, border-color 0.18s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app-tile:hover {
+      box-shadow: 0 6px 28px var(--shadow);
+      transform: translateY(-3px);
+      border-color: var(--accent);
+    }
+
+    .app-tile:active {
+      transform: translateY(-1px);
+    }
+
+    /* Colour stripe at top */
+    .app-tile::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--tile-color, var(--accent));
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .app-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: var(--tile-bg, var(--surface2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .app-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .app-desc {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* ── Placeholder tile ── */
+    .app-tile.placeholder {
+      border-style: dashed;
+      border-color: var(--border);
+      background: transparent;
+      opacity: 0.6;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .app-tile.placeholder::before { display: none; }
+
+    .app-tile.placeholder .app-icon {
+      background: var(--surface2);
+      opacity: 0.5;
+    }
+
+    /* ── Add-new tile ── */
+    .app-tile.add-new {
+      border-style: dashed;
+      border-color: var(--border);
+      background: transparent;
+      opacity: 0.55;
+      cursor: default;
+      pointer-events: none;
+      justify-content: center;
+      min-height: 140px;
+    }
+
+    .app-tile.add-new::before { display: none; }
+
+    .add-new-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px dashed var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--muted);
+    }
+
+    .add-new-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'Sora', sans-serif;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      main { padding: 28px 16px 48px; }
+      .page-header h1 { font-size: 1.6rem; }
+      .app-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .app-tile { padding: 16px 10px 12px; gap: 8px; }
+      .app-icon { width: 44px; height: 44px; font-size: 1.3rem; }
+      .app-name { font-size: 0.75rem; }
+      .app-desc { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <a class="nav-logo" href="#">PT <span>Verktyg</span></a>
+    <div class="nav-divider"></div>
+    <span class="nav-subtitle">Lärarverktyg</span>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h1>Mina verktyg</h1>
+      <p>Snabbstart för lektionen — välj ett verktyg nedan.</p>
+    </div>
+
+    <div class="section-label">Tillgängliga verktyg</div>
+
+    <div class="app-grid">
+
+      <!-- Miniräknare -->
+      <a class="app-tile" href="/calculator/index.html"
+         style="--tile-color: #306BF0; --tile-bg: #e8effe;">
+        <div class="app-icon">🧮</div>
+        <div class="app-name">Miniräknare</div>
+        <div class="app-desc">Klassrumsanpassad räknare</div>
+      </a>
+
+      <!-- Platshållare — kommande verktyg -->
+      <div class="app-tile placeholder"
+           style="--tile-color: #66C7C2; --tile-bg: #e8f7f7;">
+        <div class="app-icon">📐</div>
+        <div class="app-name">Geometri</div>
+        <div class="app-desc">Kommer snart</div>
+      </div>
+
+      <div class="app-tile placeholder"
+           style="--tile-color: #F4A261; --tile-bg: #fef3e8;">
+        <div class="app-icon">📊</div>
+        <div class="app-name">Statistik</div>
+        <div class="app-desc">Kommer snart</div>
+      </div>
+
+      <div class="app-tile placeholder"
+           style="--tile-color: #EC6095; --tile-bg: #fde8f1;">
+        <div class="app-icon">🎲</div>
+        <div class="app-name">Sannolikhet</div>
+        <div class="app-desc">Kommer snart</div>
+      </div>
+
+      <!-- Lägg till ny -->
+      <div class="app-tile add-new">
+        <div class="add-new-icon">+</div>
+        <div class="add-new-label">Nytt verktyg</div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    Patrick Tegnefur · Matematikportalen · Alfred Dalinskolan
+  </footer>
+
+</body>
+</html>

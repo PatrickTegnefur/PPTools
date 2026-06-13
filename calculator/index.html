@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Miniräknare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ECEAE5;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .calculator {
+      background: #F8F7F4;
+      border-radius: 20px;
+      box-shadow:
+        0 2px 4px rgba(0,0,0,0.06),
+        0 8px 24px rgba(0,0,0,0.10),
+        0 0 0 1px rgba(0,0,0,0.05);
+      width: 280px;
+      overflow: hidden;
+    }
+
+    /* ── Display ── */
+    .display {
+      background: #1F2937;
+      padding: 20px 18px 14px;
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: stretch;
+      gap: 4px;
+      position: relative;
+    }
+
+    .display-expression {
+      font-size: 13px;
+      font-weight: 400;
+      color: #9CA3AF;
+      min-height: 18px;
+      letter-spacing: 0.02em;
+      text-align: right;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .display-sep {
+      width: 100%;
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      margin: 6px 0 2px;
+      flex-shrink: 0;
+    }
+
+    .display-result {
+      font-size: 32px;
+      font-weight: 300;
+      color: #F9FAFB;
+      letter-spacing: -0.02em;
+      text-align: right;
+      max-width: 100%;
+      white-space: nowrap;
+      min-height: 1.1em;
+      overflow: hidden;
+      line-height: 1.1;
+      transition: font-size 0.1s ease;
+    }
+
+    /* ── Decimal toggle ── */
+    .decimal-toggle {
+      background: #1F2937;
+      padding: 0 18px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .decimal-label {
+      font-size: 10px;
+      color: #6B7280;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 32px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #374151;
+      border-radius: 18px;
+      transition: background 0.2s;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      left: 3px;
+      top: 3px;
+      background: #9CA3AF;
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .toggle input:checked + .slider::before {
+      transform: translateX(14px);
+      background: #60A5FA;
+    }
+
+    .decimal-count {
+      font-size: 10px;
+      color: #6B7280;
+      min-width: 24px;
+      text-align: left;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: #E5E3DE;
+      margin: 0 14px;
+      transition: opacity 0.25s;
+    }
+
+    /* ── Collapse toggle ── */
+    .collapse-bar {
+      background: #1F2937;
+      padding: 6px 18px 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .collapse-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #4B5563;
+      padding: 2px 10px;
+      height: auto;
+      font-size: 11px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.15s;
+      box-shadow: none;
+    }
+    .collapse-btn:hover { color: #9CA3AF; background: none; transform: none; }
+    .collapse-btn:active { transform: none; }
+
+    .collapse-arrow {
+      display: inline-block;
+      transition: transform 0.25s;
+      line-height: 1;
+      font-size: 10px;
+    }
+    .collapsed .collapse-arrow { transform: rotate(180deg); }
+
+    /* ── Collapsible section ── */
+    .collapsible {
+      display: grid;
+      grid-template-rows: 1fr;
+      transition: grid-template-rows 0.25s ease, opacity 0.25s ease;
+      opacity: 1;
+      overflow: hidden;
+    }
+    .collapsible.collapsed {
+      grid-template-rows: 0fr;
+      opacity: 0;
+    }
+    .collapsible-inner { min-height: 0; }
+
+    /* ── Buttons ── */
+    .buttons {
+      padding: 8px 10px 10px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      border-radius: 8px;
+      padding: 0;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s, transform 0.08s;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active { transform: scale(0.93); }
+
+    .btn-num {
+      background: #FFFFFF;
+      color: #1A1A1A;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .btn-num:hover { background: #F3F1EE; }
+
+    .btn-op {
+      background: #E8E5E0;
+      color: #374151;
+      font-weight: 500;
+    }
+    .btn-op:hover { background: #DEDBD5; }
+
+    .btn-eq {
+      background: #2C3E50;
+      color: #F9FAFB;
+      font-size: 17px;
+      font-weight: 400;
+    }
+    .btn-eq:hover { background: #243342; }
+
+    .btn-clear {
+      background: #E8E5E0;
+      color: #B91C1C;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .btn-clear:hover { background: #FECACA; color: #991B1B; }
+
+    .btn-func {
+      background: #E8E5E0;
+      color: #374151;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .btn-func:hover { background: #DEDBD5; }
+
+    /* ── Help button ── */
+    .help-btn {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      background: none;
+      border: none;
+      color: #4B5563;
+      font-size: 13px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: color 0.15s;
+      box-shadow: none;
+      padding: 0;
+    }
+    .help-btn:hover { color: #9CA3AF; background: none; transform: none; }
+    .help-btn:active { transform: none; }
+
+    /* ── Modal overlay ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #F8F7F4;
+      border-radius: 16px;
+      width: 270px;
+      padding: 22px 22px 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+
+    .modal-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1A1A1A;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .modal-section {
+      margin-bottom: 14px;
+    }
+
+    .modal-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #9CA3AF;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .shortcut-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px solid #ECEAE5;
+      font-size: 12px;
+    }
+    .shortcut-row:last-child { border-bottom: none; }
+
+    .shortcut-key {
+      font-family: 'Inter', sans-serif;
+      background: #E8E5E0;
+      color: #374151;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .shortcut-desc {
+      color: #6B7280;
+    }
+
+    .modal-close {
+      width: 100%;
+      margin-top: 6px;
+      background: #2C3E50;
+      color: #F9FAFB;
+      border: none;
+      border-radius: 8px;
+      height: 34px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .modal-close:hover { background: #243342; }
+    .modal-close:active { transform: scale(0.97); }
+
+    /* Error flash */
+    .display.error .display-result { color: #FCA5A5; }
+  </style>
+</head>
+<body>
+<div class="calculator" id="calc">
+
+  <div class="display" id="display">
+    <button class="help-btn" onclick="toggleHelp()" title="Kortkommandon">?</button>
+    <div class="display-expression" id="expr"></div>
+    <div class="display-sep"></div>
+    <div class="display-result" id="result">0</div>
+  </div>
+
+  <div class="decimal-toggle">
+    <label class="toggle">
+      <input type="checkbox" id="decToggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="collapse-bar">
+    <button class="collapse-btn" onclick="toggleCollapse()" id="collapseBtn">
+      <span class="collapse-arrow" id="collapseArrow">▲</span>
+    </button>
+  </div>
+
+  <div class="collapsible" id="collapsible">
+    <div class="collapsible-inner">
+      <div class="divider"></div>
+      <div class="buttons">
+        <!-- Row 1 -->
+        <button class="btn-clear" onclick="clearAll()">AC</button>
+        <button class="btn-func"  onclick="toggleSign()">+/−</button>
+        <button class="btn-func"  onclick="squareRoot()">√</button>
+        <button class="btn-op"    onclick="inputOp('÷')">÷</button>
+
+        <!-- Row 2 -->
+        <button class="btn-num" onclick="inputDigit('7')">7</button>
+        <button class="btn-num" onclick="inputDigit('8')">8</button>
+        <button class="btn-num" onclick="inputDigit('9')">9</button>
+        <button class="btn-op"  onclick="inputOp('×')">×</button>
+
+        <!-- Row 3 -->
+        <button class="btn-num" onclick="inputDigit('4')">4</button>
+        <button class="btn-num" onclick="inputDigit('5')">5</button>
+        <button class="btn-num" onclick="inputDigit('6')">6</button>
+        <button class="btn-op"  onclick="inputOp('−')">−</button>
+
+        <!-- Row 4 -->
+        <button class="btn-num" onclick="inputDigit('1')">1</button>
+        <button class="btn-num" onclick="inputDigit('2')">2</button>
+        <button class="btn-num" onclick="inputDigit('3')">3</button>
+        <button class="btn-op"  onclick="inputOp('+')">+</button>
+
+        <!-- Row 5 -->
+        <button class="btn-num" onclick="inputDigit('0')">0</button>
+        <button class="btn-num" onclick="inputDecimal()">,</button>
+        <button class="btn-num" onclick="backspace()">⌫</button>
+        <button class="btn-eq"  onclick="calculate()">=</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────
+  let currentInput   = '';
+  let previousInput  = '';
+  let operator       = null;
+  let justCalculated = false;
+  let decimals       = 7;
+  let expanded       = false;
+  let lastOperator   = null;   // for repeat =
+  let lastOperand    = null;   // for repeat =
+
+  // Internal values always use dot as decimal separator
+  // Display uses comma
+
+  const exprEl    = document.getElementById('expr');
+  const resultEl  = document.getElementById('result');
+  const displayEl = document.getElementById('display');
+  const toggle    = document.getElementById('decToggle');
+
+  // ── Decimal toggle ──────────────────────────────────────
+  toggle.addEventListener('change', () => {
+    expanded = toggle.checked;
+    decimals = expanded ? 15 : 7;
+    const raw = resultEl.dataset.raw;
+    if (raw && raw !== 'Fel') {
+      const val = parseFloat(raw);
+      if (!isNaN(val)) {
+        const formatted = formatNum(val);
+        resultEl.textContent = formatted;
+        adjustResultSize(formatted);
+      }
+    }
+  });
+
+  // ── Formatting ──────────────────────────────────────────
+  function formatNum(n) {
+    if (!isFinite(n)) return 'Fel';
+    if (Number.isInteger(n)) {
+      return addThousands(String(n));
+    }
+
+    let s;
+    if (expanded) {
+      s = n.toFixed(15);
+    } else {
+      s = n.toFixed(7);
+    }
+    // Trim trailing zeros
+    s = s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+    // Enforce max 15 total characters (excluding separators)
+    if (s.replace('.','').replace('-','').length > 15) {
+      const parts = s.split('.');
+      const intLen = parts[0].replace('-','').length;
+      const maxDec = Math.max(0, 15 - intLen - 1);
+      s = n.toFixed(maxDec);
+      s = s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+    }
+    // Split on dot, format integer part, keep decimal part intact
+    const [intPart, decPart] = s.split('.');
+    const formatted = addThousands(intPart) + (decPart ? ',' + decPart : '');
+    return formatted;
+  }
+
+  // Adds narrow no-break spaces between groups of 3 digits
+  function addThousands(intStr) {
+    const sign = intStr.startsWith('-') ? '-' : '';
+    const digits = intStr.replace('-', '');
+    const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, '\u202F');
+    return sign + grouped;
+  }
+
+  // ── Font size scaling for result ─────────────────────────
+  // Display inner width ≈ 244px. Inter char widths approx:
+  //   32px → ~19px/char,  26px → ~15px/char
+  //   22px → ~13px/char,  18px → ~11px/char,  16px → ~9.5px/char
+  function adjustResultSize(text) {
+    if (!text) { resultEl.style.fontSize = '32px'; return; }
+    const len = text.length;
+    let size;
+    if (len <= 11)      size = '32px';
+    else if (len <= 14) size = '26px';
+    else if (len <= 17) size = '28px';
+    else if (len <= 21) size = '18px';
+    else                size = '16px';
+    resultEl.style.fontSize = size;
+  }
+
+  // ── Display helpers ─────────────────────────────────────
+  function setResult(displayText, rawValue) {
+    resultEl.textContent = displayText;
+    resultEl.dataset.raw = rawValue !== undefined ? String(rawValue) : displayText.replace(',', '.');
+    adjustResultSize(displayText);
+  }
+
+  function clearResult() {
+    resultEl.textContent = '';
+    resultEl.dataset.raw = '';
+    resultEl.style.fontSize = '32px';
+  }
+
+  function setExpr(text) {
+    exprEl.textContent = text;
+  }
+
+  function flashError() {
+    displayEl.classList.add('error');
+    setTimeout(() => displayEl.classList.remove('error'), 600);
+  }
+
+  // ── Input handlers ──────────────────────────────────────
+  // Format currentInput for display in the expression field (with grouping)
+  function fmtInput(raw) {
+    if (raw === '' || raw === '-') return raw;
+    const neg = raw.startsWith('-');
+    const abs = neg ? raw.slice(1) : raw;
+    const [intPart, decPart] = abs.split('.');
+    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '\u202F');
+    return (neg ? '-' : '') + grouped + (decPart !== undefined ? ',' + decPart : (raw.endsWith('.') ? ',' : ''));
+  }
+
+  function inputDigit(d) {
+    if (justCalculated) {
+      currentInput   = d;
+      previousInput  = '';
+      operator       = null;
+      justCalculated = false;
+      clearResult();
+      setExpr(fmtInput(d));
+      return;
+    }
+    currentInput = currentInput === '0' ? d : currentInput + d;
+    updateExprLive();
+  }
+
+  function inputDecimal() {
+    if (justCalculated) {
+      currentInput   = '0.';
+      previousInput  = '';
+      operator       = null;
+      justCalculated = false;
+      clearResult();
+      setExpr('0,');
+      return;
+    }
+    if (!currentInput.includes('.')) {
+      currentInput = currentInput === '' ? '0.' : currentInput + '.';
+    }
+    updateExprLive();
+  }
+
+  function backspace() {
+    if (justCalculated) return;
+    if (currentInput.length > 0) {
+      currentInput = currentInput.slice(0, -1);
+      updateExprLive();
+    }
+  }
+
+  function inputOp(op) {
+    // Minus with no prior input or after another operator → start negative number
+    if (op === '−') {
+      if (currentInput === '' && previousInput === '' && !operator) {
+        // Beginning of expression: start negative
+        currentInput = '-';
+        updateExprLive();
+        return;
+      }
+      if (op === '−' && operator && currentInput === '') {
+        // After an operator: start negative second operand
+        currentInput = '-';
+        updateExprLive();
+        return;
+      }
+    }
+
+    // If there's a pending operation with both operands, calculate first (chained)
+    if (operator && currentInput !== '' && currentInput !== '-' && previousInput !== '') {
+      calculate(true);
+    }
+
+    if (currentInput === '' && previousInput !== '') {
+      operator = op;
+      if (justCalculated) {
+        setExpr(fmtForExpr(previousInput) + ' ' + op);
+        clearResult();
+        justCalculated = false;
+      } else {
+        setExpr(fmtForExpr(previousInput) + ' ' + op);
+      }
+      return;
+    }
+
+    if (currentInput !== '' || previousInput !== '') {
+      if (previousInput === '') previousInput = currentInput || '0';
+      operator = op;
+      setExpr(fmtForExpr(previousInput) + ' ' + op);
+      currentInput   = '';
+      justCalculated = false;
+    }
+  }
+
+  function fmtForExpr(raw) {
+    const n = parseFloat(raw);
+    if (isNaN(n)) return raw;
+    return formatNum(n);
+  }
+
+  function updateExprLive() {
+    if (operator) {
+      setExpr(fmtForExpr(previousInput) + ' ' + operator + ' ' + fmtInput(currentInput));
+    } else {
+      setExpr(fmtInput(currentInput));
+    }
+  }
+
+  // ── Core calculate ──────────────────────────────────────
+  function calculate(intermediate = false) {
+    // Repeat last operation if = pressed again after result
+    if (justCalculated && !intermediate && lastOperator !== null && lastOperand !== null) {
+      const a = parseFloat(previousInput);
+      const b = lastOperand;
+      let res;
+      switch (lastOperator) {
+        case '+': res = a + b; break;
+        case '−': res = a - b; break;
+        case '×': res = a * b; break;
+        case '÷':
+          if (b === 0) { flashError(); setResult('Fel', 'Fel'); return; }
+          res = a / b; break;
+        default: return;
+      }
+      const exprStr = fmtForExpr(String(a)) + ' ' + lastOperator + ' ' + fmtForExpr(String(b)) + ' =';
+      const formatted = formatNum(res);
+      setExpr(exprStr);
+      setResult(formatted, res);
+      previousInput = String(res);
+      return;
+    }
+
+    let a = parseFloat(previousInput);
+    let b = parseFloat(currentInput);
+
+    if (isNaN(a) || isNaN(b) || !operator) return;
+
+    let res;
+    switch (operator) {
+      case '+': res = a + b; break;
+      case '−': res = a - b; break;
+      case '×': res = a * b; break;
+      case '÷':
+        if (b === 0) {
+          flashError();
+          setResult('Fel', 'Fel');
+          setExpr(fmtForExpr(previousInput) + ' ÷ ' + fmtForExpr(currentInput));
+          return;
+        }
+        res = a / b;
+        break;
+      default: return;
+    }
+
+    const exprStr = fmtForExpr(previousInput) + ' ' + operator + ' ' + fmtForExpr(currentInput) + ' =';
+    const formatted = formatNum(res);
+
+    if (!intermediate) {
+      lastOperator  = operator;
+      lastOperand   = b;
+      setExpr(exprStr);
+      setResult(formatted, res);
+      previousInput  = String(res);
+      currentInput   = '';
+      operator       = null;
+      justCalculated = true;
+    } else {
+      previousInput = String(res);
+      currentInput  = '';
+      setResult(formatted, res);
+    }
+  }
+
+  // ── Square root ─────────────────────────────────────────
+  function squareRoot() {
+    const raw = currentInput || previousInput || '0';
+    const val = parseFloat(raw);
+    if (isNaN(val) || val < 0) { flashError(); setResult('Fel', 'Fel'); return; }
+    const res = Math.sqrt(val);
+    setExpr('√(' + fmtForExpr(raw) + ') =');
+    const formatted = formatNum(res);
+    setResult(formatted, res);
+    previousInput  = String(res);
+    currentInput   = '';
+    operator       = null;
+    justCalculated = true;
+  }
+
+  // ── Clear / misc ────────────────────────────────────────
+  function clearAll() {
+    currentInput   = '';
+    previousInput  = '';
+    operator       = null;
+    justCalculated = false;
+    clearResult();
+    setExpr('');
+    displayEl.classList.remove('error');
+  }
+
+  function toggleSign() {
+    if (currentInput !== '' && currentInput !== '0') {
+      currentInput = currentInput.startsWith('-')
+        ? currentInput.slice(1)
+        : '-' + currentInput;
+      updateExprLive();
+    } else if (justCalculated && previousInput !== '') {
+      const val = parseFloat(previousInput) * -1;
+      const formatted = formatNum(val);
+      previousInput = String(val);
+      setResult(formatted, val);
+    }
+  }
+
+  // ── Help modal ──────────────────────────────────────────
+  function toggleHelp() {
+    document.getElementById('modalOverlay').classList.toggle('open');
+  }
+  function closeHelpOnOverlay(e) {
+    if (e.target === document.getElementById('modalOverlay')) toggleHelp();
+  }
+
+  // ── Collapse ────────────────────────────────────────────
+  let isCollapsed = false;
+  function toggleCollapse() {
+    isCollapsed = !isCollapsed;
+    document.getElementById('collapsible').classList.toggle('collapsed', isCollapsed);
+    document.getElementById('collapseBtn').classList.toggle('collapsed', isCollapsed);
+  }
+
+  // ── Keyboard support ────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    // Don't handle shortcuts when modal is open (except Escape/?  to close)
+    const modalOpen = document.getElementById('modalOverlay').classList.contains('open');
+    if (modalOpen) {
+      if (e.key === 'Escape' || e.key === '?') toggleHelp();
+      return;
+    }
+
+    if (e.key >= '0' && e.key <= '9') { inputDigit(e.key); return; }
+    switch (e.key) {
+      case '.':
+      case ',':        inputDecimal(); break;
+      case '+':        inputOp('+'); break;
+      case '-':        inputOp('−'); break;
+      case '*':        inputOp('×'); break;
+      case '/':        e.preventDefault(); inputOp('÷'); break;
+      case 'Enter':
+      case '=':        calculate(); break;
+      case 'Backspace': backspace(); break;
+      case 'Escape':   clearAll(); break;
+      case 'c':        clearAll(); break;
+      case 'r':        squareRoot(); break;
+      case 'n':        toggleSign(); break;
+      case 'd':        toggle.checked = !toggle.checked; toggle.dispatchEvent(new Event('change')); break;
+      case 'h':        toggleCollapse(); break;
+      case '?':        toggleHelp(); break;
+    }
+  });
+</script>
+<div class="modal-overlay" id="modalOverlay" onclick="closeHelpOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-title">Kortkommandon</div>
+
+    <div class="modal-section">
+      <div class="modal-section-label">Räknesätt</div>
+      <div class="shortcut-row"><span class="shortcut-desc">Addition</span><span class="shortcut-key">+</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Subtraktion</span><span class="shortcut-key">−</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Multiplikation</span><span class="shortcut-key">*</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Division</span><span class="shortcut-key">/</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Kvadratrot</span><span class="shortcut-key">r</span></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-label">Inmatning</div>
+      <div class="shortcut-row"><span class="shortcut-desc">Beräkna</span><span class="shortcut-key">Enter</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Radera sista</span><span class="shortcut-key">⌫</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Rensa allt</span><span class="shortcut-key">Esc</span> <span class="shortcut-key" style="margin-left:4px">c</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Byt tecken</span><span class="shortcut-key">n</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Decimalkomma</span><span class="shortcut-key">,</span></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-label">Visning</div>
+      <div class="shortcut-row"><span class="shortcut-desc">Fler decimaler</span><span class="shortcut-key">d</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Dölj knappar</span><span class="shortcut-key">h</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Hjälp</span><span class="shortcut-key">?</span></div>
+    </div>
+
+    <button class="modal-close" onclick="toggleHelp()">Stäng</button>
+  </div>
+</div>
+
+</body>
+</html>
