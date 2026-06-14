@@ -12,64 +12,152 @@
       padding: 0;
     }
 
+    /* ── Themes ── */
+    :root {
+      --bg-page:      #ECEAE5;
+      --bg-calc:      #F8F7F4;
+      --bg-display:   #1F2937;
+      --bg-btn-num:   #FFFFFF;
+      --bg-btn-op:    #E8E5E0;
+      --bg-btn-eq:    #2C3E50;
+      --bg-btn-eq-hv: #243342;
+      --bg-btn-op-hv: #DEDBD5;
+      --bg-btn-num-hv:#F3F1EE;
+      --bg-toggle:    #374151;
+      --bg-collapse:  #1F2937;
+      --color-text:   #1A1A1A;
+      --color-op:     #374151;
+      --color-expr:   #9CA3AF;
+      --color-result: #F9FAFB;
+      --color-help:   #4B5563;
+      --color-clear:  #B91C1C;
+      --color-clearhv:#991B1B;
+      --bg-clearhv:   #FECACA;
+      --divider:      #E5E3DE;
+      --sep:          rgba(255,255,255,0.07);
+      --shadow:       0 2px 4px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.05);
+      --modal-bg:     #F8F7F4;
+      --modal-border: #ECEAE5;
+      --modal-label:  #6B7280;
+      --shortcut-bg:  #E8E5E0;
+    }
+
+    .theme-dark {
+      --bg-page:      #2D3748;
+      --bg-calc:      #1F2937;
+      --bg-display:   #111827;
+      --bg-btn-num:   #374151;
+      --bg-btn-op:    #2D3748;
+      --bg-btn-eq:    #3B82F6;
+      --bg-btn-eq-hv: #2563EB;
+      --bg-btn-op-hv: #374151;
+      --bg-btn-num-hv:#4B5563;
+      --bg-toggle:    #1F2937;
+      --bg-collapse:  #111827;
+      --color-text:   #F9FAFB;
+      --color-op:     #D1D5DB;
+      --color-expr:   #6B7280;
+      --color-result: #F9FAFB;
+      --color-help:   #6B7280;
+      --color-clear:  #F87171;
+      --color-clearhv:#FCA5A5;
+      --bg-clearhv:   #7F1D1D;
+      --divider:      #374151;
+      --sep:          rgba(255,255,255,0.05);
+      --shadow:       0 2px 4px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.4);
+      --modal-bg:     #1F2937;
+      --modal-border: #374151;
+      --modal-label:  #9CA3AF;
+      --shortcut-bg:  #374151;
+    }
+
+    /* ── Size scales ── */
+    :root {
+      --calc-width:    280px;
+      --btn-height:    40px;
+      --btn-font:      14px;
+      --btn-font-sm:   12px;
+      --btn-radius:    8px;
+      --btn-gap:       6px;
+      --btn-pad:       8px 10px 10px;
+      --display-pad:   20px 18px 14px;
+      --display-minh:  96px;
+      --expr-font:     13px;
+      --result-font:   32px;
+    }
+
+    .size-large {
+      --calc-width:    420px;
+      --btn-height:    56px;
+      --btn-font:      18px;
+      --btn-font-sm:   15px;
+      --btn-radius:    10px;
+      --btn-gap:       8px;
+      --btn-pad:       10px 14px 14px;
+      --display-pad:   26px 24px 18px;
+      --display-minh:  130px;
+      --expr-font:     16px;
+      --result-font:   42px;
+    }
+
     body {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #ECEAE5;
+      background: var(--bg-page);
       font-family: 'Inter', sans-serif;
+      transition: background 0.3s;
     }
 
     .calculator {
-      background: #F8F7F4;
+      background: var(--bg-calc);
       border-radius: 20px;
-      box-shadow:
-        0 2px 4px rgba(0,0,0,0.06),
-        0 8px 24px rgba(0,0,0,0.10),
-        0 0 0 1px rgba(0,0,0,0.05);
-      width: 280px;
+      box-shadow: var(--shadow);
+      width: var(--calc-width);
       overflow: hidden;
+      transition: background 0.3s, width 0.3s, box-shadow 0.3s;
     }
 
     /* ── Display ── */
     .display {
-      background: #1F2937;
-      padding: 20px 18px 14px;
-      min-height: 96px;
+      background: var(--bg-display);
+      padding: var(--display-pad);
+      min-height: var(--display-minh);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       align-items: stretch;
       gap: 4px;
-      position: relative;
+      transition: background 0.3s, min-height 0.3s, padding 0.3s;
     }
 
     .display-expression {
-      font-size: 13px;
+      font-size: var(--expr-font);
       font-weight: 400;
-      color: #9CA3AF;
-      min-height: 18px;
+      color: var(--color-expr);
+      min-height: 1.4em;
       letter-spacing: 0.02em;
       text-align: right;
       max-width: 100%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      transition: color 0.3s, font-size 0.3s;
     }
 
     .display-sep {
       width: 100%;
       height: 1px;
-      background: rgba(255,255,255,0.07);
+      background: var(--sep);
       margin: 6px 0 2px;
       flex-shrink: 0;
     }
 
     .display-result {
-      font-size: 32px;
+      font-size: var(--result-font);
       font-weight: 300;
-      color: #F9FAFB;
+      color: var(--color-result);
       letter-spacing: -0.02em;
       text-align: right;
       max-width: 100%;
@@ -77,31 +165,18 @@
       min-height: 1.1em;
       overflow: hidden;
       line-height: 1.1;
-      transition: font-size 0.1s ease;
+      transition: font-size 0.1s ease, color 0.3s;
     }
 
     /* ── Decimal toggle ── */
     .decimal-toggle {
-      background: #1F2937;
+      background: var(--bg-display);
       padding: 0 18px 12px;
       display: flex;
       align-items: center;
       justify-content: flex-end;
       gap: 8px;
-    }
-
-    .decimal-label {
-      font-size: 10px;
-      color: #6B7280;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      user-select: none;
-    }
-
-    .toggle-wrap {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      transition: background 0.3s;
     }
 
     .toggle {
@@ -120,7 +195,7 @@
     .slider {
       position: absolute;
       inset: 0;
-      background: #374151;
+      background: var(--bg-toggle);
       border-radius: 18px;
       transition: background 0.2s;
     }
@@ -142,34 +217,29 @@
       background: #60A5FA;
     }
 
-    .decimal-count {
-      font-size: 10px;
-      color: #6B7280;
-      min-width: 24px;
-      text-align: left;
-    }
-
     /* ── Divider ── */
     .divider {
       height: 1px;
-      background: #E5E3DE;
+      background: var(--divider);
       margin: 0 14px;
-      transition: opacity 0.25s;
+      transition: background 0.3s;
     }
 
-    /* ── Collapse toggle ── */
+    /* ── Collapse bar ── */
     .collapse-bar {
-      background: #1F2937;
-      padding: 6px 18px 10px;
+      background: var(--bg-collapse);
+      padding: 6px 14px 10px;
       display: flex;
-      justify-content: center;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.3s;
     }
 
     .collapse-btn {
       background: none;
       border: none;
       cursor: pointer;
-      color: #4B5563;
+      color: var(--color-help);
       padding: 2px 10px;
       height: auto;
       font-size: 11px;
@@ -207,25 +277,26 @@
 
     /* ── Buttons ── */
     .buttons {
-      padding: 8px 10px 10px;
+      padding: var(--btn-pad);
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      gap: var(--btn-gap);
+      transition: padding 0.3s, gap 0.3s;
     }
 
     button {
       border: none;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      font-size: var(--btn-font);
       font-weight: 400;
-      border-radius: 8px;
+      border-radius: var(--btn-radius);
       padding: 0;
-      height: 40px;
+      height: var(--btn-height);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.12s, transform 0.08s;
+      transition: background 0.12s, transform 0.08s, height 0.3s, font-size 0.3s;
       outline: none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -233,67 +304,61 @@
     button:active { transform: scale(0.93); }
 
     .btn-num {
-      background: #FFFFFF;
-      color: #1A1A1A;
+      background: var(--bg-btn-num);
+      color: var(--color-text);
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
-    .btn-num:hover { background: #F3F1EE; }
+    .btn-num:hover { background: var(--bg-btn-num-hv); }
 
     .btn-op {
-      background: #E8E5E0;
-      color: #374151;
+      background: var(--bg-btn-op);
+      color: var(--color-op);
       font-weight: 500;
     }
-    .btn-op:hover { background: #DEDBD5; }
+    .btn-op:hover { background: var(--bg-btn-op-hv); }
 
     .btn-eq {
-      background: #2C3E50;
+      background: var(--bg-btn-eq);
       color: #F9FAFB;
       font-size: 17px;
       font-weight: 400;
     }
-    .btn-eq:hover { background: #243342; }
+    .btn-eq:hover { background: var(--bg-btn-eq-hv); }
 
     .btn-clear {
-      background: #E8E5E0;
-      color: #B91C1C;
+      background: var(--bg-btn-op);
+      color: var(--color-clear);
       font-weight: 600;
-      font-size: 12px;
+      font-size: var(--btn-font-sm);
     }
-    .btn-clear:hover { background: #FECACA; color: #991B1B; }
+    .btn-clear:hover { background: var(--bg-clearhv); color: var(--color-clearhv); }
 
     .btn-func {
-      background: #E8E5E0;
-      color: #374151;
-      font-size: 12px;
+      background: var(--bg-btn-op);
+      color: var(--color-op);
+      font-size: var(--btn-font-sm);
       font-weight: 500;
     }
-    .btn-func:hover { background: #DEDBD5; }
+    .btn-func:hover { background: var(--bg-btn-op-hv); }
 
-    /* ── Help button ── */
-    .help-btn {
-      position: absolute;
-      top: 12px;
-      left: 14px;
+    /* ── Logo button ── */
+    .logo-btn {
       background: none;
       border: none;
-      color: #4B5563;
-      font-size: 13px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
+      color: var(--color-help);
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      transition: color 0.15s;
-      box-shadow: none;
       padding: 0;
+      box-shadow: none;
+      transition: color 0.15s;
     }
-    .help-btn:hover { color: #9CA3AF; background: none; transform: none; }
-    .help-btn:active { transform: none; }
+    .logo-btn:hover { color: #9CA3AF; background: none; transform: none; }
+    .logo-btn:active { transform: none; }
 
     /* ── Modal overlay ── */
     .modal-overlay {
@@ -308,30 +373,29 @@
     .modal-overlay.open { display: flex; }
 
     .modal {
-      background: #F8F7F4;
+      background: var(--modal-bg);
       border-radius: 16px;
       width: 270px;
       padding: 22px 22px 18px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      transition: background 0.3s;
     }
 
     .modal-title {
       font-size: 13px;
       font-weight: 600;
-      color: #1A1A1A;
+      color: var(--color-text);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       margin-bottom: 14px;
     }
 
-    .modal-section {
-      margin-bottom: 14px;
-    }
+    .modal-section { margin-bottom: 14px; }
 
     .modal-section-label {
       font-size: 10px;
       font-weight: 600;
-      color: #9CA3AF;
+      color: var(--color-expr);
       letter-spacing: 0.06em;
       text-transform: uppercase;
       margin-bottom: 6px;
@@ -342,15 +406,15 @@
       justify-content: space-between;
       align-items: center;
       padding: 4px 0;
-      border-bottom: 1px solid #ECEAE5;
+      border-bottom: 1px solid var(--modal-border);
       font-size: 12px;
     }
     .shortcut-row:last-child { border-bottom: none; }
 
     .shortcut-key {
       font-family: 'Inter', sans-serif;
-      background: #E8E5E0;
-      color: #374151;
+      background: var(--shortcut-bg);
+      color: var(--color-op);
       padding: 2px 7px;
       border-radius: 5px;
       font-size: 11px;
@@ -358,14 +422,24 @@
       letter-spacing: 0.02em;
     }
 
-    .shortcut-desc {
-      color: #6B7280;
+    .shortcut-desc { color: var(--modal-label); }
+
+    /* ── Setting rows in modal ── */
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--modal-border);
+      font-size: 12px;
     }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-desc { color: var(--modal-label); }
 
     .modal-close {
       width: 100%;
       margin-top: 6px;
-      background: #2C3E50;
+      background: var(--bg-btn-eq);
       color: #F9FAFB;
       border: none;
       border-radius: 8px;
@@ -375,34 +449,38 @@
       cursor: pointer;
       transition: background 0.12s;
     }
-    .modal-close:hover { background: #243342; }
+    .modal-close:hover { background: var(--bg-btn-eq-hv); }
     .modal-close:active { transform: scale(0.97); }
 
     /* Error flash */
     .display.error .display-result { color: #FCA5A5; }
   </style>
 </head>
-<body>
+<body class="theme-dark">
 <div class="calculator" id="calc">
 
   <div class="display" id="display">
-    <button class="help-btn" onclick="toggleHelp()" title="Kortkommandon">?</button>
     <div class="display-expression" id="expr"></div>
     <div class="display-sep"></div>
     <div class="display-result" id="result">0</div>
   </div>
 
-  <div class="decimal-toggle">
-    <label class="toggle">
-      <input type="checkbox" id="decToggle" />
-      <span class="slider"></span>
-    </label>
-  </div>
-
   <div class="collapse-bar">
+    <button class="logo-btn" onclick="toggleHelp()" title="Inställningar">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.4" fill="none"/>
+        <line x1="5" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="5" y1="9" x2="10" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="5" y1="12" x2="8" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+    </button>
     <button class="collapse-btn" onclick="toggleCollapse()" id="collapseBtn">
       <span class="collapse-arrow" id="collapseArrow">▲</span>
     </button>
+    <label class="toggle" title="Fler decimaler (d)">
+      <input type="checkbox" id="decToggle" />
+      <span class="slider"></span>
+    </label>
   </div>
 
   <div class="collapsible" id="collapsible">
@@ -460,12 +538,13 @@
   const exprEl    = document.getElementById('expr');
   const resultEl  = document.getElementById('result');
   const displayEl = document.getElementById('display');
-  const toggle    = document.getElementById('decToggle');
 
   // ── Decimal toggle ──────────────────────────────────────
-  toggle.addEventListener('change', () => {
-    expanded = toggle.checked;
+  function applyDecToggle(state) {
+    expanded = state;
     decimals = expanded ? 15 : 7;
+    document.getElementById('decToggle').checked = state;
+    document.getElementById('decToggleModal').checked = state;
     const raw = resultEl.dataset.raw;
     if (raw && raw !== 'Fel') {
       const val = parseFloat(raw);
@@ -475,6 +554,14 @@
         adjustResultSize(formatted);
       }
     }
+  }
+
+  function syncDecToggle(cb) {
+    applyDecToggle(cb.checked);
+  }
+
+  document.getElementById('decToggle').addEventListener('change', function() {
+    applyDecToggle(this.checked);
   });
 
   // ── Formatting ──────────────────────────────────────────
@@ -515,18 +602,24 @@
   }
 
   // ── Font size scaling for result ─────────────────────────
-  // Display inner width ≈ 244px. Inter char widths approx:
-  //   32px → ~19px/char,  26px → ~15px/char
-  //   22px → ~13px/char,  18px → ~11px/char,  16px → ~9.5px/char
   function adjustResultSize(text) {
-    if (!text) { resultEl.style.fontSize = '32px'; return; }
+    if (!text) { resultEl.style.fontSize = ''; return; }
+    const large = document.body.classList.contains('size-large');
     const len = text.length;
     let size;
-    if (len <= 11)      size = '32px';
-    else if (len <= 14) size = '26px';
-    else if (len <= 17) size = '28px';
-    else if (len <= 21) size = '18px';
-    else                size = '16px';
+    if (large) {
+      if (len <= 11)      size = '48px';
+      else if (len <= 14) size = '38px';
+      else if (len <= 17) size = '32px';
+      else if (len <= 21) size = '26px';
+      else                size = '21px';
+    } else {
+      if (len <= 11)      size = '36px';
+      else if (len <= 14) size = '30px';
+      else if (len <= 17) size = '28px';
+      else if (len <= 21) size = '22px';
+      else                size = '18px';
+    }
     resultEl.style.fontSize = size;
   }
 
@@ -763,6 +856,21 @@
     }
   }
 
+  // ── Theme & size ────────────────────────────────────────
+  function toggleTheme(cb) {
+    document.body.classList.toggle('theme-dark', !cb.checked);
+  }
+
+  function toggleSize(cb) {
+    document.body.classList.toggle('size-large', cb.checked);
+    // Re-render result at new base size
+    const raw = resultEl.dataset.raw;
+    if (raw && raw !== 'Fel') {
+      const val = parseFloat(raw);
+      if (!isNaN(val)) adjustResultSize(formatNum(val));
+    }
+  }
+
   // ── Help modal ──────────────────────────────────────────
   function toggleHelp() {
     document.getElementById('modalOverlay').classList.toggle('open');
@@ -803,7 +911,7 @@
       case 'c':        clearAll(); break;
       case 'r':        squareRoot(); break;
       case 'n':        toggleSign(); break;
-      case 'd':        toggle.checked = !toggle.checked; toggle.dispatchEvent(new Event('change')); break;
+      case 'd':        applyDecToggle(!expanded); break;
       case 'h':        toggleCollapse(); break;
       case '?':        toggleHelp(); break;
     }
@@ -811,7 +919,23 @@
 </script>
 <div class="modal-overlay" id="modalOverlay" onclick="closeHelpOnOverlay(event)">
   <div class="modal">
-    <div class="modal-title">Kortkommandon</div>
+    <div class="modal-title">Inställningar &amp; kortkommandon</div>
+
+    <div class="modal-section">
+      <div class="modal-section-label">Utseende</div>
+      <div class="setting-row">
+        <span class="setting-desc">Ljust tema</span>
+        <label class="toggle"><input type="checkbox" id="themeToggle" onchange="toggleTheme(this)"><span class="slider"></span></label>
+      </div>
+      <div class="setting-row">
+        <span class="setting-desc">Stort läge</span>
+        <label class="toggle"><input type="checkbox" id="sizeToggle" onchange="toggleSize(this)"><span class="slider"></span></label>
+      </div>
+      <div class="setting-row">
+        <span class="setting-desc">Fler decimaler</span>
+        <label class="toggle"><input type="checkbox" id="decToggleModal" onchange="syncDecToggle(this, 'modal')"><span class="slider"></span></label>
+      </div>
+    </div>
 
     <div class="modal-section">
       <div class="modal-section-label">Räknesätt</div>
@@ -824,9 +948,9 @@
 
     <div class="modal-section">
       <div class="modal-section-label">Inmatning</div>
-      <div class="shortcut-row"><span class="shortcut-desc">Beräkna</span><span class="shortcut-key">Enter</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Beräkna / upprepa</span><span class="shortcut-key">Enter</span></div>
       <div class="shortcut-row"><span class="shortcut-desc">Radera sista</span><span class="shortcut-key">⌫</span></div>
-      <div class="shortcut-row"><span class="shortcut-desc">Rensa allt</span><span class="shortcut-key">Esc</span> <span class="shortcut-key" style="margin-left:4px">c</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Rensa allt</span><span style="display:flex;gap:4px"><span class="shortcut-key">Esc</span><span class="shortcut-key">c</span></span></div>
       <div class="shortcut-row"><span class="shortcut-desc">Byt tecken</span><span class="shortcut-key">n</span></div>
       <div class="shortcut-row"><span class="shortcut-desc">Decimalkomma</span><span class="shortcut-key">,</span></div>
     </div>
@@ -835,7 +959,7 @@
       <div class="modal-section-label">Visning</div>
       <div class="shortcut-row"><span class="shortcut-desc">Fler decimaler</span><span class="shortcut-key">d</span></div>
       <div class="shortcut-row"><span class="shortcut-desc">Dölj knappar</span><span class="shortcut-key">h</span></div>
-      <div class="shortcut-row"><span class="shortcut-desc">Hjälp</span><span class="shortcut-key">?</span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Hjälp / inställningar</span><span class="shortcut-key">?</span></div>
     </div>
 
     <button class="modal-close" onclick="toggleHelp()">Stäng</button>
