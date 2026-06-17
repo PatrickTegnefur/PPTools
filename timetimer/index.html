@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Klasstimer</title>
+  <meta name="theme-color" content="#111118" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&family=Inter:wght@400;500&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #111118; --surface: #1c1c26; --border: rgba(255,255,255,.07);
+      --text: #f0f0f8; --muted: #6b6b88; --accent: #7c6af5;
+      --safe: #3dd9a4; --warn: #f5c842; --danger: #f05060;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100dvh; padding: 24px 16px 32px; }
+    #app { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 520px; }
+
+    /* ── INSTRUCTION ── always visible, always editable */
+    .instruction-field {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(.95rem, 3vw, 1.15rem);
+      font-weight: 500;
+      text-align: center;
+      padding: 6px 4px;
+      outline: none;
+      transition: border-color .25s;
+      letter-spacing: .01em;
+    }
+    .instruction-field:focus { border-color: rgba(124,106,245,.5); }
+
+    /* ── RING ── */
+    #ringView { position: relative; width: min(280px, 72vw); height: min(280px, 72vw); display: none; }
+    #ringView svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .r-track { fill: none; stroke: var(--surface); stroke-width: 18; }
+    .r-prog  { fill: none; stroke-width: 18; stroke-linecap: round; stroke-dasharray: 565; stroke-dashoffset: 0; transition: stroke-dashoffset .85s linear, stroke .5s; }
+    .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+
+    /* ── BAR ── */
+    #barView { width: 100%; display: flex; flex-direction: column; gap: 0; }
+    .bar-track { width: 100%; height: 72px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; position: relative; }
+    .bar-fill { height: 100%; width: 0%; border-radius: 14px; transition: width .85s linear, background .5s; }
+    /* time shown ON the bar while running */
+    .bar-live-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+
+    /* ── TIME EDIT (below bar / inside ring when stopped) ── */
+    .time-edit-row { display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .time-edit-row input {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid rgba(255,255,255,.12);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(2rem, 10vw, 3.4rem);
+      font-weight: 700;
+      width: 2.35ch;
+      text-align: center;
+      padding: 2px 0 4px;
+      outline: none;
+      -moz-appearance: textfield;
+      letter-spacing: -.02em;
+      transition: border-color .2s, color .2s;
+      line-height: 1;
+    }
+    .time-edit-row input::-webkit-inner-spin-button,
+    .time-edit-row input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .time-edit-row input:focus { border-color: var(--accent); color: #fff; }
+    .time-edit-row .sep { font-family: 'Space Mono', monospace; font-size: clamp(1.8rem, 9vw, 3rem); color: var(--muted); user-select: none; line-height: 1; padding-bottom: 2px; }
+
+    /* ── TIME LIVE (running display) ── */
+    .time-live {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(2rem, 10vw, 3.4rem);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: #fff;
+      line-height: 1;
+      user-select: none;
+    }
+
+    /* bar-time area below bar */
+    .bar-time-area { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 12px; min-height: 72px; justify-content: center; }
+
+    .time-sub { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); text-align: center; }
+
+    /* ── CONTROLS ── */
+    .controls { display: flex; gap: 12px; align-items: center; }
+    .btn-main { background: var(--accent); border: none; border-radius: 12px; color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 500; padding: 13px 40px; cursor: pointer; transition: opacity .2s, transform .1s; min-width: 148px; }
+    .btn-main:hover { opacity: .88; }
+    .btn-main:active { transform: scale(.96); }
+    .btn-icon { background: var(--surface); border: 1px solid var(--border); border-radius: 50%; color: var(--text); width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s, border-color .2s, transform .1s; flex-shrink: 0; }
+    .btn-icon:hover { background: #2a2a3a; border-color: var(--accent); }
+    .btn-icon:active { transform: scale(.94); }
+    .btn-icon svg { width: 18px; height: 18px; }
+
+    /* ── GEAR ── */
+    .gear-row { display: flex; justify-content: center; }
+    .gear-btn { background: none; border: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 12px; font-family: 'Inter', sans-serif; padding: 4px 8px; border-radius: 8px; transition: color .2s; }
+    .gear-btn:hover { color: var(--text); }
+    .gear-btn svg { width: 14px; height: 14px; }
+
+    /* ── SETTINGS MODAL ── */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,.6);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .settings-panel {
+      background: #1e1e2e;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 18px;
+      padding: 24px;
+      display: flex; flex-direction: column; gap: 20px;
+      width: 100%; max-width: 400px;
+      transform: translateY(10px);
+      transition: transform .2s;
+    }
+    .modal-backdrop.open .settings-panel { transform: translateY(0); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-size: .95rem; font-weight: 500; color: var(--text); letter-spacing: .02em; }
+    .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; transition: background .2s, color .2s; }
+    .modal-close:hover { background: rgba(255,255,255,.08); color: var(--text); }
+    .modal-close svg { width: 16px; height: 16px; }
+    .s-section { display: flex; flex-direction: column; gap: 10px; }
+    .s-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .seg-group { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 3px; gap: 4px; }
+    .seg-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 5px 16px; border-radius: 999px; font-size: 12px; font-family: 'Inter', sans-serif; transition: background .2s, color .2s; white-space: nowrap; }
+    .seg-btn.active { background: var(--accent); color: #fff; }
+    .presets-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .preset-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .82rem; padding: 6px 14px; cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
+    .preset-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .s-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .toggle-label { display: flex; align-items: center; gap: 8px; font-size: .88rem; cursor: pointer; user-select: none; }
+    .toggle { width: 36px; height: 20px; background: var(--muted); border-radius: 999px; position: relative; transition: background .2s; cursor: pointer; border: none; flex-shrink: 0; }
+    .toggle::after { content:''; position:absolute; top:3px; left:3px; width:14px; height:14px; background:#fff; border-radius:50%; transition:transform .2s; }
+    .toggle.on { background: var(--accent); }
+    .toggle.on::after { transform: translateX(16px); }
+
+    @keyframes flashBg { 0%,100%{background:transparent} 50%{background:rgba(240,80,96,.16)} }
+    body.expired { animation: flashBg 1s ease-in-out 4; }
+    .hint { font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Instruction — always visible, always writable -->
+  <input class="instruction-field" id="instrField" type="text" autocomplete="off" spellcheck="false" />
+
+  <!-- RING view -->
+  <div id="ringView">
+    <svg viewBox="0 0 200 200">
+      <circle class="r-track" cx="100" cy="100" r="90"/>
+      <circle class="r-prog" id="ringProg" cx="100" cy="100" r="90"/>
+    </svg>
+    <div class="ring-center">
+      <div id="ringTimeSlot"></div>
+      <div class="time-sub" id="ringLabel">ange tid</div>
+    </div>
+  </div>
+
+  <!-- BAR view -->
+  <div id="barView">
+    <div class="bar-track">
+      <div class="bar-fill" id="barFill"></div>
+      <!-- live time shown on bar while running -->
+      <div class="bar-live-overlay" id="barLiveOverlay" style="display:none">
+        <span class="time-live" id="barLiveText"></span>
+      </div>
+    </div>
+    <!-- edit / paused time shown below bar -->
+    <div class="bar-time-area" id="barTimeArea">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn-icon" title="Återställ" onclick="resetTimer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+    </button>
+    <button class="btn-main" id="startBtn" onclick="toggleTimer()">▶ Starta</button>
+    <button class="btn-icon" title="Helskärm" onclick="toggleFS()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+    </button>
+  </div>
+
+  <!-- Settings gear -->
+  <div class="gear-row">
+    <button class="gear-btn" onclick="toggleSettings()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Inställningar
+    </button>
+  </div>
+
+  <!-- Settings modal -->
+  <div class="modal-backdrop" id="modalBackdrop" onclick="handleBackdropClick(event)">
+    <div class="settings-panel" id="settingsPanel">
+
+      <div class="modal-header">
+        <span class="modal-title">Inställningar</span>
+        <button class="modal-close" onclick="toggleSettings()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="s-section">
+        <div class="s-label">Utseende</div>
+        <div class="seg-group" style="width:fit-content">
+          <button class="seg-btn" id="btnBar"  onclick="setShape('bar')">Stapel</button>
+          <button class="seg-btn" id="btnRing" onclick="setShape('ring')">Cirkel</button>
+        </div>
+      </div>
+
+      <div class="s-section">
+        <div class="s-label">Läge</div>
+        <div class="seg-group" style="width:fit-content">
+          <button class="seg-btn active" id="btnDown" onclick="setMode('down')">Nedräkning</button>
+          <button class="seg-btn"        id="btnUp"   onclick="setMode('up')">Uppräkning</button>
+        </div>
+      </div>
+
+      <div class="s-section">
+        <div class="s-label">Snabbval</div>
+        <div class="presets-grid" id="presetsGrid"></div>
+      </div>
+
+      <div class="s-section">
+        <div class="s-row">
+          <label class="toggle-label" onclick="toggleSound()">
+            <button class="toggle on" id="soundTgl"></button>
+            Tickljud
+          </label>
+          <label class="toggle-label" onclick="toggleLoop()">
+            <button class="toggle" id="loopTgl"></button>
+            Loopa
+          </label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="hint">Mellanslag = starta/pausa · R = återställ · F = helskärm</p>
+</div>
+
+<script>
+/* ── STATE ── */
+let totalSec = 0, elapsed = 0, running = false, ticker = null;
+let mode = 'down', shape = 'bar';
+let soundOn = true, loopOn = false, audioCtx = null;
+
+/* ── ELEMENTS ── */
+const startBtn       = document.getElementById('startBtn');
+const ringProg       = document.getElementById('ringProg');
+const ringTimeSlot   = document.getElementById('ringTimeSlot');
+const ringLabel      = document.getElementById('ringLabel');
+const barFill        = document.getElementById('barFill');
+const barLiveOverlay = document.getElementById('barLiveOverlay');
+const barLiveText    = document.getElementById('barLiveText');
+const barTimeArea    = document.getElementById('barTimeArea');
+
+/* ── PRESETS ── */
+const PRESETS = [1,2,3,5,10,15,20,30,45,60];
+const pgrid = document.getElementById('presetsGrid');
+PRESETS.forEach(m => {
+  const b = document.createElement('button');
+  b.className = 'preset-btn';
+  b.textContent = m < 60 ? `${m} min` : '1 tim';
+  b.onclick = () => applyPreset(m * 60);
+  pgrid.appendChild(b);
+});
+
+/* ── HELPERS ── */
+function fmt(s) {
+  const m = Math.floor(s / 60), ss = s % 60;
+  return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+function colorFor(pct) {
+  if (pct > 0.4) return 'var(--safe)';
+  if (pct > 0.15) return 'var(--warn)';
+  return 'var(--danger)';
+}
+
+/* ── EDIT FIELDS ──
+   Returns a .time-edit-row element with two inputs wired up.
+   onCommit(totalSeconds) is called when values change. */
+function makeEditRow(onCommit) {
+  const row = document.createElement('div');
+  row.className = 'time-edit-row';
+
+  const mIn = document.createElement('input');
+  mIn.type = 'number'; mIn.min = 0; mIn.max = 99;
+  mIn.placeholder = '00';
+  if (totalSec > 0) mIn.value = Math.floor(totalSec / 60);
+
+  const sep = document.createElement('span');
+  sep.className = 'sep'; sep.textContent = ':';
+
+  const sIn = document.createElement('input');
+  sIn.type = 'number'; sIn.min = 0; sIn.max = 59;
+  sIn.placeholder = '00';
+  if (totalSec > 0) sIn.value = totalSec % 60;
+
+  function commit() {
+    const m = Math.max(0, Math.min(99, parseInt(mIn.value) || 0));
+    const s = Math.max(0, Math.min(59, parseInt(sIn.value) || 0));
+    mIn.value = m || ''; sIn.value = s || '';
+    onCommit(m * 60 + s);
+  }
+  mIn.addEventListener('change', commit);
+  sIn.addEventListener('change', commit);
+  mIn.addEventListener('keydown', e => e.key === 'Enter' && mIn.blur());
+  sIn.addEventListener('keydown', e => e.key === 'Enter' && sIn.blur());
+
+  row.appendChild(mIn); row.appendChild(sep); row.appendChild(sIn);
+  return row;
+}
+
+/* ── RENDER ── */
+function getDisplayValues() {
+  let displayed, fillPct;
+  if (mode === 'down') {
+    displayed = Math.max(0, totalSec - elapsed);
+    fillPct   = totalSec > 0 ? displayed / totalSec : 0;
+  } else {
+    displayed = elapsed;
+    fillPct   = totalSec > 0 ? Math.min(elapsed / totalSec, 1) : (elapsed > 0 ? 1 : 0);
+  }
+  const color = colorFor(mode === 'down' ? fillPct : 1 - fillPct);
+  return { displayed, fillPct, color };
+}
+
+function renderVisuals() {
+  const { displayed, fillPct, color } = getDisplayValues();
+  const str = fmt(displayed);
+
+  /* Ring */
+  ringProg.style.strokeDashoffset = 565 * (1 - fillPct);
+  ringProg.style.stroke = color;
+
+  /* Bar fill */
+  barFill.style.width = (fillPct * 100) + '%';
+  barFill.style.background = color;
+
+  /* Bar live overlay */
+  if (running) {
+    barLiveText.textContent = str;
+  }
+
+  /* Ring live slot */
+  if (running) {
+    const live = ringTimeSlot.querySelector('.time-live');
+    if (live) live.textContent = str;
+  }
+
+  /* Label */
+  const lbl = running
+    ? (mode === 'down' ? 'kvar' : 'förfluten tid')
+    : (elapsed > 0 ? 'pausad' : '');
+  ringLabel.textContent = lbl;
+  const barSub = barTimeArea.querySelector('.time-sub');
+  if (barSub) barSub.textContent = lbl;
+}
+
+/* Rebuild the non-running (edit or paused) slots */
+function rebuildStaticSlots() {
+  /* Ring: edit row in center */
+  ringTimeSlot.innerHTML = '';
+  if (!running) {
+    ringTimeSlot.appendChild(makeEditRow(s => { totalSec = s; elapsed = 0; renderVisuals(); }));
+  } else {
+    const live = document.createElement('span');
+    live.className = 'time-live';
+    live.textContent = fmt(mode === 'down' ? Math.max(0, totalSec - elapsed) : elapsed);
+    ringTimeSlot.appendChild(live);
+  }
+
+  /* Bar: edit row OR paused display BELOW the bar */
+  barTimeArea.innerHTML = '';
+  if (!running) {
+    barTimeArea.appendChild(makeEditRow(s => { totalSec = s; elapsed = 0; renderVisuals(); }));
+    const sub = document.createElement('div');
+    sub.className = 'time-sub';
+    sub.textContent = elapsed > 0 ? 'pausad' : '';
+    barTimeArea.appendChild(sub);
+  }
+  /* When running, bar shows time live ON the bar (overlay), area is empty */
+
+  /* Bar live overlay visibility */
+  barLiveOverlay.style.display = running ? 'flex' : 'none';
+}
+
+/* ── TIMER ── */
+function toggleTimer() {
+  ensureAudio();
+  if (running) { doPause(); return; }
+  if (mode === 'down' && elapsed >= totalSec && totalSec > 0) { doReset(); return; }
+  doStart();
+}
+
+function doStart() {
+  if (mode === 'down' && totalSec === 0) return;
+  running = true;
+  startBtn.textContent = '⏸ Pausa';
+  rebuildStaticSlots();
+  renderVisuals();
+  ticker = setInterval(() => {
+    elapsed++;
+    if (soundOn && mode === 'down') {
+      const rem = totalSec - elapsed;
+      if (rem <= 10 && rem > 0) beep(600, 0.06, 0.2);
+    }
+    renderVisuals();
+    if (mode === 'down' && elapsed >= totalSec) {
+      clearInterval(ticker); running = false;
+      startBtn.textContent = '▶ Starta';
+      ringLabel.textContent = 'färdig!';
+      rebuildStaticSlots();
+      expire();
+    }
+  }, 1000);
+}
+
+function doPause() {
+  running = false;
+  clearInterval(ticker);
+  startBtn.textContent = '▶ Fortsätt';
+  rebuildStaticSlots();
+  renderVisuals();
+}
+
+function doReset() {
+  document.body.classList.remove('expired');
+  document.title = 'Klasstimer';
+  clearInterval(ticker);
+  running = false; elapsed = 0;
+  startBtn.textContent = '▶ Starta';
+  rebuildStaticSlots();
+  renderVisuals();
+}
+function resetTimer() { doReset(); }
+
+function expire() {
+  playExpired();
+  document.body.classList.add('expired');
+  document.title = '⏰ Färdig!';
+  if (loopOn) setTimeout(() => { doReset(); doStart(); }, 4500);
+}
+
+/* ── SETTINGS ── */
+function setShape(s) {
+  shape = s;
+  document.getElementById('ringView').style.display = s === 'ring' ? 'block' : 'none';
+  document.getElementById('barView').style.display  = s === 'bar'  ? 'flex'  : 'none';
+  document.getElementById('btnRing').classList.toggle('active', s === 'ring');
+  document.getElementById('btnBar').classList.toggle('active',  s === 'bar');
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnDown').classList.toggle('active', m === 'down');
+  document.getElementById('btnUp').classList.toggle('active',   m === 'up');
+  doReset();
+}
+
+function applyPreset(sec) {
+  doReset();
+  totalSec = sec; elapsed = 0;
+  rebuildStaticSlots(); renderVisuals();
+}
+
+function toggleSettings() { document.getElementById('modalBackdrop').classList.toggle('open'); }
+function handleBackdropClick(e) { if (e.target === document.getElementById('modalBackdrop')) toggleSettings(); }
+function toggleSound() { soundOn = !soundOn; document.getElementById('soundTgl').classList.toggle('on', soundOn); }
+function toggleLoop()  { loopOn  = !loopOn;  document.getElementById('loopTgl').classList.toggle('on', loopOn); }
+
+/* ── AUDIO ── */
+function ensureAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function beep(freq, dur, vol, delay = 0) {
+  if (!audioCtx) return;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.connect(g); g.connect(audioCtx.destination);
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, audioCtx.currentTime + delay);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + dur);
+  o.start(audioCtx.currentTime + delay);
+  o.stop(audioCtx.currentTime + delay + dur + 0.02);
+}
+function playExpired() {
+  ensureAudio();
+  [0,.3,.6,.9,1.2].forEach((d,i) => beep(880 - i*60, 0.22, 0.45, d));
+}
+
+/* ── FS + KEYS ── */
+function toggleFS() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
+}
+document.addEventListener('keydown', e => {
+  if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+  if (e.key === ' ') { e.preventDefault(); toggleTimer(); }
+  if (e.key === 'f' || e.key === 'F') toggleFS();
+  if (e.key === 'r' || e.key === 'R') resetTimer();
+});
+
+/* ── INIT ── */
+setShape('bar');   // bar is default
+document.getElementById('btnBar').classList.add('active');
+rebuildStaticSlots();
+renderVisuals();
+</script>
+</body>
+</html>
