@@ -12,116 +12,209 @@
     --text:#100e28;--muted:#585078;--accent:#306BF0;--accent2:#EC6095;
     --shadow:rgba(48,107,240,.12);
     --grad:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
-    --pos-arc:#306BF0;   /* positive-side hop = blue  */
-    --neg-arc:#EC6095;   /* negative-side hop = pink  */
-    --total-arc:#7c3aed; /* total arc = deep purple   */
+    --total-arc:#7c3aed;
   }
   body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center}
   header{width:100%;background:var(--grad);padding:10px 24px;display:flex;align-items:center}
   header h1{font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff;letter-spacing:.02em}
   main{width:100%;max-width:960px;padding:16px 14px 40px;display:flex;flex-direction:column;gap:14px}
 
+  /* ── Cards ── */
   .card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px 12px;box-shadow:0 2px 12px var(--shadow)}
+  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:hidden;padding:20px 10px 10px;position:relative}
+  canvas{display:block;width:100%;height:auto}
 
-  .freetext-row{display:flex;align-items:center;gap:8px}
-  #freeInput{flex:1;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:600;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s;max-width:180px}
+  /* ── Input row ── */
+  .input-row{display:flex;align-items:center;gap:8px}
+  #freeInput{padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:1.15rem;font-weight:600;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s;width:160px}
   #freeInput:focus{border-color:var(--accent)}
-  #freeInput.error{border-color:#e02020}
-  .parse-hint{font-size:.78rem;color:var(--muted)}
+  #freeInput.error{border-color:#e02020;animation:shake .25s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  #freeInput.accepted{border-color:var(--accent)}
 
-  .fallback-row{display:flex;align-items:center;gap:6px;margin-top:8px}
-  .fallback-row label{font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
-  .fallback-row input[type="number"]{width:58px;padding:6px 7px;border:1.5px solid var(--border);border-radius:7px;font-family:'Sora',sans-serif;font-size:.95rem;font-weight:600;color:var(--text);background:var(--bg);outline:none;text-align:center;transition:border-color .15s;-moz-appearance:textfield}
-  .fallback-row input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none}
-  .fallback-row input[type="number"]:focus{border-color:var(--accent)}
-  .fallback-row select{width:46px;padding:6px 4px;border:1.5px solid var(--border);border-radius:7px;font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);background:var(--bg);outline:none;cursor:pointer;text-align:center;transition:border-color .15s}
-  .fallback-row select:focus{border-color:var(--accent)}
-  .equals-lbl{font-size:1.1rem;font-weight:700;color:var(--muted)}
+  /* ℹ button */
+  .info-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;transition:border-color .15s;user-select:none}
+  .info-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .info-tooltip{position:absolute;left:34px;top:50%;transform:translateY(-50%);background:var(--text);color:#fff;font-size:.78rem;line-height:1.6;padding:8px 11px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .18s;z-index:20;box-shadow:0 3px 12px rgba(0,0,0,.22)}
+  .info-tooltip::before{content:'';position:absolute;right:100%;top:50%;transform:translateY(-50%);border:5px solid transparent;border-right-color:var(--text)}
+  .info-btn:hover .info-tooltip,.info-btn:focus .info-tooltip{opacity:1}
 
-  .expr-preview{margin:10px 0 4px;font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--text);text-align:center;min-height:2rem;letter-spacing:.02em}
-  .expr-preview .ans{color:var(--accent2);opacity:0;transition:opacity .3s}
-  .expr-preview .ans.visible{opacity:1}
+  /* enter-state indicator */
+  .enter-state{font-size:.75rem;font-weight:600;color:var(--muted);min-width:120px;transition:color .2s}
+  .enter-state.ready{color:var(--accent)}
+  .enter-state.go{color:#18a348}
 
-  .btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
-  .btn{padding:8px 16px;border-radius:9px;border:none;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:filter .15s,transform .1s}
+  /* hidden fallback */
+  .fallback-row{display:none}
+
+  /* ── Expression display (on canvas overlay) ── */
+  /* drawn on canvas directly */
+
+  /* ── Action bar ── */
+  .action-bar{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+  /* ── Settings modal ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(16,14,40,.35);z-index:100;align-items:center;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal-box{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px 22px;box-shadow:0 8px 32px rgba(16,14,40,.18);min-width:260px;max-width:340px;width:100%}
+  .modal-box h2{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:14px;color:var(--text)}
+  .modal-close{float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);line-height:1}
+  .modal-close:hover{color:var(--text)}
+  .modal-section{display:flex;flex-direction:column;gap:10px}
+
+  .btn{padding:8px 16px;border-radius:9px;border:none;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:filter .15s,transform .1s;white-space:nowrap}
   .btn:active{transform:scale(.97)}
   .btn:disabled{opacity:.45;cursor:not-allowed}
   .btn-primary{background:var(--accent);color:#fff}
   .btn-primary:hover:not(:disabled){filter:brightness(1.1)}
   .btn-secondary{background:var(--surface2);color:var(--accent);border:1.5px solid var(--border)}
   .btn-secondary:hover:not(:disabled){filter:brightness(.96)}
-  .btn-reveal{background:var(--accent2);color:#fff;margin-left:auto}
+  .btn-reveal{background:var(--accent2);color:#fff}
   .btn-reveal:hover:not(:disabled){filter:brightness(1.1)}
   .btn-next{background:#18a348;color:#fff}
   .btn-next:hover:not(:disabled){filter:brightness(1.1)}
 
-  .toggle-kang,.toggle-total{display:flex;align-items:center;gap:6px;font-size:.83rem;color:var(--muted);font-weight:600;cursor:pointer;user-select:none}
-  .toggle-kang input{accent-color:var(--accent2);width:15px;height:15px;cursor:pointer}
-  .toggle-total input{accent-color:var(--total-arc);width:15px;height:15px;cursor:pointer}
+  .toggle-label{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--text);font-weight:600;cursor:pointer;user-select:none;padding:6px 0;border-bottom:1px solid var(--surface2)}
+  .toggle-label:last-child{border-bottom:none}
+  .toggle-label input{width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+  #kangToggle{accent-color:var(--accent2)}
+  #totalToggle{accent-color:var(--total-arc)}
+  #altToggle{accent-color:#18a348}
+  .toggle-sub{font-size:.75rem;font-weight:400;color:var(--muted);margin-left:auto}
 
-  .step-strip{text-align:center;font-size:.88rem;color:var(--muted);font-weight:600;min-height:1.3em;margin-top:6px}
-
-  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:hidden;padding:20px 10px 16px}
-  canvas{display:block;width:100%;height:auto}
+  .step-strip{text-align:center;font-size:.85rem;color:var(--muted);font-weight:600;min-height:1.2em;margin-top:8px}
+  .expl-panel{margin-top:10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.82rem;line-height:1.8;color:var(--text);display:none}
+  .expl-panel.visible{display:block}
+  .expl-row{display:flex;gap:8px;align-items:baseline;margin-bottom:2px}
+  .expl-tag{font-weight:700;color:var(--accent2);min-width:72px;flex-shrink:0}
 </style>
 </head>
 <body>
 <header><h1>Tallinje – Addition &amp; Subtraktion</h1></header>
 <main>
+
+  <!-- ① Canvas first -->
+  <div class="canvas-wrap">
+    <canvas id="tl" width="960" height="330"></canvas>
+  </div>
+
+  <!-- ② Controls below -->
   <div class="card">
-    <div class="freetext-row">
+    <!-- Input row -->
+    <div class="input-row">
       <input type="text" id="freeInput" placeholder="t.ex. 5 − 7" autocomplete="off" spellcheck="false">
-      <span class="parse-hint">Skriv t.ex. <em>−4 + 7</em> och tryck Enter</span>
+      <button class="info-btn" tabindex="0" aria-label="Hjälp">ℹ
+        <span class="info-tooltip">
+          Skriv beräkningen, tryck Enter för att läsa in.<br>
+          Tryck Enter igen för att animera.<br>
+          Exempel: <strong>5 - 7</strong> &nbsp;eller&nbsp; <strong>-4 + 3</strong>
+        </span>
+      </button>
+      <span class="enter-state" id="enterState">Skriv ett uttryck…</span>
     </div>
+
+    <!-- Hidden fallback fields (for value sync) -->
     <div class="fallback-row">
-      <label>eller använd fälten:</label>
       <input type="number" id="term1" value="5">
       <select id="operator"><option value="+">+</option><option value="−">−</option></select>
       <input type="number" id="term2" value="7">
-      <span class="equals-lbl">=</span>
     </div>
-    <div class="expr-preview">
-      <span id="exprLeft"></span><span class="ans" id="exprAns"></span>
-    </div>
-    <div class="btn-row">
+
+    <!-- Action bar -->
+    <div class="action-bar">
       <button class="btn btn-primary"   id="btnAnimate">▶ Animera</button>
       <button class="btn btn-next"      id="btnNext" style="display:none">Nästa hopp ▶</button>
       <button class="btn btn-secondary" id="btnReset">↺ Återställ</button>
-      <label class="toggle-kang">
-        <input type="checkbox" id="kangToggle" checked> 🦘 Känguruhopp
-      </label>
-      <label class="toggle-total">
-        <input type="checkbox" id="totalToggle"> ↔ Visa totalt hopp
-      </label>
-      <button class="btn btn-reveal" id="btnReveal" style="display:none">Visa svar</button>
+      <button class="btn btn-secondary" id="btnSettings" style="margin-left:4px">⚙️ Inställningar</button>
+      <button class="btn btn-reveal"    id="btnReveal" style="display:none;margin-left:auto">Visa svar</button>
     </div>
+
+    <!-- Settings modal -->
+    <div class="modal-overlay" id="settingsModal">
+      <div class="modal-box">
+        <button class="modal-close" id="modalClose">✕</button>
+        <h2>⚙️ Inställningar</h2>
+        <div class="modal-section">
+          <label class="toggle-label"><input type="checkbox" id="kangToggle" checked> 🦘 Känguruhopp <span class="toggle-sub">Mellanlanda vid 0</span></label>
+          <label class="toggle-label"><input type="checkbox" id="totalToggle"> ↔ Totalt hopp <span class="toggle-sub">Visa hela sträckan</span></label>
+          <label class="toggle-label"><input type="checkbox" id="stepArrowToggle"> ➡ Steg-pilar <span class="toggle-sub">Visa pilar under tallinjen</span></label>
+          <label class="toggle-label"><input type="checkbox" id="altToggle"> ⇄ Alternativ form <span class="toggle-sub">Omskriven tolkning</span></label>
+          <label class="toggle-label"><input type="checkbox" id="explToggle"> 💡 Förklaring <span class="toggle-sub">Förklara begreppen</span></label>
+          <label class="toggle-label"><input type="checkbox" id="slowToggle"> 🐢 Långsamt läge <span class="toggle-sub">Sänk animationshastigheten</span></label>
+        </div>
+      </div>
+    </div>
+
     <div class="step-strip" id="stepStrip">&nbsp;</div>
-  </div>
-  <div class="canvas-wrap">
-    <canvas id="tl" width="960" height="280"></canvas>
+    <div class="expl-panel" id="explPanel">
+      <div class="expl-row"><span class="expl-tag">Term 1:</span><span id="explT1">Startposition på tallinjen</span></div>
+      <div class="expl-row"><span class="expl-tag">Operation:</span><span id="explOp">Riktning roboten tittar åt (+ = höger, − = vänster)</span></div>
+      <div class="expl-row"><span class="expl-tag">Term 2:</span><span id="explT2">Antal steg (+ = framlänges, − = baklänges)</span></div>
+    </div>
   </div>
 </main>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
 //  COLOURS
-//  Positive-side movement (on the right / positive number line) = blue
-//  Negative-side movement (crossing into negatives)             = pink
-//  We determine colour by where the hop LANDS relative to 0.
+//  Forward (framlänges) = blue family, backward (baklänges) = pink family
+//  Right of 0 = full saturation, left of 0 = lighter/softer tint
 // ═══════════════════════════════════════════════════════════════════
-const C_POS   = '#306BF0';   // blue
-const C_NEG   = '#EC6095';   // pink
-const C_TOTAL = '#7c3aed';   // purple
+const C_FWD_POS  = '#306BF0';   // forward,  dest >= 0  (blue)
+const C_FWD_NEG  = '#66C7C2';   // forward,  dest <  0  (cyan/teal)
+const C_BWD_POS  = '#F4A261';   // backward, dest >= 0  (orange — lighter warm)
+const C_BWD_NEG  = '#EC6095';   // backward, dest <  0  (pink)
+const C_TOTAL    = '#7c3aed';
+
+// is the hop "forward" (same direction the robot faces)?
+function isForward(from, to) {
+  // forward = moving in the direction the robot faces
+  // robot faces right on +, left on −
+  const movingRight = to > from;
+  return (S.op === '+') ? movingRight : !movingRight;
+}
 
 function hopColor(from, to) {
-  // Use destination to decide colour
-  // If the hop is entirely on the positive side (or ends at 0 from positive): blue
-  // If it ends on or crosses into negative: pink
+  const fwd  = isForward(from, to);
   const dest = to;
-  if (dest >= 0 && from >= 0) return C_POS;
-  if (dest < 0)  return C_NEG;
-  if (dest >= 0 && from < 0) return C_POS;
-  return C_POS;
+  if (fwd)  return dest >= 0 ? C_FWD_POS : C_FWD_NEG;
+  else      return dest >= 0 ? C_BWD_POS : C_BWD_NEG;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  ALTERNATE FORM  — complementary (via-zero) decomposition
+//
+//  Only shown when the hop crosses zero, i.e. when |t2| > |t1|
+//  and the signs of t1 and (t1 op t2) differ.
+//
+//  Logic: split t2 into two parts:
+//    part1 = |t1|          (takes us exactly to 0)
+//    part2 = |t2| - |t1|   (continues past 0)
+//
+//  5 − 8  →  5 − 5 − 3  =  0 − 3  =  −3
+//  −4 + 7 →  −4 + 4 + 3 =  0 + 3  =  3
+// ═══════════════════════════════════════════════════════════════════
+function altForm(t1, op, t2) {
+  // Effective step (signed)
+  const step   = op === '+' ? t2 : -t2;
+  const answer = t1 + step;
+
+  // Only decompose when the hop actually crosses zero
+  const crossesZero = (t1 > 0 && answer < 0) || (t1 < 0 && answer > 0);
+  if (!crossesZero) return null;
+
+  const part1 = Math.abs(t1);          // distance to zero
+  const part2 = Math.abs(answer);      // distance from zero to answer
+
+  // Build the chain label: "5 − 5 − 3  =  0 − 3  =  −3"
+  // We always show both parts with the original operator sign
+  // (because we are decomposing the second term, not changing direction)
+  const opChar = op === '+' ? '+' : '−';
+
+  // Which sign does part2 carry? Same direction as original step.
+  // If step < 0: both parts subtract. If step > 0: both parts add.
+  const label = `${fmtNum(t1)} ${opChar} ${part1} ${opChar} ${part2}  =  0 ${opChar} ${part2}  =  ${fmtNum(answer)}`;
+
+  return { label };
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -133,39 +226,49 @@ const S = {
   animating:false,
   kangMode:true,
   showTotal:false,
-  phase:'idle',          // idle|leg1|paused|leg2|done
-  completedArcs:[],      // [{from,to,color}]
-  revealedPositions:[],  // world-x values
-  // robot flip animation
-  flipAnim:null,         // {startTs, fromFacing, toFacing, duration}
-  facingRight:true,      // current display facing
+  showAlt:false,
+  slowMode:false,
+  showStepArrows:false,
+  revealStep:0,
+  phase:'idle',        // idle | ready | leg1 | paused | leg2 | done
+  completedArcs:[],
+  revealedPositions:[],
+  facingRight:false,
 };
 
 // ═══════════════════════════════════════════════════════════════════
 //  DOM
 // ═══════════════════════════════════════════════════════════════════
-const canvas   = document.getElementById('tl');
-const ctx      = canvas.getContext('2d');
-const freeInp  = document.getElementById('freeInput');
-const inT1     = document.getElementById('term1');
-const inT2     = document.getElementById('term2');
-const selOp    = document.getElementById('operator');
-const btnAnim  = document.getElementById('btnAnimate');
-const btnNext  = document.getElementById('btnNext');
-const btnReset = document.getElementById('btnReset');
-const btnRevl  = document.getElementById('btnReveal');
-const kangChk  = document.getElementById('kangToggle');
-const totalChk = document.getElementById('totalToggle');
-const stripEl  = document.getElementById('stepStrip');
-const exprLeft = document.getElementById('exprLeft');
-const exprAns  = document.getElementById('exprAns');
+const canvas      = document.getElementById('tl');
+const ctx         = canvas.getContext('2d');
+const freeInp     = document.getElementById('freeInput');
+const inT1        = document.getElementById('term1');
+const inT2        = document.getElementById('term2');
+const selOp       = document.getElementById('operator');
+const btnAnim     = document.getElementById('btnAnimate');
+const btnNext     = document.getElementById('btnNext');
+const btnReset    = document.getElementById('btnReset');
+const btnRevl     = document.getElementById('btnReveal');
+const kangChk     = document.getElementById('kangToggle');
+const totalChk    = document.getElementById('totalToggle');
+const altChk      = document.getElementById('altToggle');
+const slowChk       = document.getElementById('slowToggle');
+const explChk       = document.getElementById('explToggle');
+const stepArrowChk  = document.getElementById('stepArrowToggle');
+const btnSettings   = document.getElementById('btnSettings');
+const settingsModal = document.getElementById('settingsModal');
+const modalClose    = document.getElementById('modalClose');
+const explPanel   = document.getElementById('explPanel');
+const explT1El    = document.getElementById('explT1');
+const explOpEl    = document.getElementById('explOp');
+const explT2El    = document.getElementById('explT2');
+const stripEl     = document.getElementById('stepStrip');
+const enterState  = document.getElementById('enterState');
 
 // ═══════════════════════════════════════════════════════════════════
-//  LAYOUT  —  STABLE RANGE
-//  Range is symmetric around t1 ± |t2| so that changing operator
-//  never shifts the number line.
+//  LAYOUT
 // ═══════════════════════════════════════════════════════════════════
-const CW=960, CH=280;
+const CW=960, CH=330;
 const LINE_Y  = 188;
 const TICK_H  = 13;
 const LABEL_Y = LINE_Y + TICK_H + 14;
@@ -174,25 +277,30 @@ const BOX_Y   = LINE_Y + TICK_H + 30;
 let range = {lo:-4, hi:14};
 
 function computeRange(t1, t2) {
-  // Symmetric: always show t1-|t2| … t1+|t2|
   const abs2 = Math.abs(t2);
-  let lo = t1 - abs2;
-  let hi = t1 + abs2;
-  // also ensure 0 is visible
+  let lo = t1 - abs2, hi = t1 + abs2;
   if (lo > 0) lo = 0;
   if (hi < 0) hi = 0;
   const span = hi - lo;
-  const minSpan = 10;
-  if (span < minSpan) {
-    const extra = Math.ceil((minSpan - span) / 2);
-    lo -= extra; hi += extra;
-  }
-  const pad = Math.ceil((hi-lo)*0.18 + 1);
-  return { lo: Math.floor(lo - pad), hi: Math.ceil(hi + pad) };
+  if (span < 10) { const e=Math.ceil((10-span)/2); lo-=e; hi+=e; }
+  const pad = Math.ceil((hi-lo)*0.18+1);
+  return { lo:Math.floor(lo-pad), hi:Math.ceil(hi+pad) };
 }
 
 function worldToX(w) {
   return 48 + (w-range.lo)/(range.hi-range.lo)*(CW-96);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW helpers
+// ═══════════════════════════════════════════════════════════════════
+function roundRect(c,x,y,w,h,r){
+  c.beginPath();
+  c.moveTo(x+r,y); c.lineTo(x+w-r,y); c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y);
+  c.closePath();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -201,51 +309,102 @@ function worldToX(w) {
 function drawLine() {
   const lo=range.lo, hi=range.hi;
   ctx.strokeStyle='#100e28'; ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(worldToX(lo)-20,LINE_Y);
-  ctx.lineTo(worldToX(hi)+20,LINE_Y);
-  ctx.stroke();
-  for (const [sx,d] of [[worldToX(hi)+20,1],[worldToX(lo)-20,-1]]) {
-    ctx.fillStyle='#100e28';
-    ctx.beginPath();
-    ctx.moveTo(sx+d*9,LINE_Y); ctx.lineTo(sx-d*5,LINE_Y-5); ctx.lineTo(sx-d*5,LINE_Y+5);
-    ctx.closePath(); ctx.fill();
-  }
+  ctx.beginPath(); ctx.moveTo(worldToX(lo)-20,LINE_Y); ctx.lineTo(worldToX(hi)+20,LINE_Y); ctx.stroke();
+  // Only right-facing arrow (Swedish convention)
+  const rsx = worldToX(hi)+20;
+  ctx.fillStyle='#100e28'; ctx.beginPath();
+  ctx.moveTo(rsx+9,LINE_Y); ctx.lineTo(rsx-5,LINE_Y-5); ctx.lineTo(rsx-5,LINE_Y+5);
+  ctx.closePath(); ctx.fill();
   for (let n=lo; n<=hi; n++) {
     const x=worldToX(n);
     ctx.strokeStyle='#100e28'; ctx.lineWidth=n===0?2:1;
     ctx.beginPath(); ctx.moveTo(x,LINE_Y-TICK_H); ctx.lineTo(x,LINE_Y+TICK_H); ctx.stroke();
     ctx.font=n===0?'bold 13px Sora':'12px Sora';
     ctx.fillStyle=n===0?'#100e28':'#444';
-    ctx.textAlign='center';
-    ctx.fillText(n,x,LABEL_Y);
+    ctx.textAlign='center'; ctx.fillText(n,x,LABEL_Y);
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — expression box (top-left of canvas)
+//  S.revealStep: 0=expr only, 1=+alt form, 2=+answer
+// ═══════════════════════════════════════════════════════════════════
+function fmtNum(n) {
+  return n < 0 ? `(${n})` : String(n);
+}
+
+function drawExprBox() {
+  const opChar   = S.op==='+'?'+':'−';
+  const mainExpr = `${fmtNum(S.t1)} ${opChar} ${fmtNum(S.t2)}`;
+  const alt      = altForm(S.t1, S.op, S.t2);
+  const step     = S.revealStep || 0;
+
+  const FS  = 17;
+  const pad = 11;
+  const bx  = 16, by = 14;
+
+  ctx.font          = `bold ${FS}px Sora`;
+  ctx.textBaseline  = 'top';
+  ctx.textAlign     = 'left';
+
+  // Build display chain
+  let chain = mainExpr + '  =';
+  if (step >= 1 && alt) chain += `  ${alt.label}  =`;
+  if (step >= 2)        chain += `  ${S.answer}`;
+
+  const chainW = ctx.measureText(chain).width;
+  const boxW   = chainW + pad*2;
+  const boxH   = FS + pad*2;
+
+  // Box
+  ctx.fillStyle   = 'rgba(246,244,255,0.96)';
+  ctx.strokeStyle = '#ccc5f0';
+  ctx.lineWidth   = 1.5;
+  roundRect(ctx, bx, by, boxW, boxH, 8);
+  ctx.fill(); ctx.stroke();
+
+  // Draw coloured segments
+  let cx = bx + pad;
+  const cy = by + pad;
+  function piece(text, color) {
+    ctx.fillStyle = color;
+    ctx.fillText(text, cx, cy);
+    cx += ctx.measureText(text).width;
+  }
+
+  piece(mainExpr, '#100e28');
+  piece('  =', '#585078');
+  if (step >= 1 && alt) {
+    piece(`  ${alt.label}`, '#18a348');
+    piece('  =', '#585078');
+  }
+  if (step >= 2) {
+    piece(`  ${S.answer}`, '#306BF0');
+  }
+
+  ctx.textBaseline = 'alphabetic';
 }
 
 // ═══════════════════════════════════════════════════════════════════
 //  DRAW — arc segment
 // ═══════════════════════════════════════════════════════════════════
-function drawArcSegment(from, to, frac, color, arcHeightOverride) {
+function drawArcSegment(from, to, frac, color, noLabel) {
   if (frac<=0 || from===to) return;
   const x1=worldToX(from), x2=worldToX(to), xMid=(x1+x2)/2;
   const span=Math.abs(x2-x1);
-  const arcH = arcHeightOverride !== undefined
-    ? arcHeightOverride
-    : Math.min(62, span*0.42+14);
+  const arcH=Math.min(62,span*0.42+14);
 
   ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.setLineDash([]);
   ctx.beginPath();
-  const N=60;
-  for (let i=0;i<=N;i++) {
-    const t=(i/N)*frac;
+  for (let i=0;i<=60;i++) {
+    const t=(i/60)*frac;
     const bx=(1-t)*(1-t)*x1+2*(1-t)*t*xMid+t*t*x2;
     const by=(1-t)*(1-t)*LINE_Y+2*(1-t)*t*(LINE_Y-arcH)+t*t*LINE_Y;
     i===0?ctx.moveTo(bx,by):ctx.lineTo(bx,by);
   }
   ctx.stroke();
 
-  // size pill — show when frac > 0.44
-  if (frac>0.44 && arcHeightOverride===undefined) {
+  if (!noLabel && frac>0.44) {
     const size=Math.abs(to-from);
     const lt=0.5*frac;
     const lx=(1-lt)*(1-lt)*x1+2*(1-lt)*lt*xMid+lt*lt*x2;
@@ -259,7 +418,6 @@ function drawArcSegment(from, to, frac, color, arcHeightOverride) {
     ctx.fillText(label,lx,ly-5); ctx.textBaseline='alphabetic';
   }
 
-  // arrowhead
   if (frac>=0.98) {
     const t0=0.96;
     const bx0=(1-t0)*(1-t0)*x1+2*(1-t0)*t0*xMid+t0*t0*x2;
@@ -275,30 +433,27 @@ function drawArcSegment(from, to, frac, color, arcHeightOverride) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  DRAW — total arc overlay  (shown when toggle on AND phase=done|paused)
+//  DRAW — total arc
 // ═══════════════════════════════════════════════════════════════════
 function drawTotalArc() {
   if (!S.showTotal) return;
-  if (S.phase!=='done' && S.phase!=='paused') return;
+  if (S.phase!=='done' && S.phase!=='paused' && S.phase!=='leg2') return;
   if (S.t1===S.answer) return;
 
   const x1=worldToX(S.t1), x2=worldToX(S.answer), xMid=(x1+x2)/2;
   const span=Math.abs(x2-x1);
-  const arcH=Math.min(105, span*0.58+32);   // higher than segment arcs
+  const arcH=Math.min(105,span*0.58+32);
 
-  // dashed arc
   ctx.strokeStyle=C_TOTAL; ctx.lineWidth=2.2; ctx.setLineDash([6,4]);
   ctx.beginPath();
-  const N=60;
-  for (let i=0;i<=N;i++) {
-    const t=i/N;
+  for (let i=0;i<=60;i++) {
+    const t=i/60;
     const bx=(1-t)*(1-t)*x1+2*(1-t)*t*xMid+t*t*x2;
     const by=(1-t)*(1-t)*LINE_Y+2*(1-t)*t*(LINE_Y-arcH)+t*t*LINE_Y;
     i===0?ctx.moveTo(bx,by):ctx.lineTo(bx,by);
   }
   ctx.stroke(); ctx.setLineDash([]);
 
-  // arrowhead
   const t0=0.96;
   const bx0=(1-t0)*(1-t0)*x1+2*(1-t0)*t0*xMid+t0*t0*x2;
   const by0=(1-t0)*(1-t0)*LINE_Y+2*(1-t0)*t0*(LINE_Y-arcH)+t0*t0*LINE_Y;
@@ -310,13 +465,16 @@ function drawTotalArc() {
   ctx.lineTo(x2-10*Math.cos(ang+0.4),LINE_Y-10*Math.sin(ang+0.4));
   ctx.closePath(); ctx.fill();
 
-  // label pill with calculation
   const lx=xMid, ly=LINE_Y-arcH-9;
   let label;
   if (S.completedArcs.length===2) {
-    const d1=Math.abs(S.completedArcs[0].to - S.completedArcs[0].from);
-    const d2=Math.abs(S.completedArcs[1].to - S.completedArcs[1].from);
+    const d1=Math.abs(S.completedArcs[0].to-S.completedArcs[0].from);
+    const d2=Math.abs(S.completedArcs[1].to-S.completedArcs[1].from);
     label=`Totalt: ${d1} + ${d2} = ${d1+d2} steg`;
+  } else if (S.phase==='paused' && S.completedArcs.length===1) {
+    const d1=Math.abs(S.completedArcs[0].to-S.completedArcs[0].from);
+    const d2=Math.abs(S.answer);
+    label=`${d1} gjorda + ${d2} kvar = ${d1+d2} steg`;
   } else {
     label=`Totalt: ${Math.abs(S.answer-S.t1)} steg`;
   }
@@ -329,7 +487,7 @@ function drawTotalArc() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  DRAW — position boxes under line
+//  DRAW — position boxes
 // ═══════════════════════════════════════════════════════════════════
 function drawPositionBoxes() {
   for (const pos of S.revealedPositions) {
@@ -337,9 +495,8 @@ function drawPositionBoxes() {
     const label=String(pos);
     ctx.font='bold 13px Sora';
     const tw=ctx.measureText(label).width;
-    const bw=tw+14, bh=20;
-    const bx=x-bw/2, by=BOX_Y-2;
-    ctx.strokeStyle='#aaa'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    const bw=tw+14, bh=20, bx=x-bw/2, by=BOX_Y-2;
+    ctx.strokeStyle='#bbb'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
     ctx.beginPath(); ctx.moveTo(x,LINE_Y+TICK_H+2); ctx.lineTo(x,by); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle='#fff'; ctx.strokeStyle='#ccc5f0'; ctx.lineWidth=1.5;
@@ -350,175 +507,202 @@ function drawPositionBoxes() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+//  DRAW — step arrows below position boxes
+// ═══════════════════════════════════════════════════════════════════
+function drawStepArrows() {
+  if (!S.showStepArrows) return;
+  if (S.revealedPositions.length < 2) return;
+
+  const ARROW_Y = BOX_Y + 22;   // below the boxes
+  const bh = 20;
+
+  for (let i = 0; i < S.revealedPositions.length - 1; i++) {
+    const from = S.revealedPositions[i];
+    const to   = S.revealedPositions[i + 1];
+    if (from === to) continue;
+
+    const x1 = worldToX(from);
+    const x2 = worldToX(to);
+    const mid = (x1 + x2) / 2;
+    const goRight = x2 > x1;
+
+    // Pick colour matching arc
+    const col = S.completedArcs[i] ? S.completedArcs[i].color : '#aaa';
+
+    // Horizontal line
+    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(x1 + (goRight ? 6 : -6), ARROW_Y);
+    ctx.lineTo(x2 + (goRight ? -6 : 6), ARROW_Y);
+    ctx.stroke();
+
+    // Arrowhead
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    if (goRight) {
+      ctx.moveTo(x2, ARROW_Y);
+      ctx.lineTo(x2-9, ARROW_Y-5);
+      ctx.lineTo(x2-9, ARROW_Y+5);
+    } else {
+      ctx.moveTo(x2, ARROW_Y);
+      ctx.lineTo(x2+9, ARROW_Y-5);
+      ctx.lineTo(x2+9, ARROW_Y+5);
+    }
+    ctx.closePath(); ctx.fill();
+
+    // Size label — drawn below the arrow
+    const size = Math.abs(to - from);
+    const label = size + ' steg';
+    ctx.font = 'bold 11px Sora';
+    const tw = ctx.measureText(label).width;
+    ctx.fillStyle = col;
+    roundRect(ctx, mid - tw/2 - 5, ARROW_Y + 6, tw + 10, 16, 3);
+    ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(label, mid, ARROW_Y + 14);
+    ctx.textBaseline = 'alphabetic';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
 //  DRAW — start marker
 // ═══════════════════════════════════════════════════════════════════
 function drawStartMarker() {
   const sx=worldToX(S.t1);
   ctx.strokeStyle='#306BF0'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
-  ctx.beginPath(); ctx.moveTo(sx,LINE_Y-TICK_H-72); ctx.lineTo(sx,LINE_Y+TICK_H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(sx,LINE_Y-TICK_H-118); ctx.lineTo(sx,LINE_Y+TICK_H); ctx.stroke();
   ctx.setLineDash([]);
   ctx.font='bold 11px Sora'; ctx.fillStyle='#306BF0'; ctx.textAlign='center';
-  ctx.fillText('start',sx,LINE_Y-TICK_H-75);
+  ctx.fillText('start',sx,LINE_Y-TICK_H-121);
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  DRAW — robot   (scaleX drives the flip animation)
+//  DRAW — robot
 // ═══════════════════════════════════════════════════════════════════
 function drawRobot(worldX, scaleX, walkPhase) {
-  // scaleX: +1 = facing right, -1 = facing left, intermediate = mid-flip
-  const x     = worldToX(worldX);
-  const baseY = LINE_Y;
-  const swing = Math.sin(walkPhase*Math.PI*2)*6;
-  const bob   = Math.abs(Math.sin(walkPhase*Math.PI*2))*2;
-  const facingRight = scaleX >= 0;
+  const x=worldToX(worldX), baseY=LINE_Y;
+  const swing=Math.sin(walkPhase*Math.PI*2)*6;
+  const bob=Math.abs(Math.sin(walkPhase*Math.PI*2))*2;
+  const facingRight=scaleX>=0;
 
   ctx.save();
-  ctx.translate(x, baseY-bob);
-  ctx.scale(scaleX, 1);  // handles both facing and mid-flip squash
+  ctx.translate(x,baseY-bob);
+  ctx.scale(scaleX,1);
 
-  // legs
   ctx.fillStyle='#4a5568';
   ctx.save(); ctx.translate(-6,0); ctx.rotate(swing*0.04); ctx.fillRect(-3.5,-20,7,20); ctx.restore();
   ctx.save(); ctx.translate(6,0);  ctx.rotate(-swing*0.04); ctx.fillRect(-3.5,-20,7,20); ctx.restore();
 
-  // body
   ctx.fillStyle='#4a5568'; roundRect(ctx,-14,-54,28,36,4); ctx.fill();
   ctx.fillStyle='#718096'; ctx.fillRect(-10,-48,20,3); ctx.fillRect(-10,-42,20,3);
 
-  // arms
   ctx.fillStyle='#718096';
   ctx.save(); ctx.translate(-14,-46); ctx.rotate(-swing*0.05); ctx.fillRect(-9,0,9,6); ctx.restore();
   ctx.save(); ctx.translate(14,-46);  ctx.rotate(swing*0.05);  ctx.fillRect(0,0,9,6);  ctx.restore();
 
-  // head
   ctx.fillStyle='#2d3748'; roundRect(ctx,-16,-90,32,36,5); ctx.fill();
-
-  // window
   ctx.fillStyle='#e8f4fd'; ctx.strokeStyle='#63b3ed'; ctx.lineWidth=2;
   roundRect(ctx,-13,-87,26,25,4); ctx.fill(); ctx.stroke();
 
-  // number — always upright regardless of scaleX
-  const numStr = String(Math.round(worldX));
-  const fontSize = numStr.length > 2 ? 12 : 15;
+  const numStr=String(Math.round(worldX));
+  const fontSize=numStr.length>2?12:15;
   ctx.save();
-  ctx.scale(scaleX < 0 ? -1 : 1, 1);  // un-mirror text
+  ctx.scale(scaleX<0?-1:1,1);
   ctx.fillStyle='#1a365d'; ctx.font=`bold ${fontSize}px Sora`;
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(numStr, 0, -74);
-  ctx.textBaseline='alphabetic';
+  ctx.fillText(numStr,0,-74); ctx.textBaseline='alphabetic';
   ctx.restore();
 
-  // antenna
   ctx.strokeStyle='#718096'; ctx.lineWidth=1.5;
   ctx.beginPath(); ctx.moveTo(0,-90); ctx.lineTo(0,-98); ctx.stroke();
   ctx.fillStyle='#EC6095'; ctx.beginPath(); ctx.arc(0,-101,4,0,Math.PI*2); ctx.fill();
 
   ctx.restore();
-
-  // direction arrow (world space — never mirrored)
   drawDirectionArrow(x, baseY-bob-118, facingRight);
 }
 
 function drawDirectionArrow(cx,cy,pointRight) {
-  const aw=28,ah=10;
+  const aw=40, ah=14;
+  const col = pointRight ? '#66C7C2' : '#EC6095';
   ctx.save(); ctx.translate(cx,cy);
   if (!pointRight) ctx.scale(-1,1);
-  ctx.fillStyle='#306BF0';
-  ctx.fillRect(-aw/2,-ah/2+2,aw-8,ah-4);
-  ctx.beginPath(); ctx.moveTo(aw/2,0); ctx.lineTo(aw/2-10,-ah/2-2); ctx.lineTo(aw/2-10,ah/2+2); ctx.closePath(); ctx.fill();
+  // shaft
+  ctx.fillStyle=col;
+  ctx.beginPath();
+  ctx.roundRect(-aw/2, -ah/2+3, aw-12, ah-6, 3);
+  ctx.fill();
+  // head
+  ctx.beginPath();
+  ctx.moveTo(aw/2,    0);
+  ctx.lineTo(aw/2-14, -ah/2-3);
+  ctx.lineTo(aw/2-14,  ah/2+3);
+  ctx.closePath(); ctx.fill();
   ctx.restore();
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  DRAW — full frame
+//  RENDER
 // ═══════════════════════════════════════════════════════════════════
 function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robotScaleX) {
   ctx.clearRect(0,0,CW,CH);
   drawLine();
   drawStartMarker();
-
-  // already completed arcs
   for (const a of S.completedArcs) drawArcSegment(a.from,a.to,1,a.color);
-
-  // active animating arc
   if (activeFrom!==undefined && arcProgress>0)
     drawArcSegment(activeFrom,activeTo,arcProgress,activeColor);
-
   drawTotalArc();
   drawPositionBoxes();
-
-  const sx = robotScaleX !== undefined ? robotScaleX : (S.op==='+' ? 1 : -1);
-  drawRobot(S.robotPos, sx, walkPhase||0);
+  drawStepArrows();
+  const sx=robotScaleX!==undefined ? robotScaleX : (S.facingRight?1:-1);
+  drawRobot(S.robotPos,sx,walkPhase||0);
+  drawExprBox();  // always on top
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  ROBOT FLIP ANIMATION
+//  FLIP ANIMATION
 // ═══════════════════════════════════════════════════════════════════
-let flipRAF = null;
-
+let flipRAF=null;
 function animateFlip(fromRight, toRight, onDone) {
-  // Quick flip: scaleX goes from ±1 → 0 (squash) → ±1 (new dir) with a bounce
   if (flipRAF) cancelAnimationFrame(flipRAF);
-  const DURATION = 220;
-  let startTs = null;
-  const fromScale = fromRight ? 1 : -1;
-  const toScale   = toRight   ? 1 : -1;
-
+  const DUR=220; let startTs=null;
+  const fromScale=fromRight?1:-1, toScale=toRight?1:-1;
   function step(ts) {
-    if (!startTs) startTs = ts;
-    const p = Math.min((ts-startTs)/DURATION, 1);
-    // p 0→0.5: squash to 0 ; 0.5→1: expand to new dir with slight overshoot
+    if (!startTs) startTs=ts;
+    const p=Math.min((ts-startTs)/DUR,1);
     let sx;
-    if (p < 0.5) {
-      sx = fromScale * (1 - p*2);
-    } else {
-      const q = (p-0.5)*2;          // 0→1
-      const bounce = 1 + 0.25*Math.sin(q*Math.PI); // overshoot at midpoint
-      sx = toScale * q * bounce;
-      if (Math.abs(sx) > 1) sx = toScale; // clamp
+    if (p<0.5) { sx=fromScale*(1-p*2); }
+    else {
+      const q=(p-0.5)*2;
+      const bounce=1+0.25*Math.sin(q*Math.PI);
+      sx=toScale*q*bounce;
+      if (Math.abs(sx)>1) sx=toScale;
     }
-    render(undefined, 0, undefined, undefined, undefined, sx);
-    if (p<1) {
-      flipRAF = requestAnimationFrame(step);
-    } else {
-      render(undefined, 0, undefined, undefined, undefined, toScale);
-      if (onDone) onDone();
-    }
+    render(undefined,0,undefined,undefined,undefined,sx);
+    if (p<1) { flipRAF=requestAnimationFrame(step); }
+    else { render(undefined,0,undefined,undefined,undefined,toScale); if (onDone) onDone(); }
   }
-  flipRAF = requestAnimationFrame(step);
+  flipRAF=requestAnimationFrame(step);
 }
 
 // ═══════════════════════════════════════════════════════════════════
 //  ANIMATION ENGINE
 // ═══════════════════════════════════════════════════════════════════
-let animRAF = null;
-
+let animRAF=null;
 function animateLeg(from, to, color, onDone) {
-  const distPx  = Math.abs(worldToX(to)-worldToX(from));
-  const DURATION = Math.max(800, distPx*3.0);
-  let startTime = null;
-
+  const distPx=Math.abs(worldToX(to)-worldToX(from));
+  const speed=S.slowMode ? 7.5 : 3.0;
+  const DUR=Math.max(S.slowMode?2000:800, distPx*speed); let startTime=null;
   function step(ts) {
     if (!startTime) startTime=ts;
-    const raw=Math.min((ts-startTime)/DURATION,1);
+    const raw=Math.min((ts-startTime)/DUR,1);
     const p=raw<0.5?2*raw*raw:-1+(4-2*raw)*raw;
-
-    S.robotPos = from+(to-from)*p;
+    S.robotPos=from+(to-from)*p;
     const dt=Math.abs(worldToX(S.robotPos)-worldToX(from));
-    const walkPhase=(dt/60)%1;
-
-    render(p, walkPhase, from, to, color);
-
+    render(p,( dt/60)%1,from,to,color);
     const rem=Math.round(Math.abs(to-S.robotPos));
     setStrip(rem>0?`${rem} steg kvar…`:'');
-
-    if (p<1) {
-      animRAF=requestAnimationFrame(step);
-    } else {
-      S.robotPos=to;
-      render(1,0,from,to,color);
-      onDone();
-    }
+    if (p<1) { animRAF=requestAnimationFrame(step); }
+    else { S.robotPos=to; render(1,0,from,to,color); onDone(); }
   }
   animRAF=requestAnimationFrame(step);
 }
@@ -526,41 +710,35 @@ function animateLeg(from, to, color, onDone) {
 function kangApplies() {
   const steps=S.op==='+'?S.t2:-S.t2;
   return S.kangMode &&
-    ((S.t1>0 && steps<0 && S.t1+steps<0)||
-     (S.t1<0 && steps>0 && S.t1+steps>0));
+    ((S.t1>0&&steps<0&&S.t1+steps<0)||(S.t1<0&&steps>0&&S.t1+steps>0));
 }
 
 function startAnimation() {
   if (S.animating) return;
+  if (S.phase==='idle') return;   // must be 'ready'
   readInputs();
-
-  // range is fixed at start; same for + and - with same numbers
   range=computeRange(S.t1,S.t2);
-  S.robotPos=S.t1;
-  S.animating=true;
-  S.completedArcs=[];
-  S.revealedPositions=[];
-
-  btnAnim.disabled=true;
-  btnNext.style.display='none';
+  S.robotPos=S.t1; S.animating=true;
+  S.completedArcs=[]; S.revealedPositions=[];
+  btnAnim.disabled=true; btnNext.style.display='none';
   btnRevl.style.display='none';
-  exprAns.classList.remove('visible');
-  addRevealedPos(S.t1);
-
+  S.revealStep=0;
+  addPos(S.t1);
   const kang=kangApplies();
 
+  // update enter state
+  setEnterState('animating');
+
   if (kang) {
-    // hop 1: t1 → 0
     S.phase='leg1';
     const c1=hopColor(S.t1,0);
     setStrip(`Hopp 1: ${Math.abs(S.t1)} steg mot nollan…`);
     animateLeg(S.t1,0,c1,()=>{
       S.completedArcs.push({from:S.t1,to:0,color:c1});
-      addRevealedPos(0);
-      S.phase='paused';
-      S.animating=false;
-      setStrip('🦘 Vid nollan! Tryck "Nästa hopp" för att fortsätta.');
+      addPos(0); S.phase='paused'; S.animating=false;
+      setStrip('🦘 Vid nollan! Tryck Enter eller "Nästa hopp" för att fortsätta.');
       btnNext.style.display='';
+      setEnterState('paused');
       render(1,0);
     });
   } else {
@@ -568,90 +746,142 @@ function startAnimation() {
     const c=hopColor(S.t1,S.answer);
     animateLeg(S.t1,S.answer,c,()=>{
       S.completedArcs.push({from:S.t1,to:S.answer,color:c});
-      addRevealedPos(S.answer);
-      finishAnimation();
+      addPos(S.answer); finishAnimation();
     });
   }
 }
 
 function continueAnimation() {
   if (S.phase!=='paused') return;
-  S.animating=true;
-  S.phase='leg2';
+  S.animating=true; S.phase='leg2';
   btnNext.style.display='none';
+  setEnterState('animating');
   const c2=hopColor(0,S.answer);
   setStrip(`Hopp 2: ${Math.abs(S.answer)} steg mot svaret…`);
   animateLeg(0,S.answer,c2,()=>{
     S.completedArcs.push({from:0,to:S.answer,color:c2});
-    addRevealedPos(S.answer);
-    finishAnimation();
+    addPos(S.answer); finishAnimation();
   });
 }
 
 function finishAnimation() {
-  S.animating=false;
-  S.phase='done';
+  S.animating=false; S.phase='done';
+  S.revealStep=0;
   btnAnim.disabled=false;
+  const hasAlt = altForm(S.t1, S.op, S.t2) !== null;
+  btnRevl.textContent = hasAlt ? 'Visa tolkning' : 'Visa svar';
   btnRevl.style.display='';
+  setEnterState('done');
   render(1,0);
   setStrip('Klar – tryck "Visa svar" när du är redo.');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  ENTER STATE MACHINE
+//  idle → (type + Enter) → ready → (Enter) → animating
+//  paused → (Enter) → leg2
+//  done → (new input) → idle
+// ═══════════════════════════════════════════════════════════════════
+function setEnterState(state) {
+  if (state==='idle') {
+    enterState.textContent='Skriv ett uttryck…';
+    enterState.className='enter-state';
+  } else if (state==='ready') {
+    enterState.textContent='↵ Enter för att animera';
+    enterState.className='enter-state ready';
+  } else if (state==='paused') {
+    enterState.textContent='↵ Enter för nästa hopp';
+    enterState.className='enter-state go';
+  } else if (state==='animating') {
+    enterState.textContent='Animerar…';
+    enterState.className='enter-state';
+  } else if (state==='done') {
+    enterState.textContent='Klar! Skriv nytt uttryck.';
+    enterState.className='enter-state';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════
 //  FREE TEXT PARSING
 // ═══════════════════════════════════════════════════════════════════
 function parseFreeText(raw) {
-  let s=raw.trim().replace(/−/g,'-').replace(/–/g,'-').replace(/\s+/g,'');
-  const m=s.match(/^(-?\d+)([+\-])(-?\d+)$/);
-  if (!m) return null;
-  const t1=parseInt(m[1]), op=m[2]==='-'?'−':'+', t2=parseInt(m[3]);
-  if (isNaN(t1)||isNaN(t2)) return null;
-  return {t1,op,t2};
+  let s = raw.trim()
+    .replace(/−/g,'-').replace(/–/g,'-').replace(/\u2212/g,'-')
+    .replace(/\s+/g,'');
+
+  // Expand parenthesised negatives: 5-(-7) → 5--7,  5+(-3) → 5+-3
+  s = s.replace(/\((-?\d+)\)/g, '$1');
+
+  // Normalise double minus/plus-minus to single operator + signed operand
+  // 5--7 → op=-, t2=-7   (subtract negative = subtract)
+  // 5+-3 → op=+, t2=-3   (add negative)
+  // already handled by the regex below; just keep as-is after parens expansion
+
+  // Match: (optional leading minus)(digits)(single + or -)(optional minus)(digits)
+  const m = s.match(/^(-?\d+)([+\-])(-?\d+)$/);
+  if (m) {
+    const t1 = parseInt(m[1]);
+    const op = m[2] === '-' ? '−' : '+';
+    const t2 = parseInt(m[3]);
+    if (!isNaN(t1) && !isNaN(t2)) return { t1, op, t2 };
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  EXPLANATION PANEL
+// ═══════════════════════════════════════════════════════════════════
+function updateExplPanel() {
+  if (!explChk.checked) { explPanel.classList.remove('visible'); return; }
+  explPanel.classList.add('visible');
+  const opWord = S.op === '+' ? 'höger (addition)' : 'vänster (subtraktion)';
+  const t2Abs  = Math.abs(S.t2);
+  const t2Word = S.t2 >= 0
+    ? `${S.t2} steg framlänges (positivt tal)`
+    : `${t2Abs} steg baklänges (negativt tal)`;
+  explT1El.textContent = `${S.t1} — startposition på tallinjen`;
+  explOpEl.textContent = `Roboten tittar åt ${opWord}`;
+  explT2El.textContent = t2Word;
 }
 
 // ═══════════════════════════════════════════════════════════════════
 //  INPUTS & PREVIEW
 // ═══════════════════════════════════════════════════════════════════
 function readInputs() {
-  S.t1     =parseInt(inT1.value)||0;
-  S.op     =selOp.value;
-  S.t2     =parseInt(inT2.value)||0;
-  S.answer =S.op==='+'?S.t1+S.t2:S.t1-S.t2;
+  S.t1=parseInt(inT1.value)||0;
+  S.op=selOp.value;
+  S.t2=parseInt(inT2.value)||0;
+  S.answer=S.op==='+'?S.t1+S.t2:S.t1-S.t2;
   S.kangMode=kangChk.checked;
   S.showTotal=totalChk.checked;
+  S.showAlt=altChk.checked;
+  S.slowMode=slowChk.checked;
+  S.showStepArrows=stepArrowChk.checked;
+  updateExplPanel();
 }
 
-let prevOp = '+';
+let prevOp='+';
 
 function updatePreview(triggerFlip) {
-  const oldOp = prevOp;
+  const oldOp=prevOp;
   readInputs();
-  prevOp = S.op;
+  prevOp=S.op;
 
-  const opChar=S.op==='+'?'+':'−';
-  exprLeft.textContent=`${S.t1} ${opChar} ${S.t2} = `;
-  exprAns.textContent=S.answer;
-  exprAns.classList.remove('visible');
-  btnRevl.style.display='none';
-  btnNext.style.display='none';
-
-  // Recompute range — stable across operator changes
   range=computeRange(S.t1,S.t2);
   S.robotPos=S.t1;
-  S.phase='idle';
+  S.phase='ready';   // inputs came from field sync after parse
   S.completedArcs=[];
   S.revealedPositions=[S.t1];
   setStrip('\u00a0');
+  btnRevl.style.display='none';
+  S.revealStep=0;
+  btnNext.style.display='none';
 
-  const newFacingRight = S.op==='+';
-
-  // Trigger flip animation only when operator actually changed
-  if (triggerFlip && oldOp !== S.op && !S.animating) {
-    animateFlip(S.facingRight, newFacingRight, ()=>{
-      S.facingRight = newFacingRight;
-    });
+  const newFacing=S.op==='+';
+  if (triggerFlip && oldOp!==S.op && !S.animating) {
+    animateFlip(S.facingRight, newFacing, ()=>{ S.facingRight=newFacing; });
   } else {
-    S.facingRight = newFacingRight;
+    S.facingRight=newFacing;
     render(undefined,0);
   }
 }
@@ -661,62 +891,116 @@ function resetAll() {
   if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF=null; }
   S.animating=false; S.phase='idle';
   btnAnim.disabled=false;
-  updatePreview(false);
+  freeInp.value='';
+  freeInp.classList.remove('error','accepted');
+  setEnterState('idle');
+  // reset to default
+  inT1.value=5; selOp.value='−'; inT2.value=7;
+  readInputs();
+  range=computeRange(S.t1,S.t2);
+  S.robotPos=S.t1; S.facingRight=S.op==='+';
+  S.completedArcs=[]; S.revealedPositions=[S.t1];
+  setStrip('\u00a0'); btnRevl.style.display='none'; btnNext.style.display='none';
+  render(undefined,0);
 }
 
-function addRevealedPos(pos) {
+function addPos(pos) {
   if (!S.revealedPositions.includes(pos)) S.revealedPositions.push(pos);
 }
 function setStrip(msg) { stripEl.textContent=msg||'\u00a0'; }
 
 // ═══════════════════════════════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════════════════════════════
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
-  ctx.closePath();
-}
-
-// ═══════════════════════════════════════════════════════════════════
 //  EVENTS
 // ═══════════════════════════════════════════════════════════════════
-freeInp.addEventListener('keydown',e=>{
-  if (e.key==='Enter') {
+freeInp.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+
+  // Phase routing
+  if (S.phase==='paused') {
+    continueAnimation(); return;
+  }
+  if (S.phase==='ready' || S.phase==='done') {
+    // If there's new text to parse first
     const p=parseFreeText(freeInp.value);
     if (p) {
       freeInp.classList.remove('error');
+      freeInp.classList.add('accepted');
       inT1.value=p.t1; selOp.value=p.op; inT2.value=p.t2;
-      updatePreview(true); freeInp.blur();
-    } else { freeInp.classList.add('error'); }
+      const prevPhase=S.phase;
+      updatePreview(true);
+      // If we were already ready with same expression, animate
+      if (prevPhase==='ready') { startAnimation(); return; }
+      setEnterState('ready');
+    } else if (S.phase==='ready') {
+      startAnimation();
+    } else {
+      freeInp.classList.add('error');
+    }
+    return;
+  }
+
+  // phase === 'idle' — first Enter: parse and register
+  const p=parseFreeText(freeInp.value);
+  if (p) {
+    freeInp.classList.remove('error');
+    freeInp.classList.add('accepted');
+    inT1.value=p.t1; selOp.value=p.op; inT2.value=p.t2;
+    updatePreview(true);
+    setEnterState('ready');
+  } else {
+    freeInp.classList.add('error');
   }
 });
-freeInp.addEventListener('input',()=>freeInp.classList.remove('error'));
 
-// operator change triggers flip
-selOp.addEventListener('change',()=>updatePreview(true));
-// other inputs just update
-[inT1,inT2,kangChk].forEach(el=>el.addEventListener('input',()=>updatePreview(false)));
+freeInp.addEventListener('input', () => {
+  freeInp.classList.remove('error','accepted');
+  // If we had a ready state and user starts typing again, go back to idle
+  if (S.phase==='ready') {
+    S.phase='idle';
+    setEnterState('idle');
+  }
+});
+
+kangChk.addEventListener('change',()=>{ S.kangMode=kangChk.checked; });
 totalChk.addEventListener('change',()=>{ S.showTotal=totalChk.checked; render(1,0); });
+altChk.addEventListener('change',()=>{ S.showAlt=altChk.checked; render(1,0); });
+explChk.addEventListener('change',()=>{ updateExplPanel(); });
+slowChk.addEventListener('change',()=>{ S.slowMode=slowChk.checked; });
+stepArrowChk.addEventListener('change',()=>{ S.showStepArrows=stepArrowChk.checked; render(1,0); });
+btnSettings.addEventListener('click',()=>{ settingsModal.classList.add('open'); });
+modalClose.addEventListener('click',()=>{ settingsModal.classList.remove('open'); });
+settingsModal.addEventListener('click', e=>{ if(e.target===settingsModal) settingsModal.classList.remove('open'); });
 
-btnAnim.addEventListener('click',startAnimation);
-btnNext.addEventListener('click',continueAnimation);
-btnReset.addEventListener('click',resetAll);
+btnAnim.addEventListener('click', startAnimation);
+btnNext.addEventListener('click', continueAnimation);
+btnReset.addEventListener('click', resetAll);
 btnRevl.addEventListener('click',()=>{
-  exprAns.classList.add('visible');
-  setStrip(`Svaret är ${S.answer}.`);
-  render(1,0);
+  const alt = altForm(S.t1, S.op, S.t2);
+  if (S.revealStep === 0 && alt) {
+    // Step 1: show alt form
+    S.revealStep = 1;
+    btnRevl.textContent = 'Visa svar';
+    render(1,0);
+  } else {
+    // Step 2 (or step 1 if no alt): show answer
+    S.revealStep = 2;
+    btnRevl.style.display = 'none';
+    setStrip(`Svaret är ${S.answer}.`);
+    render(1,0);
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
-prevOp = selOp.value;
-S.facingRight = selOp.value==='+';
-updatePreview(false);
+prevOp=selOp.value;
+readInputs();
+S.facingRight=S.op==='+';
+range=computeRange(S.t1,S.t2);
+S.revealedPositions=[S.t1];
+setEnterState('idle');
+render(undefined,0);
 </script>
 </body>
 </html>
