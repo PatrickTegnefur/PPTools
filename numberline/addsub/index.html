@@ -30,6 +30,13 @@
     box-shadow:0 3px 10px rgba(48,107,240,.2);
   }
 
+  /* invert-operator button lives inside the float-toolbar; colour reflects facing direction */
+  #btnInvertOp.facing-right{ color:#66C7C2; border-color:#66C7C2; }
+  #btnInvertOp.facing-right:hover{ background:#66C7C2; color:#fff; }
+  #btnInvertOp.facing-left{ color:#EC6095; border-color:#EC6095; }
+  #btnInvertOp.facing-left:hover{ background:#EC6095; color:#fff; }
+  .toolbar-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 1px; }
+
   /* floating icon toolbar over canvas (hover-revealed) */
   .float-toolbar{
     position:absolute; top:14px; right:14px; z-index:25;
@@ -94,16 +101,19 @@
     <canvas id="tl" width="960" height="330"></canvas>
     <input type="text" id="exprEditInput" autocomplete="off" spellcheck="false">
 
-    <!-- floating toolbar: hela hoppet / steg för steg -->
+    <!-- floating toolbar: invert op / hela hoppet / steg för steg / steg-pilar / förklaringstext -->
     <div class="float-toolbar" id="floatToolbar">
+      <button class="icon-btn" id="btnInvertOp" title="Växla + / −">+</button>
+      <span class="toolbar-sep"></span>
       <button class="icon-btn" id="btnTotalToggle" title="Visa totalt hopp">↔</button>
       <button class="icon-btn active" id="btnStepToggle" title="Steg för steg">⛓</button>
+      <button class="icon-btn" id="btnStepArrowToggle" title="Steg-pilar under linjen">➡</button>
+      <button class="icon-btn" id="btnExplainToggle" title="Hjälptexter">💬</button>
     </div>
   </div>
 
   <div class="action-row">
     <button class="ibtn primary" id="btnAnimate">▶<span class="tip">Animera</span></button>
-    <button class="ibtn next" id="btnNext" style="display:none">⏭<span class="tip">Nästa hopp</span></button>
     <button class="ibtn" id="btnReset">↺<span class="tip">Återställ</span></button>
     <button class="ibtn" id="btnSettings">⚙️<span class="tip">Inställningar</span></button>
     <button class="ibtn reveal" id="btnReveal" style="display:none">👁<span class="tip">Visa</span></button>
@@ -119,7 +129,6 @@
       <div class="modal-section">
         <label class="toggle-label"><span class="ic">🦘</span><input type="checkbox" id="kangToggle" checked> Känguruhopp</label>
         <label class="toggle-label"><span class="ic">🐢</span><input type="checkbox" id="slowToggle" checked> Långsamt läge</label>
-        <label class="toggle-label"><span class="ic">➡</span><input type="checkbox" id="stepArrowToggle"> Steg-pilar under linjen</label>
         <label class="toggle-label"><span class="ic">💡</span><input type="checkbox" id="explToggle"> Förklaring av begrepp</label>
       </div>
     </div>
@@ -194,6 +203,8 @@ const S = {
   kangMode:true,
   showTotal:false,
   showStepChain:true,   // "steg för steg" = show per-leg arcs/labels (default on)
+  showHints:false,      // verbose interpretation strip text ("3 steg baklänges" etc)
+  canvasHint:'',        // the "X steg kvar" text drawn under the step arrows on canvas
   slowMode:true,
   showStepArrows:false,
   showExpl:false,
@@ -211,12 +222,13 @@ const canvas       = document.getElementById('tl');
 const ctx          = canvas.getContext('2d');
 const canvasWrap    = document.getElementById('canvasWrap');
 const exprEditInput = document.getElementById('exprEditInput');
+const btnInvertOp   = document.getElementById('btnInvertOp');
 const floatToolbar  = document.getElementById('floatToolbar');
 const btnTotalToggle= document.getElementById('btnTotalToggle');
 const btnStepToggle = document.getElementById('btnStepToggle');
+const btnExplainToggle = document.getElementById('btnExplainToggle');
 
 const btnAnim  = document.getElementById('btnAnimate');
-const btnNext  = document.getElementById('btnNext');
 const btnReset = document.getElementById('btnReset');
 const btnRevl  = document.getElementById('btnReveal');
 const btnSettings   = document.getElementById('btnSettings');
@@ -225,7 +237,7 @@ const modalClose    = document.getElementById('modalClose');
 
 const kangChk      = document.getElementById('kangToggle');
 const slowChk      = document.getElementById('slowToggle');
-const stepArrowChk = document.getElementById('stepArrowToggle');
+const btnStepArrowToggle = document.getElementById('btnStepArrowToggle');
 const explChk      = document.getElementById('explToggle');
 
 const stripEl   = document.getElementById('stepStrip');
@@ -336,35 +348,6 @@ function drawExprBox() {
   }
   if (step >= 2) piece(`  ${S.answer}`, '#306BF0');
 
-  ctx.textBaseline = 'alphabetic';
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  DRAW — separate alt-form box (BELOW main expr box, per user request)
-// ═══════════════════════════════════════════════════════════════════
-function drawAltBox() {
-  if (S.revealStep < 1) return;
-  const alt = altForm(S.t1, S.op, S.t2);
-  if (!alt) return;
-
-  const FS = 14, pad = 10;
-  const bx = 16, by = exprBoxRect.y + exprBoxRect.h + 8;
-
-  ctx.font = `600 ${FS}px Sora`;
-  ctx.textBaseline = 'top'; ctx.textAlign = 'left';
-  const label = alt.label;
-  const tw = ctx.measureText(label).width;
-  const boxW = tw + pad*2;
-  const boxH = FS + pad*2;
-
-  ctx.fillStyle = '#eafaf1';
-  ctx.strokeStyle = '#18a348';
-  ctx.lineWidth = 1.3;
-  roundRect(ctx, bx, by, boxW, boxH, 7);
-  ctx.fill(); ctx.stroke();
-
-  ctx.fillStyle = '#18a348';
-  ctx.fillText(label, bx+pad, by+pad);
   ctx.textBaseline = 'alphabetic';
 }
 
@@ -501,6 +484,28 @@ function drawPositionBoxes() {
       ctx.textAlign='center'; ctx.fillText('svar', x, by+bh+12);
     }
   });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — canvas hint text (e.g. "12 − 5 = 7 steg kvar")
+//  Lives in the same vertical band as the step arrows so it's easy
+//  to find near the number line, instead of far away in the strip.
+// ═══════════════════════════════════════════════════════════════════
+function drawCanvasHint() {
+  if (!S.showHints) return;
+  if (!S.canvasHint) return;
+
+  const HINT_Y = BOX_Y + 36 + (S.showStepArrows ? 28 : 0);
+  const midX = CW / 2;
+
+  ctx.font = 'bold 13px Sora';
+  const tw = ctx.measureText(S.canvasHint).width;
+  ctx.fillStyle = '#7c3aed';
+  roundRect(ctx, midX - tw/2 - 10, HINT_Y - 11, tw + 20, 24, 6);
+  ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(S.canvasHint, midX, HINT_Y + 1);
+  ctx.textBaseline = 'alphabetic';
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -647,10 +652,11 @@ function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robot
   drawTotalArc();
   drawPositionBoxes();
   drawStepArrows();
+  drawCanvasHint();
   const sx=robotScaleX!==undefined ? robotScaleX : (S.facingRight?1:-1);
   drawRobot(S.robotPos,sx,walkPhase||0);
   drawExprBox();
-  drawAltBox();
+  updateInvertButton();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -708,45 +714,70 @@ function kangApplies() {
     ((S.t1>0&&steps<0&&S.t1+steps<0)||(S.t1<0&&steps>0&&S.t1+steps>0));
 }
 
+// Build the verbose interpretation hint, e.g. "(3 steg baklänges)"
+function stepHint(steps) {
+  const dir = steps >= 0 ? 'framlänges' : 'baklänges';
+  return `(${Math.abs(steps)} steg ${dir})`;
+}
+
 function startAnimation() {
   if (S.animating) return;
   if (S.phase==='idle') return;
   range=computeRange(S.t1,S.t2);
   S.robotPos=S.t1; S.animating=true;
   S.completedArcs=[]; S.revealedPositions=[];
-  btnAnim.disabled=true; btnNext.style.display='none';
+  btnAnim.disabled=true;
   btnRevl.style.display='none';
   S.revealStep=0;
+  S.canvasHint='';
   addPos(S.t1);
   const kang=kangApplies();
+  const steps = S.op==='+' ? S.t2 : -S.t2;
 
   if (kang) {
     S.phase='leg1';
     const c1=hopColor(S.t1,0);
-    setStrip(`Hopp 1: ${Math.abs(S.t1)} steg mot nollan…`);
+    // leg1 goes from t1 to 0 — determine forward/backward relative to facing direction
+    const leg1Fwd = isForward(S.t1, 0);
+    const leg1StepsSigned = leg1Fwd ? Math.abs(S.t1) : -Math.abs(S.t1);
+    setStrip(S.showHints ? stepHint(leg1StepsSigned) : `Hopp 1: ${Math.abs(S.t1)} steg mot nollan…`);
     animateLeg(S.t1,0,c1,()=>{
       S.completedArcs.push({from:S.t1,to:0,color:c1});
       addPos(0); S.phase='paused'; S.animating=false;
-      setStrip('🦘 Vid nollan!');
-      btnNext.style.display='';
+      btnAnim.disabled=false;
+      if (S.showHints) {
+        const remaining = Math.abs(S.answer);
+        const opChar = S.op === '+' ? '+' : '−';
+        S.canvasHint = `🦘 ${Math.abs(S.t2)} ${opChar} ${Math.abs(S.t1)} = ${remaining} steg kvar`;
+      } else {
+        S.canvasHint = '🦘 Vid nollan!';
+      }
+      setStrip('\u00a0');
+      updatePlayButton();
       render(1,0);
     });
   } else {
     S.phase='leg1';
     const c=hopColor(S.t1,S.answer);
+    setStrip(S.showHints ? stepHint(steps) : '\u00a0');
     animateLeg(S.t1,S.answer,c,()=>{
       S.completedArcs.push({from:S.t1,to:S.answer,color:c});
       addPos(S.answer); finishAnimation();
     });
   }
+  updatePlayButton();
 }
 
 function continueAnimation() {
   if (S.phase!=='paused') return;
   S.animating=true; S.phase='leg2';
-  btnNext.style.display='none';
+  S.canvasHint='';
+  updatePlayButton();
   const c2=hopColor(0,S.answer);
-  setStrip(`Hopp 2: ${Math.abs(S.answer)} steg mot svaret…`);
+  // leg2 goes from 0 to answer — same forward/backward logic
+  const leg2Fwd = isForward(0, S.answer);
+  const leg2StepsSigned = leg2Fwd ? Math.abs(S.answer) : -Math.abs(S.answer);
+  setStrip(S.showHints ? stepHint(leg2StepsSigned) : `Hopp 2: ${Math.abs(S.answer)} steg mot svaret…`);
   animateLeg(0,S.answer,c2,()=>{
     S.completedArcs.push({from:0,to:S.answer,color:c2});
     addPos(S.answer); finishAnimation();
@@ -756,10 +787,50 @@ function continueAnimation() {
 function finishAnimation() {
   S.animating=false; S.phase='done';
   S.revealStep=0;
+  S.canvasHint='';
   btnAnim.disabled=false;
   btnRevl.style.display='';
+  updatePlayButton();
   render(1,0);
-  setStrip('Klar.');
+  setStrip('\u00a0');   // no text needed at goal, per spec
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  PLAY / NEXT-HOP BUTTON — single button, icon changes with phase
+// ═══════════════════════════════════════════════════════════════════
+function updatePlayButton() {
+  if (S.phase === 'paused') {
+    btnAnim.textContent = '⏭';
+    btnAnim.classList.remove('primary');
+    btnAnim.classList.add('next');
+    btnAnim.title = 'Nästa hopp';
+  } else if (S.phase === 'done') {
+    btnAnim.textContent = '✓';
+    btnAnim.classList.remove('next');
+    btnAnim.classList.add('primary');
+    btnAnim.title = 'Klar';
+  } else {
+    btnAnim.textContent = '▶';
+    btnAnim.classList.remove('next');
+    btnAnim.classList.add('primary');
+    btnAnim.title = 'Animera';
+  }
+  // restore tooltip span (textContent wipes it) — remove any stale one first
+  const oldTip = btnAnim.querySelector('.tip');
+  if (oldTip) oldTip.remove();
+  const tip = document.createElement('span');
+  tip.className = 'tip';
+  tip.textContent = btnAnim.title;
+  btnAnim.appendChild(tip);
+}
+
+function handlePlayClick() {
+  if (S.phase === 'paused') {
+    continueAnimation();
+  } else if (S.phase === 'ready') {
+    startAnimation();
+  }
+  // 'done' and 'idle' states: no-op (✓ is just a confirmation, click does nothing further)
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -805,7 +876,6 @@ function setExpr(t1, op, t2, triggerFlip) {
   S.answer = op === '+' ? t1 + t2 : t1 - t2;
   S.kangMode = kangChk.checked;
   S.slowMode = slowChk.checked;
-  S.showStepArrows = stepArrowChk.checked;
   S.showExpl = explChk.checked;
   updateExplPanel();
 
@@ -817,7 +887,7 @@ function setExpr(t1, op, t2, triggerFlip) {
   S.revealStep = 0;
   setStrip('\u00a0');
   btnRevl.style.display = 'none';
-  btnNext.style.display = 'none';
+  updatePlayButton();
 
   const newFacing = S.op === '+';
   if (triggerFlip && oldOp !== S.op && !S.animating) {
@@ -833,7 +903,7 @@ function resetAll() {
   if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF=null; }
   S.animating=false;
   btnAnim.disabled=false;
-  setExpr(5, '−', 7, false);
+  setExpr(5, '−', 8, false);
 }
 
 function addPos(pos) {
@@ -848,6 +918,21 @@ function getCanvasScale() {
   const rect = canvas.getBoundingClientRect();
   return { sx: rect.width / CW, sy: rect.height / CH, rect };
 }
+
+// Update the invert button's icon (+/−) and colour to match the robot's current facing
+function updateInvertButton() {
+  btnInvertOp.textContent = S.op === '+' ? '+' : '−';
+  btnInvertOp.classList.toggle('facing-right', S.op === '+');
+  btnInvertOp.classList.toggle('facing-left', S.op !== '+');
+}
+
+// Flip the operator (+ ↔ −) while keeping t1/t2 as-is, triggering the robot flip
+function invertOperator() {
+  if (S.animating) return;
+  const newOp = S.op === '+' ? '−' : '+';
+  setExpr(S.t1, newOp, S.t2, true);
+}
+btnInvertOp.addEventListener('click', invertOperator);
 
 function openExprEditor() {
   if (S.animating) return;
@@ -880,18 +965,36 @@ canvas.addEventListener('click', (e) => {
   if (cx >= exprBoxRect.x && cx <= exprBoxRect.x + exprBoxRect.w &&
       cy >= exprBoxRect.y && cy <= exprBoxRect.y + exprBoxRect.h) {
     openExprEditor();
-  } else if (S.phase === 'paused') {
-    continueAnimation();
-  } else if (S.phase === 'ready') {
-    startAnimation();
+  } else {
+    handlePlayClick();
   }
 });
 
 exprEditInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { e.preventDefault(); closeExprEditor(true); }
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    e.stopPropagation();
+    justConfirmedExpr = true;     // swallow the next document-level Enter
+    closeExprEditor(true);
+  }
   else if (e.key === 'Escape') { e.preventDefault(); closeExprEditor(false); }
 });
 exprEditInput.addEventListener('blur', () => closeExprEditor(true));
+
+// Global Enter handler — drives animate / next-hop once the edit field is closed.
+// (The edit field's own keydown handler above only fires while it's focused;
+// once it closes via blur/Enter, this document-level listener takes over.)
+let justConfirmedExpr = false;
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  // If the edit field is open, let its own handler deal with it.
+  if (exprEditInput.style.display === 'block') return;
+  // Swallow the very same Enter keypress that just confirmed the expression —
+  // require a separate, later Enter press to start the animation.
+  if (justConfirmedExpr) { justConfirmedExpr = false; return; }
+  e.preventDefault();
+  handlePlayClick();
+});
 
 // ═══════════════════════════════════════════════════════════════════
 //  FLOATING TOOLBAR — total / step-chain toggles
@@ -906,6 +1009,12 @@ btnStepToggle.addEventListener('click', () => {
   btnStepToggle.classList.toggle('active', S.showStepChain);
   render(1,0);
 });
+btnExplainToggle.addEventListener('click', () => {
+  S.showHints = !S.showHints;
+  btnExplainToggle.classList.toggle('active', S.showHints);
+  // Refresh the strip to reflect new mode immediately if idle/ready
+  if (S.phase === 'ready' || S.phase === 'idle') setStrip('\u00a0');
+});
 
 // ═══════════════════════════════════════════════════════════════════
 //  SETTINGS MODAL
@@ -916,14 +1025,17 @@ settingsModal.addEventListener('click', e => { if (e.target === settingsModal) s
 
 kangChk.addEventListener('change', () => { S.kangMode = kangChk.checked; });
 slowChk.addEventListener('change', () => { S.slowMode = slowChk.checked; });
-stepArrowChk.addEventListener('change', () => { S.showStepArrows = stepArrowChk.checked; render(1,0); });
+btnStepArrowToggle.addEventListener('click', () => {
+  S.showStepArrows = !S.showStepArrows;
+  btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
+  render(1,0);
+});
 explChk.addEventListener('change', () => { S.showExpl = explChk.checked; updateExplPanel(); });
 
 // ═══════════════════════════════════════════════════════════════════
 //  ACTION BUTTONS
 // ═══════════════════════════════════════════════════════════════════
-btnAnim.addEventListener('click', startAnimation);
-btnNext.addEventListener('click', continueAnimation);
+btnAnim.addEventListener('click', handlePlayClick);
 btnReset.addEventListener('click', resetAll);
 btnRevl.addEventListener('click', () => {
   const alt = altForm(S.t1, S.op, S.t2);
@@ -932,7 +1044,6 @@ btnRevl.addEventListener('click', () => {
     render(1,0);
   } else {
     S.revealStep = 2;
-    btnRevl.style.display = 'none';
     setStrip(`Svaret är ${S.answer}.`);
     render(1,0);
   }
@@ -941,7 +1052,7 @@ btnRevl.addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
-setExpr(5, '−', 7, false);
+setExpr(5, '−', 8, false);
 </script>
 </body>
 </html>
