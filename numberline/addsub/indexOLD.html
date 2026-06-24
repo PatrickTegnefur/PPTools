@@ -18,7 +18,7 @@
   header{width:100%;background:var(--grad);padding:8px 24px}
   main{width:100%;max-width:1400px;padding:14px 32px 30px;display:flex;flex-direction:column;gap:10px}
 
-  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:visible;padding:18px 10px 10px;position:relative;flex:1;min-width:0}
+  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:visible;padding:18px 10px 10px;position:relative}
   canvas{display:block;width:100%;height:auto;cursor:default}
 
   /* HTML overlay edit input for the expression box (positioned via JS) */
@@ -37,13 +37,15 @@
   #btnInvertOp.facing-left:hover{ background:#EC6095; color:#fff; }
   .toolbar-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 1px; }
 
-  /* vertical left toolbar — sits beside canvas-wrap in a flex row */
-  .left-toolbar{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
-  .canvas-and-toolbar{display:flex;flex-direction:row;gap:8px;align-items:flex-start;}
+  /* vertical left toolbar — fixed inside canvas-wrap top-left */
+  .left-toolbar{
+    position:absolute; top:14px; left:14px; z-index:28;
+    display:flex; flex-direction:column; gap:6px;
+  }
   .lt-btn{
-    width:28px; height:28px; border-radius:8px;
-    border:1.5px solid var(--border); background:rgba(255,255,255,.92);
-    color:var(--muted); font-size:.78rem; font-weight:700; cursor:pointer;
+    width:46px; height:46px; border-radius:12px;
+    border:1.5px solid var(--border); background:rgba(255,255,255,.94);
+    color:var(--muted); font-size:1.1rem; font-weight:700; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     transition:all .15s; backdrop-filter:blur(2px); position:relative;
   }
@@ -174,27 +176,21 @@
 <header></header>
 <main>
 
-  <div class="canvas-and-toolbar">
-  <div class="left-toolbar">
-    <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
-    <button class="lt-btn" id="ltBtnReveal" disabled><span>👁</span><span class="lt-tip">Visa svar</span></button>
-    <div class="lt-sep"></div>
-    <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
-    <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
-    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
-    <!-- hidden refs for JS compat -->
-    <span style="display:none">
-      <button id="ltBtnKang"></button>
-      <button id="ltBtnTotal"></button>
-      <button id="ltBtnStep"></button>
-      <button id="ltBtnArrows"></button>
-    </span>
-  </div>
   <div class="canvas-wrap" id="canvasWrap">
-    <canvas id="tl" width="960" height="320"></canvas>
+    <canvas id="tl" width="960" height="400"></canvas>
     <input type="text" id="exprEditInput" autocomplete="off" spellcheck="false">
     <button id="btnToggleExprInline" style="display:none" title="Visa/dölj uttrycket">👁</button>
 
+    <!-- vertical left toolbar inside canvas-wrap -->
+    <div class="left-toolbar">
+      <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
+      <button class="lt-btn" id="ltBtnReveal" style="display:none"><span>👁</span><span class="lt-tip">Visa svar</span></button>
+      <div class="lt-sep"></div>
+      <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
+      <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
+      <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
+      <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
+    </div>
 
     <!-- step-input bubble inside canvas-wrap -->
     <div class="step-bubble" id="stepBubble">
@@ -205,22 +201,19 @@
       </div>
     </div>
 
-    <!-- floating toolbar: only 💡 and ⚙️ remain -->
-    <!-- keep hidden refs for JS compat -->
-    <span style="display:none">
-      <button id="btnInvertOp">+</button>
-      <button id="btnToggleExpr">𝑓</button>
-      <button id="btnTotalToggle">↔</button>
-      <button id="btnStepToggle">⛓</button>
-      <button id="btnStepArrowToggle">➡</button>
-      <button id="btnExplainToggle">💬</button>
-      <button id="btnColorNumbers">🎨</button>
-    </span>
+    <!-- floating toolbar: invert op / hela hoppet / steg för steg / steg-pilar / hjälptexter / förklaring -->
     <div class="float-toolbar" id="floatToolbar">
+      <button class="icon-btn" id="btnInvertOp" title="Växla + / −">+</button>
+      <span class="toolbar-sep"></span>
+      <button class="icon-btn active" id="btnToggleExpr" title="Visa/dölj uttrycket">𝑓</button>
+      <button class="icon-btn" id="btnTotalToggle" title="Visa totalt hopp">↔</button>
+      <button class="icon-btn active" id="btnStepToggle" title="Steg för steg">⛓</button>
+      <button class="icon-btn" id="btnStepArrowToggle" title="Steg-pilar under linjen">➡</button>
+      <button class="icon-btn" id="btnExplainToggle" title="Hjälptexter">💬</button>
+      <button class="icon-btn" id="btnColorNumbers" title="Färgkoda tal (rosa=negativt, grön=positivt)">🎨</button>
+      <span class="toolbar-sep"></span>
       <button class="icon-btn" id="btnExplainSteps" title="Förklaring steg för steg">💡</button>
-      <button class="icon-btn" id="btnSettings" title="Inställningar">⚙️</button>
     </div>
-  </div>
   </div>
 
   <!-- explanation popup — positioned via JS relative to btnExplainSteps -->
@@ -229,13 +222,13 @@
     <div id="explainStepsList"></div>
   </div>
 
-  <!-- hidden action-row refs for JS compat -->
-  <span style="display:none">
-    <button id="btnAnimate">▶</button>
-    <button id="btnReset">↺</button>
-    <button id="btnUtterance">🗣</button>
-    <button id="btnReveal">👁</button>
-  </span>
+  <div class="action-row">
+    <button class="ibtn primary" id="btnAnimate">▶<span class="tip">Animera</span></button>
+    <button class="ibtn" id="btnReset">↺<span class="tip">Återställ</span></button>
+    <button class="ibtn" id="btnUtterance" title="Uttalat uttryck">🗣<span class="tip">Uttalat uttryck</span></button>
+    <button class="ibtn" id="btnSettings">⚙️<span class="tip">Inställningar</span></button>
+    <button class="ibtn reveal" id="btnReveal" style="display:none">👁<span class="tip">Visa</span></button>
+  </div>
 
   <div class="step-strip" id="stepStrip">&nbsp;</div>
 
@@ -247,11 +240,6 @@
       <div class="modal-section">
         <label class="toggle-label"><span class="ic">🦘</span><input type="checkbox" id="kangToggle" checked> Känguruhopp</label>
         <label class="toggle-label"><span class="ic">🐢</span><input type="checkbox" id="slowToggle" checked> Långsamt läge</label>
-        <label class="toggle-label"><span class="ic">⛓</span><input type="checkbox" id="stepChainSettings" checked> Steg för steg</label>
-        <label class="toggle-label"><span class="ic">↔</span><input type="checkbox" id="totalSettings"> Totalt hopp</label>
-        <label class="toggle-label"><span class="ic">➡</span><input type="checkbox" id="arrowSettings"> Steg-pilar</label>
-        <label class="toggle-label"><span class="ic">🎨</span><input type="checkbox" id="colorToggleSettings"> Färgkoda tal</label>
-        <label class="toggle-label"><span class="ic">💬</span><input type="checkbox" id="hintToggleSettings"> Hjälptexter</label>
       </div>
     </div>
   </div>
@@ -356,14 +344,6 @@ const ltBtnUtter  = document.getElementById('ltBtnUtter');
 const ltBtnPlay   = document.getElementById('ltBtnPlay');
 const ltBtnReveal = document.getElementById('ltBtnReveal');
 const ltBtnKang   = document.getElementById('ltBtnKang');
-const ltBtnTotal  = document.getElementById('ltBtnTotal');
-const ltBtnStep   = document.getElementById('ltBtnStep');
-const ltBtnArrows = document.getElementById('ltBtnArrows');
-const colorToggleSettings = document.getElementById('colorToggleSettings');
-const hintToggleSettings  = document.getElementById('hintToggleSettings');
-const stepChainSettings   = document.getElementById('stepChainSettings');
-const totalSettings       = document.getElementById('totalSettings');
-const arrowSettings       = document.getElementById('arrowSettings');
 const btnStepToggle = document.getElementById('btnStepToggle');
 const btnExplainToggle = document.getElementById('btnExplainToggle');
 const btnExplainSteps  = document.getElementById('btnExplainSteps');
@@ -390,7 +370,7 @@ const stripEl   = document.getElementById('stepStrip');
 // ═══════════════════════════════════════════════════════════════════
 //  LAYOUT
 // ═══════════════════════════════════════════════════════════════════
-const CW=960, CH=320;
+const CW=960, CH=400;
 const LINE_Y  = 188;
 const TICK_H  = 13;
 const LABEL_Y = LINE_Y + TICK_H + 14;
@@ -467,7 +447,7 @@ function drawExprBox() {
 
   const FS  = 24;   // larger for classroom visibility
   const pad = 14;
-  const bx  = 16, by = 14;
+  const bx  = 62, by = 14;  // offset right of the left-toolbar (36px btn + 14px left + 12px gap)
 
   ctx.font = `bold ${FS}px Sora`;
   ctx.textBaseline = 'top';
@@ -1530,21 +1510,24 @@ exprEditInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
     e.stopPropagation();
-    justConfirmedExpr = true;
+    justConfirmedExpr = true;     // swallow the next document-level Enter
     closeExprEditor(true);
-    // After closing, put focus on body so next Enter hits document listener
-    setTimeout(() => document.body.focus(), 0);
   }
   else if (e.key === 'Escape') { e.preventDefault(); closeExprEditor(false); }
 });
 exprEditInput.addEventListener('blur', () => closeExprEditor(true));
 
-// Global Enter: first Enter confirms expression (handled above), second starts animation.
+// Global Enter handler — drives animate / next-hop once the edit field is closed.
+// (The edit field's own keydown handler above only fires while it's focused;
+// once it closes via blur/Enter, this document-level listener takes over.)
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter') return;
-  if (exprEditInput.style.display === 'block') return;  // editor open, let it handle
-  if (stepBubble.classList.contains('open')) return;    // step bubble open
-  if (justConfirmedExpr) { justConfirmedExpr = false; return; }  // swallow confirm Enter
+  // If the edit field is open, let its own handler deal with it.
+  if (exprEditInput.style.display === 'block') return;
+  if (stepBubble.classList.contains('open')) return;
+  // Swallow the very same Enter keypress that just confirmed the expression —
+  // require a separate, later Enter press to start the animation.
+  if (justConfirmedExpr) { justConfirmedExpr = false; return; }
   e.preventDefault();
   handlePlayClick();
 });
@@ -1568,7 +1551,9 @@ function updateLeftToolbar() {
   ltBtnInvert.className = 'lt-btn ' + (facingRight ? 'invert-right' : 'invert-left');
   ltBtnInvert.querySelector('span').textContent = facingRight ? '+' : '−';
 
-  // (kang/total/step/arrows now in settings modal)
+  // Kang
+  const kangOn = S.kangMode;
+  ltBtnKang.className = 'lt-btn' + (kangOn ? ' kang-on' : '');
 
   // Utterance
   ltBtnUtter.className = 'lt-btn';
@@ -1594,8 +1579,9 @@ function updateLeftToolbar() {
     ltBtnPlay.querySelector('.lt-tip').textContent = 'Animera';
   }
 
-  // Reveal button — always visible, enabled only when done
-  ltBtnReveal.disabled = (S.phase !== 'done');
+  // Reveal button (show only when animation done)
+  const revealVisible = S.phase === 'done';
+  ltBtnReveal.style.display = revealVisible ? '' : 'none';
 }
 function toggleExpr() {
   S.showExpr = !S.showExpr;
@@ -1617,48 +1603,6 @@ ltBtnUtter.addEventListener('click', () => {
   else if (!S.showFullUtterance) { S.showFullUtterance = true; }
   else { S.showUtterance = false; S.showFullUtterance = false; }
   updateUtteranceBtn(); render(1, 0);
-});
-ltBtnTotal.addEventListener('click', () => {
-  S.showTotal = !S.showTotal;
-  btnTotalToggle.classList.toggle('active', S.showTotal);
-  ltBtnTotal.classList.toggle('active', S.showTotal);
-  render(1,0);
-});
-ltBtnStep.addEventListener('click', () => {
-  S.showStepChain = !S.showStepChain;
-  btnStepToggle.classList.toggle('active', S.showStepChain);
-  ltBtnStep.classList.toggle('active', S.showStepChain);
-  render(1,0);
-});
-ltBtnArrows.addEventListener('click', () => {
-  S.showStepArrows = !S.showStepArrows;
-  btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
-  ltBtnArrows.classList.toggle('active', S.showStepArrows);
-  render(1,0);
-});
-colorToggleSettings.addEventListener('change', () => {
-  S.showColorNumbers = colorToggleSettings.checked;
-  btnColorNumbers.classList.toggle('active', S.showColorNumbers);
-  render(1,0);
-});
-hintToggleSettings.addEventListener('change', () => {
-  S.showHints = hintToggleSettings.checked;
-  btnExplainToggle.classList.toggle('active', S.showHints);
-});
-stepChainSettings.addEventListener('change', () => {
-  S.showStepChain = stepChainSettings.checked;
-  btnStepToggle.classList.toggle('active', S.showStepChain);
-  render(1,0);
-});
-totalSettings.addEventListener('change', () => {
-  S.showTotal = totalSettings.checked;
-  btnTotalToggle.classList.toggle('active', S.showTotal);
-  render(1,0);
-});
-arrowSettings.addEventListener('change', () => {
-  S.showStepArrows = arrowSettings.checked;
-  btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
-  render(1,0);
 });
 ltBtnPlay.addEventListener('click', () => {
   if (S.phase === 'done') { resetAll(); }
