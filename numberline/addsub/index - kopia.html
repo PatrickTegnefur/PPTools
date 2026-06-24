@@ -16,9 +16,9 @@
   }
   body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center}
   header{width:100%;background:var(--grad);padding:8px 24px}
-  main{width:100%;max-width:1400px;padding:14px 32px 30px;display:flex;flex-direction:column;gap:10px}
+  main{width:100%;max-width:960px;padding:14px 14px 30px;display:flex;flex-direction:column;gap:10px}
 
-  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:visible;padding:18px 10px 10px;position:relative}
+  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:hidden;padding:18px 10px 10px;position:relative}
   canvas{display:block;width:100%;height:auto;cursor:default}
 
   /* HTML overlay edit input for the expression box (positioned via JS) */
@@ -36,65 +36,6 @@
   #btnInvertOp.facing-left{ color:#EC6095; border-color:#EC6095; }
   #btnInvertOp.facing-left:hover{ background:#EC6095; color:#fff; }
   .toolbar-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 1px; }
-
-  /* vertical left toolbar — fixed inside canvas-wrap top-left */
-  .left-toolbar{
-    position:absolute; top:14px; left:14px; z-index:28;
-    display:flex; flex-direction:column; gap:6px;
-  }
-  .lt-btn{
-    width:46px; height:46px; border-radius:12px;
-    border:1.5px solid var(--border); background:rgba(255,255,255,.94);
-    color:var(--muted); font-size:1.1rem; font-weight:700; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    transition:all .15s; backdrop-filter:blur(2px); position:relative;
-  }
-  .lt-btn:hover{ border-color:var(--accent); color:var(--accent); }
-  .lt-btn:disabled{ opacity:.4; cursor:not-allowed; }
-  .lt-btn.active{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
-  .lt-btn.play{ background:var(--accent); color:#fff; border-color:var(--accent); }
-  .lt-btn.play-next{ background:#18a348; color:#fff; border-color:#18a348; }
-  .lt-btn.play-reset{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
-  .lt-btn.reveal{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
-  .lt-btn.kang-on{ background:#F4A261; color:#fff; border-color:#F4A261; }
-  .lt-sep{ width:100%; height:1px; background:var(--border); margin:2px 0; }
-  .lt-btn.invert-right{ color:#66C7C2; border-color:#66C7C2; }
-  .lt-btn.invert-right:hover{ background:#66C7C2; color:#fff; }
-  .lt-btn.invert-left{ color:#EC6095; border-color:#EC6095; }
-  .lt-btn.invert-left:hover{ background:#EC6095; color:#fff; }
-  .lt-btn.utter-on{ background:#7c3aed; color:#fff; border-color:#7c3aed; }
-  .lt-btn.utter-full{ background:#EC6095; color:#fff; border-color:#EC6095; }
-  .lt-btn .lt-tip{
-    position:absolute; left:44px; top:50%; transform:translateY(-50%);
-    background:var(--text); color:#fff; font-size:.68rem; font-weight:600;
-    padding:4px 8px; border-radius:6px; white-space:nowrap; opacity:0;
-    pointer-events:none; transition:opacity .15s; z-index:50;
-  }
-  .lt-btn:hover .lt-tip{ opacity:1; }
-
-  /* floating step-input bubble — appears above the robot, inside .canvas-wrap */
-  .step-bubble{
-    position:absolute; z-index:35; display:none;
-    flex-direction:column; align-items:center; gap:4px;
-    pointer-events:none;
-  }
-  .step-bubble.open{ display:flex; pointer-events:auto; }
-  .step-bubble .sb-card{
-    background:#fff; border:1.5px solid var(--accent); border-radius:10px;
-    padding:7px 9px; box-shadow:0 4px 16px rgba(16,14,40,.18);
-    display:flex; align-items:center; gap:6px;
-  }
-  .step-bubble .sb-label{ font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; }
-  .step-bubble input{
-    width:54px; padding:4px 6px; border:1.5px solid var(--border); border-radius:6px;
-    font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; text-align:center;
-    color:var(--text); outline:none; background:var(--bg);
-  }
-  .step-bubble input:focus{ border-color:var(--accent); }
-  .step-bubble .sb-arrow{
-    position:absolute; bottom:-6px; left:50%; transform:translateX(-50%) rotate(45deg);
-    width:11px; height:11px; background:#fff; border-right:1.5px solid var(--accent); border-bottom:1.5px solid var(--accent);
-  }
 
   /* floating icon toolbar over canvas (hover-revealed) */
   .float-toolbar{
@@ -126,8 +67,6 @@
   .ibtn.primary{ background:var(--accent); color:#fff; border-color:var(--accent) }
   .ibtn.next{ background:#18a348; color:#fff; border-color:#18a348 }
   .ibtn.reveal{ background:var(--accent2); color:#fff; border-color:var(--accent2) }
-  .ibtn.utterance{ background:#7c3aed; color:#fff; border-color:#7c3aed }
-  .ibtn.utterance-full{ background:#EC6095; color:#fff; border-color:#EC6095 }
   .ibtn:hover:not(:disabled){ filter:brightness(1.08) }
 
   .ibtn .tip{
@@ -139,24 +78,6 @@
   .ibtn:hover .tip{ opacity:1 }
 
   .step-strip{ text-align:center; font-size:.82rem; color:var(--muted); font-weight:600; min-height:1.1em }
-
-  /* explanation popup — positioned via JS (fixed, escapes canvas-wrap's overflow:hidden) */
-  .explain-popup{
-    position:fixed; z-index:140;
-    display:none; flex-direction:column; gap:8px;
-    background:#fff; border:1.5px solid var(--border); border-radius:12px;
-    padding:14px 16px; box-shadow:0 8px 28px rgba(16,14,40,.18);
-    width:280px; max-width:80vw;
-  }
-  .explain-popup.open{ display:flex; }
-  .explain-popup .ep-title{ font-weight:700; font-size:.82rem; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px; }
-  .explain-step{ display:flex; gap:10px; align-items:flex-start; font-size:.86rem; line-height:1.45; color:var(--text); }
-  .explain-step .es-num{
-    flex-shrink:0; width:22px; height:22px; border-radius:50%;
-    background:var(--accent); color:#fff; font-size:.72rem; font-weight:700;
-    display:flex; align-items:center; justify-content:center; margin-top:1px;
-  }
-  .explain-step b{ color:var(--accent); }
 
   /* settings modal */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(16,14,40,.35);z-index:100;align-items:center;justify-content:center}
@@ -177,55 +98,23 @@
 <main>
 
   <div class="canvas-wrap" id="canvasWrap">
-    <canvas id="tl" width="960" height="400"></canvas>
+    <canvas id="tl" width="960" height="330"></canvas>
     <input type="text" id="exprEditInput" autocomplete="off" spellcheck="false">
-    <button id="btnToggleExprInline" style="display:none" title="Visa/dölj uttrycket">👁</button>
 
-    <!-- vertical left toolbar inside canvas-wrap -->
-    <div class="left-toolbar">
-      <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
-      <button class="lt-btn" id="ltBtnReveal" style="display:none"><span>👁</span><span class="lt-tip">Visa svar</span></button>
-      <div class="lt-sep"></div>
-      <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
-      <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
-      <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
-      <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
-    </div>
-
-    <!-- step-input bubble inside canvas-wrap -->
-    <div class="step-bubble" id="stepBubble">
-      <div class="sb-card">
-        <span class="sb-label">Steg</span>
-        <input type="text" id="stepBubbleInput" autocomplete="off" spellcheck="false">
-        <span class="sb-arrow"></span>
-      </div>
-    </div>
-
-    <!-- floating toolbar: invert op / hela hoppet / steg för steg / steg-pilar / hjälptexter / förklaring -->
+    <!-- floating toolbar: invert op / hela hoppet / steg för steg / steg-pilar / förklaringstext -->
     <div class="float-toolbar" id="floatToolbar">
       <button class="icon-btn" id="btnInvertOp" title="Växla + / −">+</button>
       <span class="toolbar-sep"></span>
-      <button class="icon-btn active" id="btnToggleExpr" title="Visa/dölj uttrycket">𝑓</button>
       <button class="icon-btn" id="btnTotalToggle" title="Visa totalt hopp">↔</button>
       <button class="icon-btn active" id="btnStepToggle" title="Steg för steg">⛓</button>
       <button class="icon-btn" id="btnStepArrowToggle" title="Steg-pilar under linjen">➡</button>
       <button class="icon-btn" id="btnExplainToggle" title="Hjälptexter">💬</button>
-      <button class="icon-btn" id="btnColorNumbers" title="Färgkoda tal (rosa=negativt, grön=positivt)">🎨</button>
-      <span class="toolbar-sep"></span>
-      <button class="icon-btn" id="btnExplainSteps" title="Förklaring steg för steg">💡</button>
     </div>
-  </div>
-
-  <!-- explanation popup — positioned via JS relative to btnExplainSteps -->
-  <div class="explain-popup" id="explainPopup">
-    <div class="ep-title">Så här tänker vi</div>
-    <div id="explainStepsList"></div>
   </div>
 
   <div class="action-row">
     <button class="ibtn primary" id="btnAnimate">▶<span class="tip">Animera</span></button>
     <button class="ibtn" id="btnReset">↺<span class="tip">Återställ</span></button>
-    <button class="ibtn" id="btnUtterance" title="Uttalat uttryck">🗣<span class="tip">Uttalat uttryck</span></button>
     <button class="ibtn" id="btnSettings">⚙️<span class="tip">Inställningar</span></button>
     <button class="ibtn reveal" id="btnReveal" style="display:none">👁<span class="tip">Visa</span></button>
   </div>
@@ -240,9 +129,13 @@
       <div class="modal-section">
         <label class="toggle-label"><span class="ic">🦘</span><input type="checkbox" id="kangToggle" checked> Känguruhopp</label>
         <label class="toggle-label"><span class="ic">🐢</span><input type="checkbox" id="slowToggle" checked> Långsamt läge</label>
+        <label class="toggle-label"><span class="ic">💡</span><input type="checkbox" id="explToggle"> Förklaring av begrepp</label>
       </div>
     </div>
   </div>
+
+  <!-- hidden expl panel (shown via toggle) -->
+  <div class="step-strip" id="explPanel" style="display:none; text-align:left; background:var(--surface2); border-radius:10px; padding:10px 14px; line-height:1.7; font-weight:400;"></div>
 
 </main>
 
@@ -309,21 +202,17 @@ const S = {
   animating:false,
   kangMode:true,
   showTotal:false,
-  showExpr:true,         // toggle for the expression box top-left of canvas
   showStepChain:true,   // "steg för steg" = show per-leg arcs/labels (default on)
   showHints:false,      // verbose interpretation strip text ("3 steg baklänges" etc)
   canvasHint:'',        // the "X steg kvar" text drawn under the step arrows on canvas
   slowMode:true,
   showStepArrows:false,
-  showColorNumbers:false,
-  showUtterance:false,
-  showFullUtterance:false,
+  showExpl:false,
   revealStep:0,
   phase:'idle',
   completedArcs:[],
   revealedPositions:[],
   facingRight:false,
-  isDragging:false,     // true while the robot is being dragged
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -336,21 +225,8 @@ const exprEditInput = document.getElementById('exprEditInput');
 const btnInvertOp   = document.getElementById('btnInvertOp');
 const floatToolbar  = document.getElementById('floatToolbar');
 const btnTotalToggle= document.getElementById('btnTotalToggle');
-const btnToggleExpr       = document.getElementById('btnToggleExpr');
-const btnToggleExprInline = document.getElementById('btnToggleExprInline');
-const ltBtnExpr   = document.getElementById('ltBtnExpr');
-const ltBtnInvert = document.getElementById('ltBtnInvert');
-const ltBtnUtter  = document.getElementById('ltBtnUtter');
-const ltBtnPlay   = document.getElementById('ltBtnPlay');
-const ltBtnReveal = document.getElementById('ltBtnReveal');
-const ltBtnKang   = document.getElementById('ltBtnKang');
 const btnStepToggle = document.getElementById('btnStepToggle');
 const btnExplainToggle = document.getElementById('btnExplainToggle');
-const btnExplainSteps  = document.getElementById('btnExplainSteps');
-const explainPopup     = document.getElementById('explainPopup');
-const explainStepsList = document.getElementById('explainStepsList');
-const stepBubble       = document.getElementById('stepBubble');
-const stepBubbleInput  = document.getElementById('stepBubbleInput');
 
 const btnAnim  = document.getElementById('btnAnimate');
 const btnReset = document.getElementById('btnReset');
@@ -362,15 +238,15 @@ const modalClose    = document.getElementById('modalClose');
 const kangChk      = document.getElementById('kangToggle');
 const slowChk      = document.getElementById('slowToggle');
 const btnStepArrowToggle = document.getElementById('btnStepArrowToggle');
-const btnColorNumbers    = document.getElementById('btnColorNumbers');
-const btnUtterance      = document.getElementById('btnUtterance');
+const explChk      = document.getElementById('explToggle');
 
 const stripEl   = document.getElementById('stepStrip');
+const explPanel = document.getElementById('explPanel');
 
 // ═══════════════════════════════════════════════════════════════════
 //  LAYOUT
 // ═══════════════════════════════════════════════════════════════════
-const CW=960, CH=400;
+const CW=960, CH=330;
 const LINE_Y  = 188;
 const TICK_H  = 13;
 const LABEL_Y = LINE_Y + TICK_H + 14;
@@ -390,7 +266,6 @@ function computeRange(t1, t2) {
   return { lo:Math.floor(lo-pad), hi:Math.ceil(hi+pad) };
 }
 function worldToX(w) { return 48 + (w-range.lo)/(range.hi-range.lo)*(CW-96); }
-function xToWorld(x) { return range.lo + (x-48)/(CW-96)*(range.hi-range.lo); }
 
 // ═══════════════════════════════════════════════════════════════════
 //  DRAW helpers
@@ -417,22 +292,11 @@ function drawLine() {
   ctx.closePath(); ctx.fill();
   for (let n=lo; n<=hi; n++) {
     const x=worldToX(n);
-    ctx.strokeStyle='#100e28'; ctx.lineWidth=n===0?2.5:1;
+    ctx.strokeStyle='#100e28'; ctx.lineWidth=n===0?2:1;
     ctx.beginPath(); ctx.moveTo(x,LINE_Y-TICK_H); ctx.lineTo(x,LINE_Y+TICK_H); ctx.stroke();
-    // Font: zero is bigger and bold, others are regular but larger than before
-    const isZero = n === 0;
-    ctx.font = isZero ? 'bold 17px Sora' : '14px Sora';
-    // Colour: zero = dark, positive = green, negative = pink (when toggle on)
-    let labelCol;
-    if (isZero) {
-      labelCol = '#100e28';
-    } else if (S.showColorNumbers) {
-      labelCol = n > 0 ? '#306BF0' : '#EC6095';
-    } else {
-      labelCol = '#444';
-    }
-    ctx.fillStyle = labelCol;
-    ctx.textAlign='center'; ctx.fillText(n, x, LABEL_Y);
+    ctx.font=n===0?'bold 13px Sora':'12px Sora';
+    ctx.fillStyle=n===0?'#100e28':'#444';
+    ctx.textAlign='center'; ctx.fillText(n,x,LABEL_Y);
   }
 }
 
@@ -445,9 +309,9 @@ function drawExprBox() {
   const alt      = altForm(S.t1, S.op, S.t2);
   const step     = S.revealStep || 0;
 
-  const FS  = 24;   // larger for classroom visibility
-  const pad = 14;
-  const bx  = 62, by = 14;  // offset right of the left-toolbar (36px btn + 14px left + 12px gap)
+  const FS  = 18;
+  const pad = 12;
+  const bx  = 16, by = 14;
 
   ctx.font = `bold ${FS}px Sora`;
   ctx.textBaseline = 'top';
@@ -461,13 +325,7 @@ function drawExprBox() {
   const boxW = chainW + pad*2;
   const boxH = FS + pad*2;
 
-  // Always update exprBoxRect so click-to-edit works even when box is hidden
   exprBoxRect = {x:bx, y:by, w:boxW, h:boxH};
-
-  if (!S.showExpr) {
-    ctx.textBaseline = 'alphabetic';
-    return;
-  }
 
   ctx.fillStyle   = 'rgba(246,244,255,0.97)';
   ctx.strokeStyle = '#ccc5f0';
@@ -513,23 +371,17 @@ function drawArcSegment(from, to, frac, color, noLabel) {
   ctx.stroke();
 
   if (!noLabel && frac>0.44) {
-    // Show the signed t2 value so students see "+5 steg" or "−2 steg"
-    // For kangaroo leg1 (t1→0) and leg2 (0→answer), compute the sub-step t2 sign:
-    // forward movement = positive, backward = negative (relative to robot facing)
-    const fwd = isForward(from, to);
-    const absSteps = Math.abs(to - from);
-    const signedSteps = fwd ? absSteps : -absSteps;
-    const sign = signedSteps >= 0 ? '+' : '−';
-    const label = `${sign}${Math.abs(signedSteps)} steg`;
+    const size=Math.abs(to-from);
     const lt=0.5*frac;
     const lx=(1-lt)*(1-lt)*x1+2*(1-lt)*lt*xMid+lt*lt*x2;
     const ly=(1-lt)*(1-lt)*LINE_Y+2*(1-lt)*lt*(LINE_Y-arcH)+lt*lt*LINE_Y-6;
-    ctx.font='bold 14px Sora';
+    const label=size+' steg';
+    ctx.font='bold 12px Sora';
     const tw=ctx.measureText(label).width;
     ctx.fillStyle=color;
-    roundRect(ctx,lx-tw/2-8,ly-22,tw+16,22,5); ctx.fill();
+    roundRect(ctx,lx-tw/2-6,ly-14,tw+12,18,4); ctx.fill();
     ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(label,lx,ly-11); ctx.textBaseline='alphabetic';
+    ctx.fillText(label,lx,ly-5); ctx.textBaseline='alphabetic';
   }
 
   if (frac>=0.98) {
@@ -625,11 +477,11 @@ function drawPositionBoxes() {
 
     // micro-label under the box
     if (isStart) {
-      ctx.font='bold 13px Sora'; ctx.fillStyle=C_START;
-      ctx.textAlign='center'; ctx.fillText('start', x, by+bh+15);
+      ctx.font='600 10px Sora'; ctx.fillStyle=C_START;
+      ctx.textAlign='center'; ctx.fillText('start', x, by+bh+12);
     } else if (isEnd) {
-      ctx.font='bold 13px Sora'; ctx.fillStyle=C_END;
-      ctx.textAlign='center'; ctx.fillText('svar', x, by+bh+15);
+      ctx.font='600 10px Sora'; ctx.fillStyle=C_END;
+      ctx.textAlign='center'; ctx.fillText('svar', x, by+bh+12);
     }
   });
 }
@@ -692,17 +544,14 @@ function drawStepArrows() {
     ctx.closePath(); ctx.fill();
 
     const size = Math.abs(to - from);
-    const fwdA = isForward(from, to);
-    const signedA = fwdA ? size : -size;
-    const signA = signedA >= 0 ? '+' : '−';
-    const label = `${signA}${Math.abs(signedA)} steg`;
-    ctx.font = 'bold 14px Sora';
+    const label = size + ' steg';
+    ctx.font = 'bold 11px Sora';
     const tw = ctx.measureText(label).width;
     ctx.fillStyle = col;
-    roundRect(ctx, mid - tw/2 - 8, ARROW_Y + 8, tw + 16, 20, 4);
+    roundRect(ctx, mid - tw/2 - 5, ARROW_Y + 6, tw + 10, 16, 3);
     ctx.fill();
     ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(label, mid, ARROW_Y + 18);
+    ctx.fillText(label, mid, ARROW_Y + 14);
     ctx.textBaseline = 'alphabetic';
   }
 }
@@ -790,90 +639,6 @@ function drawDirectionArrow(cx,cy,pointRight) {
   ctx.restore();
 }
 
-
-// ═══════════════════════════════════════════════════════════════════
-//  UTTERANCE — spoken-form of the expression drawn at bottom of canvas
-//  Standard mode: only negatives get their sign spoken
-//  Full mode: all numbers get their sign spoken
-//  Colour: operation signs (plus/minus between terms) = neutral dark
-//          sign-of-number minus (for negative terms) = #EC6095 (pink)
-//          sign-of-number plus  (for positive terms, full mode) = #306BF0 (blue)
-// ═══════════════════════════════════════════════════════════════════
-function buildUtterance() {
-  // Returns an array of {text, color} segments
-  const segs = [];
-  const C_OP   = '#100e28';   // operation sign colour (neutral)
-  const C_NEG  = '#EC6095';   // negative term sign
-  const C_POS  = '#306BF0';   // positive term sign (full mode only)
-  const C_NUM  = '#100e28';   // number itself
-
-  function addSeg(text, color) { segs.push({text, color}); }
-
-  // Term 1 — number coloured by sign
-  const t1Col = S.t1 < 0 ? C_NEG : C_POS;
-  if (S.t1 < 0) {
-    addSeg('minus ', C_NEG);
-    addSeg(String(Math.abs(S.t1)), t1Col);
-  } else {
-    if (S.showFullUtterance) addSeg('plus ', C_POS);
-    addSeg(String(S.t1), t1Col);
-  }
-
-  // Operation
-  const opWord = S.op === '+' ? ' plus ' : ' minus ';
-  addSeg(opWord, C_OP);
-
-  // Term 2 — number coloured by sign
-  const t2Col = S.t2 < 0 ? C_NEG : C_POS;
-  if (S.t2 < 0) {
-    addSeg('minus ', C_NEG);
-    addSeg(String(Math.abs(S.t2)), t2Col);
-  } else {
-    if (S.showFullUtterance) addSeg('plus ', C_POS);
-    addSeg(String(S.t2), t2Col);
-  }
-
-  return segs;
-}
-
-function drawUtterance() {
-  if (!S.showUtterance) return;
-
-  const segs = buildUtterance();
-  const FS   = 20;
-  const pad  = 14;
-  const by   = CH - 56;   // bottom of canvas area
-
-  // Measure total width
-  ctx.font = `bold ${FS}px Sora`;
-  let totalW = 0;
-  for (const seg of segs) totalW += ctx.measureText(seg.text).width;
-
-  const boxW = totalW + pad * 2;
-  const boxH = FS + pad * 1.6;
-  const bx   = CW / 2 - boxW / 2;
-
-  // Background pill
-  ctx.fillStyle   = 'rgba(246,244,255,0.96)';
-  ctx.strokeStyle = '#ccc5f0';
-  ctx.lineWidth   = 1.5;
-  roundRect(ctx, bx, by, boxW, boxH, 10);
-  ctx.fill(); ctx.stroke();
-
-  // Draw each segment
-  ctx.textBaseline = 'middle';
-  ctx.textAlign    = 'left';
-  let cx = bx + pad;
-  const cy = by + boxH / 2;
-  for (const seg of segs) {
-    ctx.fillStyle = seg.color;
-    ctx.font      = `bold ${FS}px Sora`;
-    ctx.fillText(seg.text, cx, cy);
-    cx += ctx.measureText(seg.text).width;
-  }
-  ctx.textBaseline = 'alphabetic';
-}
-
 // ═══════════════════════════════════════════════════════════════════
 //  RENDER
 // ═══════════════════════════════════════════════════════════════════
@@ -891,8 +656,7 @@ function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robot
   const sx=robotScaleX!==undefined ? robotScaleX : (S.facingRight?1:-1);
   drawRobot(S.robotPos,sx,walkPhase||0);
   drawExprBox();
-  drawUtterance();
-  updateLeftToolbar();
+  updateInvertButton();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -966,7 +730,6 @@ function startAnimation() {
   btnRevl.style.display='none';
   S.revealStep=0;
   S.canvasHint='';
-  dismissStepBubble();
   addPos(S.t1);
   const kang=kangApplies();
   const steps = S.op==='+' ? S.t2 : -S.t2;
@@ -1089,94 +852,19 @@ function parseFreeText(raw) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  EXPLANATION STEPS — "Så här tänker vi" popup content
-//  Three full-sentence steps, e.g. for 3 − 8:
-//    1. Börja på talet 3.
-//    2. Titta åt vänster på tallinjen.
-//    3. Gå 8 steg framlänges.
+//  EXPLANATION PANEL
 // ═══════════════════════════════════════════════════════════════════
-function buildExplainSteps() {
-  const dirWord  = S.op === '+' ? 'höger' : 'vänster';
-  const dirCol   = S.op === '+' ? '#66C7C2' : '#EC6095';
-  const stepFwd  = S.t2 >= 0;
-  const stepWord = stepFwd ? 'framlänges' : 'baklänges';
-  const stepCol  = stepFwd ? '#306BF0' : '#F4A261';
-  // Show signed t2: "+5" or "−2"
-  const sign      = S.t2 >= 0 ? '+' : '−';
-  const stepLabel = `${sign}${Math.abs(S.t2)}`;
-
-  // Sign rule explanation
-  const opSign   = S.op === '+' ? '+' : '−';
-  const t2Sign   = S.t2 >= 0   ? '+' : '−';
-  const sameSign = opSign === t2Sign;
-  const ruleResult = sameSign ? 'PLUS' : 'MINUS';
-  const ruleCol    = sameSign ? '#306BF0' : '#EC6095';
-  const opColEx    = S.op === '+' ? '#306BF0' : '#EC6095';
-  const t2SignCol  = S.t2 >= 0   ? '#306BF0' : '#EC6095';
-
-  const steps = [
-    `Börja på talet <b>${S.t1}</b>.`,
-    `Titta åt <b style="color:${dirCol}">${dirWord}</b> på tallinjen.`,
-    `Gå <b style="color:${stepCol}">${stepLabel} steg</b> <b style="color:${stepCol}">${stepWord}</b>.`
-  ];
-
-  const stepsHtml = steps.map((s, i) =>
-    `<div class="explain-step"><span class="es-num" style="background:var(--accent)">${i+1}</span><span>${s}</span></div>`
-  ).join('');
-
-  // Divider
-  const dividerHtml = `<div style="border-top:1.5px dashed var(--border);margin:4px 0 2px;"></div>
-    <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Teckensregeln</div>`;
-
-  // Show BOTH cases of the sign rule, highlight which applies NOW
-  const caseA_same   = sameSign;
-  const caseB_diff   = !sameSign;
-  const caseAStyle   = caseA_same ? 'font-weight:700;' : 'opacity:.45;';
-  const caseBStyle   = caseB_diff ? 'font-weight:700;' : 'opacity:.45;';
-
-  const signRuleHtml = `
-    <div style="display:flex;flex-direction:column;gap:6px;font-size:.84rem;">
-      <div style="display:flex;gap:8px;align-items:center;${caseAStyle}">
-        <span style="display:flex;gap:3px;align-items:center;min-width:60px;">
-          <b style="color:#306BF0">+</b><span style="color:var(--muted);font-size:.8rem;">och</span><b style="color:#306BF0">+</b>
-          &nbsp;eller&nbsp;
-          <b style="color:#EC6095">−</b><span style="color:var(--muted);font-size:.8rem;">och</span><b style="color:#EC6095">−</b>
-        </span>
-        <span style="color:var(--muted);">→</span>
-        <b style="color:#306BF0;">lika → PLUS</b>
-        ${caseA_same ? '<span style="font-size:1rem;">✓</span>' : ''}
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;${caseBStyle}">
-        <span style="display:flex;gap:3px;align-items:center;min-width:60px;">
-          <b style="color:#306BF0">+</b><span style="color:var(--muted);font-size:.8rem;">och</span><b style="color:#EC6095">−</b>
-          &nbsp;eller&nbsp;
-          <b style="color:#EC6095">−</b><span style="color:var(--muted);font-size:.8rem;">och</span><b style="color:#306BF0">+</b>
-        </span>
-        <span style="color:var(--muted);">→</span>
-        <b style="color:#EC6095;">olika → MINUS</b>
-        ${caseB_diff ? '<span style="font-size:1rem;">✓</span>' : ''}
-      </div>
-      <div style="margin-top:2px;padding:5px 8px;border-radius:7px;background:${ruleCol}18;border:1.5px solid ${ruleCol}44;font-size:.82rem;color:${ruleCol};font-weight:700;text-align:center;">
-        <b style="color:${opColEx}">${opSign}</b> och <b style="color:${t2SignCol}">${t2Sign}</b>
-        = <b style="color:${ruleCol}">${ruleResult}</b>
-      </div>
-    </div>`;
-
-  explainStepsList.innerHTML = stepsHtml + dividerHtml + signRuleHtml;
-}
-
-function toggleExplainPopup() {
-  const willOpen = !explainPopup.classList.contains('open');
-  if (willOpen) {
-    buildExplainSteps();
-    const r = btnExplainSteps.getBoundingClientRect();
-    const popupWidth = 280;
-    let left = r.right - popupWidth;
-    if (left < 8) left = 8;
-    explainPopup.style.left = left + 'px';
-    explainPopup.style.top  = (r.bottom + 8) + 'px';
-  }
-  explainPopup.classList.toggle('open', willOpen);
+function updateExplPanel() {
+  if (!S.showExpl) { explPanel.style.display='none'; return; }
+  explPanel.style.display='block';
+  const opWord = S.op === '+' ? 'höger (addition)' : 'vänster (subtraktion)';
+  const t2Word = S.t2 >= 0
+    ? `${S.t2} steg framlänges`
+    : `${Math.abs(S.t2)} steg baklänges`;
+  explPanel.innerHTML =
+    `<b>Term 1:</b> ${S.t1} — startposition&nbsp;&nbsp; ` +
+    `<b>Riktning:</b> roboten tittar åt ${opWord}&nbsp;&nbsp; ` +
+    `<b>Term 2:</b> ${t2Word}`;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1188,8 +876,8 @@ function setExpr(t1, op, t2, triggerFlip) {
   S.answer = op === '+' ? t1 + t2 : t1 - t2;
   S.kangMode = kangChk.checked;
   S.slowMode = slowChk.checked;
-  if (explainPopup.classList.contains('open')) buildExplainSteps();
-  // (step bubble is closed by startAnimation/resetAll, not on every expression change)
+  S.showExpl = explChk.checked;
+  updateExplPanel();
 
   range = computeRange(S.t1, S.t2);
   S.robotPos = S.t1;
@@ -1215,11 +903,7 @@ function resetAll() {
   if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF=null; }
   S.animating=false;
   btnAnim.disabled=false;
-  dismissStepBubble();
-  setExpr(5, '+', 3, false);
-  // If expression box is hidden, show the step bubble so there's
-  // still interpretable context (start, direction, steps)
-  if (!S.showExpr) openStepBubble();
+  setExpr(5, '−', 8, false);
 }
 
 function addPos(pos) {
@@ -1228,63 +912,11 @@ function addPos(pos) {
 function setStrip(msg) { stripEl.textContent = msg || '\u00a0'; }
 
 // ═══════════════════════════════════════════════════════════════════
-//  PAN ANIMATION — smoothly slide the number line when t1 changes
-// ═══════════════════════════════════════════════════════════════════
-let panRAF = null;
-function panToRange(targetRange, onDone) {
-  if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
-  const fromLo = range.lo, fromHi = range.hi;
-  const toLo = targetRange.lo, toHi = targetRange.hi;
-  // Skip animation if range barely changed
-  if (Math.abs(toLo - fromLo) < 0.5 && Math.abs(toHi - fromHi) < 0.5) {
-    range = targetRange;
-    if (onDone) onDone();
-    return;
-  }
-  const DUR = 320; let startTs = null;
-  function step(ts) {
-    if (!startTs) startTs = ts;
-    const p = Math.min((ts - startTs) / DUR, 1);
-    const ease = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
-    range = {
-      lo: fromLo + (toLo - fromLo) * ease,
-      hi: fromHi + (toHi - fromHi) * ease,
-    };
-    render(undefined, 0);
-    if (stepBubble.classList.contains('open')) positionStepBubble();
-    if (p < 1) { panRAF = requestAnimationFrame(step); }
-    else { range = targetRange; if (onDone) onDone(); }
-  }
-  panRAF = requestAnimationFrame(step);
-}
-
-// ═══════════════════════════════════════════════════════════════════
 //  CLICK-TO-EDIT EXPRESSION BOX
 // ═══════════════════════════════════════════════════════════════════
 function getCanvasScale() {
   const rect = canvas.getBoundingClientRect();
   return { sx: rect.width / CW, sy: rect.height / CH, rect };
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  DRAG & DROP — robot body (moves t1) + direction arrow (flips op)
-//  Hit-test geometry mirrors drawRobot()/drawDirectionArrow() above.
-// ═══════════════════════════════════════════════════════════════════
-function robotHitTest(cx, cy) {
-  // Robot body spans roughly x:[-16,16] local, y:[-90,0] local (LINE_Y = baseline)
-  const rx = worldToX(S.robotPos);
-  const dx = cx - rx;
-  const dy = cy - LINE_Y;
-  return dx >= -18 && dx <= 18 && dy >= -94 && dy <= 4;
-}
-
-function arrowHitTest(cx, cy) {
-  // Arrow centre sits at (robotX, LINE_Y - 118), spans aw=40, ah=14 → generous padding
-  const rx = worldToX(S.robotPos);
-  const ay = LINE_Y - 118;
-  const dx = cx - rx;
-  const dy = cy - ay;
-  return dx >= -24 && dx <= 24 && dy >= -14 && dy <= 14;
 }
 
 // Update the invert button's icon (+/−) and colour to match the robot's current facing
@@ -1326,183 +958,15 @@ function closeExprEditor(commit) {
   exprEditInput.style.display = 'none';
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  STEP BUBBLE — floating "how many steps?" input shown above the robot
-//  right after a drag-drop, lets the student type a signed number
-//  (e.g. "+5" or "-3") to set t2 directly.
-// ═══════════════════════════════════════════════════════════════════
-function positionStepBubble() {
-  const { sx, sy } = getCanvasScale();
-  // Position relative to .canvas-wrap (which has position:relative)
-  // canvas element is offset by the padding (18px top, 10px left) of canvas-wrap
-  const canvasOffsetLeft = 10;  // canvas-wrap padding-left
-  const canvasOffsetTop  = 18;  // canvas-wrap padding-top
-  const rx = canvasOffsetLeft + worldToX(S.robotPos) * sx;
-  const ry = canvasOffsetTop  + (LINE_Y - 158) * sy;   // well above direction arrow
-  stepBubble.style.left = rx + 'px';
-  stepBubble.style.top  = ry + 'px';
-  stepBubble.style.transform = 'translate(-50%, -100%)';
-}
-
-function openStepBubble() {
-  if (S.animating) return;
-  positionStepBubble();
-  const sign = S.t2 >= 0 ? '+' : '';
-  stepBubbleInput.value = `${sign}${S.t2}`;
-  stepBubble.classList.add('open');
-  stepBubbleInput.focus();
-  stepBubbleInput.select();
-}
-
-function commitStepBubble() {
-  // Parse and apply the value, but KEEP bubble open
-  const raw = stepBubbleInput.value.trim().replace(/−/g,'-').replace(/\s+/g,'');
-  const n = parseInt(raw, 10);
-  if (!isNaN(n) && n !== S.t2) {
-    // Update t2 without closing bubble — reposition in case range changed
-    S.t2 = n;
-    S.answer = S.op === '+' ? S.t1 + S.t2 : S.t1 - S.t2;
-    range = computeRange(S.t1, S.t2);
-    S.revealedPositions = [S.t1];
-    S.completedArcs = [];
-    S.phase = 'ready';
-    setStrip('\u00a0');
-    btnRevl.style.display = 'none';
-    updatePlayButton();
-    if (explainPopup.classList.contains('open')) buildExplainSteps();
-    render(undefined, 0);
-    positionStepBubble();   // reposition after potential range update
-  }
-  const sign = S.t2 >= 0 ? '+' : '';
-  stepBubbleInput.value = `${sign}${S.t2}`;
-}
-
-function dismissStepBubble() {
-  stepBubble.classList.remove('open');
-}
-
-function closeStepBubble(commit) {
-  if (commit) commitStepBubble();
-  dismissStepBubble();
-}
-
-stepBubbleInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    e.stopPropagation();
-    justConfirmedExpr = true;     // swallow the next document-level Enter
-    commitStepBubble();           // commit value but KEEP bubble open
-    stepBubbleInput.blur();       // hand focus back so next Enter can trigger play
-  }
-  else if (e.key === 'Escape') { e.preventDefault(); dismissStepBubble(); }
-});
-stepBubbleInput.addEventListener('blur', () => {
-  // On blur, commit value silently but keep bubble visible
-  commitStepBubble();
-});
-
-// ═══════════════════════════════════════════════════════════════════
-//  CANVAS INTERACTION — click (expr box / play) + drag (robot) + arrow click (invert)
-// ═══════════════════════════════════════════════════════════════════
-let dragStartedOnRobot = false;
-let dragMoved = false;
-let dragStartedOnArrow = false;
-let justConfirmedExpr = false;   // swallows the document-level Enter right after confirming expr/step
-
-function canDragNow() {
-  // Only allow dragging when not mid-animation (idle/ready/done per spec)
-  return !S.animating && (S.phase === 'idle' || S.phase === 'ready' || S.phase === 'done');
-}
-
-canvas.addEventListener('mousedown', (e) => {
-  const { sx, sy, rect } = getCanvasScale();
-  const cx = (e.clientX - rect.left) / sx;
-  const cy = (e.clientY - rect.top) / sy;
-
-  if (!canDragNow()) return;
-
-  if (arrowHitTest(cx, cy)) {
-    dragStartedOnArrow = true;
-    return;
-  }
-  if (robotHitTest(cx, cy)) {
-    dragStartedOnRobot = true;
-    dragMoved = false;
-    S.isDragging = true;
-    canvas.style.cursor = 'grabbing';
-  }
-});
-
-window.addEventListener('mousemove', (e) => {
-  if (!dragStartedOnRobot) return;
-  const { sx, sy, rect } = getCanvasScale();
-  const cx = (e.clientX - rect.left) / sx;
-  const cy = (e.clientY - rect.top) / sy;
-  const newWorld = Math.round(xToWorld(cx));
-  const clamped = Math.max(range.lo, Math.min(range.hi, newWorld));
-  if (clamped !== S.t1) dragMoved = true;
-  S.robotPos = clamped;
-  render(undefined, 0);
-  // Keep step bubble tracking the robot if it's already visible
-  if (stepBubble.classList.contains('open')) positionStepBubble();
-});
-
-window.addEventListener('mouseup', (e) => {
-  if (dragStartedOnArrow) {
-    dragStartedOnArrow = false;
-    // Only treat as a tap-to-invert if the mouse hasn't moved away from the canvas drag state
-    const { sx, sy, rect } = getCanvasScale();
-    const cx = (e.clientX - rect.left) / sx;
-    const cy = (e.clientY - rect.top) / sy;
-    if (arrowHitTest(cx, cy) && canDragNow()) invertOperator();
-    return;
-  }
-  if (dragStartedOnRobot) {
-    dragStartedOnRobot = false;
-    S.isDragging = false;
-    canvas.style.cursor = 'default';
-    if (dragMoved) {
-      const newT1 = Math.round(xToWorld((e.clientX - getCanvasScale().rect.left) / getCanvasScale().sx));
-      const clamped = Math.max(range.lo, Math.min(range.hi, newT1));
-      // setExpr computes new range — pan to it smoothly
-      const newRange = computeRange(clamped, S.t2);
-      setExpr(clamped, S.op, S.t2, false);
-      panToRange(newRange, () => openStepBubble());
-    }
-  }
-});
-
 canvas.addEventListener('click', (e) => {
-  // Suppress the click that follows a real drag (prevents accidentally triggering play)
-  if (dragMoved) { dragMoved = false; return; }
-
   const { sx, sy, rect } = getCanvasScale();
   const cx = (e.clientX - rect.left) / sx;
   const cy = (e.clientY - rect.top) / sy;
   if (cx >= exprBoxRect.x && cx <= exprBoxRect.x + exprBoxRect.w &&
       cy >= exprBoxRect.y && cy <= exprBoxRect.y + exprBoxRect.h) {
     openExprEditor();
-  } else if (robotHitTest(cx, cy) || arrowHitTest(cx, cy)) {
-    // clicking (not dragging) the robot or arrow shouldn't also trigger play
-    return;
   } else {
     handlePlayClick();
-  }
-});
-
-// Cursor feedback on hover
-canvas.addEventListener('mousemove', (e) => {
-  if (dragStartedOnRobot) return; // already handled above
-  const { sx, sy, rect } = getCanvasScale();
-  const cx = (e.clientX - rect.left) / sx;
-  const cy = (e.clientY - rect.top) / sy;
-  if (canDragNow() && (robotHitTest(cx, cy) || arrowHitTest(cx, cy))) {
-    canvas.style.cursor = 'grab';
-  } else if (cx >= exprBoxRect.x && cx <= exprBoxRect.x + exprBoxRect.w &&
-             cy >= exprBoxRect.y && cy <= exprBoxRect.y + exprBoxRect.h) {
-    canvas.style.cursor = 'text';
-  } else {
-    canvas.style.cursor = 'default';
   }
 });
 
@@ -1520,11 +984,11 @@ exprEditInput.addEventListener('blur', () => closeExprEditor(true));
 // Global Enter handler — drives animate / next-hop once the edit field is closed.
 // (The edit field's own keydown handler above only fires while it's focused;
 // once it closes via blur/Enter, this document-level listener takes over.)
+let justConfirmedExpr = false;
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter') return;
   // If the edit field is open, let its own handler deal with it.
   if (exprEditInput.style.display === 'block') return;
-  if (stepBubble.classList.contains('open')) return;
   // Swallow the very same Enter keypress that just confirmed the expression —
   // require a separate, later Enter press to start the animation.
   if (justConfirmedExpr) { justConfirmedExpr = false; return; }
@@ -1535,79 +999,6 @@ document.addEventListener('keydown', (e) => {
 // ═══════════════════════════════════════════════════════════════════
 //  FLOATING TOOLBAR — total / step-chain toggles
 // ═══════════════════════════════════════════════════════════════════
-function syncExprButtons() {
-  updateLeftToolbar();
-}
-
-function updateLeftToolbar() {
-  // Expr toggle
-  const exprActive = S.showExpr;
-  btnToggleExpr.classList.toggle('active', exprActive);
-  ltBtnExpr.classList.toggle('active', exprActive);
-
-  // Invert operator
-  updateInvertButton();   // updates btnInvertOp in float toolbar
-  const facingRight = S.op === '+';
-  ltBtnInvert.className = 'lt-btn ' + (facingRight ? 'invert-right' : 'invert-left');
-  ltBtnInvert.querySelector('span').textContent = facingRight ? '+' : '−';
-
-  // Kang
-  const kangOn = S.kangMode;
-  ltBtnKang.className = 'lt-btn' + (kangOn ? ' kang-on' : '');
-
-  // Utterance
-  ltBtnUtter.className = 'lt-btn';
-  if (S.showFullUtterance) ltBtnUtter.classList.add('utter-full');
-  else if (S.showUtterance) ltBtnUtter.classList.add('utter-on');
-  ltBtnUtter.querySelector('span').textContent =
-    !S.showUtterance ? '🗣' : !S.showFullUtterance ? '🗣+' : '🗣++';
-
-  // Play / Next / Reset button
-  ltBtnPlay.disabled = S.animating;
-  ltBtnPlay.className = 'lt-btn';
-  if (S.phase === 'paused') {
-    ltBtnPlay.classList.add('play-next');
-    ltBtnPlay.querySelector('span').textContent = '⏭';
-    ltBtnPlay.querySelector('.lt-tip').textContent = 'Nästa hopp';
-  } else if (S.phase === 'done') {
-    ltBtnPlay.classList.add('play-reset');
-    ltBtnPlay.querySelector('span').textContent = '↺';
-    ltBtnPlay.querySelector('.lt-tip').textContent = 'Återställ';
-  } else {
-    ltBtnPlay.classList.add('play');
-    ltBtnPlay.querySelector('span').textContent = '▶';
-    ltBtnPlay.querySelector('.lt-tip').textContent = 'Animera';
-  }
-
-  // Reveal button (show only when animation done)
-  const revealVisible = S.phase === 'done';
-  ltBtnReveal.style.display = revealVisible ? '' : 'none';
-}
-function toggleExpr() {
-  S.showExpr = !S.showExpr;
-  syncExprButtons();
-  render(1,0);
-}
-btnToggleExpr.addEventListener('click', toggleExpr);
-btnToggleExprInline.addEventListener('click', toggleExpr);
-ltBtnExpr.addEventListener('click', toggleExpr);
-ltBtnInvert.addEventListener('click', invertOperator);
-ltBtnKang.addEventListener('click', () => {
-  S.kangMode = !S.kangMode;
-  kangChk.checked = S.kangMode;
-  render(1, 0);
-});
-ltBtnReveal.addEventListener('click', () => btnRevl.click());
-ltBtnUtter.addEventListener('click', () => {
-  if (!S.showUtterance) { S.showUtterance = true; S.showFullUtterance = false; }
-  else if (!S.showFullUtterance) { S.showFullUtterance = true; }
-  else { S.showUtterance = false; S.showFullUtterance = false; }
-  updateUtteranceBtn(); render(1, 0);
-});
-ltBtnPlay.addEventListener('click', () => {
-  if (S.phase === 'done') { resetAll(); }
-  else { handlePlayClick(); }
-});
 btnTotalToggle.addEventListener('click', () => {
   S.showTotal = !S.showTotal;
   btnTotalToggle.classList.toggle('active', S.showTotal);
@@ -1624,35 +1015,6 @@ btnExplainToggle.addEventListener('click', () => {
   // Refresh the strip to reflect new mode immediately if idle/ready
   if (S.phase === 'ready' || S.phase === 'idle') setStrip('\u00a0');
 });
-btnColorNumbers.addEventListener('click', () => {
-  S.showColorNumbers = !S.showColorNumbers;
-  btnColorNumbers.classList.toggle('active', S.showColorNumbers);
-  render(1, 0);
-});
-function updateUtteranceBtn() {
-  btnUtterance.className = 'ibtn';
-  if (!S.showUtterance) {
-    btnUtterance.classList.add('utterance');
-    btnUtterance.innerHTML = '🗣<span class="tip">Uttalat uttryck</span>';
-  } else if (!S.showFullUtterance) {
-    btnUtterance.classList.add('utterance');
-    btnUtterance.innerHTML = '🗣+<span class="tip">Standard uttal (klicka för fullt)</span>';
-  } else {
-    btnUtterance.classList.add('utterance-full');
-    btnUtterance.innerHTML = '🗣++<span class="tip">Fullt uttal (klicka för av)</span>';
-  }
-}
-btnUtterance.addEventListener('click', () => {
-  if (!S.showUtterance) {
-    S.showUtterance = true; S.showFullUtterance = false;
-  } else if (!S.showFullUtterance) {
-    S.showFullUtterance = true;
-  } else {
-    S.showUtterance = false; S.showFullUtterance = false;
-  }
-  updateUtteranceBtn();
-  render(1, 0);
-});
 
 // ═══════════════════════════════════════════════════════════════════
 //  SETTINGS MODAL
@@ -1668,15 +1030,7 @@ btnStepArrowToggle.addEventListener('click', () => {
   btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
   render(1,0);
 });
-btnExplainSteps.addEventListener('click', (e) => {
-  e.stopPropagation();
-  toggleExplainPopup();
-});
-document.addEventListener('click', (e) => {
-  if (!explainPopup.classList.contains('open')) return;
-  if (explainPopup.contains(e.target) || e.target === btnExplainSteps) return;
-  explainPopup.classList.remove('open');
-});
+explChk.addEventListener('change', () => { S.showExpl = explChk.checked; updateExplPanel(); });
 
 // ═══════════════════════════════════════════════════════════════════
 //  ACTION BUTTONS
@@ -1698,7 +1052,7 @@ btnRevl.addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
-setExpr(5, '+', 3, false);
+setExpr(5, '−', 8, false);
 </script>
 </body>
 </html>
