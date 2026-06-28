@@ -14,11 +14,7 @@
     --grad:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
     --total-arc:#7c3aed;
   }
-  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;transition:background .3s,color .3s}
-  body.dark{
-    --bg:#12111f;--surface:#1e1c30;--surface2:#252340;--border:#3a3660;
-    --text:#f0eeff;--muted:#9b96c0;--shadow:rgba(0,0,0,.4);
-  }
+  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center}
   header{width:100%;background:var(--grad);padding:8px 24px}
   main{width:100%;max-width:1400px;padding:14px 32px 30px;display:flex;flex-direction:column;gap:10px}
 
@@ -42,14 +38,12 @@
   .toolbar-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 1px; }
 
   /* vertical left toolbar — sits beside canvas-wrap in a flex row */
-  .left-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex-shrink:0;align-content:start;}
-  .lt-full{grid-column:1/-1;}
-  .lt-sep{grid-column:1/-1;width:100%;height:1.5px;background:var(--border);margin:2px 0;}
+  .left-toolbar{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
   .canvas-and-toolbar{display:flex;flex-direction:row;gap:8px;align-items:flex-start;}
   .lt-btn{
-    width:42px; height:42px; border-radius:11px;
-    border:1.5px solid var(--border); background:rgba(255,255,255,.94);
-    color:var(--muted); font-size:.95rem; font-weight:700; cursor:pointer;
+    width:28px; height:28px; border-radius:8px;
+    border:1.5px solid var(--border); background:rgba(255,255,255,.92);
+    color:var(--muted); font-size:.78rem; font-weight:700; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     transition:all .15s; backdrop-filter:blur(2px); position:relative;
   }
@@ -59,111 +53,17 @@
   .lt-btn.play{ background:var(--accent); color:#fff; border-color:var(--accent); }
   .lt-btn.play-next{ background:#18a348; color:#fff; border-color:#18a348; }
   .lt-btn.play-reset{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
-  .lt-btn.reveal-ready{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
-  .lt-btn.reveal-dim{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
-  .lt-btn.kang-on{ background:#F4A261 !important; color:#fff !important; border-color:#F4A261 !important; }
-  .lt-btn.kang-on:hover{ background:#e8954a !important; }
-  .lt-sep{ width:100%; height:1.5px; background:var(--border); margin:4px 0; }
+  .lt-btn.reveal{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
+  .lt-btn.kang-on{ background:#F4A261; color:#fff; border-color:#F4A261; }
+  .lt-sep{ width:100%; height:1px; background:var(--border); margin:2px 0; }
   .lt-btn.invert-right{ color:#66C7C2; border-color:#66C7C2; }
   .lt-btn.invert-right:hover{ background:#66C7C2; color:#fff; }
   .lt-btn.invert-left{ color:#EC6095; border-color:#EC6095; }
   .lt-btn.invert-left:hover{ background:#EC6095; color:#fff; }
   .lt-btn.utter-on{ background:#7c3aed; color:#fff; border-color:#7c3aed; }
   .lt-btn.utter-full{ background:#EC6095; color:#fff; border-color:#EC6095; }
-
-  /* input popup — fixed, opens next to the 🔢 button */
-  .input-popup{
-    display:none; position:fixed; z-index:300;
-    flex-direction:column;
-    background:var(--surface); border:1.5px solid var(--border); border-radius:16px;
-    box-shadow:0 8px 40px rgba(16,14,40,.22); width:340px;
-    overflow:hidden;
-  }
-  .input-popup.open{ display:flex; }
-  /* tabs */
-  .sp-tabs{ display:flex; border-bottom:1.5px solid var(--border); }
-  .sp-tab{
-    flex:1; padding:11px 0; border:none; background:none;
-    font-family:'Sora',sans-serif; font-size:.82rem; font-weight:700;
-    color:var(--muted); cursor:pointer; transition:all .15s;
-  }
-  .sp-tab.active{ color:var(--accent); border-bottom:2.5px solid var(--accent); background:var(--surface2); }
-  .sp-body{ padding:14px; display:flex; flex-direction:column; gap:12px; max-height:80vh; overflow-y:auto; }
-  /* preset grid: categories */
-  .preset-cat{ display:flex; flex-direction:column; gap:4px; }
-  .preset-cat-label{
-    font-size:.68rem; font-weight:700; color:var(--muted);
-    text-transform:uppercase; letter-spacing:.06em; margin-bottom:2px;
-  }
-  .preset-pills{ display:flex; flex-wrap:wrap; gap:5px; }
-  .preset-pill{
-    padding:6px 11px; border-radius:20px; border:1.5px solid var(--border);
-    background:var(--surface2); font-family:'Sora',sans-serif; font-size:.82rem;
-    font-weight:600; color:var(--text); cursor:pointer; transition:all .12s;
-    touch-action:manipulation;
-  }
-  .preset-pill:active{ transform:scale(.93); }
-  .preset-pill.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
-  .preset-pill.cat-0{ border-color:#18a348; color:#18a348; }
-  .preset-pill.cat-0.active,.preset-pill.cat-0:hover{ background:#18a348; color:#fff; }
-  .preset-pill.cat-1{ border-color:#306BF0; color:#306BF0; }
-  .preset-pill.cat-1.active,.preset-pill.cat-1:hover{ background:#306BF0; color:#fff; }
-  .preset-pill.cat-2{ border-color:#F4A261; color:#F4A261; }
-  .preset-pill.cat-2.active,.preset-pill.cat-2:hover{ background:#F4A261; color:#fff; }
-  .preset-pill.cat-3{ border-color:#7c3aed; color:#7c3aed; }
-  .preset-pill.cat-3.active,.preset-pill.cat-3:hover{ background:#7c3aed; color:#fff; }
-  .preset-pill.cat-4{ border-color:#EC6095; color:#EC6095; }
-  .preset-pill.cat-4.active,.preset-pill.cat-4:hover{ background:#EC6095; color:#fff; }
-  /* numpad inside panel */
-  .numpad-display{
-    font-family:'Sora',sans-serif; font-size:1.5rem; font-weight:700; color:var(--text);
-    text-align:center; padding:8px 0 10px; letter-spacing:.02em;
-    border-bottom:1.5px solid var(--border); margin-bottom:8px;
-  }
-  .numpad-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
-  .np-btn{
-    padding:13px 0; border-radius:11px; border:1.5px solid var(--border);
-    background:var(--surface2); font-family:'Sora',sans-serif; font-size:1.15rem;
-    font-weight:700; color:var(--text); cursor:pointer; transition:all .12s;
-    touch-action:manipulation;
-  }
-  .np-btn:active{ transform:scale(.92); }
-  .np-btn.op{ color:var(--accent); border-color:var(--accent); }
-  .np-btn.neg{ color:#EC6095; border-color:#EC6095; }
-  .np-btn.go{ background:var(--accent); color:#fff; border-color:var(--accent); font-size:.95rem; }
-  .np-btn.clr{ background:#fee2e2; color:#e02020; border-color:#f87171; }
-
-  /* user saved pearl row */
-  .user-pearl-row{
-    display:flex; align-items:center; gap:6px; padding:4px 0;
-    flex-wrap:wrap;
-  }
-  .user-pearl-btn{
-    width:28px; height:28px; border-radius:50%; border:2px solid #e8a020;
-    background:#fde68a; color:#92400e; font-size:.62rem; font-weight:700;
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition:all .12s; position:relative; flex-shrink:0;
-  }
-  .user-pearl-btn.active{ background:#e8a020; color:#fff; }
-  .user-pearl-btn:hover{ transform:scale(1.15); }
-  .user-pearl-add{
-    width:28px; height:28px; border-radius:50%; border:2px dashed #e8a020;
-    background:transparent; color:#e8a020; font-size:1.1rem; font-weight:700;
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition:all .12s;
-  }
-  .user-pearl-add:hover{ background:#fde68a; }
-  .user-pearl-wrap{
-    display:flex; align-items:center; gap:6px; flex-wrap:wrap;
-    min-height:36px; padding:6px 10px 8px;
-    border-top:1px dashed var(--border);
-  }
-  .user-pearl-hint{
-    font-size:.72rem; color:var(--muted); font-style:italic;
-  }
-
   .lt-btn .lt-tip{
-    position:absolute; left:50px; top:50%; transform:translateY(-50%);
+    position:absolute; left:44px; top:50%; transform:translateY(-50%);
     background:var(--text); color:#fff; font-size:.68rem; font-weight:600;
     padding:4px 8px; border-radius:6px; white-space:nowrap; opacity:0;
     pointer-events:none; transition:opacity .15s; z-index:50;
@@ -236,7 +136,7 @@
   }
   .ibtn:hover .tip{ opacity:1 }
 
-  .step-strip{ display:none; }
+  .step-strip{ text-align:center; font-size:.82rem; color:var(--muted); font-weight:600; min-height:1.1em }
 
   /* explanation popup — positioned via JS (fixed, escapes canvas-wrap's overflow:hidden) */
   .explain-popup{
@@ -276,31 +176,22 @@
 
   <div class="canvas-and-toolbar">
   <div class="left-toolbar">
-    <!-- Row 0: tools -->
-    <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
-    <button class="lt-btn" id="ltBtnSettings"><span>⚙️</span><span class="lt-tip">Inställningar</span></button>
-    <div class="lt-sep"></div>
-    <!-- Row 1: play + utterance (paired by intent) -->
     <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
-    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
-    <!-- Row 2: reveal + save -->
-    <button class="lt-btn reveal-ready" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
-    <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
+    <button class="lt-btn" id="ltBtnReveal" disabled><span>👁</span><span class="lt-tip">Visa svar</span></button>
     <div class="lt-sep"></div>
-    <!-- Row 3: expr toggle + invert -->
     <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
     <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
-    <!-- Row 4: kang (full width so it has breathing room) -->
-    <button class="lt-btn lt-full" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
+    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
     <!-- hidden refs for JS compat -->
     <span style="display:none">
+      <button id="ltBtnKang"></button>
       <button id="ltBtnTotal"></button>
       <button id="ltBtnStep"></button>
       <button id="ltBtnArrows"></button>
     </span>
   </div>
   <div class="canvas-wrap" id="canvasWrap">
-    <canvas id="tl" width="960" height="360"></canvas>
+    <canvas id="tl" width="960" height="320"></canvas>
     <input type="text" id="exprEditInput" autocomplete="off" spellcheck="false">
     <button id="btnToggleExprInline" style="display:none" title="Visa/dölj uttrycket">👁</button>
 
@@ -324,12 +215,10 @@
       <button id="btnStepArrowToggle">➡</button>
       <button id="btnExplainToggle">💬</button>
       <button id="btnColorNumbers">🎨</button>
-      <button id="btnDark">🌙</button>
-      <button id="btnFullscreen">⛶</button>
-      <button id="btnSettings">⚙️</button>
     </span>
     <div class="float-toolbar" id="floatToolbar">
       <button class="icon-btn" id="btnExplainSteps" title="Förklaring steg för steg">💡</button>
+      <button class="icon-btn" id="btnSettings" title="Inställningar">⚙️</button>
     </div>
   </div>
   </div>
@@ -340,8 +229,6 @@
     <div id="explainStepsList"></div>
   </div>
 
-
-
   <!-- hidden action-row refs for JS compat -->
   <span style="display:none">
     <button id="btnAnimate">▶</button>
@@ -351,46 +238,6 @@
   </span>
 
   <div class="step-strip" id="stepStrip">&nbsp;</div>
-
-  <!-- input popup: numpad + presets, fixed-positioned next to 🔢 button -->
-  <div id="sidePanel" class="input-popup">
-    <div class="sp-tabs">
-      <button class="sp-tab" id="spTabPreset">📋 Uttryck</button>
-      <button class="sp-tab active" id="spTabNumpad">🔢 Knappsats</button>
-    </div>
-    <div class="sp-body">
-      <!-- Numpad tab (default) -->
-      <div id="spNumpadContent">
-        <div class="numpad-display" id="numpadDisplay">—</div>
-        <div class="numpad-grid">
-          <button class="np-btn" data-val="7">7</button>
-          <button class="np-btn" data-val="8">8</button>
-          <button class="np-btn" data-val="9">9</button>
-          <button class="np-btn clr" data-action="clear">C</button>
-          <button class="np-btn" data-val="4">4</button>
-          <button class="np-btn" data-val="5">5</button>
-          <button class="np-btn" data-val="6">6</button>
-          <button class="np-btn neg" data-action="negate">±</button>
-          <button class="np-btn" data-val="1">1</button>
-          <button class="np-btn" data-val="2">2</button>
-          <button class="np-btn" data-val="3">3</button>
-          <button class="np-btn op" data-action="op+">+</button>
-          <button class="np-btn" data-val="0">0</button>
-          <button class="np-btn" data-val="BS">⌫</button>
-          <button class="np-btn op" data-action="op−">−</button>
-          <button class="np-btn go" data-action="go">OK ▶</button>
-        </div>
-      </div>
-      <!-- User saved row -->
-      <div class="user-pearl-wrap" id="userPearlWrap">
-        <span class="user-pearl-hint" id="userPearlHint">Klicka ★ för att spara aktuellt uttryck</span>
-      </div>
-      <!-- Preset tab -->
-      <div id="spPresetContent" style="display:none">
-        <div id="presetCatContainer"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- Settings modal -->
   <div class="modal-overlay" id="settingsModal">
@@ -405,16 +252,11 @@
         <label class="toggle-label"><span class="ic">➡</span><input type="checkbox" id="arrowSettings"> Steg-pilar</label>
         <label class="toggle-label"><span class="ic">🎨</span><input type="checkbox" id="colorToggleSettings"> Färgkoda tal</label>
         <label class="toggle-label"><span class="ic">💬</span><input type="checkbox" id="hintToggleSettings"> Hjälptexter</label>
-        <label class="toggle-label"><span class="ic">🌙</span><input type="checkbox" id="darkToggleSettings"> Mörkt läge</label>
-        <label class="toggle-label"><span class="ic">⛶</span><input type="checkbox" id="fsToggleSettings"> Helskärm</label>
       </div>
     </div>
   </div>
 
 </main>
-<footer style="width:100%;text-align:center;padding:10px 0 18px;font-family:'Sora',sans-serif;font-size:.72rem;color:#aaa;letter-spacing:.02em;">
-  Skapat av Patrick Tegnefur &nbsp;·&nbsp; Förstelärare i matematik &nbsp;·&nbsp; Alfred Dalinskolan, Huskvarna
-</footer>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
@@ -488,9 +330,6 @@ const S = {
   showColorNumbers:false,
   showUtterance:false,
   showFullUtterance:false,
-  lastExpr:null,         // {t1,op,t2} — saved before each new setExpr call
-  presetIdx:-1,          // which preset is active (-1 = none)
-  savedExprs:[],         // user-saved expressions
   revealStep:0,
   phase:'idle',
   completedArcs:[],
@@ -516,11 +355,10 @@ const ltBtnInvert = document.getElementById('ltBtnInvert');
 const ltBtnUtter  = document.getElementById('ltBtnUtter');
 const ltBtnPlay   = document.getElementById('ltBtnPlay');
 const ltBtnReveal = document.getElementById('ltBtnReveal');
-const ltBtnSave   = document.getElementById('ltBtnSave');
 const ltBtnKang   = document.getElementById('ltBtnKang');
-const ltBtnArrows = document.getElementById('ltBtnArrows');
 const ltBtnTotal  = document.getElementById('ltBtnTotal');
 const ltBtnStep   = document.getElementById('ltBtnStep');
+const ltBtnArrows = document.getElementById('ltBtnArrows');
 const colorToggleSettings = document.getElementById('colorToggleSettings');
 const hintToggleSettings  = document.getElementById('hintToggleSettings');
 const stepChainSettings   = document.getElementById('stepChainSettings');
@@ -538,7 +376,6 @@ const btnAnim  = document.getElementById('btnAnimate');
 const btnReset = document.getElementById('btnReset');
 const btnRevl  = document.getElementById('btnReveal');
 const btnSettings   = document.getElementById('btnSettings');
-const ltBtnSettings = document.getElementById('ltBtnSettings');
 const settingsModal = document.getElementById('settingsModal');
 const modalClose    = document.getElementById('modalClose');
 
@@ -553,7 +390,7 @@ const stripEl   = document.getElementById('stepStrip');
 // ═══════════════════════════════════════════════════════════════════
 //  LAYOUT
 // ═══════════════════════════════════════════════════════════════════
-const CW=960, CH=360;
+const CW=960, CH=320;
 const LINE_Y  = 188;
 const TICK_H  = 13;
 const LABEL_Y = LINE_Y + TICK_H + 14;
@@ -592,30 +429,27 @@ function roundRect(c,x,y,w,h,r){
 // ═══════════════════════════════════════════════════════════════════
 function drawLine() {
   const lo=range.lo, hi=range.hi;
-  const isDark = document.body.classList.contains('dark');
-  const lineCol  = isDark ? '#e0dbff' : '#100e28';
-  const tickCol  = isDark ? '#c5bfee' : '#100e28';
-  const zeroCol  = isDark ? '#ffffff' : '#100e28';
-  const labelDim = isDark ? '#a09acc' : '#444';
-  ctx.strokeStyle=lineCol; ctx.lineWidth=2;
+  ctx.strokeStyle='#100e28'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(worldToX(lo)-20,LINE_Y); ctx.lineTo(worldToX(hi)+20,LINE_Y); ctx.stroke();
   const rsx = worldToX(hi)+20;
-  ctx.fillStyle=lineCol; ctx.beginPath();
+  ctx.fillStyle='#100e28'; ctx.beginPath();
   ctx.moveTo(rsx+9,LINE_Y); ctx.lineTo(rsx-5,LINE_Y-5); ctx.lineTo(rsx-5,LINE_Y+5);
   ctx.closePath(); ctx.fill();
   for (let n=lo; n<=hi; n++) {
     const x=worldToX(n);
-    ctx.strokeStyle=n===0 ? zeroCol : tickCol; ctx.lineWidth=n===0?2.5:1;
+    ctx.strokeStyle='#100e28'; ctx.lineWidth=n===0?2.5:1;
     ctx.beginPath(); ctx.moveTo(x,LINE_Y-TICK_H); ctx.lineTo(x,LINE_Y+TICK_H); ctx.stroke();
+    // Font: zero is bigger and bold, others are regular but larger than before
     const isZero = n === 0;
     ctx.font = isZero ? 'bold 17px Sora' : '14px Sora';
+    // Colour: zero = dark, positive = green, negative = pink (when toggle on)
     let labelCol;
     if (isZero) {
-      labelCol = zeroCol;
+      labelCol = '#100e28';
     } else if (S.showColorNumbers) {
       labelCol = n > 0 ? '#306BF0' : '#EC6095';
     } else {
-      labelCol = labelDim;
+      labelCol = '#444';
     }
     ctx.fillStyle = labelCol;
     ctx.textAlign='center'; ctx.fillText(n, x, LABEL_Y);
@@ -829,7 +663,7 @@ function drawCanvasHint() {
   if (!S.showHints) return;
   if (!S.canvasHint) return;
 
-  const HINT_Y = BOX_Y + (S.showStepArrows ? 68 : 34);
+  const HINT_Y = BOX_Y + 36 + (S.showStepArrows ? 28 : 0);
   const midX = CW / 2;
 
   ctx.font = 'bold 13px Sora';
@@ -1026,8 +860,9 @@ function drawUtterance() {
   if (!S.showUtterance) return;
 
   const segs = buildUtterance();
-  const FS   = 18;
-  const pad  = 10;
+  const FS   = 20;
+  const pad  = 14;
+  const by   = CH - 56;   // bottom of canvas area
 
   // Measure total width
   ctx.font = `bold ${FS}px Sora`;
@@ -1035,16 +870,8 @@ function drawUtterance() {
   for (const seg of segs) totalW += ctx.measureText(seg.text).width;
 
   const boxW = totalW + pad * 2;
-  const boxH = FS + pad * 1.4;
-  // Top-right corner, shifted left to clear the float toolbar
-  // The float toolbar is right:14px — measure it dynamically if possible
-  const toolbar = document.getElementById('floatToolbar');
-  const tbW = toolbar ? toolbar.getBoundingClientRect().width : 200;
-  const canvasRect = canvas.getBoundingClientRect();
-  const canvasScaleX = canvasRect.width / CW;
-  const tbWCanvas = (tbW + 28) / canvasScaleX;  // convert to canvas pixels
-  const bx   = CW - boxW - tbWCanvas;
-  const by   = 14;
+  const boxH = FS + pad * 1.6;
+  const bx   = CW / 2 - boxW / 2;
 
   // Background pill
   ctx.fillStyle   = 'rgba(246,244,255,0.96)';
@@ -1067,69 +894,6 @@ function drawUtterance() {
   ctx.textBaseline = 'alphabetic';
 }
 
-
-// ═══════════════════════════════════════════════════════════════════
-//  PEARL BAND — category dots at bottom of canvas
-//  Groups match PRESET_CATS order; no labels, just coloured dots.
-//  Clicking a dot sets the next preset in that category.
-// ═══════════════════════════════════════════════════════════════════
-const PEARL_COLORS = ['#18a348','#306BF0','#F4A261','#7c3aed','#EC6095'];
-const PEARL_Y = CH - 10;       // preset pearls near bottom
-const PEARL_R = 6;             // dot radius
-const PEARL_GAP = 7;           // gap between dots within a group
-const PEARL_GROUP_GAP = 18;    // gap between groups
-let pearlRects = [];           // [{x, y, catIdx, presetIdx}] for click-hit testing
-
-function drawPearlBand() {
-  if (typeof PRESET_CATS === 'undefined') return;
-  pearlRects = [];
-
-  // Calculate total width for centering
-  let totalW = 0;
-  PRESET_CATS.forEach((cat, ci) => {
-    totalW += cat.presets.length * (PEARL_R*2 + PEARL_GAP) - PEARL_GAP;
-    if (ci < PRESET_CATS.length - 1) totalW += PEARL_GROUP_GAP;
-  });
-
-  let x = CW/2 - totalW/2;
-  PRESET_CATS.forEach((cat, ci) => {
-    const col = PEARL_COLORS[ci % PEARL_COLORS.length];
-    cat.presets.forEach((p, pi) => {
-      const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
-      ctx.beginPath();
-      ctx.arc(x, PEARL_Y, isActive ? PEARL_R+2 : PEARL_R, 0, Math.PI*2);
-      ctx.fillStyle = isActive ? col : col + '55';
-      ctx.fill();
-      if (isActive) {
-        ctx.strokeStyle = col;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-      pearlRects.push({x, y:PEARL_Y, r:PEARL_R+4, catIdx:ci, presetIdx:pi});
-      x += PEARL_R*2 + PEARL_GAP;
-    });
-    x += PEARL_GROUP_GAP - PEARL_GAP;
-  });
-}
-
-// Pearl band click handling
-canvas.addEventListener('click', (e) => {
-  if (e._handledByMain) return;
-  const {sx, sy, rect} = getCanvasScale();
-  const cx = (e.clientX - rect.left) / sx;
-  const cy = (e.clientY - rect.top) / sy;
-  for (const pr of pearlRects) {
-    const dx = cx - pr.x, dy = cy - pr.y;
-    if (dx*dx + dy*dy <= pr.r*pr.r) {
-      const p = PRESET_CATS[pr.catIdx].presets[pr.presetIdx];
-      setExpr(p.t1, p.op, p.t2, true);
-      buildPresetCats && buildPresetCats();
-      e.stopImmediatePropagation();
-      return;
-    }
-  }
-});
-
 // ═══════════════════════════════════════════════════════════════════
 //  RENDER
 // ═══════════════════════════════════════════════════════════════════
@@ -1148,8 +912,6 @@ function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robot
   drawRobot(S.robotPos,sx,walkPhase||0);
   drawExprBox();
   drawUtterance();
-  drawPearlBand();
-  drawUserPearlBand();
   updateLeftToolbar();
 }
 
@@ -1195,7 +957,7 @@ function animateLeg(from, to, color, onDone) {
     const dt=Math.abs(worldToX(S.robotPos)-worldToX(from));
     render(p,(dt/60)%1,from,to,color);
     const rem=Math.round(Math.abs(to-S.robotPos));
-    setStrip(rem>0?'':``);
+    setStrip(rem>0?`${rem} steg kvar…`:'');
     if (p<1) { animRAF=requestAnimationFrame(step); }
     else { S.robotPos=to; render(1,0,from,to,color); onDone(); }
   }
@@ -1441,12 +1203,10 @@ function toggleExplainPopup() {
 //  INPUTS & STATE SYNC
 // ═══════════════════════════════════════════════════════════════════
 function setExpr(t1, op, t2, triggerFlip) {
-  // Save current as lastExpr before overwriting
-  S.lastExpr = {t1:S.t1, op:S.op, t2:S.t2};
   const oldOp = S.op;
   S.t1 = t1; S.op = op; S.t2 = t2;
   S.answer = op === '+' ? t1 + t2 : t1 - t2;
-  // Don't reset kangMode from checkbox here — ltBtnKang and kangChk are kept in sync separately
+  S.kangMode = kangChk.checked;
   S.slowMode = slowChk.checked;
   if (explainPopup.classList.contains('open')) buildExplainSteps();
   // (step bubble is closed by startAnimation/resetAll, not on every expression change)
@@ -1473,13 +1233,12 @@ function setExpr(t1, op, t2, triggerFlip) {
 function resetAll() {
   if (animRAF) { cancelAnimationFrame(animRAF); animRAF=null; }
   if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF=null; }
-  if (panRAF)  { cancelAnimationFrame(panRAF);  panRAF=null;  }
   S.animating=false;
   btnAnim.disabled=false;
   dismissStepBubble();
-  // Replay current expression (robot goes back to start, no new expression)
-  const t1=S.t1, op=S.op, t2=S.t2;
-  setExpr(t1, op, t2, false);
+  setExpr(5, '+', 3, false);
+  // If expression box is hidden, show the step bubble so there's
+  // still interpretable context (start, direction, steps)
   if (!S.showExpr) openStepBubble();
 }
 
@@ -1809,11 +1568,7 @@ function updateLeftToolbar() {
   ltBtnInvert.className = 'lt-btn ' + (facingRight ? 'invert-right' : 'invert-left');
   ltBtnInvert.querySelector('span').textContent = facingRight ? '+' : '−';
 
-  // Kang
-  ltBtnKang.className = 'lt-btn' + (S.kangMode ? ' kang-on' : '');
-
-  // Step arrows
-  ltBtnArrows.className = 'lt-btn' + (S.showStepArrows ? ' active' : '');
+  // (kang/total/step/arrows now in settings modal)
 
   // Utterance
   ltBtnUtter.className = 'lt-btn';
@@ -1851,32 +1606,12 @@ btnToggleExpr.addEventListener('click', toggleExpr);
 btnToggleExprInline.addEventListener('click', toggleExpr);
 ltBtnExpr.addEventListener('click', toggleExpr);
 ltBtnInvert.addEventListener('click', invertOperator);
-ltBtnArrows.addEventListener('click', () => {
-  S.showStepArrows = !S.showStepArrows;
-  btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
-  render(1, 0);
-});
 ltBtnKang.addEventListener('click', () => {
   S.kangMode = !S.kangMode;
   kangChk.checked = S.kangMode;
   render(1, 0);
 });
 ltBtnReveal.addEventListener('click', () => btnRevl.click());
-ltBtnSave.addEventListener('click', saveCurrentExpr);
-
-// User pearl canvas click (handled before main canvas click)
-canvas.addEventListener('click', (e) => {
-  const {sx,sy,rect}=getCanvasScale();
-  const cx=(e.clientX-rect.left)/sx, cy=(e.clientY-rect.top)/sy;
-  for (const pr of userPearlCanvasRects) {
-    const dx=cx-pr.x,dy=cy-pr.y;
-    if (dx*dx+dy*dy<=pr.r*pr.r) {
-      setExpr(S.savedExprs[pr.idx].t1,S.savedExprs[pr.idx].op,S.savedExprs[pr.idx].t2,true);
-      buildUserPearls();
-      e.stopImmediatePropagation(); return;
-    }
-  }
-}, true);  // capture phase so it runs before other click listeners
 ltBtnUtter.addEventListener('click', () => {
   if (!S.showUtterance) { S.showUtterance = true; S.showFullUtterance = false; }
   else if (!S.showFullUtterance) { S.showFullUtterance = true; }
@@ -1893,6 +1628,12 @@ ltBtnStep.addEventListener('click', () => {
   S.showStepChain = !S.showStepChain;
   btnStepToggle.classList.toggle('active', S.showStepChain);
   ltBtnStep.classList.toggle('active', S.showStepChain);
+  render(1,0);
+});
+ltBtnArrows.addEventListener('click', () => {
+  S.showStepArrows = !S.showStepArrows;
+  btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
+  ltBtnArrows.classList.toggle('active', S.showStepArrows);
   render(1,0);
 });
 colorToggleSettings.addEventListener('change', () => {
@@ -1973,11 +1714,10 @@ btnUtterance.addEventListener('click', () => {
 //  SETTINGS MODAL
 // ═══════════════════════════════════════════════════════════════════
 btnSettings.addEventListener('click', () => settingsModal.classList.add('open'));
-if (ltBtnSettings) ltBtnSettings.addEventListener('click', () => settingsModal.classList.add('open'));
 modalClose.addEventListener('click', () => settingsModal.classList.remove('open'));
 settingsModal.addEventListener('click', e => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
 
-kangChk.addEventListener('change', () => { S.kangMode = kangChk.checked; render(1,0); });
+kangChk.addEventListener('change', () => { S.kangMode = kangChk.checked; });
 slowChk.addEventListener('change', () => { S.slowMode = slowChk.checked; });
 btnStepArrowToggle.addEventListener('click', () => {
   S.showStepArrows = !S.showStepArrows;
@@ -2011,302 +1751,9 @@ btnRevl.addEventListener('click', () => {
   }
 });
 
-
-
-// ═══════════════════════════════════════════════════════════════════
-//  USER SAVED EXPRESSIONS — persisted in URL hash
-// ═══════════════════════════════════════════════════════════════════
-function encodeSaved(arr) {
-  return arr.map(p => `${p.t1}${p.op==='+'?'+':'-'}${p.t2}`).join(',');
-}
-function decodeSaved(str) {
-  if (!str) return [];
-  return str.split(',').map(s => {
-    const m = s.match(/^(-?\d+)([+\-])(-?\d+)$/);
-    if (!m) return null;
-    return {t1:parseInt(m[1]), op:m[2]==='-'?'−':'+', t2:parseInt(m[3])};
-  }).filter(Boolean);
-}
-function saveToURL() {
-  const val = S.savedExprs.length ? encodeSaved(S.savedExprs) : '';
-  try { history.replaceState(null, '', window.location.pathname + (val ? '#saved=' + val : '')); } catch(e) {}
-  try { sessionStorage.setItem('tallinje_saved', val); } catch(e) {}
-}
-function loadFromURL() {
-  const m = window.location.hash.match(/saved=([^&]*)/);
-  if (m) { S.savedExprs = decodeSaved(decodeURIComponent(m[1])); return; }
-  try { const v = sessionStorage.getItem('tallinje_saved'); if (v) S.savedExprs = decodeSaved(v); } catch(e) {}
-}
-
-function buildUserPearls() {
-  const wrap = document.getElementById('userPearlWrap');
-  const hint = document.getElementById('userPearlHint');
-  if (!wrap) return;
-  // Clear except hint
-  Array.from(wrap.children).forEach(ch => { if (ch !== hint) ch.remove(); });
-
-  if (S.savedExprs.length === 0) {
-    hint.style.display = '';
-  } else {
-    hint.style.display = 'none';
-    S.savedExprs.forEach((p, i) => {
-      const btn = document.createElement('button');
-      const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
-      btn.className = 'user-pearl-btn' + (isActive ? ' active' : '');
-      btn.title = exprLabel(p);
-      btn.textContent = isActive ? '★' : '☆';
-      btn.addEventListener('click', () => {
-        setExpr(p.t1, p.op, p.t2, true);
-        buildUserPearls();
-      });
-      // Right-click to remove
-      btn.addEventListener('contextmenu', e => {
-        e.preventDefault();
-        S.savedExprs.splice(i, 1);
-        saveToURL();
-        buildUserPearls();
-        render(1,0);
-      });
-      wrap.insertBefore(btn, hint);
-    });
-  }
-
-  // Add button
-  const addBtn = document.createElement('button');
-  addBtn.className = 'user-pearl-add';
-  addBtn.title = 'Spara aktuellt uttryck';
-  addBtn.textContent = '+';
-  addBtn.addEventListener('click', saveCurrentExpr);
-  wrap.appendChild(addBtn);
-}
-
-function saveCurrentExpr() {
-  const already = S.savedExprs.some(p => p.t1===S.t1 && p.op===S.op && p.t2===S.t2);
-  if (!already) {
-    S.savedExprs.push({t1:S.t1, op:S.op, t2:S.t2});
-    saveToURL();
-    buildUserPearls();
-    render(1,0);
-  }
-}
-
-// Draw user saved pearls below the preset pearl band
-const USER_PEARL_Y = CH - 28;
-let userPearlCanvasRects = [];
-
-function drawUserPearlBand() {
-  if (S.savedExprs.length === 0) return;
-  userPearlCanvasRects = [];
-  const PR = 7, GAP = 6;
-  const totalW = S.savedExprs.length * (PR*2+GAP) - GAP;
-  let x = CW/2 - totalW/2;
-  const col = '#e8a020';
-  S.savedExprs.forEach((p, i) => {
-    const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
-    ctx.beginPath();
-    ctx.arc(x, USER_PEARL_Y, isActive ? PR+2 : PR, 0, Math.PI*2);
-    ctx.fillStyle = isActive ? col : col+'55';
-    ctx.fill();
-    if (isActive) { ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke(); }
-    userPearlCanvasRects.push({x, y:USER_PEARL_Y, r:PR+4, idx:i});
-    x += PR*2+GAP;
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  PRESET CATEGORIES + SIDE PANEL
-// ═══════════════════════════════════════════════════════════════════
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  FÖRINSTÄLLDA UTTRYCK — redigera fritt!                     ║
-// ║  Format: {t1: starttal, op: '+' eller '−', t2: steg}        ║
-// ║  Kategoriernas ordning styr pärlbandets färger:             ║
-// ║   cat:0=grön  cat:1=blå  cat:2=orange  cat:3=lila  cat:4=rosa║
-// ╚══════════════════════════════════════════════════════════════╝
-const PRESET_CATS = [
-  { label:'Positiva tal', cat:0, presets:[
-    {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:2,op:'+',t2:8},{t1:4,op:'+',t2:6}
-  ]},
-  { label:'Subtraktion – positivt svar', cat:1, presets:[
-    {t1:8,op:'−',t2:3},{t1:9,op:'−',t2:4},{t1:7,op:'−',t2:2},{t1:10,op:'−',t2:6}
-  ]},
-  { label:'Via nollan / komplementerande tal', cat:2, presets:[
-    {t1:5,op:'−',t2:5},{t1:-6,op:'+',t2:6},
-    {t1:5,op:'−',t2:8},{t1:3,op:'−',t2:7},{t1:4,op:'−',t2:9}
-  ]},
-  { label:'Negativt starttal', cat:3, presets:[
-    {t1:-5,op:'+',t2:2},{t1:-3,op:'+',t2:5},{t1:-5,op:'+',t2:8},
-    {t1:-5,op:'+',t2:5},{t1:6,op:'+',t2:-6},{t1:-6,op:'+',t2:6},
-    {t1:-4,op:'−',t2:3},{t1:-2,op:'+',t2:6}
-  ]},
-  { label:'Teckensregeln', cat:4, presets:[
-    {t1:5,op:'+',t2:-3},{t1:5,op:'−',t2:-3},{t1:-5,op:'+',t2:-3},{t1:-5,op:'−',t2:-3}
-  ]},
-];
-
-function exprLabel(p) {
-  const opChar = p.op==='+' ? '+' : '−';
-  const t1s = p.t1 < 0 ? `(${p.t1})` : String(p.t1);
-  const t2s = p.t2 < 0 ? `(${p.t2})` : String(p.t2);
-  return `${t1s} ${opChar} ${t2s}`;
-}
-
-function buildPresetCats() {
-  const container = document.getElementById('presetCatContainer');
-  if (!container) return;
-  container.innerHTML = '';
-  PRESET_CATS.forEach(cat => {
-    const div = document.createElement('div');
-    div.className = 'preset-cat';
-    const lbl = document.createElement('div');
-    lbl.className = 'preset-cat-label';
-    lbl.textContent = cat.label;
-    div.appendChild(lbl);
-    const pills = document.createElement('div');
-    pills.className = 'preset-pills';
-    cat.presets.forEach(p => {
-      const btn = document.createElement('button');
-      const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
-      btn.className = `preset-pill cat-${cat.cat}${isActive ? ' active' : ''}`;
-      btn.textContent = exprLabel(p);
-      btn.addEventListener('click', () => {
-        setExpr(p.t1, p.op, p.t2, true);
-        buildPresetCats();
-      });
-      pills.appendChild(btn);
-    });
-    div.appendChild(pills);
-    container.appendChild(div);
-  });
-}
-
-// Side panel open/close
-const sidePanel   = document.getElementById('sidePanel');
-const ltBtnPanel  = document.getElementById('ltBtnPanel');
-const spTabPreset = document.getElementById('spTabPreset');
-const spTabNumpad = document.getElementById('spTabNumpad');
-const spPresetContent = document.getElementById('spPresetContent');
-const spNumpadContent = document.getElementById('spNumpadContent');
-
-ltBtnPanel.addEventListener('click', () => {
-  const willOpen = !sidePanel.classList.contains('open');
-  if (willOpen) {
-    // Position popup to the right of the button
-    const r = ltBtnPanel.getBoundingClientRect();
-    sidePanel.style.left = (r.right + 10) + 'px';
-    sidePanel.style.top  = r.top + 'px';
-    buildPresetCats();
-    resetNp(); updateNumpadDisplay();
-  }
-  sidePanel.classList.toggle('open', willOpen);
-  ltBtnPanel.classList.toggle('active', willOpen);
-});
-
-// Close popup when clicking outside
-document.addEventListener('click', e => {
-  if (!sidePanel.classList.contains('open')) return;
-  if (sidePanel.contains(e.target) || e.target === ltBtnPanel || ltBtnPanel.contains(e.target)) return;
-  sidePanel.classList.remove('open');
-  ltBtnPanel.classList.remove('active');
-});
-
-spTabPreset.addEventListener('click', () => {
-  spTabPreset.classList.add('active');   spTabNumpad.classList.remove('active');
-  spPresetContent.style.display = '';   spNumpadContent.style.display = 'none';
-  buildPresetCats();
-});
-spTabNumpad.addEventListener('click', () => {
-  spTabNumpad.classList.add('active');   spTabPreset.classList.remove('active');
-  spNumpadContent.style.display = '';   spPresetContent.style.display = 'none';
-  resetNp(); updateNumpadDisplay();
-});
-
-// ═══════════════════════════════════════════════════════════════════
-//  NUMPAD LOGIC
-// ═══════════════════════════════════════════════════════════════════
-const numpadDisplay = document.getElementById('numpadDisplay');
-
-let np = { stage:'t1', t1:'', op:'+', t2:'' };
-function resetNp() { np = { stage:'t1', t1:'', op:'+', t2:'' }; }
-
-function updateNumpadDisplay() {
-  const t1d = np.t1 !== '' ? np.t1 : '_';
-  const t2d = np.t2 !== '' ? (np.t2.startsWith('-') ? '('+np.t2+')' : np.t2) : (np.stage==='t2' ? '_' : '');
-  const opStr = np.stage==='t2' ? ` ${np.op} ` : '';
-  numpadDisplay.textContent = t1d + opStr + t2d || '—';
-}
-
-function numpadInput(action) {
-  if (action==='clear') { np={stage:'t1',t1:'',op:'+',t2:''}; updateNumpadDisplay(); return; }
-  if (action==='op+')   { if (np.t1!=='') { np.stage='t2'; np.op='+'; np.t2=''; } updateNumpadDisplay(); return; }
-  if (action==='op−')   { if (np.t1!=='') { np.stage='t2'; np.op='−'; np.t2=''; } updateNumpadDisplay(); return; }
-  if (action==='negate') {
-    const k = np.stage==='t1' ? 't1' : 't2';
-    np[k] = np[k].startsWith('-') ? np[k].slice(1) : (np[k] ? '-'+np[k] : '-');
-    updateNumpadDisplay(); return;
-  }
-  if (action==='BS') {
-    const k = np.stage==='t1' ? 't1' : 't2';
-    np[k] = np[k].slice(0,-1);
-    updateNumpadDisplay(); return;
-  }
-  if (action==='go') {
-    const t1v=parseInt(np.t1), t2v=parseInt(np.t2);
-    if (!isNaN(t1v) && !isNaN(t2v)) {
-      setExpr(t1v, np.op==='+'?'+':'−', t2v, true);
-      // Close popup after confirming
-      sidePanel.classList.remove('open');
-      ltBtnPanel.classList.remove('active');
-    }
-    return;
-  }
-  // digit
-  if (np.stage==='t1') np.t1+=action; else np.t2+=action;
-  updateNumpadDisplay();
-}
-
-document.querySelectorAll('.np-btn').forEach(btn => {
-  const val=btn.dataset.val, action=btn.dataset.action;
-  btn.addEventListener('click', () => numpadInput(action||val));
-});
-
-
-// Dark/fs from settings modal checkboxes
-document.getElementById('darkToggleSettings').addEventListener('change', e => {
-  document.body.classList.toggle('dark', e.target.checked);
-  render(1,0);
-});
-document.getElementById('fsToggleSettings').addEventListener('change', e => {
-  if (e.target.checked) document.documentElement.requestFullscreen().catch(()=>{});
-  else document.exitFullscreen();
-});
-// Dark mode (old btn — keep for compat but it's hidden now)
-document.getElementById('btnDark').addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-  const on = document.body.classList.contains('dark');
-  document.getElementById('btnDark').textContent = on ? '☀️' : '🌙';
-  render(1,0);
-});
-
-// Fullscreen
-document.getElementById('btnFullscreen').addEventListener('click', () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(()=>{});
-    document.getElementById('btnFullscreen').textContent = '⊡';
-  } else {
-    document.exitFullscreen();
-    document.getElementById('btnFullscreen').textContent = '⛶';
-  }
-});
-document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement)
-    document.getElementById('btnFullscreen').textContent = '⛶';
-});
-
 // ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
-loadFromURL();
-buildUserPearls();
 setExpr(5, '+', 3, false);
 </script>
 </body>
