@@ -42,9 +42,7 @@
   .toolbar-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 1px; }
 
   /* vertical left toolbar — sits beside canvas-wrap in a flex row */
-  .left-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex-shrink:0;align-content:start;}
-  .lt-full{grid-column:1/-1;}
-  .lt-sep{grid-column:1/-1;width:100%;height:1.5px;background:var(--border);margin:2px 0;}
+  .left-toolbar{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
   .canvas-and-toolbar{display:flex;flex-direction:row;gap:8px;align-items:flex-start;}
   .lt-btn{
     width:42px; height:42px; border-radius:11px;
@@ -276,45 +274,25 @@
 
   <div class="canvas-and-toolbar">
   <div class="left-toolbar">
-<<<<<<< HEAD
-    <!-- Row 0: tools -->
-    <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
-    <button class="lt-btn" id="ltBtnSettings"><span>⚙️</span><span class="lt-tip">Inställningar</span></button>
-=======
       <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
       <div class="lt-sep"></div>
     <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
     <button class="lt-btn reveal-dim" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
->>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
     <div class="lt-sep"></div>
-    <!-- Row 1: play + utterance (paired by intent) -->
-    <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
-    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
-    <!-- Row 2: reveal + save -->
-    <button class="lt-btn reveal-ready" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
-    <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
-    <div class="lt-sep"></div>
-    <!-- Row 3: expr toggle + invert -->
     <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
     <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
-<<<<<<< HEAD
-    <!-- Row 4: kang (full width so it has breathing room) -->
-    <button class="lt-btn lt-full" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
-=======
     <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
+    <button class="lt-btn" id="ltBtnArrows"><span>➡</span><span class="lt-tip">Steg-pilar under linjen</span></button>
     <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
     <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
-      <button class="lt-btn" id="ltBtnSettings"><span>⚙️</span><span class="lt-tip">Inställningar</span></button>
->>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
     <!-- hidden refs for JS compat -->
     <span style="display:none">
       <button id="ltBtnTotal"></button>
       <button id="ltBtnStep"></button>
-      <button id="ltBtnArrows"></button>
     </span>
   </div>
   <div class="canvas-wrap" id="canvasWrap">
-    <canvas id="tl" width="960" height="360"></canvas>
+    <canvas id="tl" width="960" height="460"></canvas>
     <input type="text" id="exprEditInput" autocomplete="off" spellcheck="false">
     <button id="btnToggleExprInline" style="display:none" title="Visa/dölj uttrycket">👁</button>
 
@@ -338,12 +316,12 @@
       <button id="btnStepArrowToggle">➡</button>
       <button id="btnExplainToggle">💬</button>
       <button id="btnColorNumbers">🎨</button>
-      <button id="btnDark">🌙</button>
-      <button id="btnFullscreen">⛶</button>
-      <button id="btnSettings">⚙️</button>
     </span>
     <div class="float-toolbar" id="floatToolbar">
+      <button class="icon-btn" id="btnDark" title="Mörkt läge">🌙</button>
+      <button class="icon-btn" id="btnFullscreen" title="Helskärm">⛶</button>
       <button class="icon-btn" id="btnExplainSteps" title="Förklaring steg för steg">💡</button>
+      <button class="icon-btn" id="btnSettings" title="Inställningar">⚙️</button>
     </div>
   </div>
   </div>
@@ -419,8 +397,6 @@
         <label class="toggle-label"><span class="ic">➡</span><input type="checkbox" id="arrowSettings"> Steg-pilar</label>
         <label class="toggle-label"><span class="ic">🎨</span><input type="checkbox" id="colorToggleSettings"> Färgkoda tal</label>
         <label class="toggle-label"><span class="ic">💬</span><input type="checkbox" id="hintToggleSettings"> Hjälptexter</label>
-        <label class="toggle-label"><span class="ic">🌙</span><input type="checkbox" id="darkToggleSettings"> Mörkt läge</label>
-        <label class="toggle-label"><span class="ic">⛶</span><input type="checkbox" id="fsToggleSettings"> Helskärm</label>
       </div>
     </div>
   </div>
@@ -552,7 +528,6 @@ const btnAnim  = document.getElementById('btnAnimate');
 const btnReset = document.getElementById('btnReset');
 const btnRevl  = document.getElementById('btnReveal');
 const btnSettings   = document.getElementById('btnSettings');
-const ltBtnSettings = document.getElementById('ltBtnSettings');
 const settingsModal = document.getElementById('settingsModal');
 const modalClose    = document.getElementById('modalClose');
 
@@ -567,7 +542,7 @@ const stripEl   = document.getElementById('stepStrip');
 // ═══════════════════════════════════════════════════════════════════
 //  LAYOUT
 // ═══════════════════════════════════════════════════════════════════
-const CW=960, CH=360;
+const CW=960, CH=460;
 const LINE_Y  = 188;
 const TICK_H  = 13;
 const LABEL_Y = LINE_Y + TICK_H + 14;
@@ -843,7 +818,7 @@ function drawCanvasHint() {
   if (!S.showHints) return;
   if (!S.canvasHint) return;
 
-  const HINT_Y = BOX_Y + (S.showStepArrows ? 68 : 34);
+  const HINT_Y = BOX_Y + (S.showStepArrows ? 74 : 40);
   const midX = CW / 2;
 
   ctx.font = 'bold 13px Sora';
@@ -1040,8 +1015,9 @@ function drawUtterance() {
   if (!S.showUtterance) return;
 
   const segs = buildUtterance();
-  const FS   = 18;
-  const pad  = 10;
+  const FS   = 20;
+  const pad  = 14;
+  const by   = CH - 94;   // above pearl rows
 
   // Measure total width
   ctx.font = `bold ${FS}px Sora`;
@@ -1049,21 +1025,8 @@ function drawUtterance() {
   for (const seg of segs) totalW += ctx.measureText(seg.text).width;
 
   const boxW = totalW + pad * 2;
-  const boxH = FS + pad * 1.4;
-<<<<<<< HEAD
-  // Top-right corner, shifted left to clear the float toolbar
-  // The float toolbar is right:14px — measure it dynamically if possible
-  const toolbar = document.getElementById('floatToolbar');
-  const tbW = toolbar ? toolbar.getBoundingClientRect().width : 200;
-  const canvasRect = canvas.getBoundingClientRect();
-  const canvasScaleX = canvasRect.width / CW;
-  const tbWCanvas = (tbW + 28) / canvasScaleX;  // convert to canvas pixels
-  const bx   = CW - boxW - tbWCanvas;
-=======
-  // Top-right corner, with a small margin
-  const bx   = CW - boxW - 14;
->>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
-  const by   = 14;
+  const boxH = FS + pad * 1.6;
+  const bx   = CW / 2 - boxW / 2;
 
   // Background pill
   ctx.fillStyle   = 'rgba(246,244,255,0.96)';
@@ -1093,11 +1056,7 @@ function drawUtterance() {
 //  Clicking a dot sets the next preset in that category.
 // ═══════════════════════════════════════════════════════════════════
 const PEARL_COLORS = ['#18a348','#306BF0','#F4A261','#7c3aed','#EC6095'];
-<<<<<<< HEAD
-const PEARL_Y = CH - 10;       // preset pearls near bottom
-=======
-const PEARL_Y = CH - 16;       // preset pearls near bottom
->>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
+const PEARL_Y = CH - 18;       // preset pearls near bottom
 const PEARL_R = 6;             // dot radius
 const PEARL_GAP = 7;           // gap between dots within a group
 const PEARL_GROUP_GAP = 18;    // gap between groups
@@ -1996,7 +1955,6 @@ btnUtterance.addEventListener('click', () => {
 //  SETTINGS MODAL
 // ═══════════════════════════════════════════════════════════════════
 btnSettings.addEventListener('click', () => settingsModal.classList.add('open'));
-if (ltBtnSettings) ltBtnSettings.addEventListener('click', () => settingsModal.classList.add('open'));
 modalClose.addEventListener('click', () => settingsModal.classList.remove('open'));
 settingsModal.addEventListener('click', e => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
 
@@ -2114,11 +2072,7 @@ function saveCurrentExpr() {
 }
 
 // Draw user saved pearls below the preset pearl band
-<<<<<<< HEAD
-const USER_PEARL_Y = CH - 28;
-=======
-const USER_PEARL_Y = CH - 36;
->>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
+const USER_PEARL_Y = CH - 40;
 let userPearlCanvasRects = [];
 
 function drawUserPearlBand() {
@@ -2143,12 +2097,6 @@ function drawUserPearlBand() {
 // ═══════════════════════════════════════════════════════════════════
 //  PRESET CATEGORIES + SIDE PANEL
 // ═══════════════════════════════════════════════════════════════════
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  FÖRINSTÄLLDA UTTRYCK — redigera fritt!                     ║
-// ║  Format: {t1: starttal, op: '+' eller '−', t2: steg}        ║
-// ║  Kategoriernas ordning styr pärlbandets färger:             ║
-// ║   cat:0=grön  cat:1=blå  cat:2=orange  cat:3=lila  cat:4=rosa║
-// ╚══════════════════════════════════════════════════════════════╝
 const PRESET_CATS = [
   { label:'Positiva tal', cat:0, presets:[
     {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:2,op:'+',t2:8},{t1:4,op:'+',t2:6}
@@ -2297,16 +2245,7 @@ document.querySelectorAll('.np-btn').forEach(btn => {
 });
 
 
-// Dark/fs from settings modal checkboxes
-document.getElementById('darkToggleSettings').addEventListener('change', e => {
-  document.body.classList.toggle('dark', e.target.checked);
-  render(1,0);
-});
-document.getElementById('fsToggleSettings').addEventListener('change', e => {
-  if (e.target.checked) document.documentElement.requestFullscreen().catch(()=>{});
-  else document.exitFullscreen();
-});
-// Dark mode (old btn — keep for compat but it's hidden now)
+// Dark mode
 document.getElementById('btnDark').addEventListener('click', () => {
   document.body.classList.toggle('dark');
   const on = document.body.classList.contains('dark');
