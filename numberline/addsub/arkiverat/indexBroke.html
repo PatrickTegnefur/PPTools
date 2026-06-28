@@ -276,9 +276,16 @@
 
   <div class="canvas-and-toolbar">
   <div class="left-toolbar">
+<<<<<<< HEAD
     <!-- Row 0: tools -->
     <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
     <button class="lt-btn" id="ltBtnSettings"><span>⚙️</span><span class="lt-tip">Inställningar</span></button>
+=======
+      <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
+      <div class="lt-sep"></div>
+    <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
+    <button class="lt-btn reveal-dim" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
+>>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
     <div class="lt-sep"></div>
     <!-- Row 1: play + utterance (paired by intent) -->
     <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
@@ -290,8 +297,15 @@
     <!-- Row 3: expr toggle + invert -->
     <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
     <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
+<<<<<<< HEAD
     <!-- Row 4: kang (full width so it has breathing room) -->
     <button class="lt-btn lt-full" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
+=======
+    <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
+    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
+    <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
+      <button class="lt-btn" id="ltBtnSettings"><span>⚙️</span><span class="lt-tip">Inställningar</span></button>
+>>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
     <!-- hidden refs for JS compat -->
     <span style="display:none">
       <button id="ltBtnTotal"></button>
@@ -1036,6 +1050,7 @@ function drawUtterance() {
 
   const boxW = totalW + pad * 2;
   const boxH = FS + pad * 1.4;
+<<<<<<< HEAD
   // Top-right corner, shifted left to clear the float toolbar
   // The float toolbar is right:14px — measure it dynamically if possible
   const toolbar = document.getElementById('floatToolbar');
@@ -1044,6 +1059,10 @@ function drawUtterance() {
   const canvasScaleX = canvasRect.width / CW;
   const tbWCanvas = (tbW + 28) / canvasScaleX;  // convert to canvas pixels
   const bx   = CW - boxW - tbWCanvas;
+=======
+  // Top-right corner, with a small margin
+  const bx   = CW - boxW - 14;
+>>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
   const by   = 14;
 
   // Background pill
@@ -1074,7 +1093,11 @@ function drawUtterance() {
 //  Clicking a dot sets the next preset in that category.
 // ═══════════════════════════════════════════════════════════════════
 const PEARL_COLORS = ['#18a348','#306BF0','#F4A261','#7c3aed','#EC6095'];
+<<<<<<< HEAD
 const PEARL_Y = CH - 10;       // preset pearls near bottom
+=======
+const PEARL_Y = CH - 16;       // preset pearls near bottom
+>>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
 const PEARL_R = 6;             // dot radius
 const PEARL_GAP = 7;           // gap between dots within a group
 const PEARL_GROUP_GAP = 18;    // gap between groups
@@ -2091,7 +2114,11 @@ function saveCurrentExpr() {
 }
 
 // Draw user saved pearls below the preset pearl band
+<<<<<<< HEAD
 const USER_PEARL_Y = CH - 28;
+=======
+const USER_PEARL_Y = CH - 36;
+>>>>>>> 1677e83b721d9716fb107d673e03e2a82fea826f
 let userPearlCanvasRects = [];
 
 function drawUserPearlBand() {
