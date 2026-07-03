@@ -42,9 +42,7 @@
   .toolbar-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 1px; }
 
   /* vertical left toolbar — sits beside canvas-wrap in a flex row */
-  .left-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex-shrink:0;align-content:start;}
-  .lt-full{grid-column:1/-1;}
-  .lt-sep{grid-column:1/-1;width:100%;height:1.5px;background:var(--border);margin:2px 0;}
+  .left-toolbar{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
   .canvas-and-toolbar{display:flex;flex-direction:row;gap:8px;align-items:flex-start;}
   .lt-btn{
     width:42px; height:42px; border-radius:11px;
@@ -162,22 +160,6 @@
     font-size:.72rem; color:var(--muted); font-style:italic;
   }
 
-  /* history + task */
-  .hist-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;
-    background:var(--surface2);border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;}
-  .hist-item:hover{background:var(--border);}
-  .hist-item .hi-expr{flex:1;}
-  .hist-item .hi-use{font-size:.72rem;color:var(--accent);font-weight:700;}
-  .task-card{background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:10px;}
-  .task-card .tc-desc{font-size:.88rem;line-height:1.5;color:var(--text);margin-bottom:10px;}
-  .task-card .tc-btns{display:flex;gap:6px;flex-wrap:wrap;}
-  .task-pill{padding:6px 12px;border-radius:20px;border:1.5px solid var(--accent);
-    background:var(--surface);font-size:.8rem;font-weight:600;color:var(--accent);
-    cursor:pointer;transition:all .12s;}
-  .task-pill:hover{background:var(--accent);color:#fff;}
-  .task-random{margin-top:8px;padding:8px 0;text-align:center;font-size:.8rem;
-    color:var(--accent2);cursor:pointer;font-weight:700;border-top:1px dashed var(--border);}
-
   .lt-btn .lt-tip{
     position:absolute; left:50px; top:50%; transform:translateY(-50%);
     background:var(--text); color:#fff; font-size:.68rem; font-weight:600;
@@ -284,138 +266,6 @@
   .toggle-label:last-child{border-bottom:none}
   .toggle-label input{width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
   .toggle-label .ic{ width:20px; text-align:center }
-
-  /* ═══════════ STUDENT MODE OVERLAY ═══════════ */
-  .student-overlay{
-    display:none; position:fixed; inset:0; z-index:500;
-    background:var(--bg); flex-direction:column; align-items:center;
-    overflow-y:auto;
-  }
-  .student-overlay.open{ display:flex; }
-  .student-header{
-    width:100%; background:var(--grad); padding:14px 20px;
-    display:flex; align-items:center; justify-content:space-between;
-  }
-  .student-header h2{
-    font-family:'Playfair Display',serif; font-size:1.1rem; color:#fff; margin:0;
-  }
-  .student-exit{
-    background:rgba(255,255,255,.25); border:none; border-radius:8px;
-    color:#fff; font-weight:700; font-size:.82rem; padding:7px 14px;
-    cursor:pointer; transition:background .15s;
-  }
-  .student-exit:hover{ background:rgba(255,255,255,.4); }
-  .student-body{
-    width:100%; max-width:760px; padding:24px 20px 60px;
-    display:flex; flex-direction:column; gap:18px; align-items:center;
-  }
-
-  /* mode picker */
-  .mode-picker{ display:flex; flex-direction:column; gap:14px; width:100%; max-width:480px; margin-top:20px; }
-  .mode-card{
-    background:var(--surface); border:2px solid var(--border); border-radius:16px;
-    padding:20px; cursor:pointer; transition:all .15s; text-align:left;
-  }
-  .mode-card:hover{ border-color:var(--accent); transform:translateY(-2px); box-shadow:0 6px 20px var(--shadow); }
-  .mode-card h3{ font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--text); margin-bottom:6px; }
-  .mode-card p{ font-size:.85rem; color:var(--muted); line-height:1.5; }
-
-  /* level picker */
-  .level-row{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
-  .level-btn{
-    padding:9px 16px; border-radius:20px; border:1.5px solid var(--border);
-    background:var(--surface2); font-family:'Sora',sans-serif; font-size:.85rem;
-    font-weight:600; color:var(--text); cursor:pointer; transition:all .12s;
-  }
-  .level-btn:hover{ border-color:var(--accent); }
-  .level-btn.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
-
-  /* score bar */
-  .score-bar{
-    display:flex; align-items:center; gap:10px; font-family:'Sora',sans-serif;
-    font-size:.85rem; font-weight:700; color:var(--muted);
-  }
-  .score-pill{
-    background:var(--surface2); border-radius:20px; padding:5px 14px;
-    border:1.5px solid var(--border);
-  }
-  .score-pill.correct{ color:#18a348; }
-
-  /* question canvas wrap (reuses look of main canvas-wrap) */
-  .sq-canvas-wrap{
-    width:100%; background:var(--surface); border:1.5px solid var(--border);
-    border-radius:14px; box-shadow:0 2px 12px var(--shadow); padding:14px; position:relative;
-  }
-  #sqCanvas{ display:block; width:100%; height:auto; }
-
-  .sq-expr{
-    font-family:'Sora',sans-serif; font-size:1.4rem; font-weight:700;
-    color:var(--accent); text-align:center; background:var(--surface2);
-    border-radius:10px; padding:8px 18px; letter-spacing:.02em;
-  }
-  .sq-question{
-    font-family:'Sora',sans-serif; font-size:1.05rem; font-weight:700;
-    color:var(--text); text-align:center; margin-bottom:4px;
-  }
-  .sq-options{
-    display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%;
-  }
-  .sq-opt{
-    padding:14px 10px; border-radius:12px; border:2px solid var(--border);
-    background:var(--surface); font-family:'Sora',sans-serif; font-size:1rem;
-    font-weight:700; color:var(--text); cursor:pointer; transition:all .12s;
-  }
-  .sq-opt:hover{ border-color:var(--accent); }
-  .sq-opt.correct{ background:#dcfce7; border-color:#18a348; color:#15803d; }
-  .sq-opt.wrong{ background:#fee2e2; border-color:#e02020; color:#b91c1c; }
-  .sq-opt:disabled{ cursor:default; }
-
-  .sq-feedback{
-    font-size:.92rem; font-weight:700; text-align:center; min-height:1.4em;
-  }
-  .sq-feedback.correct{ color:#18a348; }
-  .sq-feedback.wrong{ color:#e02020; }
-
-  .sq-next-btn{
-    padding:11px 28px; border-radius:12px; border:none; background:var(--accent);
-    color:#fff; font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem;
-    cursor:pointer; transition:filter .15s;
-  }
-  .sq-next-btn:hover{ filter:brightness(1.1); }
-
-  /* minitest rows */
-  .mt-row{
-    display:flex; align-items:center; gap:12px;
-    background:var(--surface); border:1.5px solid var(--border);
-    border-radius:12px; padding:12px 14px;
-  }
-  .mt-expr{
-    font-family:'Sora',sans-serif; font-size:1.1rem; font-weight:700;
-    color:var(--accent); min-width:120px;
-  }
-  .mt-eq{ font-size:1.1rem; font-weight:700; color:var(--muted); }
-  .mt-input{
-    width:72px; padding:8px 10px; border:2px solid var(--border);
-    border-radius:9px; font-family:'Sora',sans-serif; font-size:1.05rem;
-    font-weight:700; text-align:center; color:var(--text); background:var(--bg);
-    outline:none; transition:border-color .15s;
-  }
-  .mt-input:focus{ border-color:var(--accent); }
-  .mt-input.correct{ border-color:#18a348; background:#dcfce7; color:#15803d; }
-  .mt-input.wrong{ border-color:#e02020; background:#fee2e2; color:#b91c1c; }
-  .mt-verdict{ font-size:.82rem; font-weight:700; color:var(--muted); flex:1; }
-  .mt-verdict.correct{ color:#18a348; }
-  .mt-verdict.wrong{ color:#e02020; }
-  /* summary screen */
-  .summary-card{
-    background:var(--surface); border:1.5px solid var(--border); border-radius:16px;
-    padding:32px 24px; text-align:center; max-width:380px; width:100%;
-  }
-  .summary-card .big-score{
-    font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:700;
-    color:var(--accent); margin:10px 0;
-  }
-
 </style>
 </head>
 <body>
@@ -424,40 +274,25 @@
 
   <div class="canvas-and-toolbar">
   <div class="left-toolbar">
-    <!-- Row 0: tools -->
-    <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
-    <button class="lt-btn" id="ltBtnSettings"><span>⚙️</span><span class="lt-tip">Inställningar</span></button>
-    <div class="lt-sep"></div>
-    <!-- Row 1: play + utterance (paired by intent) -->
+      <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
+      <div class="lt-sep"></div>
     <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
-    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
-    <!-- Row 2: reveal + save -->
-    <button class="lt-btn reveal-ready" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
-    <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
+    <button class="lt-btn reveal-dim" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
     <div class="lt-sep"></div>
-    <!-- Row 3: expr toggle + invert -->
     <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
     <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
-    <!-- Row 4: kang + explain -->
-    <button class="lt-btn lt-full" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
-    <div class="lt-sep"></div>
-    <!-- Row 5: explain + random + export -->
-    <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
-    <button class="lt-btn" id="ltBtnRandom"><span>🎲</span><span class="lt-tip">Slumpa uttryck</span></button>
-    <button class="lt-btn lt-full" id="ltBtnExport"><span>📷</span><span class="lt-tip">Exportera bild</span></button>
-    <div class="lt-sep"></div>
-    <!-- Preset navigation -->
-    <button class="lt-btn" id="ltBtnPrevPreset"><span>◀</span><span class="lt-tip">Föregående uttryck</span></button>
-    <button class="lt-btn" id="ltBtnNextPreset"><span>▶</span><span class="lt-tip">Nästa uttryck</span></button>
+    <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
+    <button class="lt-btn" id="ltBtnArrows"><span>➡</span><span class="lt-tip">Steg-pilar under linjen</span></button>
+    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
+    <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
     <!-- hidden refs for JS compat -->
     <span style="display:none">
       <button id="ltBtnTotal"></button>
       <button id="ltBtnStep"></button>
-      <button id="ltBtnArrows"></button>
     </span>
   </div>
   <div class="canvas-wrap" id="canvasWrap">
-    <canvas id="tl" width="960" height="360"></canvas>
+    <canvas id="tl" width="960" height="460"></canvas>
     <input type="text" id="exprEditInput" autocomplete="off" spellcheck="false">
     <button id="btnToggleExprInline" style="display:none" title="Visa/dölj uttrycket">👁</button>
 
@@ -481,14 +316,12 @@
       <button id="btnStepArrowToggle">➡</button>
       <button id="btnExplainToggle">💬</button>
       <button id="btnColorNumbers">🎨</button>
-      <button id="btnDark">🌙</button>
-      <button id="btnFullscreen">⛶</button>
-      <button id="btnSettings">⚙️</button>
-      <button id="btnExplainSteps">💡</button>
-      <input type="checkbox" id="slowToggle" style="display:none" checked>
     </span>
     <div class="float-toolbar" id="floatToolbar">
-      <button class="icon-btn" id="btnStudentMode" title="Elevläge">🎓</button>
+      <button class="icon-btn" id="btnDark" title="Mörkt läge">🌙</button>
+      <button class="icon-btn" id="btnFullscreen" title="Helskärm">⛶</button>
+      <button class="icon-btn" id="btnExplainSteps" title="Förklaring steg för steg">💡</button>
+      <button class="icon-btn" id="btnSettings" title="Inställningar">⚙️</button>
     </div>
   </div>
   </div>
@@ -513,11 +346,9 @@
 
   <!-- input popup: numpad + presets, fixed-positioned next to 🔢 button -->
   <div id="sidePanel" class="input-popup">
-    <div class="sp-tabs" style="flex-wrap:wrap;">
-      <button class="sp-tab active" id="spTabNumpad">🔢 Knappsats</button>
+    <div class="sp-tabs">
       <button class="sp-tab" id="spTabPreset">📋 Uttryck</button>
-      <button class="sp-tab" id="spTabHistory">🕐 Historik</button>
-      <button class="sp-tab" id="spTabTasks">🎯 Uppgifter</button>
+      <button class="sp-tab active" id="spTabNumpad">🔢 Knappsats</button>
     </div>
     <div class="sp-body">
       <!-- Numpad tab (default) -->
@@ -550,14 +381,6 @@
       <div id="spPresetContent" style="display:none">
         <div id="presetCatContainer"></div>
       </div>
-      <!-- History tab -->
-      <div id="spHistoryContent" style="display:none">
-        <div id="historyList" style="display:flex;flex-direction:column;gap:6px;"></div>
-      </div>
-      <!-- Tasks tab -->
-      <div id="spTasksContent" style="display:none">
-        <div id="taskContent"></div>
-      </div>
     </div>
   </div>
 
@@ -568,114 +391,19 @@
       <div class="modal-title">⚙️ Inställningar</div>
       <div class="modal-section">
         <label class="toggle-label"><span class="ic">🦘</span><input type="checkbox" id="kangToggle" checked> Känguruhopp</label>
-        <label class="toggle-label" style="flex-direction:column;align-items:flex-start;gap:4px;">
-          <span><span class="ic">🐇</span><span id="speedLabel">Hastighet: Långsam</span></span>
-          <input type="range" id="speedSlider" min="1" max="5" value="2" style="width:100%;accent-color:var(--accent);">
-        </label>
+        <label class="toggle-label"><span class="ic">🐢</span><input type="checkbox" id="slowToggle" checked> Långsamt läge</label>
         <label class="toggle-label"><span class="ic">⛓</span><input type="checkbox" id="stepChainSettings" checked> Steg för steg</label>
         <label class="toggle-label"><span class="ic">↔</span><input type="checkbox" id="totalSettings"> Totalt hopp</label>
         <label class="toggle-label"><span class="ic">➡</span><input type="checkbox" id="arrowSettings"> Steg-pilar</label>
         <label class="toggle-label"><span class="ic">🎨</span><input type="checkbox" id="colorToggleSettings"> Färgkoda tal</label>
         <label class="toggle-label"><span class="ic">💬</span><input type="checkbox" id="hintToggleSettings"> Hjälptexter</label>
-        <label class="toggle-label"><span class="ic">🌙</span><input type="checkbox" id="darkToggleSettings"> Mörkt läge</label>
-        <label class="toggle-label"><span class="ic">⛶</span><input type="checkbox" id="fsToggleSettings"> Helskärm</label>
       </div>
     </div>
   </div>
 
 </main>
-
-  <!-- ═══════════ STUDENT MODE OVERLAY ═══════════ -->
-  <div class="student-overlay" id="studentOverlay">
-    <div class="student-header">
-      <h2>🎓 Elevläge — Tallinjen</h2>
-      <button class="student-exit" id="studentExit">✕ Avsluta</button>
-    </div>
-    <div class="student-body" id="studentBody">
-
-      <!-- SCREEN: mode picker -->
-      <div id="scrModePicker" style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:480px;">
-        <p style="text-align:center;color:var(--muted);font-size:.9rem;">Välj hur du vill öva</p>
-        <div class="mode-card" id="cardModeA">
-          <h3>🪜 Steg för steg</h3>
-          <p>Du svarar på tre frågor i taget: var roboten börjar, vilket håll den tittar åt, och om den går framåt eller bakåt. Sedan får du se animationen.</p>
-        </div>
-        <div class="mode-card" id="cardModeB">
-          <h3>🔮 Förutspå svaret</h3>
-          <p>Du ser ett färdigt uttryck och gissar svaret bland fyra alternativ innan du får se facit på tallinjen.</p>
-        </div>
-        <div class="mode-card" id="cardModeC">
-          <h3>📝 Minitest</h3>
-          <p>Du får 10 uttryck att räkna ut. Fyll i svaren och rätta sedan allt på en gång — som ett riktigt prov.</p>
-        </div>
-      </div>
-
-      <!-- SCREEN: level picker -->
-      <div id="scrLevelPicker" style="display:none;flex-direction:column;gap:16px;width:100%;max-width:480px;align-items:center;">
-        <p style="text-align:center;color:var(--muted);font-size:.9rem;">Välj svårighetsgrad</p>
-        <div class="level-row">
-          <button class="level-btn active" data-level="0">🟢 Positiva tal</button>
-          <button class="level-btn" data-level="1">🔵 Subtraktion</button>
-          <button class="level-btn" data-level="2">🟠 Via nollan</button>
-          <button class="level-btn" data-level="3">🟣 Negativt starttal</button>
-          <button class="level-btn" data-level="4">🩷 Teckensregeln</button>
-        </div>
-        <button class="sq-next-btn" id="btnStartQuiz">Starta ▶</button>
-      </div>
-
-      <!-- SCREEN: quiz in progress -->
-      <div id="scrQuiz" style="display:none;flex-direction:column;gap:16px;width:100%;align-items:center;">
-        <div class="score-bar">
-          <span class="score-pill correct" id="scoreCorrect">0 rätt</span>
-          <span class="score-pill" id="scoreTotal">av 0</span>
-          <button class="level-btn" id="btnFinishRound" style="margin-left:8px;">Avsluta &amp; se resultat</button>
-        </div>
-
-        <div class="sq-canvas-wrap">
-          <canvas id="sqCanvas" width="700" height="260"></canvas>
-        </div>
-
-        <div class="sq-expr" id="sqExprText"></div>
-        <div class="sq-question" id="sqQuestionText"></div>
-        <div class="sq-options" id="sqOptions"></div>
-        <div class="sq-feedback" id="sqFeedback">&nbsp;</div>
-        <button class="sq-next-btn" id="sqNextBtn" style="display:none">Nästa ▶</button>
-      </div>
-
-      <!-- SCREEN: Mode C — minitest -->
-      <div id="scrMinitest" style="display:none;flex-direction:column;gap:14px;width:100%;max-width:560px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-          <div style="font-weight:700;font-size:.9rem;color:var(--muted);">📝 Minitest — fyll i alla svar och rätta</div>
-          <button class="sq-next-btn" id="btnCheckMinitest">Rätta ✓</button>
-        </div>
-        <div id="minitestList" style="display:flex;flex-direction:column;gap:10px;width:100%;"></div>
-      </div>
-
-      <!-- SCREEN: Mode C result -->
-      <div id="scrMinitestResult" style="display:none;flex-direction:column;gap:14px;width:100%;max-width:560px;">
-        <div style="font-weight:700;font-size:.9rem;color:var(--muted);">📝 Resultat</div>
-        <div id="minitestResultList" style="display:flex;flex-direction:column;gap:8px;width:100%;"></div>
-        <div style="display:flex;gap:10px;justify-content:center;margin-top:4px;">
-          <button class="sq-next-btn" id="btnMinitestAgain">Nytt test</button>
-          <button class="sq-next-btn" style="background:var(--surface2);color:var(--accent);" id="btnMinitestBack">← Tillbaka</button>
-        </div>
-      </div>
-
-      <!-- SCREEN: summary -->
-      <div id="scrSummary" style="display:none;flex-direction:column;align-items:center;gap:16px;width:100%;">
-        <div class="summary-card">
-          <div style="font-size:2rem;">🎉</div>
-          <div style="color:var(--muted);font-size:.9rem;margin-top:6px;">Du klarade</div>
-          <div class="big-score" id="summaryScore">0 / 0</div>
-          <button class="sq-next-btn" id="btnPlayAgain">Spela igen</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
 <footer style="width:100%;text-align:center;padding:10px 0 18px;font-family:'Sora',sans-serif;font-size:.72rem;color:#aaa;letter-spacing:.02em;">
-  © Patrick Tegnefur &nbsp;·&nbsp; Förstelärare i matematik &nbsp;·&nbsp; Alfred Dalinskolan, Huskvarna
+  Skapat av Patrick Tegnefur &nbsp;·&nbsp; Förstelärare i matematik &nbsp;·&nbsp; Alfred Dalinskolan, Huskvarna
 </footer>
 
 <script>
@@ -800,7 +528,6 @@ const btnAnim  = document.getElementById('btnAnimate');
 const btnReset = document.getElementById('btnReset');
 const btnRevl  = document.getElementById('btnReveal');
 const btnSettings   = document.getElementById('btnSettings');
-const ltBtnSettings = document.getElementById('ltBtnSettings');
 const settingsModal = document.getElementById('settingsModal');
 const modalClose    = document.getElementById('modalClose');
 
@@ -815,7 +542,7 @@ const stripEl   = document.getElementById('stepStrip');
 // ═══════════════════════════════════════════════════════════════════
 //  LAYOUT
 // ═══════════════════════════════════════════════════════════════════
-const CW=960, CH=360;
+const CW=960, CH=460;
 const LINE_Y  = 188;
 const TICK_H  = 13;
 const LABEL_Y = LINE_Y + TICK_H + 14;
@@ -1091,7 +818,7 @@ function drawCanvasHint() {
   if (!S.showHints) return;
   if (!S.canvasHint) return;
 
-  const HINT_Y = BOX_Y + (S.showStepArrows ? 68 : 34);
+  const HINT_Y = BOX_Y + (S.showStepArrows ? 74 : 40);
   const midX = CW / 2;
 
   ctx.font = 'bold 13px Sora';
@@ -1288,8 +1015,9 @@ function drawUtterance() {
   if (!S.showUtterance) return;
 
   const segs = buildUtterance();
-  const FS   = 18;
-  const pad  = 10;
+  const FS   = 20;
+  const pad  = 14;
+  const by   = CH - 94;   // above pearl rows
 
   // Measure total width
   ctx.font = `bold ${FS}px Sora`;
@@ -1297,16 +1025,8 @@ function drawUtterance() {
   for (const seg of segs) totalW += ctx.measureText(seg.text).width;
 
   const boxW = totalW + pad * 2;
-  const boxH = FS + pad * 1.4;
-  // Top-right corner, shifted left to clear the float toolbar
-  // The float toolbar is right:14px — measure it dynamically if possible
-  const toolbar = document.getElementById('floatToolbar');
-  const tbW = toolbar ? toolbar.getBoundingClientRect().width : 200;
-  const canvasRect = canvas.getBoundingClientRect();
-  const canvasScaleX = canvasRect.width / CW;
-  const tbWCanvas = (tbW + 28) / canvasScaleX;  // convert to canvas pixels
-  const bx   = CW - boxW - tbWCanvas;
-  const by   = 14;
+  const boxH = FS + pad * 1.6;
+  const bx   = CW / 2 - boxW / 2;
 
   // Background pill
   ctx.fillStyle   = 'rgba(246,244,255,0.96)';
@@ -1336,7 +1056,7 @@ function drawUtterance() {
 //  Clicking a dot sets the next preset in that category.
 // ═══════════════════════════════════════════════════════════════════
 const PEARL_COLORS = ['#18a348','#306BF0','#F4A261','#7c3aed','#EC6095'];
-const PEARL_Y = CH - 10;       // preset pearls near bottom
+const PEARL_Y = CH - 18;       // preset pearls near bottom
 const PEARL_R = 6;             // dot radius
 const PEARL_GAP = 7;           // gap between dots within a group
 const PEARL_GROUP_GAP = 18;    // gap between groups
@@ -1447,8 +1167,8 @@ function animateFlip(fromRight, toRight, onDone) {
 let animRAF=null;
 function animateLeg(from, to, color, onDone) {
   const distPx=Math.abs(worldToX(to)-worldToX(from));
-  const spd = typeof speedSlider !== 'undefined' ? SPEED_MULT[parseInt(speedSlider.value)-1] : (S.slowMode ? 7.5 : 3.0);
-  const DUR=Math.max(800, distPx*spd); let startTime=null;
+  const speed=S.slowMode ? 7.5 : 3.0;
+  const DUR=Math.max(S.slowMode?2000:800, distPx*speed); let startTime=null;
   function step(ts) {
     if (!startTime) startTime=ts;
     const raw=Math.min((ts-startTime)/DUR,1);
@@ -1634,23 +1354,6 @@ function buildExplainSteps() {
   const opColEx    = S.op === '+' ? '#306BF0' : '#EC6095';
   const t2SignCol  = S.t2 >= 0   ? '#306BF0' : '#EC6095';
 
-  // Visual icon cards
-  const sign2 = S.t2 >= 0 ? '+' : '−';
-  const visualHtml = `<div style="display:flex;gap:8px;margin-bottom:12px;">
-    <div style="flex:1;background:${C_START}22;border:2px solid ${C_START};border-radius:10px;padding:8px 4px;text-align:center;">
-      <div style="font-size:1.4rem;font-weight:700;color:${C_START};">${fmtNum(S.t1)}</div>
-      <div style="font-size:.62rem;color:var(--muted);font-weight:700;letter-spacing:.04em;">START</div>
-    </div>
-    <div style="flex:1;background:${dirCol}22;border:2px solid ${dirCol};border-radius:10px;padding:8px 4px;text-align:center;">
-      <div style="font-size:1.5rem;color:${dirCol};">${S.op==='+'?'→':'←'}</div>
-      <div style="font-size:.62rem;color:var(--muted);font-weight:700;letter-spacing:.04em;">${S.op==='+'?'HÖGER':'VÄNSTER'}</div>
-    </div>
-    <div style="flex:1;background:${stepCol}22;border:2px solid ${stepCol};border-radius:10px;padding:8px 4px;text-align:center;">
-      <div style="font-size:1.2rem;font-weight:700;color:${stepCol};">${sign2}${Math.abs(S.t2)}</div>
-      <div style="font-size:.62rem;color:var(--muted);font-weight:700;letter-spacing:.04em;">${stepFwd?'FRAML.':'BAKL.'}</div>
-    </div>
-  </div>`;
-
   const steps = [
     `Börja på talet <b>${S.t1}</b>.`,
     `Titta åt <b style="color:${dirCol}">${dirWord}</b> på tallinjen.`,
@@ -1699,7 +1402,7 @@ function buildExplainSteps() {
       </div>
     </div>`;
 
-  explainStepsList.innerHTML = visualHtml + stepsHtml + dividerHtml + signRuleHtml;
+  explainStepsList.innerHTML = stepsHtml + dividerHtml + signRuleHtml;
 }
 
 function toggleExplainPopup() {
@@ -1722,7 +1425,6 @@ function toggleExplainPopup() {
 function setExpr(t1, op, t2, triggerFlip) {
   // Save current as lastExpr before overwriting
   S.lastExpr = {t1:S.t1, op:S.op, t2:S.t2};
-  addToHistory && addToHistory(S.t1, S.op, S.t2);  // add CURRENT expr to history before change
   const oldOp = S.op;
   S.t1 = t1; S.op = op; S.t2 = t2;
   S.answer = op === '+' ? t1 + t2 : t1 - t2;
@@ -2253,7 +1955,6 @@ btnUtterance.addEventListener('click', () => {
 //  SETTINGS MODAL
 // ═══════════════════════════════════════════════════════════════════
 btnSettings.addEventListener('click', () => settingsModal.classList.add('open'));
-if (ltBtnSettings) ltBtnSettings.addEventListener('click', () => settingsModal.classList.add('open'));
 modalClose.addEventListener('click', () => settingsModal.classList.remove('open'));
 settingsModal.addEventListener('click', e => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
 
@@ -2371,7 +2072,7 @@ function saveCurrentExpr() {
 }
 
 // Draw user saved pearls below the preset pearl band
-const USER_PEARL_Y = CH - 28;
+const USER_PEARL_Y = CH - 40;
 let userPearlCanvasRects = [];
 
 function drawUserPearlBand() {
@@ -2396,12 +2097,6 @@ function drawUserPearlBand() {
 // ═══════════════════════════════════════════════════════════════════
 //  PRESET CATEGORIES + SIDE PANEL
 // ═══════════════════════════════════════════════════════════════════
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  FÖRINSTÄLLDA UTTRYCK — redigera fritt!                     ║
-// ║  Format: {t1: starttal, op: '+' eller '−', t2: steg}        ║
-// ║  Kategoriernas ordning styr pärlbandets färger:             ║
-// ║   cat:0=grön  cat:1=blå  cat:2=orange  cat:3=lila  cat:4=rosa║
-// ╚══════════════════════════════════════════════════════════════╝
 const PRESET_CATS = [
   { label:'Positiva tal', cat:0, presets:[
     {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:2,op:'+',t2:8},{t1:4,op:'+',t2:6}
@@ -2415,7 +2110,7 @@ const PRESET_CATS = [
   ]},
   { label:'Negativt starttal', cat:3, presets:[
     {t1:-5,op:'+',t2:2},{t1:-3,op:'+',t2:5},{t1:-5,op:'+',t2:8},
-    {t1:-5,op:'+',t2:5},{t1:6,op:'+',t2:-6},{t1:-4,op:'+',t2:4},
+    {t1:-5,op:'+',t2:5},{t1:6,op:'+',t2:-6},{t1:-6,op:'+',t2:6},
     {t1:-4,op:'−',t2:3},{t1:-2,op:'+',t2:6}
   ]},
   { label:'Teckensregeln', cat:4, presets:[
@@ -2550,16 +2245,7 @@ document.querySelectorAll('.np-btn').forEach(btn => {
 });
 
 
-// Dark/fs from settings modal checkboxes
-document.getElementById('darkToggleSettings').addEventListener('change', e => {
-  document.body.classList.toggle('dark', e.target.checked);
-  render(1,0);
-});
-document.getElementById('fsToggleSettings').addEventListener('change', e => {
-  if (e.target.checked) document.documentElement.requestFullscreen().catch(()=>{});
-  else document.exitFullscreen();
-});
-// Dark mode (old btn — keep for compat but it's hidden now)
+// Dark mode
 document.getElementById('btnDark').addEventListener('click', () => {
   document.body.classList.toggle('dark');
   const on = document.body.classList.contains('dark');
@@ -2582,843 +2268,6 @@ document.addEventListener('fullscreenchange', () => {
     document.getElementById('btnFullscreen').textContent = '⛶';
 });
 
-
-// ═══════════════════════════════════════════════════════════════════
-//  SPEED SLIDER
-// ═══════════════════════════════════════════════════════════════════
-const speedSlider = document.getElementById('speedSlider');
-const speedLabel  = document.getElementById('speedLabel');
-const SPEED_NAMES = ['Väldigt långsam','Långsam','Normal','Snabb','Väldigt snabb'];
-const SPEED_MULT  = [8.0, 5.5, 3.0, 1.8, 1.0];  // px/ms multiplier (higher = slower animation)
-function getSpeedMult() { return SPEED_MULT[parseInt(speedSlider.value)-1]; }
-speedSlider.addEventListener('input', () => {
-  speedLabel.textContent = 'Hastighet: ' + SPEED_NAMES[parseInt(speedSlider.value)-1];
-  S.slowMode = parseInt(speedSlider.value) <= 2;  // keep legacy compat
-});
-// Update animateLeg to use slider speed
-// (done via patching animateLeg below)
-
-// ═══════════════════════════════════════════════════════════════════
-//  HISTORY
-// ═══════════════════════════════════════════════════════════════════
-const MAX_HISTORY = 10;
-let exprHistory = [];  // [{t1,op,t2}] most recent first
-
-function addToHistory(t1, op, t2) {
-  // Remove duplicate if exists
-  exprHistory = exprHistory.filter(p => !(p.t1===t1 && p.op===op && p.t2===t2));
-  exprHistory.unshift({t1, op, t2});
-  if (exprHistory.length > MAX_HISTORY) exprHistory.pop();
-}
-
-function buildHistoryList() {
-  const el = document.getElementById('historyList');
-  if (!el) return;
-  el.innerHTML = '';
-  if (exprHistory.length === 0) {
-    el.innerHTML = '<div style="color:var(--muted);font-size:.82rem;text-align:center;padding:12px 0;">Inga uttryck ännu</div>';
-    return;
-  }
-  exprHistory.forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'hist-item';
-    div.innerHTML = `<span class="hi-expr">${exprLabel(p)}</span><span class="hi-use">Använd →</span>`;
-    div.addEventListener('click', () => {
-      setExpr(p.t1, p.op, p.t2, true);
-      buildHistoryList();
-    });
-    el.appendChild(div);
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  TASKS (Craig Barton-style)
-// ═══════════════════════════════════════════════════════════════════
-// Each task shows a setup and asks "Vad är uttrycket?"
-// Clicking a pill loads that expression to verify.
-const TASKS = [
-  {
-    desc: '🤖 Roboten börjar på <b>3</b>, tittar åt <b style="color:#66C7C2">höger</b> och tar <b style="color:#306BF0">+5 steg framlänges</b>. Vilket uttryck visar detta?',
-    options: [{t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:3,op:'−',t2:5}],
-    correct: {t1:3,op:'+',t2:5}
-  },
-  {
-    desc: '🤖 Roboten börjar på <b>5</b>, tittar åt <b style="color:#EC6095">vänster</b> och tar <b style="color:#306BF0">+3 steg framlänges</b>. Vilket uttryck visar detta?',
-    options: [{t1:5,op:'−',t2:3},{t1:3,op:'−',t2:5},{t1:5,op:'+',t2:3}],
-    correct: {t1:5,op:'−',t2:3}
-  },
-  {
-    desc: '🤖 Roboten börjar på <b>5</b>, tittar åt <b style="color:#EC6095">vänster</b> och tar <b style="color:#306BF0">+8 steg framlänges</b>. Den passerar 0:an på vägen! Vilket uttryck?',
-    options: [{t1:5,op:'−',t2:8},{t1:8,op:'−',t2:5},{t1:5,op:'+',t2:8}],
-    correct: {t1:5,op:'−',t2:8}
-  },
-  {
-    desc: '🤖 Roboten börjar på <b>(−5)</b>, tittar åt <b style="color:#66C7C2">höger</b> och tar <b style="color:#F4A261">−3 steg baklänges</b>. Vilket uttryck?',
-    options: [{t1:-5,op:'−',t2:3},{t1:-5,op:'+',t2:-3},{t1:-3,op:'+',t2:-5}],
-    correct: {t1:-5,op:'+',t2:-3}
-  },
-  {
-    desc: '🤖 Roboten börjar på <b>5</b>, tittar åt <b style="color:#EC6095">vänster</b> och tar <b style="color:#F4A261">−3 steg baklänges</b>. Lika tecken bredvid varandra — vad händer?',
-    options: [{t1:5,op:'−',t2:-3},{t1:5,op:'+',t2:-3},{t1:-5,op:'−',t2:3}],
-    correct: {t1:5,op:'−',t2:-3}
-  },
-  {
-    desc: '🤖 Roboten börjar på <b>(−3)</b>, tittar åt <b style="color:#EC6095">vänster</b> och tar <b style="color:#F4A261">−5 steg baklänges</b>. Olika tecken intill? Uttalas som vad?',
-    options: [{t1:-3,op:'−',t2:-5},{t1:-3,op:'+',t2:5},{t1:-3,op:'−',t2:5}],
-    correct: {t1:-3,op:'−',t2:-5}
-  },
-];
-
-let currentTaskIdx = 0;
-
-function buildTaskContent() {
-  const el = document.getElementById('taskContent');
-  if (!el) return;
-  el.innerHTML = '';
-
-  // Task counter
-  const counter = document.createElement('div');
-  counter.style.cssText = 'font-size:.72rem;color:var(--muted);margin-bottom:8px;text-align:right;';
-  counter.textContent = `Uppgift ${currentTaskIdx+1} av ${TASKS.length}`;
-  el.appendChild(counter);
-
-  const task = TASKS[currentTaskIdx];
-  const card = document.createElement('div');
-  card.className = 'task-card';
-  card.innerHTML = `<div class="tc-desc">${task.desc}</div><div class="tc-btns"></div>`;
-
-  const btns = card.querySelector('.tc-btns');
-  task.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'task-pill';
-    btn.textContent = exprLabel(opt);
-    btn.addEventListener('click', () => {
-      setExpr(opt.t1, opt.op, opt.t2, true);
-      // Highlight correct/wrong
-      btns.querySelectorAll('.task-pill').forEach(b => {
-        b.style.background = '';
-        b.style.color = '';
-        b.style.borderColor = '';
-      });
-      const isCorrect = opt.t1===task.correct.t1 && opt.op===task.correct.op && opt.t2===task.correct.t2;
-      btn.style.background = isCorrect ? '#18a348' : '#e02020';
-      btn.style.color = '#fff';
-      btn.style.borderColor = isCorrect ? '#18a348' : '#e02020';
-      // Auto-advance after 1.5s
-      if (isCorrect) setTimeout(() => {
-        currentTaskIdx = (currentTaskIdx+1) % TASKS.length;
-        buildTaskContent();
-      }, 1500);
-    });
-    btns.appendChild(btn);
-  });
-  el.appendChild(card);
-
-  // Navigation
-  const nav = document.createElement('div');
-  nav.style.cssText = 'display:flex;gap:8px;justify-content:space-between;margin-top:4px;';
-  nav.innerHTML = `
-    <button onclick="currentTaskIdx=(currentTaskIdx-1+${TASKS.length})%${TASKS.length};buildTaskContent();"
-      style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;">◀ Föreg.</button>
-    <button onclick="currentTaskIdx=Math.floor(Math.random()*${TASKS.length});buildTaskContent();"
-      style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--accent2);background:var(--surface);color:var(--accent2);cursor:pointer;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;">🎲 Slump</button>
-    <button onclick="currentTaskIdx=(currentTaskIdx+1)%${TASKS.length};buildTaskContent();"
-      style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;">Nästa ▶</button>
-  `;
-  el.appendChild(nav);
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  RANDOM EXPRESSION
-// ═══════════════════════════════════════════════════════════════════
-function randomExpr() {
-  // Pick a random category, then a random preset within it
-  const cat = PRESET_CATS[Math.floor(Math.random() * PRESET_CATS.length)];
-  const p   = cat.presets[Math.floor(Math.random() * cat.presets.length)];
-  setExpr(p.t1, p.op, p.t2, true);
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  EXPORT IMAGE
-// ═══════════════════════════════════════════════════════════════════
-function exportCanvasImage() {
-  // Temporarily render a clean frame then export
-  render(1, 0);
-  const dataURL = canvas.toDataURL('image/png');
-  const a = document.createElement('a');
-  a.href = dataURL;
-  const opChar = S.op === '+' ? '+' : '-';
-  a.download = `tallinje_${S.t1}${opChar}${S.t2}.png`;
-  a.click();
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  KEYBOARD SHORTCUTS
-// ═══════════════════════════════════════════════════════════════════
-document.addEventListener('keydown', (e) => {
-  // Skip if typing in an input
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-  if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); handlePlayClick(); }
-  if (e.key === 'r' || e.key === 'R') resetAll();
-  if (e.key === 'k' || e.key === 'K') { S.kangMode=!S.kangMode; kangChk.checked=S.kangMode; render(1,0); }
-  if (e.key === 'h' || e.key === 'H') { S.showHints=!S.showHints; render(1,0); }
-  if (e.key === 'e' || e.key === 'E') toggleExpr();
-  if (e.key === 'Escape') {
-    sidePanel.classList.remove('open');
-    if (ltBtnPanel) ltBtnPanel.classList.remove('active');
-  }
-});
-
-// Visual icons added directly inside buildExplainSteps below
-
-// ═══════════════════════════════════════════════════════════════════
-//  WIRE NEW DOM ELEMENTS
-// ═══════════════════════════════════════════════════════════════════
-const ltBtnExplain = document.getElementById('ltBtnExplain');
-const ltBtnRandom  = document.getElementById('ltBtnRandom');
-const ltBtnExport  = document.getElementById('ltBtnExport');
-
-ltBtnExplain.addEventListener('click', () => {
-  // Trigger same popup as btnExplainSteps
-  const fake = {getBoundingClientRect: () => ltBtnExplain.getBoundingClientRect()};
-  toggleExplainPopup();
-  // Reposition to open next to ltBtnExplain
-  const r = ltBtnExplain.getBoundingClientRect();
-  explainPopup.style.left = (r.right + 10) + 'px';
-  explainPopup.style.top  = r.top + 'px';
-  if (explainPopup.classList.contains('open')) buildExplainSteps();
-});
-
-ltBtnRandom.addEventListener('click', randomExpr);
-ltBtnExport.addEventListener('click', exportCanvasImage);
-
-// Speed slider wires
-document.getElementById('slowToggle') && Object.defineProperty(document.getElementById('slowToggle'), 'checked', {
-  get() { return parseInt(speedSlider.value) <= 2; },
-  set(v) { speedSlider.value = v ? 2 : 3; }
-});
-
-// Tab wiring for history + tasks
-const spTabHistory = document.getElementById('spTabHistory');
-const spTabTasks   = document.getElementById('spTabTasks');
-const spHistoryContent = document.getElementById('spHistoryContent');
-const spTasksContent   = document.getElementById('spTasksContent');
-
-spTabHistory.addEventListener('click', () => {
-  [spTabNumpad,spTabPreset,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
-  [spNumpadContent,spPresetContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
-  spTabHistory.classList.add('active');
-  spHistoryContent.style.display = '';
-  buildHistoryList();
-});
-spTabTasks.addEventListener('click', () => {
-  [spTabNumpad,spTabPreset,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
-  [spNumpadContent,spPresetContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
-  spTabTasks.classList.add('active');
-  spTasksContent.style.display = '';
-  buildTaskContent();
-});
-
-
-// ═══════════════════════════════════════════════════════════════════
-//  PRESET NAVIGATION (◀ / ▶)
-// ═══════════════════════════════════════════════════════════════════
-// Flatten all presets into a single ordered list
-function allPresets() {
-  return PRESET_CATS.flatMap(cat => cat.presets);
-}
-function currentPresetIndex() {
-  return allPresets().findIndex(p => p.t1===S.t1 && p.op===S.op && p.t2===S.t2);
-}
-function stepPreset(delta) {
-  const all = allPresets();
-  let idx = currentPresetIndex();
-  if (idx === -1) idx = 0; else idx = (idx + delta + all.length) % all.length;
-  const p = all[idx];
-  setExpr(p.t1, p.op, p.t2, true);
-  buildPresetCats && buildPresetCats();
-}
-
-const ltBtnPrevPreset = document.getElementById('ltBtnPrevPreset');
-const ltBtnNextPreset = document.getElementById('ltBtnNextPreset');
-if (ltBtnPrevPreset) ltBtnPrevPreset.addEventListener('click', () => stepPreset(-1));
-if (ltBtnNextPreset) ltBtnNextPreset.addEventListener('click', () => stepPreset(1));
-
-// Dynamic tooltip positioning for lt-btn
-document.querySelectorAll('.lt-btn').forEach(btn => {
-  const tip = btn.querySelector('.lt-tip');
-  if (!tip) return;
-  btn.addEventListener('mouseenter', () => {
-    const r = btn.getBoundingClientRect();
-    tip.style.top  = (r.top + r.height/2 - 14) + 'px';
-    tip.style.left = (r.right + 8) + 'px';
-    // If tooltip would go off-screen right, show on left instead
-    const tipW = tip.offsetWidth || 120;
-    if (r.right + 8 + tipW > window.innerWidth - 10) {
-      tip.style.left = (r.left - tipW - 8) + 'px';
-    }
-  });
-});
-
-
-// ═══════════════════════════════════════════════════════════════════
-//  STUDENT MODE — self-contained quiz engine
-//  Reuses colour constants (C_FWD_POS etc) and isForward() from above.
-// ═══════════════════════════════════════════════════════════════════
-const studentOverlay = document.getElementById('studentOverlay');
-const btnStudentMode = document.getElementById('btnStudentMode');
-const studentExit    = document.getElementById('studentExit');
-
-const scrModePicker  = document.getElementById('scrModePicker');
-const scrLevelPicker = document.getElementById('scrLevelPicker');
-const scrQuiz        = document.getElementById('scrQuiz');
-const scrSummary      = document.getElementById('scrSummary');
-
-const cardModeA = document.getElementById('cardModeA');
-const cardModeB = document.getElementById('cardModeB');
-const btnStartQuiz = document.getElementById('btnStartQuiz');
-
-const scoreCorrectEl = document.getElementById('scoreCorrect');
-const scoreTotalEl   = document.getElementById('scoreTotal');
-const sqExprText     = document.getElementById('sqExprText');
-const sqQuestionText = document.getElementById('sqQuestionText');
-const sqOptions      = document.getElementById('sqOptions');
-const sqFeedback     = document.getElementById('sqFeedback');
-const sqNextBtn      = document.getElementById('sqNextBtn');
-const summaryScoreEl = document.getElementById('summaryScore');
-const btnPlayAgain   = document.getElementById('btnPlayAgain');
-
-const sqCanvas = document.getElementById('sqCanvas');
-const sqCtx    = sqCanvas.getContext('2d');
-
-// ── Quiz state ─────────────────────────────────────────────────────
-const QZ = {
-  mode: null,        // 'A' or 'B'
-  level: 0,
-  correct: 0,
-  total: 0,
-  current: null,     // {t1, op, t2, answer}
-  // Mode A sub-stage: 0=start, 1=direction, 2=steps
-  stageA: 0,
-  stageACorrect: [false, false, false],
-};
-
-// ── Difficulty-aware random expression generator ────────────────────
-// Mirrors the pedagogical structure of PRESET_CATS but randomised.
-function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-function generateExpr(level) {
-  let t1, op, t2;
-  if (level === 0) {
-    // Positive numbers, positive result (t1 may be 0 — that's fine)
-    t1 = randInt(0, 8); op = '+'; t2 = randInt(2, 8);
-  } else if (level === 1) {
-    // Subtraction, positive result — ensure t2 in [1, t1-1] so it's never 0 and never equals t1
-    t1 = randInt(5, 12); t2 = randInt(1, Math.max(1, t1 - 1)); op = '−';
-  } else if (level === 2) {
-    // Via zero / negative result OR exactly zero (complementary numbers)
-    t1 = randInt(2, 8);
-    if (Math.random() < 0.3) { t2 = t1; }                 // lands exactly on 0
-    else { t2 = randInt(t1 + 1, t1 + 6); }                // overshoots past 0
-    op = '−';
-  } else if (level === 3) {
-    // Negative start
-    t1 = -randInt(2, 7);
-    op = Math.random() < 0.5 ? '+' : '−';
-    t2 = randInt(2, 8);
-  } else {
-    // Sign rule: negative t2, t1 never 0 (so the sign-rule reading is meaningful)
-    do { t1 = randInt(-6, 8); } while (t1 === 0);
-    op = Math.random() < 0.5 ? '+' : '−';
-    t2 = -randInt(2, 8);
-  }
-  // Safety net: t2 must never be 0 (would make "framåt/bakåt" meaningless)
-  if (t2 === 0) t2 = (Math.random() < 0.5 ? 1 : -1) * randInt(2, 5);
-  const answer = op === '+' ? t1 + t2 : t1 - t2;
-  return { t1, op, t2, answer };
-}
-
-// Kangaroo-hop check — mirrors kangApplies() logic from the teacher tool,
-// but operates on an arbitrary {t1, op, t2} rather than global state S.
-function exprCrossesZero(t1, op, t2) {
-  const steps = op === '+' ? t2 : -t2;
-  return (t1 > 0 && steps < 0 && t1 + steps < 0) ||
-         (t1 < 0 && steps > 0 && t1 + steps > 0);
-}
-
-// ── Screen navigation ─────────────────────────────────────────────
-function showScreen(name) {
-  // delegate to showScreenAll once it's defined; before that, basic version
-  scrModePicker.style.display  = name === 'mode'    ? 'flex' : 'none';
-  scrLevelPicker.style.display = name === 'level'   ? 'flex' : 'none';
-  scrQuiz.style.display        = name === 'quiz'    ? 'flex' : 'none';
-  scrSummary.style.display     = name === 'summary' ? 'flex' : 'none';
-  if (typeof scrMinitest !== 'undefined') {
-    scrMinitest.style.display       = name === 'minitest' ? 'flex' : 'none';
-    scrMinitestResult.style.display = name === 'result'   ? 'flex' : 'none';
-  }
-}
-
-btnStudentMode.addEventListener('click', () => {
-  studentOverlay.classList.add('open');
-  QZ.correct = 0; QZ.total = 0;
-  showScreen('mode');
-});
-studentExit.addEventListener('click', () => {
-  studentOverlay.classList.remove('open');
-});
-
-cardModeA.addEventListener('click', () => { QZ.mode = 'A'; showScreen('level'); });
-cardModeB.addEventListener('click', () => { QZ.mode = 'B'; showScreen('level'); });
-
-document.querySelectorAll('.level-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    QZ.level = parseInt(btn.dataset.level);
-  });
-});
-
-btnStartQuiz.addEventListener('click', () => {
-  QZ.correct = 0; QZ.total = 0;
-  updateScoreBar();
-  if (QZ.mode === 'C') {
-    startMinitest();
-  } else {
-    showScreen('quiz');
-    nextQuestion();
-  }
-});
-
-btnPlayAgain.addEventListener('click', () => { showScreen('level'); });
-
-document.getElementById('btnFinishRound').addEventListener('click', () => {
-  summaryScoreEl.textContent = `${QZ.correct} / ${QZ.total}`;
-  showScreen('summary');
-});
-
-function updateScoreBar() {
-  scoreCorrectEl.textContent = QZ.correct + ' rätt';
-  scoreTotalEl.textContent   = 'av ' + QZ.total;
-}
-
-// ── Mini number-line renderer (self-contained, reuses colour system) ──
-function sqWorldToX(w, lo, hi) {
-  return 40 + (w - lo) / (hi - lo) * (700 - 80);
-}
-function sqDrawLine(t1, t2, answer, robotPos, facingRight, showTrail) {
-  const vals = [t1, answer, 0];
-  let lo = Math.min(...vals), hi = Math.max(...vals);
-  let span = hi - lo; if (span < 8) span = 8;
-  const pad = Math.ceil(span * 0.2 + 1);
-  lo = Math.floor(lo - pad); hi = Math.ceil(hi + pad);
-
-  const LINE_Y = 130, TICK_H = 11;
-  sqCtx.clearRect(0, 0, 700, 260);
-
-  sqCtx.strokeStyle = '#100e28'; sqCtx.lineWidth = 2;
-  sqCtx.beginPath();
-  sqCtx.moveTo(sqWorldToX(lo,lo,hi)-16, LINE_Y);
-  sqCtx.lineTo(sqWorldToX(hi,lo,hi)+16, LINE_Y);
-  sqCtx.stroke();
-  const rsx = sqWorldToX(hi,lo,hi)+16;
-  sqCtx.fillStyle = '#100e28'; sqCtx.beginPath();
-  sqCtx.moveTo(rsx+8,LINE_Y); sqCtx.lineTo(rsx-4,LINE_Y-4); sqCtx.lineTo(rsx-4,LINE_Y+4);
-  sqCtx.closePath(); sqCtx.fill();
-
-  for (let n = lo; n <= hi; n++) {
-    const x = sqWorldToX(n,lo,hi);
-    sqCtx.strokeStyle = '#100e28'; sqCtx.lineWidth = n===0?2:1;
-    sqCtx.beginPath(); sqCtx.moveTo(x,LINE_Y-TICK_H); sqCtx.lineTo(x,LINE_Y+TICK_H); sqCtx.stroke();
-    sqCtx.font = n===0 ? 'bold 13px Sora' : '11px Sora';
-    sqCtx.fillStyle = n===0 ? '#100e28' : '#666';
-    sqCtx.textAlign = 'center';
-    sqCtx.fillText(n, x, LINE_Y+TICK_H+14);
-  }
-
-  // ── Start / arrow / mål trail — shown once the animation has finished ──
-  if (showTrail && t1 !== answer) {
-    const x1 = sqWorldToX(t1, lo, hi);
-    const x2 = sqWorldToX(answer, lo, hi);
-    const arcH = Math.min(46, Math.abs(x2 - x1) * 0.35 + 12);
-    const goRight = x2 > x1;
-
-    // Curved arc from start to goal
-    sqCtx.strokeStyle = '#7c3aed'; sqCtx.lineWidth = 2.5; sqCtx.setLineDash([5,4]);
-    sqCtx.beginPath();
-    const xMid = (x1+x2)/2;
-    for (let i=0;i<=40;i++){
-      const tt=i/40;
-      const bx=(1-tt)*(1-tt)*x1+2*(1-tt)*tt*xMid+tt*tt*x2;
-      const by=(1-tt)*(1-tt)*LINE_Y+2*(1-tt)*tt*(LINE_Y-arcH)+tt*tt*LINE_Y;
-      i===0?sqCtx.moveTo(bx,by):sqCtx.lineTo(bx,by);
-    }
-    sqCtx.stroke(); sqCtx.setLineDash([]);
-
-    // Arrowhead at goal
-    sqCtx.fillStyle = '#7c3aed';
-    sqCtx.beginPath();
-    if (goRight) { sqCtx.moveTo(x2,LINE_Y); sqCtx.lineTo(x2-9,LINE_Y-6); sqCtx.lineTo(x2-9,LINE_Y+6); }
-    else         { sqCtx.moveTo(x2,LINE_Y); sqCtx.lineTo(x2+9,LINE_Y-6); sqCtx.lineTo(x2+9,LINE_Y+6); }
-    sqCtx.closePath(); sqCtx.fill();
-
-    // Start dot (green) + "Start" label
-    sqCtx.fillStyle = '#18a348';
-    sqCtx.beginPath(); sqCtx.arc(x1, LINE_Y, 6, 0, Math.PI*2); sqCtx.fill();
-    sqCtx.strokeStyle = '#fff'; sqCtx.lineWidth = 1.5; sqCtx.stroke();
-    sqCtx.font = 'bold 11px Sora'; sqCtx.fillStyle = '#18a348'; sqCtx.textAlign = 'center';
-    sqCtx.fillText('Start', x1, LINE_Y + TICK_H + 30);
-
-    // Goal dot (purple) + "Mål" label
-    sqCtx.fillStyle = '#7c3aed';
-    sqCtx.beginPath(); sqCtx.arc(x2, LINE_Y, 6, 0, Math.PI*2); sqCtx.fill();
-    sqCtx.strokeStyle = '#fff'; sqCtx.lineWidth = 1.5; sqCtx.stroke();
-    sqCtx.font = 'bold 11px Sora'; sqCtx.fillStyle = '#7c3aed'; sqCtx.textAlign = 'center';
-    sqCtx.fillText('Mål', x2, LINE_Y + TICK_H + 30);
-  }
-
-  // Robot (simplified)
-  if (robotPos !== null) {
-    const rx = sqWorldToX(robotPos,lo,hi);
-    sqCtx.save();
-    sqCtx.translate(rx, LINE_Y);
-    sqCtx.scale(facingRight ? 1 : -1, 1);
-    sqCtx.fillStyle = '#4a5568';
-    sqCtx.fillRect(-9,-36,18,24);
-    sqCtx.fillStyle = '#2d3748';
-    sqCtx.fillRect(-9,-58,18,22);
-    sqCtx.fillStyle = '#e8f4fd'; sqCtx.strokeStyle='#63b3ed'; sqCtx.lineWidth=1.5;
-    sqCtx.fillRect(-7,-55,14,16); sqCtx.strokeRect(-7,-55,14,16);
-    sqCtx.restore();
-    // number label always upright
-    sqCtx.fillStyle = '#1a365d'; sqCtx.font = 'bold 10px Sora';
-    sqCtx.textAlign = 'center';
-    sqCtx.fillText(String(Math.round(robotPos)), rx, LINE_Y-47);
-  }
-
-  return {lo, hi};
-}
-
-function sqAnimateAndShowAnswer(t1, op, t2, answer, onComplete) {
-  const facingRight = op === '+';
-  const kang = exprCrossesZero(t1, op, t2);
-
-  if (!kang) {
-    // Simple single-leg animation
-    let pos = t1;
-    const DUR = 1100; let startTs = null;
-    function step(ts) {
-      if (!startTs) startTs = ts;
-      const p = Math.min((ts-startTs)/DUR, 1);
-      const ease = p<0.5 ? 2*p*p : -1+(4-2*p)*p;
-      pos = t1 + (answer - t1) * ease;
-      sqDrawLine(t1, t2, answer, pos, facingRight, false);
-      if (p < 1) requestAnimationFrame(step);
-      else { sqDrawLine(t1, t2, answer, answer, facingRight, true); if (onComplete) onComplete(); }
-    }
-    requestAnimationFrame(step);
-    return;
-  }
-
-  // Kangaroo-hop: two-leg animation, t1→0 then 0→answer, with a brief pause at 0
-  const LEG1_DUR = 750, PAUSE = 350, LEG2_DUR = 750;
-  let startTs = null;
-  let phase = 'leg1';   // 'leg1' | 'pause' | 'leg2'
-  let pauseStart = null;
-
-  function step(ts) {
-    if (!startTs) startTs = ts;
-    if (phase === 'leg1') {
-      const p = Math.min((ts-startTs)/LEG1_DUR, 1);
-      const ease = p<0.5 ? 2*p*p : -1+(4-2*p)*p;
-      const pos = t1 + (0 - t1) * ease;
-      sqDrawLine(t1, t2, answer, pos, facingRight, false);
-      if (p < 1) { requestAnimationFrame(step); return; }
-      phase = 'pause'; pauseStart = ts;
-    }
-    if (phase === 'pause') {
-      sqDrawLine(t1, t2, answer, 0, facingRight, false);
-      if (ts - pauseStart < PAUSE) { requestAnimationFrame(step); return; }
-      phase = 'leg2'; startTs = ts;
-    }
-    if (phase === 'leg2') {
-      const p = Math.min((ts-startTs)/LEG2_DUR, 1);
-      const ease = p<0.5 ? 2*p*p : -1+(4-2*p)*p;
-      const pos = 0 + (answer - 0) * ease;
-      sqDrawLine(t1, t2, answer, pos, facingRight, false);
-      if (p < 1) { requestAnimationFrame(step); return; }
-      sqDrawLine(t1, t2, answer, answer, facingRight, true);
-      if (onComplete) onComplete();
-    }
-  }
-  requestAnimationFrame(step);
-}
-
-// ── Error explanation helpers ─────────────────────────────────────
-// Generates a short, specific text pointing at WHY an answer was wrong,
-// tied to the concept being tested at each stage.
-function explainStartError(t1) {
-  return `Roboten börjar alltid på den första termen i uttrycket — alltså ${fmtNum(t1)}.`;
-}
-function explainDirectionError(t1, op) {
-  const dirWord = op==='+' ? 'höger' : 'vänster';
-  const opWord  = op==='+' ? 'plus' : 'minus';
-  return `Uttrycket har ${opWord} (${op==='+'?'+':'−'}), så roboten ska titta åt ${dirWord}.`;
-}
-function explainStepDirError(t2) {
-  const word = t2>=0 ? 'framåt' : 'bakåt';
-  return `Andra termen är ${fmtNum(t2)}. Ett ${t2>=0?'positivt':'negativt'} tal betyder att roboten går ${word} i den riktning den tittar.`;
-}
-function explainAnswerError(t1, op, t2, answer, guess) {
-  const opChar = op==='+' ? '+' : '−';
-  let msg = `${fmtNum(t1)} ${opChar} ${fmtNum(t2)} = ${answer}, inte ${guess}.`;
-  if (exprCrossesZero(t1, op, t2)) {
-    msg += ` Kom ihåg känguruhoppet: roboten stannar vid 0 på vägen.`;
-  }
-  return msg;
-}
-
-// ── Mode A: step-by-step questions ──────────────────────────────────
-function startModeA() {
-  QZ.current = generateExpr(QZ.level);
-  QZ.stageA = 0;
-  sqDrawLine(QZ.current.t1, QZ.current.t2, QZ.current.answer, null, true);
-  askStageA();
-}
-
-function askStageA() {
-  const {t1, op, t2} = QZ.current;
-  sqFeedback.textContent = '\u00a0';
-  sqFeedback.className = 'sq-feedback';
-  sqNextBtn.style.display = 'none';
-  sqExprText.textContent = `${fmtNum(t1)} ${op==='+'?'+':'−'} ${fmtNum(t2)}`;
-
-  if (QZ.stageA === 0) {
-    sqQuestionText.textContent = 'Var börjar roboten? (Vilken är första termen?)';
-    const correct = t1;
-    const opts = shuffleOptions([correct, correct+randInt(1,4), correct-randInt(1,4), correct+randInt(5,8)]);
-    renderOptions(opts, (val, btn) => {
-      checkAnswer(val === correct, btn, () => {
-        QZ.stageA = 1; setTimeout(askStageA, 700);
-      }, explainStartError(t1));
-    }, v => String(v));
-  } else if (QZ.stageA === 1) {
-    sqQuestionText.textContent = `Roboten står på ${t1}. Vilket håll tittar den åt?`;
-    const correctRight = op === '+';
-    const opts = [
-      {label:'⬅ Vänster', val:false}, {label:'➡ Höger', val:true}
-    ];
-    renderOptions(opts.map(o=>o.val), (val, btn) => {
-      checkAnswer(val === correctRight, btn, () => {
-        QZ.stageA = 2; setTimeout(askStageA, 700);
-      }, explainDirectionError(t1, op));
-    }, v => v ? '➡ Höger' : '⬅ Vänster');
-  } else if (QZ.stageA === 2) {
-    sqQuestionText.textContent = `Går roboten framåt eller bakåt (${Math.abs(t2)} steg)?`;
-    const correctFwd = t2 >= 0;
-    renderOptions([true, false], (val, btn) => {
-      checkAnswer(val === correctFwd, btn, () => {
-        QZ.total++; QZ.correct++; updateScoreBar();
-        sqFeedback.textContent = 'Rätt! Så här ser det ut:';
-        sqFeedback.className = 'sq-feedback correct';
-        sqAnimateAndShowAnswer(t1, op, t2, QZ.current.answer);
-        sqOptions.innerHTML = '';
-        sqNextBtn.style.display = '';
-      }, explainStepDirError(t2));
-    }, v => v ? 'Framåt ✓' : 'Bakåt ↩');
-  }
-}
-
-// ── Mode B: predict the answer ──────────────────────────────────────
-function startModeB() {
-  QZ.current = generateExpr(QZ.level);
-  const {t1, op, t2, answer} = QZ.current;
-  sqDrawLine(t1, t2, answer, t1, op === '+');
-  sqExprText.textContent = `${fmtNum(t1)} ${op==='+'?'+':'−'} ${fmtNum(t2)}`;
-  sqQuestionText.textContent = 'Vad blir svaret?';
-  sqFeedback.textContent = '\u00a0';
-  sqFeedback.className = 'sq-feedback';
-  sqNextBtn.style.display = 'none';
-
-  const wrongs = new Set();
-  while (wrongs.size < 3) {
-    const w = answer + (Math.random()<0.5?1:-1) * randInt(1, 6);
-    if (w !== answer) wrongs.add(w);
-  }
-  const opts = shuffleOptions([answer, ...wrongs]);
-  renderOptions(opts, (val, btn) => {
-    checkAnswer(val === answer, btn, () => {
-      QZ.total++; if (val === answer) QZ.correct++; updateScoreBar();
-      sqAnimateAndShowAnswer(t1, op, t2, answer);
-      sqNextBtn.style.display = '';
-    }, explainAnswerError(t1, op, t2, answer, val));
-  }, v => String(v));
-}
-
-// ── Shared helpers ───────────────────────────────────────────────────
-function shuffleOptions(arr) {
-  const a = [...new Set(arr)];
-  for (let i = a.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
-  return a;
-}
-
-function renderOptions(values, onPick, formatter) {
-  sqOptions.innerHTML = '';
-  values.forEach(val => {
-    const btn = document.createElement('button');
-    btn.className = 'sq-opt';
-    btn.textContent = formatter(val);
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.sq-opt').forEach(b => b.disabled = true);
-      onPick(val, btn);
-    });
-    sqOptions.appendChild(btn);
-  });
-}
-
-function checkAnswer(isCorrect, btn, onDone, wrongExplanation) {
-  if (isCorrect) {
-    btn.classList.add('correct');
-    sqFeedback.textContent = 'Rätt!';
-    sqFeedback.className = 'sq-feedback correct';
-  } else {
-    btn.classList.add('wrong');
-    sqFeedback.textContent = wrongExplanation || 'Inte riktigt — kolla animationen!';
-    sqFeedback.className = 'sq-feedback wrong';
-  }
-  if (QZ.mode === 'A' && !isCorrect) {
-    // Mode A: low-friction — give a bit longer to read the explanation, then move forward
-    setTimeout(onDone, 1900);
-  } else {
-    onDone();
-  }
-}
-
-function nextQuestion() {
-  if (QZ.mode === 'A') startModeA();
-  else startModeB();
-}
-
-sqNextBtn.addEventListener('click', nextQuestion);
-
-
-
-// ═══════════════════════════════════════════════════════════════════
-//  MODE C — MINITEST
-// ═══════════════════════════════════════════════════════════════════
-const MINITEST_COUNT = 10;
-let minitestExprs = [];
-
-const scrMinitest       = document.getElementById('scrMinitest');
-const scrMinitestResult = document.getElementById('scrMinitestResult');
-const minitestList      = document.getElementById('minitestList');
-const minitestResultList= document.getElementById('minitestResultList');
-const btnCheckMinitest  = document.getElementById('btnCheckMinitest');
-const btnMinitestAgain  = document.getElementById('btnMinitestAgain');
-const btnMinitestBack   = document.getElementById('btnMinitestBack');
-const cardModeC         = document.getElementById('cardModeC');
-
-function showScreenAll(name) {
-  scrModePicker.style.display      = name==='mode'    ? 'flex' : 'none';
-  scrLevelPicker.style.display     = name==='level'   ? 'flex' : 'none';
-  scrQuiz.style.display            = name==='quiz'    ? 'flex' : 'none';
-  scrSummary.style.display         = name==='summary' ? 'flex' : 'none';
-  scrMinitest.style.display        = name==='minitest'? 'flex' : 'none';
-  scrMinitestResult.style.display  = name==='result'  ? 'flex' : 'none';
-}
-
-function startMinitest() {
-  minitestExprs = [];
-  for (let i = 0; i < MINITEST_COUNT; i++) {
-    minitestExprs.push(generateExpr(QZ.level));
-  }
-
-  minitestList.innerHTML = '';
-  minitestExprs.forEach((expr, i) => {
-    const {t1, op, t2} = expr;
-    const opChar = op === '+' ? '+' : '−';
-    const row = document.createElement('div');
-    row.className = 'mt-row';
-    row.innerHTML = `
-      <span class="mt-expr">${fmtNum(t1)} ${opChar} ${fmtNum(t2)}</span>
-      <span class="mt-eq">=</span>
-      <input class="mt-input" id="mt-input-${i}" type="number" inputmode="numeric" placeholder="?">
-    `;
-    minitestList.appendChild(row);
-  });
-
-  // Focus first field
-  setTimeout(() => {
-    const first = document.getElementById('mt-input-0');
-    if (first) first.focus();
-  }, 100);
-
-  // Enter key moves to next field
-  for (let i = 0; i < MINITEST_COUNT; i++) {
-    const inp = document.getElementById(`mt-input-${i}`);
-    inp.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const next = document.getElementById(`mt-input-${i+1}`);
-        if (next) next.focus();
-        else btnCheckMinitest.focus();
-      }
-    });
-  }
-
-  showScreenAll('minitest');
-}
-
-function checkMinitest() {
-  let correct = 0;
-  const rows = minitestList.querySelectorAll('.mt-row');
-
-  minitestResultList.innerHTML = '';
-
-  minitestExprs.forEach((expr, i) => {
-    const {t1, op, t2, answer} = expr;
-    const inp = document.getElementById(`mt-input-${i}`);
-    const guess = parseInt(inp.value, 10);
-    const isCorrect = !isNaN(guess) && guess === answer;
-    if (isCorrect) correct++;
-
-    const opChar = op === '+' ? '+' : '−';
-    const row = document.createElement('div');
-    row.className = 'mt-row';
-
-    let verdictHTML = '';
-    if (isNaN(guess)) {
-      verdictHTML = `<span class="mt-verdict wrong">Inget svar</span>`;
-    } else if (isCorrect) {
-      verdictHTML = `<span class="mt-verdict correct">✓ Rätt</span>`;
-    } else {
-      const explanation = explainAnswerError(t1, op, t2, answer, guess);
-      verdictHTML = `<span class="mt-verdict wrong">✗ Rätt svar: ${answer} — ${explanation}</span>`;
-    }
-
-    row.innerHTML = `
-      <span class="mt-expr">${fmtNum(t1)} ${opChar} ${fmtNum(t2)} = <b>${isNaN(guess)?'—':guess}</b></span>
-      ${verdictHTML}
-    `;
-    minitestResultList.appendChild(row);
-  });
-
-  // Score header
-  const emoji = correct >= 8 ? '🎉' : correct >= 5 ? '👍' : '💪';
-  const header = document.createElement('div');
-  header.style.cssText = 'text-align:center;font-family:Sora,sans-serif;font-size:1.1rem;font-weight:700;padding:8px 0;color:var(--accent);';
-  header.textContent = `${emoji} ${correct} av ${MINITEST_COUNT} rätt`;
-  minitestResultList.prepend(header);
-
-  QZ.correct += correct; QZ.total += MINITEST_COUNT; updateScoreBar();
-  showScreenAll('result');
-}
-
-btnCheckMinitest.addEventListener('click', checkMinitest);
-btnMinitestAgain.addEventListener('click', startMinitest);
-btnMinitestBack.addEventListener('click', () => showScreenAll('mode'));
-cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); });
-
 // ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
@@ -3426,6 +2275,5 @@ loadFromURL();
 buildUserPearls();
 setExpr(5, '+', 3, false);
 </script>
-
 </body>
 </html>
