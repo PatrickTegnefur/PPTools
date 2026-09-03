@@ -2403,14 +2403,14 @@ function drawUserPearlBand() {
 // ║   cat:0=grön  cat:1=blå  cat:2=orange  cat:3=lila  cat:4=rosa║
 // ╚══════════════════════════════════════════════════════════════╝
 const PRESET_CATS = [
-  { label:'Positiva tal', cat:0, presets:[
-    {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:2,op:'+',t2:8},{t1:4,op:'+',t2:6}
+  { label:'Addition - Positiva tal', cat:0, presets:[
+    {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:2,op:'+',t2:6},{t1:4,op:'+',t2:5}
   ]},
   { label:'Subtraktion – positivt svar', cat:1, presets:[
-    {t1:8,op:'−',t2:3},{t1:9,op:'−',t2:4},{t1:7,op:'−',t2:2},{t1:10,op:'−',t2:6}
+    {t1:8,op:'−',t2:3},{t1:8,op:'−',t2:5},{t1:8,op:'−',t2:7},{t1:8,op:'−',t2:8},
   ]},
   { label:'Via nollan / komplementerande tal', cat:2, presets:[
-    {t1:5,op:'−',t2:5},{t1:-6,op:'+',t2:6},
+    {t1:5,op:'−',t2:5},{t1:5,op:'-',t2:7},{t1:5,op:'−',t2:10}
     {t1:5,op:'−',t2:8},{t1:3,op:'−',t2:7},{t1:4,op:'−',t2:9}
   ]},
   { label:'Negativt starttal', cat:3, presets:[
