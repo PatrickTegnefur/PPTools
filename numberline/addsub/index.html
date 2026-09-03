@@ -489,6 +489,7 @@
     </span>
     <div class="float-toolbar" id="floatToolbar">
       <button class="icon-btn" id="btnStudentMode" title="Elevläge">🎓</button>
+      <button class="icon-btn" id="btnKeyHelp" title="Tangentbordsgenvägar (?)">?</button>
     </div>
   </div>
   </div>
@@ -579,6 +580,27 @@
         <label class="toggle-label"><span class="ic">💬</span><input type="checkbox" id="hintToggleSettings"> Hjälptexter</label>
         <label class="toggle-label"><span class="ic">🌙</span><input type="checkbox" id="darkToggleSettings"> Mörkt läge</label>
         <label class="toggle-label"><span class="ic">⛶</span><input type="checkbox" id="fsToggleSettings"> Helskärm</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- keyboard shortcut overlay — lives inside main so it's always parsed before <script> -->
+  <div id="kbOverlay" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(16,14,40,.45);align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:22px 26px;max-width:420px;width:92%;box-shadow:0 10px 40px rgba(16,14,40,.25);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-weight:700;font-size:1rem;">
+        ⌨️ Tangentbordsgenvägar
+        <button id="kbClose" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--muted);">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;font-family:'Sora',sans-serif;">
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">Space / Enter</kbd><span style="font-size:.82rem;color:var(--muted);">Animera / Nästa hopp</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">R</kbd><span style="font-size:.82rem;color:var(--muted);">Återställ</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">K</kbd><span style="font-size:.82rem;color:var(--muted);">Växla känguruhopp</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">+ / −</kbd><span style="font-size:.82rem;color:var(--muted);">Växla operator</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">U</kbd><span style="font-size:.82rem;color:var(--muted);">Uttalat uttryck</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">E</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj uttrycket</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">V</kbd><span style="font-size:.82rem;color:var(--muted);">Visa svar</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">Esc</kbd><span style="font-size:.82rem;color:var(--muted);">Stäng popup / elevläge</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">?</kbd><span style="font-size:.82rem;color:var(--muted);">Visa den här hjälpen</span>
       </div>
     </div>
   </div>
@@ -675,7 +697,7 @@
   </div>
 
 <footer style="width:100%;text-align:center;padding:10px 0 18px;font-family:'Sora',sans-serif;font-size:.72rem;color:#aaa;letter-spacing:.02em;">
-  © Patrick Tegnefur &nbsp;·&nbsp; Förstelärare i matematik &nbsp;·&nbsp; Alfred Dalinskolan, Huskvarna
+  Skapat av Patrick Tegnefur &nbsp;·&nbsp; Förstelärare i matematik &nbsp;·&nbsp; Alfred Dalinskolan, Huskvarna
 </footer>
 
 <script>
@@ -2403,14 +2425,14 @@ function drawUserPearlBand() {
 // ║   cat:0=grön  cat:1=blå  cat:2=orange  cat:3=lila  cat:4=rosa║
 // ╚══════════════════════════════════════════════════════════════╝
 const PRESET_CATS = [
-  { label:'Addition - Positiva tal', cat:0, presets:[
-    {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:2,op:'+',t2:6},{t1:4,op:'+',t2:5}
+  { label:'Positiva tal', cat:0, presets:[
+    {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:2,op:'+',t2:8},{t1:4,op:'+',t2:6}
   ]},
   { label:'Subtraktion – positivt svar', cat:1, presets:[
-    {t1:8,op:'−',t2:3},{t1:8,op:'−',t2:5},{t1:8,op:'−',t2:7},{t1:8,op:'−',t2:8},
+    {t1:8,op:'−',t2:3},{t1:9,op:'−',t2:4},{t1:7,op:'−',t2:2},{t1:10,op:'−',t2:6}
   ]},
   { label:'Via nollan / komplementerande tal', cat:2, presets:[
-    {t1:5,op:'−',t2:5},{t1:5,op:'-',t2:7},{t1:5,op:'−',t2:10}
+    {t1:5,op:'−',t2:5},{t1:-6,op:'+',t2:6},
     {t1:5,op:'−',t2:8},{t1:3,op:'−',t2:7},{t1:4,op:'−',t2:9}
   ]},
   { label:'Negativt starttal', cat:3, presets:[
@@ -3418,6 +3440,48 @@ btnCheckMinitest.addEventListener('click', checkMinitest);
 btnMinitestAgain.addEventListener('click', startMinitest);
 btnMinitestBack.addEventListener('click', () => showScreenAll('mode'));
 cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); });
+
+// ═══════════════════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS + HELP OVERLAY
+// ═══════════════════════════════════════════════════════════════════
+(function() {
+  const overlay = document.getElementById('kbOverlay');
+  const closeBtn = document.getElementById('kbClose');
+  const helpBtn  = document.getElementById('btnKeyHelp');
+
+  function open()  { overlay.style.display = 'flex'; }
+  function close() { overlay.style.display = 'none'; }
+
+  helpBtn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (overlay.style.display === 'flex') { if (e.key === 'Escape') close(); return; }
+    if (studentOverlay && studentOverlay.classList.contains('open')) return;
+    switch(e.key) {
+      case '?':         e.preventDefault(); open(); break;
+      case 'Escape':    if (studentOverlay) studentOverlay.classList.remove('open'); break;
+      case 'r': case 'R': e.preventDefault(); resetAll(); break;
+      case 'k': case 'K':
+        e.preventDefault();
+        S.kangMode = !S.kangMode; kangChk.checked = S.kangMode; render(1,0); break;
+      case '+': case '=':
+        e.preventDefault(); if (S.op !== '+') invertOperator(); break;
+      case '-': case '_':
+        e.preventDefault(); if (S.op !== '−') invertOperator(); break;
+      case 'u': case 'U':
+        e.preventDefault();
+        if (!S.showUtterance) { S.showUtterance=true; S.showFullUtterance=false; }
+        else if (!S.showFullUtterance) { S.showFullUtterance=true; }
+        else { S.showUtterance=false; S.showFullUtterance=false; }
+        updateUtteranceBtn(); render(1,0); break;
+      case 'e': case 'E': e.preventDefault(); toggleExpr(); break;
+      case 'v': case 'V': e.preventDefault(); btnRevl.click(); break;
+    }
+  });
+})();
 
 // ═══════════════════════════════════════════════════════════════════
 //  INIT
