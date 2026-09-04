@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="sv" class="theme-dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,107 +8,224 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&family=Inter:wght@400;500&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #111118; --surface: #1c1c26; --border: rgba(255,255,255,.07);
+
+    /* ── DARK (default) ── */
+    :root, html.theme-dark {
+      --bg: #111118; --surface: #1c1c26; --modal: #1e1e2e; --hover: #2a2a3a;
+      --border: rgba(255,255,255,.07); --border-modal: rgba(255,255,255,.1);
       --text: #f0f0f8; --muted: #6b6b88; --accent: #7c6af5;
       --safe: #3dd9a4; --warn: #f5c842; --danger: #f05060;
+      --ring-track: #1c1c26;
+      --backdrop: rgba(0,0,0,.6);
+      --emoji-selected-bg: rgba(124,106,245,.15);
+      --time-color: #ffffff;
+    }
+
+    /* ── LIGHT ── */
+    html.theme-light {
+      --bg: #f4f4f8; --surface: #ffffff; --modal: #ffffff; --hover: #e8e8f0;
+      --border: rgba(0,0,0,.1); --border-modal: rgba(0,0,0,.12);
+      --text: #1a1a2e; --muted: #8888a8; --accent: #5a4fd6;
+      --safe: #1db88a; --warn: #d4920a; --danger: #d93045;
+      --ring-track: #e2e2ec;
+      --backdrop: rgba(0,0,0,.35);
+      --emoji-selected-bg: rgba(90,79,214,.12);
+      --time-color: #ffffff;
+    }
+
+    /* ── AD DARK ── Alfred Dalinskolan mörkt */
+    html.theme-ad-dark {
+      --bg: #0d1520; --surface: #162030; --modal: #1a2840; --hover: #1f3050;
+      --border: rgba(255,255,255,.08); --border-modal: rgba(255,255,255,.12);
+      --text: #f8f9fa; --muted: #7a9ab8; --accent: #306BF0;
+      --safe: #00A19A; --warn: #FF8837; --danger: #F03048;
+      --ring-track: #162030;
+      --backdrop: rgba(0,0,0,.65);
+      --emoji-selected-bg: rgba(48,107,240,.18);
+      --time-color: #ffffff;
+    }
+
+    /* ── AD LIGHT ── Alfred Dalinskolan ljust */
+    html.theme-ad-light {
+      --bg: #f8f9fa; --surface: #ffffff; --modal: #ffffff; --hover: #eaf0fd;
+      --border: rgba(48,107,240,.15); --border-modal: rgba(48,107,240,.2);
+      --text: #0d1520; --muted: #6080a8; --accent: #306BF0;
+      --safe: #00A19A; --warn: #FF8837; --danger: #F03048;
+      --ring-track: #dde8fb;
+      --backdrop: rgba(13,21,32,.35);
+      --emoji-selected-bg: rgba(48,107,240,.12);
+      --time-color: #ffffff;
     }
     html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
-    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100dvh; padding: 24px 16px 32px; }
-    #app { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 520px; }
+    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100dvh; padding: clamp(16px, 4vw, 32px) clamp(12px, 4vw, 24px); }
+    #app { display: flex; flex-direction: column; align-items: center; gap: clamp(14px, 3vw, 22px); width: min(92vw, 460px); }
 
-    /* ── INSTRUCTION ── always visible, always editable */
+    /* ── INSTRUCTION ── */
     .instruction-field {
       width: 100%;
       background: transparent;
       border: none;
-      border-bottom: 1px solid rgba(255,255,255,.1);
+      border-bottom: 1px solid var(--border);
       color: var(--text);
       font-family: 'Inter', sans-serif;
-      font-size: clamp(.95rem, 3vw, 1.15rem);
+      font-size: clamp(.85rem, 2.5vw, 1.05rem);
       font-weight: 500;
       text-align: center;
-      padding: 6px 4px;
+      padding: 5px 4px;
       outline: none;
       transition: border-color .25s;
-      letter-spacing: .01em;
     }
     .instruction-field:focus { border-color: rgba(124,106,245,.5); }
 
     /* ── RING ── */
-    #ringView { position: relative; width: min(280px, 72vw); height: min(280px, 72vw); display: none; }
+    #ringView { position: relative; width: min(56vw, 260px); height: min(56vw, 260px); display: none; }
     #ringView svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-    .r-track { fill: none; stroke: var(--surface); stroke-width: 18; }
-    .r-prog  { fill: none; stroke-width: 18; stroke-linecap: round; stroke-dasharray: 565; stroke-dashoffset: 0; transition: stroke-dashoffset .85s linear, stroke .5s; }
-    .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+    .r-track { fill: none; stroke: var(--ring-track); stroke-width: 16; }
+    .r-prog  { fill: none; stroke-width: 16; stroke-linecap: round; stroke-dasharray: 565; stroke-dashoffset: 0; transition: stroke-dashoffset .85s linear, stroke .5s; }
+    .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
 
-    /* ── BAR ── */
-    #barView { width: 100%; display: flex; flex-direction: column; gap: 0; }
-    .bar-track { width: 100%; height: 72px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; position: relative; }
-    .bar-fill { height: 100%; width: 0%; border-radius: 14px; transition: width .85s linear, background .5s; }
-    /* time shown ON the bar while running */
-    .bar-live-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+    /* ── BAR ── time always lives ON the bar ── */
+    #barView { width: 100%; }
+    .bar-track {
+      width: 100%;
+      height: clamp(56px, 14vw, 80px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: clamp(10px, 2.5vw, 14px);
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill { height: 100%; width: 0%; border-radius: inherit; transition: background .5s; }
+    /* time always centered on bar */
+    .bar-field-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
 
-    /* ── TIME EDIT (below bar / inside ring when stopped) ── */
-    .time-edit-row { display: flex; align-items: center; justify-content: center; gap: 3px; }
+    /* ── TIME EDIT ── */
+    .time-edit-row { display: flex; align-items: center; justify-content: center; gap: 2px; }
     .time-edit-row input {
       background: transparent;
       border: none;
-      border-bottom: 2px solid rgba(255,255,255,.12);
+      border-bottom: 2px solid var(--border);
       color: var(--text);
       font-family: 'Space Mono', monospace;
-      font-size: clamp(2rem, 10vw, 3.4rem);
+      font-size: clamp(1.6rem, 7.5vw, 2.8rem);
       font-weight: 700;
       width: 2.35ch;
       text-align: center;
-      padding: 2px 0 4px;
+      padding: 0 0 2px;
       outline: none;
       -moz-appearance: textfield;
       letter-spacing: -.02em;
-      transition: border-color .2s, color .2s;
       line-height: 1;
+      transition: border-color .2s, color .2s;
     }
     .time-edit-row input::-webkit-inner-spin-button,
     .time-edit-row input::-webkit-outer-spin-button { -webkit-appearance: none; }
     .time-edit-row input:focus { border-color: var(--accent); color: #fff; }
-    .time-edit-row .sep { font-family: 'Space Mono', monospace; font-size: clamp(1.8rem, 9vw, 3rem); color: var(--muted); user-select: none; line-height: 1; padding-bottom: 2px; }
+    .time-edit-row .sep { font-family: 'Space Mono', monospace; font-size: clamp(1.4rem, 6.5vw, 2.4rem); color: rgba(255,255,255,.4); user-select: none; line-height: 1; }
 
-    /* ── TIME LIVE (running display) ── */
+    /* ── TIME LIVE ── */
     .time-live {
       font-family: 'Space Mono', monospace;
-      font-size: clamp(2rem, 10vw, 3.4rem);
+      font-size: clamp(1.6rem, 7.5vw, 2.8rem);
       font-weight: 700;
       letter-spacing: -.02em;
-      color: #fff;
+      color: var(--time-color);
       line-height: 1;
       user-select: none;
+      text-shadow: 0 1px 6px rgba(0,0,0,.35), 0 0 2px rgba(0,0,0,.2);
     }
 
-    /* bar-time area below bar */
-    .bar-time-area { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 12px; min-height: 72px; justify-content: center; }
-
-    .time-sub { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); text-align: center; }
+    /* paused state dims and ambers the visuals */
+    .bar-fill.paused { background: var(--warn) !important; opacity: .7; }
+    .r-prog.paused   { stroke: var(--warn) !important; opacity: .7; }
 
     /* ── CONTROLS ── */
-    .controls { display: flex; gap: 12px; align-items: center; }
-    .btn-main { background: var(--accent); border: none; border-radius: 12px; color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 500; padding: 13px 40px; cursor: pointer; transition: opacity .2s, transform .1s; min-width: 148px; }
+    .controls { display: flex; gap: clamp(8px, 2vw, 12px); align-items: center; }
+    .btn-main { background: var(--accent); border: none; border-radius: 10px; color: #fff; font-family: 'Inter', sans-serif; font-size: clamp(.85rem, 2.5vw, 1rem); font-weight: 500; padding: clamp(10px,2.2vw,13px) clamp(24px,6vw,40px); cursor: pointer; transition: opacity .2s, transform .1s; }
     .btn-main:hover { opacity: .88; }
     .btn-main:active { transform: scale(.96); }
-    .btn-icon { background: var(--surface); border: 1px solid var(--border); border-radius: 50%; color: var(--text); width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s, border-color .2s, transform .1s; flex-shrink: 0; }
-    .btn-icon:hover { background: #2a2a3a; border-color: var(--accent); }
+    .btn-icon { background: var(--surface); border: 1px solid var(--border); border-radius: 50%; color: var(--text); width: clamp(36px,8vw,44px); height: clamp(36px,8vw,44px); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s, border-color .2s, transform .1s; flex-shrink: 0; }
+    .btn-icon:hover { background: var(--hover); border-color: var(--accent); }
     .btn-icon:active { transform: scale(.94); }
-    .btn-icon svg { width: 18px; height: 18px; }
+    .btn-icon svg { width: clamp(14px,3.5vw,18px); height: clamp(14px,3.5vw,18px); }
 
-    /* ── GEAR ── */
-    .gear-row { display: flex; justify-content: center; }
-    .gear-btn { background: none; border: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 12px; font-family: 'Inter', sans-serif; padding: 4px 8px; border-radius: 8px; transition: color .2s; }
-    .gear-btn:hover { color: var(--text); }
-    .gear-btn svg { width: 14px; height: 14px; }
+    .btn-icon.muted { color: var(--danger); border-color: var(--danger); }
+
+    /* ── OVERTIME ── */
+    @keyframes overtimePulse {
+      0%,100% { opacity: 1; }
+      50%     { opacity: .55; }
+    }
+    .bar-fill.overtime, .r-prog.overtime {
+      background: var(--danger) !important;
+      stroke: var(--danger) !important;
+      animation: overtimePulse 1s ease-in-out infinite;
+    }
+    .time-live.overtime { color: var(--danger) !important; }
+
+    .theme-pills { display: flex; gap: 6px; }
+    .theme-pill { background: var(--surface); border: 1.5px solid var(--border); border-radius: 999px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 1rem; padding: 5px 14px; cursor: pointer; transition: border-color .2s, background .2s; display: flex; align-items: center; gap: 3px; }
+    .theme-pill:hover { background: var(--hover); }
+    .theme-pill.active { border-color: var(--accent); background: var(--emoji-selected-bg); }
+    .pill-tag { font-size: .65rem; font-weight: 600; letter-spacing: .04em; color: var(--muted); line-height: 1; }
+
+    .byline { font-size: 10px; color: rgba(107,107,136,.5); text-align: center; letter-spacing: .03em; line-height: 1.6; }
+
+    /* ── INSTRUCTION MODAL ── */
+    .instr-backdrop {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--backdrop);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s;
+    }
+    .instr-backdrop.open { opacity: 1; pointer-events: auto; }
+    .instr-panel {
+      background: var(--modal);
+      border: 1px solid var(--border-modal);
+      border-radius: 18px;
+      padding: 24px;
+      display: flex; flex-direction: column; gap: 16px;
+      width: 100%; max-width: 360px;
+      transform: translateY(10px);
+      transition: transform .2s;
+    }
+    .instr-backdrop.open .instr-panel { transform: translateY(0); }
+    .emoji-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .emoji-btn {
+      background: var(--surface); border: 2px solid transparent;
+      border-radius: 10px; font-size: 1.5rem; width: 44px; height: 44px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: border-color .15s, background .15s;
+    }
+    .emoji-btn:hover { background: var(--hover); }
+    .emoji-btn.selected { border-color: var(--accent); background: var(--emoji-selected-bg); }
+    .instr-text {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: .95rem;
+      padding: 10px 14px; outline: none; resize: none;
+      transition: border-color .2s; width: 100%; min-height: 56px;
+    }
+    .instr-text:focus { border-color: var(--accent); }
+    .instr-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-ghost { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'Inter', sans-serif; font-size: .88rem; padding: 8px 16px; cursor: pointer; transition: color .2s, border-color .2s; }
+    .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+    .btn-apply { background: var(--accent); border: none; border-radius: 8px; color: #fff; font-family: 'Inter', sans-serif; font-size: .88rem; padding: 8px 16px; cursor: pointer; transition: opacity .2s; }
+    .btn-apply:hover { opacity: .88; }
+    .btn-icon.instr-active { color: var(--accent); border-color: var(--accent); }
+
+    .sound-repeat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .85rem; padding: 7px 10px; outline: none; cursor: pointer; transition: border-color .2s; }
+    .sound-repeat:focus { border-color: var(--accent); }
 
     /* ── SETTINGS MODAL ── */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 100;
-      background: rgba(0,0,0,.6);
+      background: var(--backdrop);
       display: flex; align-items: center; justify-content: center;
       padding: 20px;
       opacity: 0; pointer-events: none;
@@ -116,8 +233,8 @@
     }
     .modal-backdrop.open { opacity: 1; pointer-events: auto; }
     .settings-panel {
-      background: #1e1e2e;
-      border: 1px solid rgba(255,255,255,.1);
+      background: var(--modal);
+      border: 1px solid var(--border-modal);
       border-radius: 18px;
       padding: 24px;
       display: flex; flex-direction: column; gap: 20px;
@@ -129,7 +246,7 @@
     .modal-header { display: flex; align-items: center; justify-content: space-between; }
     .modal-title { font-size: .95rem; font-weight: 500; color: var(--text); letter-spacing: .02em; }
     .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; transition: background .2s, color .2s; }
-    .modal-close:hover { background: rgba(255,255,255,.08); color: var(--text); }
+    .modal-close:hover { background: var(--hover); color: var(--text); }
     .modal-close svg { width: 16px; height: 16px; }
     .s-section { display: flex; flex-direction: column; gap: 10px; }
     .s-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
@@ -137,7 +254,7 @@
     .seg-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 5px 16px; border-radius: 999px; font-size: 12px; font-family: 'Inter', sans-serif; transition: background .2s, color .2s; white-space: nowrap; }
     .seg-btn.active { background: var(--accent); color: #fff; }
     .presets-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .preset-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .82rem; padding: 6px 14px; cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
+    .preset-btn { background: none; border: 1px solid var(--border); border-radius: 999px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .82rem; padding: 5px 12px; cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
     .preset-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
     .s-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
     .toggle-label { display: flex; align-items: center; gap: 8px; font-size: .88rem; cursor: pointer; user-select: none; }
@@ -146,16 +263,19 @@
     .toggle.on { background: var(--accent); }
     .toggle.on::after { transform: translateX(16px); }
 
+    .sound-select { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif; font-size: .85rem; padding: 7px 10px; outline: none; cursor: pointer; width: 100%; transition: border-color .2s; }
+    .sound-select:focus { border-color: var(--accent); }
+
     @keyframes flashBg { 0%,100%{background:transparent} 50%{background:rgba(240,80,96,.16)} }
     body.expired { animation: flashBg 1s ease-in-out 4; }
-    .hint { font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+    .hint { font-size: 11px; color: var(--muted); letter-spacing: .05em; line-height: 1.7; }
   </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- Instruction — always visible, always writable -->
-  <input class="instruction-field" id="instrField" type="text" autocomplete="off" spellcheck="false" />
+  <!-- Instruction display — only shown when set -->
+  <div id="instrDisplay" style="display:none; text-align:center; font-size:clamp(.95rem,2.8vw,1.1rem); font-weight:500; color:var(--text); line-height:1.4; width:100%;"></div>
 
   <!-- RING view -->
   <div id="ringView">
@@ -165,7 +285,6 @@
     </svg>
     <div class="ring-center">
       <div id="ringTimeSlot"></div>
-      <div class="time-sub" id="ringLabel">ange tid</div>
     </div>
   </div>
 
@@ -173,33 +292,30 @@
   <div id="barView">
     <div class="bar-track">
       <div class="bar-fill" id="barFill"></div>
-      <!-- live time shown on bar while running -->
-      <div class="bar-live-overlay" id="barLiveOverlay" style="display:none">
-        <span class="time-live" id="barLiveText"></span>
-      </div>
-    </div>
-    <!-- edit / paused time shown below bar -->
-    <div class="bar-time-area" id="barTimeArea">
-      <!-- populated by JS -->
+      <!-- time field always sits on the bar -->
+      <div class="bar-field-overlay" id="barFieldOverlay"></div>
     </div>
   </div>
 
-  <!-- Controls -->
+  <!-- Controls: [reset][instr]  [▶ STARTA]  [mute][settings] -->
   <div class="controls">
     <button class="btn-icon" title="Återställ" onclick="resetTimer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
     </button>
-    <button class="btn-main" id="startBtn" onclick="toggleTimer()">▶ Starta</button>
-    <button class="btn-icon" title="Helskärm" onclick="toggleFS()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+    <button class="btn-icon" id="instrBtn" title="Instruktion" onclick="toggleInstrModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     </button>
-  </div>
+    <button class="btn-icon" id="shapeBtn" title="Byt utseende" onclick="toggleShape()">
+      <svg id="shapeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="6" rx="3"/></svg>
+    </button>
 
-  <!-- Settings gear -->
-  <div class="gear-row">
-    <button class="gear-btn" onclick="toggleSettings()">
+    <button class="btn-main" id="startBtn" onclick="toggleTimer()">▶ Starta</button>
+
+    <button class="btn-icon" id="muteBtn" title="Ljud av/på" onclick="toggleMute()">
+      <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+    </button>
+    <button class="btn-icon" title="Inställningar" onclick="toggleSettings()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      Inställningar
     </button>
   </div>
 
@@ -209,16 +325,24 @@
 
       <div class="modal-header">
         <span class="modal-title">Inställningar</span>
-        <button class="modal-close" onclick="toggleSettings()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-        </button>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button class="modal-close" title="Helskärm" onclick="toggleFS()" style="width:auto;padding:0 10px;border-radius:8px;font-size:11px;gap:5px;display:flex;align-items:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            Helskärm
+          </button>
+          <button class="modal-close" onclick="toggleSettings()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
       </div>
 
       <div class="s-section">
-        <div class="s-label">Utseende</div>
-        <div class="seg-group" style="width:fit-content">
-          <button class="seg-btn" id="btnBar"  onclick="setShape('bar')">Stapel</button>
-          <button class="seg-btn" id="btnRing" onclick="setShape('ring')">Cirkel</button>
+        <div class="s-label">Tema</div>
+        <div class="theme-pills">
+          <button class="theme-pill active" id="th-dark"     onclick="setTheme('dark')"    >🌙</button>
+          <button class="theme-pill"        id="th-light"    onclick="setTheme('light')"   >☀️</button>
+          <button class="theme-pill"        id="th-ad-dark"  onclick="setTheme('ad-dark')" >🌙<span class="pill-tag">AD</span></button>
+          <button class="theme-pill"        id="th-ad-light" onclick="setTheme('ad-light')">☀️<span class="pill-tag">AD</span></button>
         </div>
       </div>
 
@@ -236,55 +360,136 @@
       </div>
 
       <div class="s-section">
+        <div class="s-label">Ljud vid slut</div>
+        <select class="sound-select" id="soundProfile" onchange="setSoundProfile(this.value)">
+          <option value="off">Av</option>
+          <option value="tick">Tick</option>
+          <option value="bell">Klocka</option>
+          <option value="soft" selected>Mjuk</option>
+          <option value="chime">Klockspel</option>
+          <option value="fanfare">Fanfar</option>
+          <option value="school">Skolklocka</option>
+          <option value="triple">Trippelton</option>
+          <option value="tower">Klocktorn (lång)</option>
+        </select>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+          <span style="font-size:.82rem;color:var(--muted);">Upprepa</span>
+          <select class="sound-repeat" id="soundRepeat" onchange="soundRepeatCount=+this.value">
+            <option value="1">1×</option>
+            <option value="2">2×</option>
+            <option value="3">3×</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="s-section">
         <div class="s-row">
-          <label class="toggle-label" onclick="toggleSound()">
-            <button class="toggle on" id="soundTgl"></button>
-            Tickljud
-          </label>
-          <label class="toggle-label" onclick="toggleLoop()">
-            <button class="toggle" id="loopTgl"></button>
-            Loopa
+          <label class="toggle-label" onclick="toggleCountdownTick()">
+            <button class="toggle" id="tickTgl"></button>
+            Nedräkningstick (sista 10 sek)
           </label>
         </div>
       </div>
 
+      <div class="s-section">
+        <div class="s-row">
+          <label class="toggle-label" onclick="toggleLoop()">
+            <button class="toggle" id="loopTgl"></button>
+            Loopa
+          </label>
+          <label class="toggle-label" onclick="toggleOvertime()">
+            <button class="toggle" id="overtimeTgl"></button>
+            Övertid vid 00:00
+          </label>
+        </div>
+      </div>
+
+      <div class="s-section">
+        <p class="hint">Mellanslag = starta/pausa &nbsp;·&nbsp; R = återställ<br>Tidsinmatning: minuter : sekunder</p>
+      </div>
+
+      <p class="byline">Skapad av Patrick Tegnefur · Förstelärare &amp; IT-pedagog<br>Alfred Dalinskolan, Huskvarna</p>
+
     </div>
   </div>
 
-  <p class="hint">Mellanslag = starta/pausa · R = återställ · F = helskärm</p>
+  <!-- Instruction modal -->
+  <div class="instr-backdrop" id="instrBackdrop" onclick="handleInstrBackdrop(event)">
+    <div class="instr-panel">
+      <div class="modal-header">
+        <span class="modal-title">Instruktion</span>
+        <button class="modal-close" onclick="toggleInstrModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="s-section">
+        <div class="s-label">Symbol</div>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
+      <div class="s-section">
+        <div class="s-label">Text</div>
+        <textarea class="instr-text" id="instrText" rows="2" placeholder="Skriv en instruktion…"></textarea>
+      </div>
+      <div class="instr-actions">
+        <button class="btn-ghost" onclick="clearInstr()">Rensa</button>
+        <button class="btn-apply" onclick="applyInstr()">Använd</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 /* ── STATE ── */
-let totalSec = 0, elapsed = 0, running = false, ticker = null;
+let totalSec = 0, elapsed = 0, running = false, paused = false, ticker = null;
 let mode = 'down', shape = 'bar';
-let soundOn = true, loopOn = false, audioCtx = null;
+let soundProfile = 'soft', soundRepeatCount = 1, loopOn = false, muted = false, countdownTickOn = false, overtimeOn = false, inOvertime = false, audioCtx = null;
+let instrEmoji = '', instrTextVal = '';
 
 /* ── ELEMENTS ── */
-const startBtn       = document.getElementById('startBtn');
-const ringProg       = document.getElementById('ringProg');
-const ringTimeSlot   = document.getElementById('ringTimeSlot');
-const ringLabel      = document.getElementById('ringLabel');
-const barFill        = document.getElementById('barFill');
-const barLiveOverlay = document.getElementById('barLiveOverlay');
-const barLiveText    = document.getElementById('barLiveText');
-const barTimeArea    = document.getElementById('barTimeArea');
+const startBtn        = document.getElementById('startBtn');
+const ringProg        = document.getElementById('ringProg');
+const ringTimeSlot    = document.getElementById('ringTimeSlot');
+const barFill         = document.getElementById('barFill');
+const barFieldOverlay = document.getElementById('barFieldOverlay');
 
 /* ── PRESETS ── */
-const PRESETS = [1,2,3,5,10,15,20,30,45,60];
+const PRESETS = [1,2,3,5,10,15];
 const pgrid = document.getElementById('presetsGrid');
 PRESETS.forEach(m => {
   const b = document.createElement('button');
   b.className = 'preset-btn';
-  b.textContent = m < 60 ? `${m} min` : '1 tim';
+  b.textContent = `${m}m`;
   b.onclick = () => applyPreset(m * 60);
   pgrid.appendChild(b);
 });
 
+/* ── SMOOTH BAR ANIMATION ── */
+let barAnimFrom = 0, barAnimTo = 0, barAnimStart = null, barAnimFrame = null;
+
+function animateBar(fromPct, toPct, duration = 950) {
+  if (barAnimFrame) cancelAnimationFrame(barAnimFrame);
+  barAnimFrom = fromPct;
+  barAnimTo   = toPct;
+  barAnimStart = null;
+  function step(ts) {
+    if (!barAnimStart) barAnimStart = ts;
+    const t = Math.min((ts - barAnimStart) / duration, 1);
+    const cur = barAnimFrom + (barAnimTo - barAnimFrom) * t;
+    barFill.style.width = (cur * 100) + '%';
+    if (t < 1) barAnimFrame = requestAnimationFrame(step);
+  }
+  barAnimFrame = requestAnimationFrame(step);
+}
+
+function stopBarAnim() {
+  if (barAnimFrame) { cancelAnimationFrame(barAnimFrame); barAnimFrame = null; }
+}
+
 /* ── HELPERS ── */
-function fmt(s) {
+function fmt(s, over) {
   const m = Math.floor(s / 60), ss = s % 60;
-  return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+  return `${over ? '+' : ''}${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
 }
 function colorFor(pct) {
   if (pct > 0.4) return 'var(--safe)';
@@ -293,16 +498,20 @@ function colorFor(pct) {
 }
 
 /* ── EDIT FIELDS ──
-   Returns a .time-edit-row element with two inputs wired up.
-   onCommit(totalSeconds) is called when values change. */
+   Returns a wrapper with .time-edit-row + a subtle mm:ss hint.
+   Enter in minutes → focus seconds. Enter in seconds → commit + start. */
 function makeEditRow(onCommit) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;';
+
   const row = document.createElement('div');
   row.className = 'time-edit-row';
 
   const mIn = document.createElement('input');
   mIn.type = 'number'; mIn.min = 0; mIn.max = 99;
   mIn.placeholder = '00';
-  if (totalSec > 0) mIn.value = Math.floor(totalSec / 60);
+  // Always show current time (even 0:0 shows as 00:00)
+  mIn.value = String(Math.floor(totalSec / 60)).padStart(2, '0');
 
   const sep = document.createElement('span');
   sep.className = 'sep'; sep.textContent = ':';
@@ -310,102 +519,144 @@ function makeEditRow(onCommit) {
   const sIn = document.createElement('input');
   sIn.type = 'number'; sIn.min = 0; sIn.max = 59;
   sIn.placeholder = '00';
-  if (totalSec > 0) sIn.value = totalSec % 60;
+  sIn.value = String(totalSec % 60).padStart(2, '0');
 
   function commit() {
     const m = Math.max(0, Math.min(99, parseInt(mIn.value) || 0));
     const s = Math.max(0, Math.min(59, parseInt(sIn.value) || 0));
-    mIn.value = m || ''; sIn.value = s || '';
+    mIn.value = String(m).padStart(2, '0');
+    sIn.value = String(s).padStart(2, '0');
     onCommit(m * 60 + s);
   }
+
+  function addInputBehaviour(inp, max) {
+    // Select all on click/focus so user can type straight away
+    inp.addEventListener('focus', () => setTimeout(() => inp.select(), 0));
+    inp.addEventListener('mouseup', e => { e.preventDefault(); }); // prevent browser deselect on mouseup
+    // Pad to two digits on blur
+    inp.addEventListener('blur', () => {
+      const v = Math.max(0, Math.min(max, parseInt(inp.value) || 0));
+      inp.value = String(v).padStart(2, '0');
+    });
+  }
+
+  addInputBehaviour(mIn, 99);
+  addInputBehaviour(sIn, 59);
+
   mIn.addEventListener('change', commit);
   sIn.addEventListener('change', commit);
-  mIn.addEventListener('keydown', e => e.key === 'Enter' && mIn.blur());
-  sIn.addEventListener('keydown', e => e.key === 'Enter' && sIn.blur());
+
+  mIn.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); sIn.focus(); sIn.select(); }
+  });
+  sIn.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); sIn.blur(); toggleTimer(); }
+  });
+
+  // Subtle mm:ss hint label
+  const hint = document.createElement('span');
+  hint.style.cssText = 'font-size:10px;letter-spacing:.1em;color:var(--muted);opacity:.6;font-family:Inter,sans-serif;';
+  hint.textContent = 'min   :   sek';
 
   row.appendChild(mIn); row.appendChild(sep); row.appendChild(sIn);
-  return row;
+  wrap.appendChild(row);
+  return wrap;
 }
 
 /* ── RENDER ── */
 function getDisplayValues() {
-  let displayed, fillPct;
+  let displayed, fillPct, over = false;
   if (mode === 'down') {
-    displayed = Math.max(0, totalSec - elapsed);
-    fillPct   = totalSec > 0 ? displayed / totalSec : 0;
+    const remaining = totalSec - elapsed;
+    if (remaining < 0 && inOvertime) {
+      // Overtime: count up from 0, bar pulses full red
+      over = true;
+      displayed = Math.abs(remaining);
+      fillPct = 1;
+    } else {
+      displayed = Math.max(0, remaining);
+      fillPct   = totalSec > 0 ? displayed / totalSec : 0;
+    }
   } else {
     displayed = elapsed;
     fillPct   = totalSec > 0 ? Math.min(elapsed / totalSec, 1) : (elapsed > 0 ? 1 : 0);
   }
   const color = colorFor(mode === 'down' ? fillPct : 1 - fillPct);
-  return { displayed, fillPct, color };
+  return { displayed, fillPct, color, over };
 }
 
 function renderVisuals() {
-  const { displayed, fillPct, color } = getDisplayValues();
-  const str = fmt(displayed);
+  const { displayed, fillPct, color, over } = getDisplayValues();
+  const str = fmt(displayed, over);
+
+  /* Paused amber override (never during overtime) */
+  const isPaused = !running && elapsed > 0 && !over;
+  barFill.classList.toggle('paused', isPaused);
+  ringProg.classList.toggle('paused', isPaused);
+
+  /* Overtime pulsing red */
+  barFill.classList.toggle('overtime', over);
+  ringProg.classList.toggle('overtime', over);
 
   /* Ring */
   ringProg.style.strokeDashoffset = 565 * (1 - fillPct);
-  ringProg.style.stroke = color;
+  if (!isPaused && !over) ringProg.style.stroke = color;
 
-  /* Bar fill */
-  barFill.style.width = (fillPct * 100) + '%';
-  barFill.style.background = color;
-
-  /* Bar live overlay */
-  if (running) {
-    barLiveText.textContent = str;
+  /* Bar fill — animate smoothly when running, snap when stopped */
+  if (!isPaused && !over) barFill.style.background = color;
+  if (running && !over) {
+    // Animate from current displayed pct to next second's pct
+    const nextDisplayed = mode === 'down' ? Math.max(0, totalSec - elapsed - 1) : elapsed + 1;
+    const nextFillPct   = mode === 'down'
+      ? (totalSec > 0 ? nextDisplayed / totalSec : 0)
+      : (totalSec > 0 ? Math.min(nextDisplayed / totalSec, 1) : 1);
+    animateBar(fillPct, nextFillPct, 950);
+  } else {
+    stopBarAnim();
+    barFill.style.width = (fillPct * 100) + '%';
   }
 
-  /* Ring live slot */
+  /* Live text updates */
   if (running) {
-    const live = ringTimeSlot.querySelector('.time-live');
-    if (live) live.textContent = str;
+    const rl = ringTimeSlot.querySelector('.time-live');
+    if (rl) { rl.textContent = str; rl.classList.toggle('overtime', over); }
+    const bl = barFieldOverlay.querySelector('.time-live');
+    if (bl) { bl.textContent = str; bl.classList.toggle('overtime', over); }
   }
-
-  /* Label */
-  const lbl = running
-    ? (mode === 'down' ? 'kvar' : 'förfluten tid')
-    : (elapsed > 0 ? 'pausad' : '');
-  ringLabel.textContent = lbl;
-  const barSub = barTimeArea.querySelector('.time-sub');
-  if (barSub) barSub.textContent = lbl;
 }
 
-/* Rebuild the non-running (edit or paused) slots */
+/* Rebuild editable / live slots */
 function rebuildStaticSlots() {
-  /* Ring: edit row in center */
+  const dv = getDisplayValues();
+
+  /* Ring center */
   ringTimeSlot.innerHTML = '';
   if (!running) {
-    ringTimeSlot.appendChild(makeEditRow(s => { totalSec = s; elapsed = 0; renderVisuals(); }));
+    ringTimeSlot.appendChild(makeEditRow(s => { totalSec = s; elapsed = 0; inOvertime = false; renderVisuals(); }));
   } else {
     const live = document.createElement('span');
-    live.className = 'time-live';
-    live.textContent = fmt(mode === 'down' ? Math.max(0, totalSec - elapsed) : elapsed);
+    live.className = 'time-live' + (dv.over ? ' overtime' : '');
+    live.textContent = fmt(dv.displayed, dv.over);
     ringTimeSlot.appendChild(live);
   }
 
-  /* Bar: edit row OR paused display BELOW the bar */
-  barTimeArea.innerHTML = '';
+  /* Bar overlay — always on the bar */
+  barFieldOverlay.innerHTML = '';
   if (!running) {
-    barTimeArea.appendChild(makeEditRow(s => { totalSec = s; elapsed = 0; renderVisuals(); }));
-    const sub = document.createElement('div');
-    sub.className = 'time-sub';
-    sub.textContent = elapsed > 0 ? 'pausad' : '';
-    barTimeArea.appendChild(sub);
+    barFieldOverlay.appendChild(makeEditRow(s => { totalSec = s; elapsed = 0; inOvertime = false; renderVisuals(); }));
+  } else {
+    const live = document.createElement('span');
+    live.className = 'time-live' + (dv.over ? ' overtime' : '');
+    live.textContent = fmt(dv.displayed, dv.over);
+    barFieldOverlay.appendChild(live);
   }
-  /* When running, bar shows time live ON the bar (overlay), area is empty */
-
-  /* Bar live overlay visibility */
-  barLiveOverlay.style.display = running ? 'flex' : 'none';
 }
 
 /* ── TIMER ── */
 function toggleTimer() {
   ensureAudio();
   if (running) { doPause(); return; }
-  if (mode === 'down' && elapsed >= totalSec && totalSec > 0) { doReset(); return; }
+  if (mode === 'down' && elapsed >= totalSec && totalSec > 0 && !overtimeOn) { doReset(); return; }
   doStart();
 }
 
@@ -417,24 +668,37 @@ function doStart() {
   renderVisuals();
   ticker = setInterval(() => {
     elapsed++;
-    if (soundOn && mode === 'down') {
-      const rem = totalSec - elapsed;
-      if (rem <= 10 && rem > 0) beep(600, 0.06, 0.2);
+    const remaining = totalSec - elapsed;
+
+    if (mode === 'down') {
+      if (remaining >= 0) {
+        playTick(remaining);
+      }
+      if (remaining === 0 && !inOvertime) {
+        if (overtimeOn) {
+          inOvertime = true;
+          document.body.classList.add('expired');
+          document.title = '⏰ Övertid!';
+          // Play expired once (no repeat during live overtime — would be distracting)
+          playExpired();
+          // keep ticker running — overtime continues below
+        } else {
+          clearInterval(ticker); running = false;
+          startBtn.textContent = '▶ Starta';
+          expire();
+          return;
+        }
+      }
     }
+
     renderVisuals();
-    if (mode === 'down' && elapsed >= totalSec) {
-      clearInterval(ticker); running = false;
-      startBtn.textContent = '▶ Starta';
-      ringLabel.textContent = 'färdig!';
-      rebuildStaticSlots();
-      expire();
-    }
   }, 1000);
 }
 
 function doPause() {
   running = false;
   clearInterval(ticker);
+  stopBarAnim();
   startBtn.textContent = '▶ Fortsätt';
   rebuildStaticSlots();
   renderVisuals();
@@ -444,7 +708,8 @@ function doReset() {
   document.body.classList.remove('expired');
   document.title = 'Klasstimer';
   clearInterval(ticker);
-  running = false; elapsed = 0;
+  stopBarAnim();
+  running = false; elapsed = 0; inOvertime = false;
   startBtn.textContent = '▶ Starta';
   rebuildStaticSlots();
   renderVisuals();
@@ -452,19 +717,49 @@ function doReset() {
 function resetTimer() { doReset(); }
 
 function expire() {
-  playExpired();
+  // Stay at 00:00 — don't reset elapsed, just cap it
+  elapsed = totalSec;
+  inOvertime = false;
+  rebuildStaticSlots();
+  renderVisuals();
+  // Play expired sound, repeated up to soundRepeatCount times
+  function playRound(n) {
+    playExpired();
+    if (n < soundRepeatCount) {
+      // Estimate sound duration per profile and wait before repeating
+      const gaps = { tick:1.2, bell:2.0, soft:1.8, chime:2.0, fanfare:2.0, school:2.2, triple:1.8, tower:5.0 };
+      const wait = (gaps[soundProfile] || 2.0) * 1000;
+      setTimeout(() => playRound(n + 1), wait);
+    }
+  }
+  playRound(1);
   document.body.classList.add('expired');
   document.title = '⏰ Färdig!';
-  if (loopOn) setTimeout(() => { doReset(); doStart(); }, 4500);
+  if (loopOn) {
+    const gaps = { tick:1.2, bell:2.0, soft:1.8, chime:2.0, fanfare:2.0, school:2.2, triple:1.8, tower:5.0 };
+    const loopDelay = (gaps[soundProfile] || 2.0) * soundRepeatCount * 1000 + 500;
+    setTimeout(() => { doReset(); doStart(); }, loopDelay);
+  }
 }
 
 /* ── SETTINGS ── */
+function setTheme(t) {
+  document.documentElement.className = 'theme-' + t;
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('th-' + t)?.classList.add('active');
+}
+
+function toggleShape() { setShape(shape === 'bar' ? 'ring' : 'bar'); }
+
 function setShape(s) {
   shape = s;
   document.getElementById('ringView').style.display = s === 'ring' ? 'block' : 'none';
   document.getElementById('barView').style.display  = s === 'bar'  ? 'flex'  : 'none';
-  document.getElementById('btnRing').classList.toggle('active', s === 'ring');
-  document.getElementById('btnBar').classList.toggle('active',  s === 'bar');
+  // Update shape toggle button icon
+  const icon = document.getElementById('shapeIcon');
+  if (icon) icon.innerHTML = s === 'bar'
+    ? '<rect x="3" y="9" width="18" height="6" rx="3"/>'
+    : '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/>';
 }
 
 function setMode(m) {
@@ -480,26 +775,190 @@ function applyPreset(sec) {
   rebuildStaticSlots(); renderVisuals();
 }
 
+function toggleMute() {
+  muted = !muted;
+  const btn = document.getElementById('muteBtn');
+  btn.classList.toggle('muted', muted);
+  btn.title = muted ? 'Ljud av (klicka för på)' : 'Ljud av/på';
+  document.getElementById('muteIcon').innerHTML = muted
+    ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
+    : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>';
+}
 function toggleSettings() { document.getElementById('modalBackdrop').classList.toggle('open'); }
 function handleBackdropClick(e) { if (e.target === document.getElementById('modalBackdrop')) toggleSettings(); }
-function toggleSound() { soundOn = !soundOn; document.getElementById('soundTgl').classList.toggle('on', soundOn); }
-function toggleLoop()  { loopOn  = !loopOn;  document.getElementById('loopTgl').classList.toggle('on', loopOn); }
+function setSoundProfile(v) { soundProfile = v; }
+function toggleCountdownTick() { countdownTickOn = !countdownTickOn; document.getElementById('tickTgl').classList.toggle('on', countdownTickOn); }
+function toggleLoop()  { loopOn = !loopOn; document.getElementById('loopTgl').classList.toggle('on', loopOn); }
+function toggleOvertime() { overtimeOn = !overtimeOn; document.getElementById('overtimeTgl').classList.toggle('on', overtimeOn); }
+
+/* ── INSTRUCTION MODAL ── */
+const EMOJIS = ['💬','🤔','✏️','📖','🧮','👥','🔍','🎯','⏳','🧠','💡','🎲','📐','🔢','🗣️','🤫'];
+const emojiGrid = document.getElementById('emojiGrid');
+EMOJIS.forEach(e => {
+  const b = document.createElement('button');
+  b.className = 'emoji-btn'; b.textContent = e;
+  b.onclick = () => {
+    instrEmoji = instrEmoji === e ? '' : e;
+    emojiGrid.querySelectorAll('.emoji-btn').forEach(btn => btn.classList.toggle('selected', btn.textContent === instrEmoji && instrEmoji !== ''));
+  };
+  emojiGrid.appendChild(b);
+});
+
+function toggleInstrModal() {
+  document.getElementById('instrBackdrop').classList.toggle('open');
+  // Sync text field to current value when opening
+  document.getElementById('instrText').value = instrTextVal;
+  emojiGrid.querySelectorAll('.emoji-btn').forEach(btn => btn.classList.toggle('selected', btn.textContent === instrEmoji && instrEmoji !== ''));
+}
+function handleInstrBackdrop(e) { if (e.target === document.getElementById('instrBackdrop')) toggleInstrModal(); }
+
+function applyInstr() {
+  instrTextVal = document.getElementById('instrText').value.trim();
+  updateInstrDisplay();
+  toggleInstrModal();
+}
+function clearInstr() {
+  instrEmoji = ''; instrTextVal = '';
+  document.getElementById('instrText').value = '';
+  emojiGrid.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+  updateInstrDisplay();
+  toggleInstrModal();
+}
+function updateInstrDisplay() {
+  const d = document.getElementById('instrDisplay');
+  const btn = document.getElementById('instrBtn');
+  const hasContent = instrEmoji || instrTextVal;
+  d.style.display = hasContent ? 'block' : 'none';
+  d.textContent = [instrEmoji, instrTextVal].filter(Boolean).join('  ');
+  btn.classList.toggle('instr-active', !!hasContent);
+}
 
 /* ── AUDIO ── */
 function ensureAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-function beep(freq, dur, vol, delay = 0) {
+
+function tone(freq, type, dur, vol, delay = 0, detune = 0) {
   if (!audioCtx) return;
   const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = type; o.frequency.value = freq; o.detune.value = detune;
   o.connect(g); g.connect(audioCtx.destination);
-  o.frequency.value = freq;
-  g.gain.setValueAtTime(vol, audioCtx.currentTime + delay);
+  g.gain.setValueAtTime(0, audioCtx.currentTime + delay);
+  g.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + delay + 0.01);
   g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + dur);
   o.start(audioCtx.currentTime + delay);
   o.stop(audioCtx.currentTime + delay + dur + 0.02);
 }
+
+// Rich bell: fundamental + harmonics
+function bell(freq, vol, delay = 0) {
+  tone(freq,      'sine',     1.4, vol * 0.6, delay);
+  tone(freq * 2,  'sine',     0.9, vol * 0.3, delay);
+  tone(freq * 3.5,'sine',     0.5, vol * 0.15, delay);
+  tone(freq * 5,  'sine',     0.3, vol * 0.07, delay);
+}
+
+// Bright ping
+function ping(freq, vol, delay = 0) {
+  tone(freq,     'sine',  0.5, vol * 0.5, delay);
+  tone(freq * 2, 'sine',  0.3, vol * 0.25, delay);
+  tone(freq * 3, 'sine',  0.15, vol * 0.1, delay);
+}
+
+// Noise burst (school bell approximation)
+function noiseBurst(vol, delay = 0, dur = 0.08) {
+  if (!audioCtx) return;
+  const bufSize = audioCtx.sampleRate * dur;
+  const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  const g = audioCtx.createGain();
+  const f = audioCtx.createBiquadFilter();
+  f.type = 'bandpass'; f.frequency.value = 2200; f.Q.value = 1.5;
+  src.connect(f); f.connect(g); g.connect(audioCtx.destination);
+  g.gain.setValueAtTime(vol, audioCtx.currentTime + delay);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + dur);
+  src.start(audioCtx.currentTime + delay);
+  src.stop(audioCtx.currentTime + delay + dur + 0.02);
+}
+
+function playTick(rem) {
+  if (muted || !countdownTickOn) return;
+  if (rem > 10 || rem <= 0) return;
+  // Always use a soft sine tick regardless of ending profile
+  tone(520, 'sine', 0.16, 0.08);
+}
+
 function playExpired() {
   ensureAudio();
-  [0,.3,.6,.9,1.2].forEach((d,i) => beep(880 - i*60, 0.22, 0.45, d));
+  if (muted || soundProfile === 'off') return;
+
+  if (soundProfile === 'tick') {
+    // Rapid descending ticks then a final low thud
+    [0,.1,.2,.3,.4].forEach((d,i) => tone(1400 - i*100, 'square', 0.05, 0.2, d));
+    tone(220, 'square', 0.4, 0.35, 0.6);
+
+  } else if (soundProfile === 'bell') {
+    // Three warm bells, descending
+    bell(880, 0.45, 0);
+    bell(740, 0.35, 0.55);
+    bell(587, 0.28, 1.1);
+
+  } else if (soundProfile === 'soft') {
+    // Soft rising chord sweep
+    [0, 0.4, 0.8].forEach((d, i) => {
+      const freqs = [392, 523, 659];
+      tone(freqs[i], 'sine', 0.7, 0.22, d);
+    });
+
+  } else if (soundProfile === 'chime') {
+    // Pentatonic klockspel cascade
+    const notes = [523, 659, 784, 1047, 880, 659, 523];
+    notes.forEach((f, i) => bell(f, 0.3, i * 0.18));
+
+  } else if (soundProfile === 'fanfare') {
+    // Upward brass-like fanfare
+    const seq = [
+      [523, 0],   [523, 0.12], [523, 0.24],
+      [659, 0.4], [784, 0.6],  [880, 0.85],
+      [1047,1.1],
+    ];
+    seq.forEach(([f, d]) => {
+      tone(f,       'sawtooth', 0.35, 0.28, d);
+      tone(f * 1.5, 'sawtooth', 0.18, 0.12, d);
+      tone(f * 0.5, 'sine',     0.5,  0.2,  d);
+    });
+
+  } else if (soundProfile === 'school') {
+    // Pulsing noise bursts like an electric school bell
+    for (let i = 0; i < 8; i++) {
+      noiseBurst(0.6, i * 0.12, 0.09);
+      tone(1800, 'square', 0.08, 0.15, i * 0.12);
+    }
+    // brief silence then final double ring
+    noiseBurst(0.7, 1.2, 0.15);
+    noiseBurst(0.7, 1.45, 0.15);
+
+  } else if (soundProfile === 'triple') {
+    // Three clean ascending double-pings
+    [[523,659],[659,784],[784,1047]].forEach(([lo,hi], i) => {
+      ping(lo, 0.35, i * 0.45);
+      ping(hi, 0.25, i * 0.45 + 0.12);
+    });
+
+  } else if (soundProfile === 'tower') {
+    // Long cathedral-style tower bell: deep strikes with long natural decay,
+    // overlapping so the sound stays present for several seconds.
+    const strikes = [0, 1.1, 2.2, 3.3];
+    strikes.forEach((d, i) => {
+      const fundamental = 196; // low G
+      tone(fundamental,        'sine', 3.2, 0.4,  d);
+      tone(fundamental * 2.0,  'sine', 2.6, 0.22, d);
+      tone(fundamental * 2.4,  'sine', 2.2, 0.16, d);
+      tone(fundamental * 3.0,  'sine', 1.8, 0.1,  d);
+      tone(fundamental * 4.0,  'sine', 1.2, 0.06, d);
+    });
+  }
 }
 
 /* ── FS + KEYS ── */
@@ -514,9 +973,82 @@ document.addEventListener('keydown', e => {
   if (e.key === 'r' || e.key === 'R') resetTimer();
 });
 
+/* ── LOCALSTORAGE ── */
+function saveSettings() {
+  try {
+    localStorage.setItem('kt_settings', JSON.stringify({
+      theme: document.documentElement.className.replace('theme-', ''),
+      shape, mode, soundProfile, soundRepeatCount,
+      countdownTickOn, loopOn, overtimeOn, muted,
+      instrEmoji, instrTextVal
+    }));
+  } catch(e) {}
+}
+
+function loadSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem('kt_settings') || '{}');
+    if (s.theme)           setTheme(s.theme);
+    if (s.shape)           setShape(s.shape);
+    if (s.mode)            setMode(s.mode);
+    if (s.soundProfile) {
+      soundProfile = s.soundProfile;
+      document.getElementById('soundProfile').value = s.soundProfile;
+    }
+    if (s.soundRepeatCount) {
+      soundRepeatCount = s.soundRepeatCount;
+      document.getElementById('soundRepeat').value = s.soundRepeatCount;
+    }
+    if (s.countdownTickOn) { countdownTickOn = true; document.getElementById('tickTgl').classList.add('on'); }
+    if (s.loopOn)          { loopOn = true;          document.getElementById('loopTgl').classList.add('on'); }
+    if (s.overtimeOn)      { overtimeOn = true;       document.getElementById('overtimeTgl').classList.add('on'); }
+    if (s.muted)           { muted = true;            toggleMute(); }
+    if (s.instrEmoji || s.instrTextVal) {
+      instrEmoji = s.instrEmoji || '';
+      instrTextVal = s.instrTextVal || '';
+      updateInstrDisplay();
+    }
+  } catch(e) {}
+}
+
+// Patch all setting-changers to also save
+const _setTheme = setTheme;
+setTheme = t => { _setTheme(t); saveSettings(); };
+
+const _setShape = setShape;
+setShape = s => { _setShape(s); saveSettings(); };
+
+const _setMode = setMode;
+setMode = m => { _setMode(m); saveSettings(); };
+
+const _setSoundProfile = setSoundProfile;
+setSoundProfile = v => { _setSoundProfile(v); saveSettings(); };
+
+const _toggleCountdownTick = toggleCountdownTick;
+toggleCountdownTick = () => { _toggleCountdownTick(); saveSettings(); };
+
+const _toggleLoop = toggleLoop;
+toggleLoop = () => { _toggleLoop(); saveSettings(); };
+
+const _toggleOvertime = toggleOvertime;
+toggleOvertime = () => { _toggleOvertime(); saveSettings(); };
+
+const _toggleMute = toggleMute;
+toggleMute = () => { _toggleMute(); saveSettings(); };
+
+const _applyInstr = applyInstr;
+applyInstr = () => { _applyInstr(); saveSettings(); };
+
+const _clearInstr = clearInstr;
+clearInstr = () => { _clearInstr(); saveSettings(); };
+
+document.getElementById('soundRepeat').addEventListener('change', saveSettings);
+
 /* ── INIT ── */
-setShape('bar');   // bar is default
-document.getElementById('btnBar').classList.add('active');
+loadSettings();
+if (!localStorage.getItem('kt_settings')) {
+  setShape('bar');
+}
 rebuildStaticSlots();
 renderVisuals();
 </script>

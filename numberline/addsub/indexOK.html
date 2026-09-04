@@ -1360,8 +1360,8 @@ function drawUtterance() {
 const PEARL_COLORS = ['#18a348','#306BF0','#F4A261','#7c3aed','#EC6095'];
 const PEARL_Y = CH - 10;       // preset pearls near bottom
 const PEARL_R = 6;             // dot radius
-const PEARL_GAP = 10;           // gap between dots within a group
-const PEARL_GROUP_GAP = 25;    // gap between groups
+const PEARL_GAP = 7;           // gap between dots within a group
+const PEARL_GROUP_GAP = 18;    // gap between groups
 let pearlRects = [];           // [{x, y, catIdx, presetIdx}] for click-hit testing
 
 function drawPearlBand() {
@@ -2426,23 +2426,22 @@ function drawUserPearlBand() {
 // ╚══════════════════════════════════════════════════════════════╝
 const PRESET_CATS = [
   { label:'Positiva tal', cat:0, presets:[
-    {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:6,op:'+',t2:3},{t1:2,op:'+',t2:7}
+    {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:2,op:'+',t2:8},{t1:4,op:'+',t2:6}
   ]},
   { label:'Subtraktion – positivt svar', cat:1, presets:[
-    {t1:9,op:'−',t2:4},{t1:7,op:'−',t2:3},{t1:5,op:'−',t2:4}
+    {t1:8,op:'−',t2:3},{t1:9,op:'−',t2:4},{t1:7,op:'−',t2:2},{t1:10,op:'−',t2:6}
   ]},
   { label:'Via nollan / komplementerande tal', cat:2, presets:[
-    {t1:5,op:'−',t2:5},
-    {t1:5,op:'−',t2:7},{t1:6,op:'−',t2:10},{t1:4,op:'−',t2:9}
+    {t1:5,op:'−',t2:5},{t1:-6,op:'+',t2:6},
+    {t1:5,op:'−',t2:8},{t1:3,op:'−',t2:7},{t1:4,op:'−',t2:9}
   ]},
   { label:'Negativt starttal', cat:3, presets:[
-    {t1:-8,op:'+',t2:3},{t1:-8,op:'+',t2:5},{t1:-5,op:'+',t2:4},
-    {t1:-5,op:'+',t2:5},{t1:-5,op:'+',t2:8},
-    {t1:-4,op:'+',t2:4},{t1:-4,op:'+',t2:9}
+    {t1:-5,op:'+',t2:2},{t1:-3,op:'+',t2:5},{t1:-5,op:'+',t2:8},
+    {t1:-5,op:'+',t2:5},{t1:6,op:'+',t2:-6},{t1:-4,op:'+',t2:4},
+    {t1:-4,op:'−',t2:3},{t1:-2,op:'+',t2:6}
   ]},
   { label:'Teckensregeln', cat:4, presets:[
-    {t1:5,op:'+',t2:3},{t1:5,op:'+',t2:-3},{t1:5,op:'−',t2:3},{t1:5,op:'−',t2:-3},
-    {t1:-6,op:'+',t2:4},{t1:-6,op:'+',t2:-4},{t1:-6,op:'−',t2:4},{t1:-6,op:'−',t2:-4}
+    {t1:5,op:'+',t2:-3},{t1:5,op:'−',t2:-3},{t1:-5,op:'+',t2:-3},{t1:-5,op:'−',t2:-3}
   ]},
 ];
 
