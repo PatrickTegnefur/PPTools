@@ -440,7 +440,6 @@
     <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
     <!-- Row 4: kang + explain -->
     <button class="lt-btn lt-full" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
-    <button class="lt-btn lt-full" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
     <div class="lt-sep"></div>
     <!-- Row 5: explain + random + export -->
     <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
@@ -596,7 +595,6 @@
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">Space / Enter</kbd><span style="font-size:.82rem;color:var(--muted);">Animera / Nästa hopp</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">R</kbd><span style="font-size:.82rem;color:var(--muted);">Återställ</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">K</kbd><span style="font-size:.82rem;color:var(--muted);">Växla känguruhopp</span>
-        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">L</kbd><span style="font-size:.82rem;color:var(--muted);">Lås tallinje (−12 till 12)</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">+ / −</kbd><span style="font-size:.82rem;color:var(--muted);">Växla operator</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">U</kbd><span style="font-size:.82rem;color:var(--muted);">Uttalat uttryck</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">E</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj uttrycket</span>
@@ -783,7 +781,6 @@ const S = {
   revealedPositions:[],
   facingRight:false,
   isDragging:false,     // true while the robot is being dragged
-  lockRange:false,      // when true, number line is fixed at LOCKED_RANGE (-12..12), no pan/zoom animation
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -805,7 +802,6 @@ const ltBtnPlay   = document.getElementById('ltBtnPlay');
 const ltBtnReveal = document.getElementById('ltBtnReveal');
 const ltBtnSave   = document.getElementById('ltBtnSave');
 const ltBtnKang   = document.getElementById('ltBtnKang');
-const ltBtnLock   = document.getElementById('ltBtnLock');
 const ltBtnArrows = document.getElementById('ltBtnArrows');
 const ltBtnTotal  = document.getElementById('ltBtnTotal');
 const ltBtnStep   = document.getElementById('ltBtnStep');
@@ -850,11 +846,7 @@ const BOX_Y   = LINE_Y + TICK_H + 30;
 let range = {lo:-4, hi:14};
 let exprBoxRect = {x:16,y:14,w:120,h:40}; // updated each render, used for click-to-edit
 
-// Fixed window used when "Lås tallinje" is active (see S.lockRange)
-const LOCKED_RANGE = { lo:-12, hi:12 };
-
 function computeRange(t1, t2) {
-  if (S.lockRange) return { lo: LOCKED_RANGE.lo, hi: LOCKED_RANGE.hi };
   const abs2 = Math.abs(t2);
   let lo = t1 - abs2, hi = t1 + abs2;
   if (lo > 0) lo = 0;
@@ -2171,18 +2163,6 @@ ltBtnKang.addEventListener('click', () => {
   kangChk.checked = S.kangMode;
   render(1, 0);
 });
-function updateLockButton() {
-  ltBtnLock.classList.toggle('active', S.lockRange);
-}
-ltBtnLock.addEventListener('click', () => {
-  if (S.animating) return;
-  S.lockRange = !S.lockRange;
-  updateLockButton();
-  // Snap (no pan animation) to the correct window for the new mode
-  if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
-  range = computeRange(S.t1, S.t2);
-  render(1, 0);
-});
 ltBtnReveal.addEventListener('click', () => btnRevl.click());
 ltBtnSave.addEventListener('click', saveCurrentExpr);
 
@@ -3488,12 +3468,6 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
       case 'k': case 'K':
         e.preventDefault();
         S.kangMode = !S.kangMode; kangChk.checked = S.kangMode; render(1,0); break;
-      case 'l': case 'L':
-        e.preventDefault();
-        if (S.animating) break;
-        S.lockRange = !S.lockRange; updateLockButton();
-        if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
-        range = computeRange(S.t1, S.t2); render(1,0); break;
       case '+': case '=':
         e.preventDefault(); if (S.op !== '+') invertOperator(); break;
       case '-': case '_':
