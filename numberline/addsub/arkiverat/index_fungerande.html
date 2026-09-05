@@ -70,16 +70,6 @@
   .lt-btn.invert-left:hover{ background:#EC6095; color:#fff; }
   .lt-btn.utter-on{ background:#7c3aed; color:#fff; border-color:#7c3aed; }
   .lt-btn.utter-full{ background:#EC6095; color:#fff; border-color:#EC6095; }
-  .lt-group-label{
-    grid-column:1/-1; font-size:.62rem; font-weight:700; color:var(--muted);
-    text-transform:uppercase; letter-spacing:.07em; margin:2px 2px -1px;
-  }
-  /* nested "child" toggle — visually tied to the button above it (placeringsläge) */
-  .lt-btn.lt-sub{
-    grid-column:1/-1; height:26px; font-size:.78rem; opacity:.85;
-    border-style:dashed; margin-left:14px; width:calc(100% - 14px);
-  }
-  .lt-btn.lt-sub:disabled{ opacity:.32; }
 
   /* input popup — fixed, opens next to the 🔢 button */
   .input-popup{
@@ -434,42 +424,34 @@
 
   <div class="canvas-and-toolbar">
   <div class="left-toolbar">
-    <!-- Utility row: knappsats + inställningar -->
+    <!-- Row 0: tools -->
     <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
     <button class="lt-btn" id="ltBtnSettings"><span>⚙️</span><span class="lt-tip">Inställningar</span></button>
     <div class="lt-sep"></div>
-
-    <!-- UTTRYCK: allt som rör att sätta/visa/spara/bläddra i uttrycket -->
-    <div class="lt-group-label">Uttryck</div>
-    <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
-    <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
-    <button class="lt-btn" id="ltBtnPrevPreset"><span>◀</span><span class="lt-tip">Föregående uttryck</span></button>
-    <button class="lt-btn" id="ltBtnNextPreset"><span>▶</span><span class="lt-tip">Nästa uttryck</span></button>
-    <button class="lt-btn" id="ltBtnRandom"><span>🎲</span><span class="lt-tip">Slumpa uttryck</span></button>
+    <!-- Row 1: play + utterance (paired by intent) -->
+    <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
+    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
+    <!-- Row 2: reveal + save -->
+    <button class="lt-btn reveal-ready" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
     <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
     <div class="lt-sep"></div>
-
-    <!-- SVAR: köra animationen och presentera/förklara svaret -->
-    <div class="lt-group-label">Svar</div>
-    <button class="lt-btn play lt-full" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
-    <button class="lt-btn reveal-ready" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
-    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
-    <button class="lt-btn lt-full" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
-    <div class="lt-sep"></div>
-
-    <!-- LÄGEN: undervisningslägen som styr hur tallinjen beter sig/visas -->
-    <div class="lt-group-label">Lägen</div>
+    <!-- Row 3: expr toggle + invert -->
+    <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
+    <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
+    <!-- Row 4: kang + explain -->
     <button class="lt-btn lt-full" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
     <button class="lt-btn lt-full" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
     <button class="lt-btn lt-full" id="ltBtnPlacement"><span>🙈</span><span class="lt-tip">Placeringsläge (dölj roboten)</span></button>
-    <button class="lt-btn lt-sub" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Visa riktningspilen (annars bara huvud-triangeln)</span></button>
+    <button class="lt-btn lt-full" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Dölj riktningspilen (behåll bara huvud-triangeln)</span></button>
     <div class="lt-sep"></div>
-
-    <!-- VERKTYG -->
-    <div class="lt-group-label">Verktyg</div>
+    <!-- Row 5: explain + random + export -->
+    <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
+    <button class="lt-btn" id="ltBtnRandom"><span>🎲</span><span class="lt-tip">Slumpa uttryck</span></button>
     <button class="lt-btn lt-full" id="ltBtnExport"><span>📷</span><span class="lt-tip">Exportera bild</span></button>
     <div class="lt-sep"></div>
-
+    <!-- Preset navigation -->
+    <button class="lt-btn" id="ltBtnPrevPreset"><span>◀</span><span class="lt-tip">Föregående uttryck</span></button>
+    <button class="lt-btn" id="ltBtnNextPreset"><span>▶</span><span class="lt-tip">Nästa uttryck</span></button>
     <!-- hidden refs for JS compat -->
     <span style="display:none">
       <button id="ltBtnTotal"></button>
@@ -1983,12 +1965,12 @@ function chooseDirection() {
 ltBtnPlacement.addEventListener('click', () => {
   if (S.animating) return;
   S.placementMode = !S.placementMode;
+  updatePlacementButton();
   if (S.placementMode) {
     if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF = null; }
     S.needsPlacement = true;
     S.needsDirection = false;
     S.facingRight = null;
-    S.hideDirArrow = true; // standard: bara huvud-triangeln syns — kan slås på igen för extra tydlighet
     setStrip('👉 Klicka valfritt för att avslöja var roboten börjar');
   } else {
     S.needsPlacement = false;
@@ -1998,14 +1980,12 @@ ltBtnPlacement.addEventListener('click', () => {
   }
   updatePlayButton();
   render(1, 0);
-  saveSettings();
 });
 
 ltBtnHideArrow.addEventListener('click', () => {
-  if (S.animating || !S.placementMode) return;
   S.hideDirArrow = !S.hideDirArrow;
+  ltBtnHideArrow.classList.toggle('active', S.hideDirArrow);
   render(1, 0);
-  saveSettings();
 });
 
 // Update the invert button's icon (+/−) and colour to match the robot's current facing
@@ -2283,13 +2263,7 @@ function updateLeftToolbar() {
   ltBtnInvert.querySelector('span').textContent = facingRight ? '+' : '−';
 
   // Kang
-  ltBtnKang.className = 'lt-btn lt-full' + (S.kangMode ? ' kang-on' : '');
-
-  // Lås tallinje / Placeringsläge / Visa riktningspil (nästlad under placeringsläge)
-  ltBtnLock.classList.toggle('active', S.lockRange);
-  ltBtnPlacement.classList.toggle('active', S.placementMode);
-  ltBtnHideArrow.disabled = !S.placementMode;
-  ltBtnHideArrow.classList.toggle('active', S.placementMode && !S.hideDirArrow);
+  ltBtnKang.className = 'lt-btn' + (S.kangMode ? ' kang-on' : '');
 
   // Step arrows
   ltBtnArrows.className = 'lt-btn' + (S.showStepArrows ? ' active' : '');
@@ -2303,7 +2277,7 @@ function updateLeftToolbar() {
 
   // Play / Next / Reset button
   ltBtnPlay.disabled = S.animating;
-  ltBtnPlay.className = 'lt-btn lt-full';
+  ltBtnPlay.className = 'lt-btn';
   if (S.phase === 'paused') {
     ltBtnPlay.classList.add('play-next');
     ltBtnPlay.querySelector('span').textContent = '⏭';
@@ -2325,7 +2299,6 @@ function toggleExpr() {
   S.showExpr = !S.showExpr;
   syncExprButtons();
   render(1,0);
-  saveSettings();
 }
 btnToggleExpr.addEventListener('click', toggleExpr);
 btnToggleExprInline.addEventListener('click', toggleExpr);
@@ -2340,7 +2313,6 @@ ltBtnKang.addEventListener('click', () => {
   S.kangMode = !S.kangMode;
   kangChk.checked = S.kangMode;
   render(1, 0);
-  saveSettings();
 });
 function updateLockButton() {
   ltBtnLock.classList.toggle('active', S.lockRange);
@@ -2353,7 +2325,6 @@ ltBtnLock.addEventListener('click', () => {
   if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
   range = computeRange(S.t1, S.t2);
   render(1, 0);
-  saveSettings();
 });
 ltBtnReveal.addEventListener('click', () => btnRevl.click());
 ltBtnSave.addEventListener('click', saveCurrentExpr);
@@ -2376,7 +2347,6 @@ ltBtnUtter.addEventListener('click', () => {
   else if (!S.showFullUtterance) { S.showFullUtterance = true; }
   else { S.showUtterance = false; S.showFullUtterance = false; }
   updateUtteranceBtn(); render(1, 0);
-  saveSettings();
 });
 ltBtnTotal.addEventListener('click', () => {
   S.showTotal = !S.showTotal;
@@ -2394,30 +2364,25 @@ colorToggleSettings.addEventListener('change', () => {
   S.showColorNumbers = colorToggleSettings.checked;
   btnColorNumbers.classList.toggle('active', S.showColorNumbers);
   render(1,0);
-  saveSettings();
 });
 hintToggleSettings.addEventListener('change', () => {
   S.showHints = hintToggleSettings.checked;
   btnExplainToggle.classList.toggle('active', S.showHints);
-  saveSettings();
 });
 stepChainSettings.addEventListener('change', () => {
   S.showStepChain = stepChainSettings.checked;
   btnStepToggle.classList.toggle('active', S.showStepChain);
   render(1,0);
-  saveSettings();
 });
 totalSettings.addEventListener('change', () => {
   S.showTotal = totalSettings.checked;
   btnTotalToggle.classList.toggle('active', S.showTotal);
   render(1,0);
-  saveSettings();
 });
 arrowSettings.addEventListener('change', () => {
   S.showStepArrows = arrowSettings.checked;
   btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
   render(1,0);
-  saveSettings();
 });
 ltBtnPlay.addEventListener('click', () => {
   if (S.phase === 'done') { resetAll(); }
@@ -2477,7 +2442,7 @@ if (ltBtnSettings) ltBtnSettings.addEventListener('click', () => settingsModal.c
 modalClose.addEventListener('click', () => settingsModal.classList.remove('open'));
 settingsModal.addEventListener('click', e => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
 
-kangChk.addEventListener('change', () => { S.kangMode = kangChk.checked; render(1,0); saveSettings(); });
+kangChk.addEventListener('change', () => { S.kangMode = kangChk.checked; render(1,0); });
 slowChk.addEventListener('change', () => { S.slowMode = slowChk.checked; });
 btnStepArrowToggle.addEventListener('click', () => {
   S.showStepArrows = !S.showStepArrows;
@@ -2624,7 +2589,7 @@ function drawUserPearlBand() {
 // ╚══════════════════════════════════════════════════════════════╝
 const PRESET_CATS = [
   { label:'Positiva tal', cat:0, presets:[
-    {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:6,op:'+',t2:3},{t1:2,op:'+',t2:7}
+    {t1:4,op:'+',t2:3},{t1:3,op:'+',t2:4},{t1:6,op:'+',t2:3},{t1:2,op:'+',t2:7}
   ]},
   { label:'Subtraktion – positivt svar', cat:1, presets:[
     {t1:9,op:'−',t2:4},{t1:7,op:'−',t2:3},{t1:5,op:'−',t2:4}
@@ -2816,7 +2781,6 @@ speedSlider.addEventListener('input', () => {
   speedLabel.textContent = 'Hastighet: ' + SPEED_NAMES[parseInt(speedSlider.value)-1];
   S.slowMode = parseInt(speedSlider.value) <= 2;  // keep legacy compat
 });
-speedSlider.addEventListener('change', saveSettings);
 // Update animateLeg to use slider speed
 // (done via patching animateLeg below)
 
@@ -2981,7 +2945,10 @@ document.addEventListener('keydown', (e) => {
   // Skip if typing in an input
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); handlePlayClick(); }
-  if (e.key === 'h' || e.key === 'H') { S.showHints=!S.showHints; render(1,0); saveSettings(); }
+  if (e.key === 'r' || e.key === 'R') resetAll();
+  if (e.key === 'k' || e.key === 'K') { S.kangMode=!S.kangMode; kangChk.checked=S.kangMode; render(1,0); }
+  if (e.key === 'h' || e.key === 'H') { S.showHints=!S.showHints; render(1,0); }
+  if (e.key === 'e' || e.key === 'E') toggleExpr();
   if (e.key === 'Escape') {
     sidePanel.classList.remove('open');
     if (ltBtnPanel) ltBtnPanel.classList.remove('active');
@@ -3663,13 +3630,13 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
       case 'r': case 'R': e.preventDefault(); resetAll(); break;
       case 'k': case 'K':
         e.preventDefault();
-        S.kangMode = !S.kangMode; kangChk.checked = S.kangMode; render(1,0); saveSettings(); break;
+        S.kangMode = !S.kangMode; kangChk.checked = S.kangMode; render(1,0); break;
       case 'l': case 'L':
         e.preventDefault();
         if (S.animating) break;
         S.lockRange = !S.lockRange; updateLockButton();
         if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
-        range = computeRange(S.t1, S.t2); render(1,0); saveSettings(); break;
+        range = computeRange(S.t1, S.t2); render(1,0); break;
       case '+': case '=':
         e.preventDefault(); if (S.op !== '+') invertOperator(); break;
       case '-': case '_':
@@ -3679,7 +3646,7 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
         if (!S.showUtterance) { S.showUtterance=true; S.showFullUtterance=false; }
         else if (!S.showFullUtterance) { S.showFullUtterance=true; }
         else { S.showUtterance=false; S.showFullUtterance=false; }
-        updateUtteranceBtn(); render(1,0); saveSettings(); break;
+        updateUtteranceBtn(); render(1,0); break;
       case 'e': case 'E': e.preventDefault(); toggleExpr(); break;
       case 'v': case 'V': e.preventDefault(); btnRevl.click(); break;
     }
@@ -3687,58 +3654,8 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
 })();
 
 // ═══════════════════════════════════════════════════════════════════
-//  INSTÄLLNINGAR — sparas i localStorage så de finns kvar mellan sessioner
-// ═══════════════════════════════════════════════════════════════════
-const SETTINGS_KEY = 'tallinjeNegSettings_v1';
-const SETTINGS_BOOL_KEYS = [
-  'kangMode','lockRange','placementMode','hideDirArrow','showExpr',
-  'showColorNumbers','showHints','showStepChain','showTotal',
-  'showStepArrows','showUtterance','showFullUtterance',
-];
-
-function saveSettings() {
-  try {
-    const data = {};
-    SETTINGS_BOOL_KEYS.forEach(k => { data[k] = S[k]; });
-    data.speed = parseInt(speedSlider.value, 10);
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
-  } catch (e) { /* localStorage otillgängligt (privat läge m.m.) — strunta i det tyst */ }
-}
-
-function loadSettings() {
-  let saved;
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return;
-    saved = JSON.parse(raw);
-  } catch (e) { return; }
-  if (!saved || typeof saved !== 'object') return;
-  SETTINGS_BOOL_KEYS.forEach(k => { if (typeof saved[k] === 'boolean') S[k] = saved[k]; });
-  if (Number.isInteger(saved.speed) && saved.speed >= 1 && saved.speed <= 5) {
-    speedSlider.value = saved.speed;
-    speedLabel.textContent = 'Hastighet: ' + SPEED_NAMES[saved.speed - 1];
-    S.slowMode = saved.speed <= 2;
-  }
-  // needsPlacement/needsDirection är alltid tillfälliga — de ska aldrig återställas
-  S.needsPlacement = false;
-  S.needsDirection = false;
-}
-
-// Synka checkboxarna i inställningsmodalen med det som lästs in
-function syncSettingsUI() {
-  kangChk.checked = S.kangMode;
-  colorToggleSettings.checked = S.showColorNumbers;
-  hintToggleSettings.checked = S.showHints;
-  stepChainSettings.checked = S.showStepChain;
-  totalSettings.checked = S.showTotal;
-  arrowSettings.checked = S.showStepArrows;
-}
-
-// ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
-loadSettings();
-syncSettingsUI();
 loadFromURL();
 buildUserPearls();
 setExpr(5, '+', 3, false);
