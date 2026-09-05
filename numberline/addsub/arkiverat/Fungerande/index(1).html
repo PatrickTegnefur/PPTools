@@ -441,8 +441,6 @@
     <!-- Row 4: kang + explain -->
     <button class="lt-btn lt-full" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
     <button class="lt-btn lt-full" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
-    <button class="lt-btn lt-full" id="ltBtnPlacement"><span>🙈</span><span class="lt-tip">Placeringsläge (dölj roboten)</span></button>
-    <button class="lt-btn lt-full" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Dölj riktningspilen (behåll bara huvud-triangeln)</span></button>
     <div class="lt-sep"></div>
     <!-- Row 5: explain + random + export -->
     <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
@@ -786,10 +784,6 @@ const S = {
   facingRight:false,
   isDragging:false,     // true while the robot is being dragged
   lockRange:false,      // when true, number line is fixed at LOCKED_RANGE (-12..12), no pan/zoom animation
-  placementMode:false,  // when true, the robot is hidden on every new expression until manually placed + given a direction
-  needsPlacement:false, // true = robot hidden, waiting for a click on the number line to set its start position
-  needsDirection:false, // true = robot placed but facing is neutral, waiting for a click to choose left/right
-  hideDirArrow:false,   // when true (placeringsläge only), the arrow above the head is skipped — only the head triangle shows facing
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -812,8 +806,6 @@ const ltBtnReveal = document.getElementById('ltBtnReveal');
 const ltBtnSave   = document.getElementById('ltBtnSave');
 const ltBtnKang   = document.getElementById('ltBtnKang');
 const ltBtnLock   = document.getElementById('ltBtnLock');
-const ltBtnPlacement = document.getElementById('ltBtnPlacement');
-const ltBtnHideArrow = document.getElementById('ltBtnHideArrow');
 const ltBtnArrows = document.getElementById('ltBtnArrows');
 const ltBtnTotal  = document.getElementById('ltBtnTotal');
 const ltBtnStep   = document.getElementById('ltBtnStep');
@@ -1090,7 +1082,6 @@ function drawTotalArc() {
 //  DRAW — position boxes
 // ═══════════════════════════════════════════════════════════════════
 function drawPositionBoxes() {
-  if (S.placementMode && S.needsPlacement) return; // nothing revealed on the line until placed
   S.revealedPositions.forEach((pos, idx) => {
     const x=worldToX(pos);
     const label=String(pos);
@@ -1198,7 +1189,6 @@ function drawStepArrows() {
 //  DRAW — start/end dots on the arc endpoints
 // ═══════════════════════════════════════════════════════════════════
 function drawEndpointDots() {
-  if (S.placementMode && S.needsPlacement) return; // nothing revealed on the line until placed
   // start dot — always at t1
   const sx = worldToX(S.t1);
   ctx.fillStyle = C_START;
@@ -1219,7 +1209,7 @@ function drawEndpointDots() {
 // ═══════════════════════════════════════════════════════════════════
 //  DRAW — robot
 // ═══════════════════════════════════════════════════════════════════
-function drawRobot(worldX, scaleX, walkPhase, neutral) {
+function drawRobot(worldX, scaleX, walkPhase) {
   const x=worldToX(worldX), baseY=LINE_Y;
   const swing=Math.sin(walkPhase*Math.PI*2)*6;
   const bob=Math.abs(Math.sin(walkPhase*Math.PI*2))*2;
@@ -1244,20 +1234,6 @@ function drawRobot(worldX, scaleX, walkPhase, neutral) {
   ctx.fillStyle='#e8f4fd'; ctx.strokeStyle='#63b3ed'; ctx.lineWidth=2;
   roundRect(ctx,-13,-87,26,25,4); ctx.fill(); ctx.stroke();
 
-  // "Näs"-triangel på huvudet — en extra tydlig indikation på vilket håll
-  // roboten tittar, ritad i placeringsläget så fort riktningen är vald.
-  if (S.placementMode && !neutral) {
-    ctx.save();
-    ctx.fillStyle = facingRight ? '#66C7C2' : '#EC6095';
-    ctx.strokeStyle = '#1a365d';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(15,-85); ctx.lineTo(15,-59); ctx.lineTo(36,-72);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    ctx.restore();
-  }
-
   const numStr=String(Math.round(worldX));
   const fontSize=numStr.length>2?12:15;
   ctx.save();
@@ -1272,28 +1248,11 @@ function drawRobot(worldX, scaleX, walkPhase, neutral) {
   ctx.fillStyle='#EC6095'; ctx.beginPath(); ctx.arc(0,-101,4,0,Math.PI*2); ctx.fill();
 
   ctx.restore();
-  if (!(S.placementMode && S.hideDirArrow)) {
-    drawDirectionArrow(x, baseY-bob-118, neutral ? null : facingRight);
-  }
+  drawDirectionArrow(x, baseY-bob-118, facingRight);
 }
 
 function drawDirectionArrow(cx,cy,pointRight) {
   const aw=40, ah=14;
-  if (pointRight === null) {
-    // Neutral / undecided — invites a left-or-right click to choose facing
-    ctx.save(); ctx.translate(cx,cy);
-    ctx.fillStyle='#CBD5E0';
-    ctx.beginPath(); ctx.roundRect(-aw/2+8, -ah/2+3, aw-16, ah-6, 3); ctx.fill();
-    ctx.fillStyle='#A0AEC0';
-    ctx.beginPath();
-    ctx.moveTo(-aw/2-2,0); ctx.lineTo(-aw/2+10,-ah/2-3); ctx.lineTo(-aw/2+10,ah/2+3);
-    ctx.closePath(); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(aw/2+2,0); ctx.lineTo(aw/2-10,-ah/2-3); ctx.lineTo(aw/2-10,ah/2+3);
-    ctx.closePath(); ctx.fill();
-    ctx.restore();
-    return;
-  }
   const col = pointRight ? '#66C7C2' : '#EC6095';
   ctx.save(); ctx.translate(cx,cy);
   if (!pointRight) ctx.scale(-1,1);
@@ -1477,13 +1436,8 @@ function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robot
   drawPositionBoxes();
   drawStepArrows();
   drawCanvasHint();
-  if (S.placementMode && S.needsPlacement) {
-    // Robot is completely hidden — waiting for a click on the number line
-  } else {
-    const sx=robotScaleX!==undefined ? robotScaleX
-      : (S.facingRight===null ? 1 : (S.facingRight?1:-1));
-    drawRobot(S.robotPos,sx,walkPhase||0,S.needsDirection);
-  }
+  const sx=robotScaleX!==undefined ? robotScaleX : (S.facingRight?1:-1);
+  drawRobot(S.robotPos,sx,walkPhase||0);
   drawExprBox();
   drawUtterance();
   drawPearlBand();
@@ -1632,14 +1586,7 @@ function finishAnimation() {
 //  PLAY / NEXT-HOP BUTTON — single button, icon changes with phase
 // ═══════════════════════════════════════════════════════════════════
 function updatePlayButton() {
-  const awaiting = S.placementMode && (S.needsPlacement || S.needsDirection);
-  btnAnim.disabled = awaiting;
-  if (awaiting) {
-    btnAnim.textContent = '▶';
-    btnAnim.classList.remove('next');
-    btnAnim.classList.add('primary');
-    btnAnim.title = S.needsPlacement ? 'Placera roboten på tallinjen först' : 'Välj riktning på roboten först';
-  } else if (S.phase === 'paused') {
+  if (S.phase === 'paused') {
     btnAnim.textContent = '⏭';
     btnAnim.classList.remove('primary');
     btnAnim.classList.add('next');
@@ -1665,7 +1612,6 @@ function updatePlayButton() {
 }
 
 function handlePlayClick() {
-  if (S.placementMode && (S.needsPlacement || S.needsDirection)) return;
   if (S.phase === 'paused') {
     continueAnimation();
   } else if (S.phase === 'ready') {
@@ -1826,17 +1772,7 @@ function setExpr(t1, op, t2, triggerFlip) {
   updatePlayButton();
 
   const newFacing = S.op === '+';
-  if (S.placementMode) {
-    // Placeringsläge: hide the robot again and require a fresh click-to-place
-    // + click-to-choose-direction before this (new) expression can be animated.
-    if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF = null; }
-    S.needsPlacement = true;
-    S.needsDirection = false;
-    S.facingRight = null;
-    setStrip('👉 Klicka valfritt för att avslöja var roboten börjar');
-    updatePlayButton();
-    render(undefined, 0);
-  } else if (triggerFlip && oldOp !== S.op && !S.animating) {
+  if (triggerFlip && oldOp !== S.op && !S.animating) {
     animateFlip(S.facingRight, newFacing, () => { S.facingRight = newFacing; });
   } else {
     S.facingRight = newFacing;
@@ -1851,14 +1787,9 @@ function resetAll() {
   S.animating=false;
   btnAnim.disabled=false;
   dismissStepBubble();
-  // Replay current expression (robot goes back to start, no new expression) —
-  // in placeringsläge this should NOT re-trigger the hide/place/direction dance,
-  // since it's the same already-revealed expression, just rewound.
+  // Replay current expression (robot goes back to start, no new expression)
   const t1=S.t1, op=S.op, t2=S.t2;
-  const wasPlacementMode = S.placementMode;
-  S.placementMode = false;
   setExpr(t1, op, t2, false);
-  S.placementMode = wasPlacementMode;
   if (!S.showExpr) openStepBubble();
 }
 
@@ -1911,7 +1842,6 @@ function getCanvasScale() {
 //  Hit-test geometry mirrors drawRobot()/drawDirectionArrow() above.
 // ═══════════════════════════════════════════════════════════════════
 function robotHitTest(cx, cy) {
-  if (S.placementMode && S.needsPlacement) return false; // robot is hidden
   // Robot body spans roughly x:[-16,16] local, y:[-90,0] local (LINE_Y = baseline)
   const rx = worldToX(S.robotPos);
   const dx = cx - rx;
@@ -1920,7 +1850,6 @@ function robotHitTest(cx, cy) {
 }
 
 function arrowHitTest(cx, cy) {
-  if (S.placementMode && S.needsPlacement) return false; // robot is hidden
   // Arrow centre sits at (robotX, LINE_Y - 118), spans aw=40, ah=14 → generous padding
   const rx = worldToX(S.robotPos);
   const ay = LINE_Y - 118;
@@ -1928,65 +1857,6 @@ function arrowHitTest(cx, cy) {
   const dy = cy - ay;
   return dx >= -24 && dx <= 24 && dy >= -14 && dy <= 14;
 }
-
-// ═══════════════════════════════════════════════════════════════════
-//  PLACERINGSLÄGE — dölj roboten tills läraren själv klickar fram
-//  var den ska börja, och därefter vilket håll den ska titta åt.
-// ═══════════════════════════════════════════════════════════════════
-function updatePlacementButton() {
-  ltBtnPlacement.classList.toggle('active', S.placementMode);
-}
-
-// Click #1: reveal the robot at the START POSITION the loaded expression
-// already has (S.t1 was fixed the moment the expression was set/typed/preset —
-// the click is purely a "reveal" trigger and never changes t1, wherever it lands).
-function placeRobotAt() {
-  S.robotPos = S.t1;
-  S.revealedPositions = [S.t1];
-  S.needsPlacement = false;
-  S.needsDirection = true;
-  S.facingRight = null; // neutral until a direction is revealed
-  setStrip('👉 Klicka för att avslöja vilket håll roboten tittar åt');
-  updatePlayButton();
-  render(undefined, 0);
-}
-
-// Click #2: reveal which way the robot is actually facing. Same principle as
-// above — the direction follows from the expression's operator (fixed already),
-// the click is just the trigger and never flips +/− on its own.
-function chooseDirection() {
-  S.facingRight = S.op === '+';
-  S.needsDirection = false;
-  setStrip('\u00a0');
-  updatePlayButton();
-  render(undefined, 0);
-}
-
-ltBtnPlacement.addEventListener('click', () => {
-  if (S.animating) return;
-  S.placementMode = !S.placementMode;
-  updatePlacementButton();
-  if (S.placementMode) {
-    if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF = null; }
-    S.needsPlacement = true;
-    S.needsDirection = false;
-    S.facingRight = null;
-    setStrip('👉 Klicka valfritt för att avslöja var roboten börjar');
-  } else {
-    S.needsPlacement = false;
-    S.needsDirection = false;
-    S.facingRight = S.op === '+';
-    setStrip('\u00a0');
-  }
-  updatePlayButton();
-  render(1, 0);
-});
-
-ltBtnHideArrow.addEventListener('click', () => {
-  S.hideDirArrow = !S.hideDirArrow;
-  ltBtnHideArrow.classList.toggle('active', S.hideDirArrow);
-  render(1, 0);
-});
 
 // Update the invert button's icon (+/−) and colour to match the robot's current facing
 function updateInvertButton() {
@@ -1998,7 +1868,6 @@ function updateInvertButton() {
 // Flip the operator (+ ↔ −) while keeping t1/t2 as-is, triggering the robot flip
 function invertOperator() {
   if (S.animating) return;
-  if (S.placementMode) return; // direction is chosen via canvas clicks in this mode
   const newOp = S.op === '+' ? '−' : '+';
   setExpr(S.t1, newOp, S.t2, true);
 }
@@ -2113,7 +1982,6 @@ let justConfirmedExpr = false;   // swallows the document-level Enter right afte
 
 function canDragNow() {
   // Only allow dragging when not mid-animation (idle/ready/done per spec)
-  if (S.placementMode) return false; // placeringsläge: position/riktning sätts endast via klick
   return !S.animating && (S.phase === 'idle' || S.phase === 'ready' || S.phase === 'done');
 }
 
@@ -2185,21 +2053,12 @@ canvas.addEventListener('click', (e) => {
   if (cx >= exprBoxRect.x && cx <= exprBoxRect.x + exprBoxRect.w &&
       cy >= exprBoxRect.y && cy <= exprBoxRect.y + exprBoxRect.h) {
     openExprEditor();
-    return;
-  }
-  if (S.placementMode && S.needsPlacement && !S.animating) {
-    placeRobotAt();
-    return;
-  }
-  if (S.placementMode && S.needsDirection && !S.animating) {
-    chooseDirection();
-    return;
-  }
-  if (robotHitTest(cx, cy) || arrowHitTest(cx, cy)) {
+  } else if (robotHitTest(cx, cy) || arrowHitTest(cx, cy)) {
     // clicking (not dragging) the robot or arrow shouldn't also trigger play
     return;
+  } else {
+    handlePlayClick();
   }
-  handlePlayClick();
 });
 
 // Cursor feedback on hover
@@ -2208,13 +2067,11 @@ canvas.addEventListener('mousemove', (e) => {
   const { sx, sy, rect } = getCanvasScale();
   const cx = (e.clientX - rect.left) / sx;
   const cy = (e.clientY - rect.top) / sy;
-  if (cx >= exprBoxRect.x && cx <= exprBoxRect.x + exprBoxRect.w &&
-      cy >= exprBoxRect.y && cy <= exprBoxRect.y + exprBoxRect.h) {
-    canvas.style.cursor = 'text';
-  } else if (S.placementMode && (S.needsPlacement || S.needsDirection)) {
-    canvas.style.cursor = 'pointer';
-  } else if (canDragNow() && (robotHitTest(cx, cy) || arrowHitTest(cx, cy))) {
+  if (canDragNow() && (robotHitTest(cx, cy) || arrowHitTest(cx, cy))) {
     canvas.style.cursor = 'grab';
+  } else if (cx >= exprBoxRect.x && cx <= exprBoxRect.x + exprBoxRect.w &&
+             cy >= exprBoxRect.y && cy <= exprBoxRect.y + exprBoxRect.h) {
+    canvas.style.cursor = 'text';
   } else {
     canvas.style.cursor = 'default';
   }
