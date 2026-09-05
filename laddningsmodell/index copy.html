@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laddningsmodellen – Kulor i bägaren</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── PT Ljus design tokens ── */
+:root {
+  --bg:       #f6f4ff;
+  --surface:  #ffffff;
+  --surface2: #eae6ff;
+  --border:   #ccc5f0;
+  --text:     #100e28;
+  --muted:    #585078;
+  --accent:   #306BF0;
+  --accent2:  #EC6095;
+  --gradient: linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+  --correct:  #18a348;
+  --wrong:    #e02020;
+  --shadow:   rgba(48,107,240,0.12);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 2px 8px var(--shadow);
+  --shadow-md: 0 4px 20px var(--shadow);
+  /* Ball colours */
+  --pos-fill:   #dbeafe;
+  --pos-stroke: #306BF0;
+  --pos-text:   #1d4ed8;
+  --neg-fill:   #fce7f3;
+  --neg-stroke: #EC6095;
+  --neg-text:   #9d174d;
+  /* Cup interior */
+  --cup-in:   #f0eeff;
+  --cup-wall: #ccc5f0;
+  --cup-rim:  #b8b0e8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header / navbar ── */
+header {
+  background: var(--gradient);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.14);
+  position: sticky; top: 0; z-index: 100;
+}
+header .logo {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+header .logo span { opacity: 0.82; font-weight: 600; }
+header .tool-name {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.88);
+  margin-left: 4px;
+}
+header .sep { color: rgba(255,255,255,0.45); }
+
+/* ── Main layout ── */
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem 3rem;
+}
+
+/* ── Card ── */
+.card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+.card-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+  margin-bottom: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+  margin-bottom: 1rem;
+}
+.tab {
+  flex: 1; padding: 7px 6px;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.78rem; font-weight: 600;
+  border: none; border-radius: 6px;
+  cursor: pointer; background: transparent;
+  color: var(--muted); transition: all 0.16s;
+  white-space: nowrap;
+}
+.tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Text input mode ── */
+.expr-in {
+  width: 100%;
+  font-family: 'Sora', sans-serif;
+  font-size: 1.05rem; font-weight: 500;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  margin-bottom: 5px;
+}
+.expr-in:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(48,107,240,0.1); }
+.expr-in::placeholder { color: var(--muted); font-size: 0.88rem; }
+.hint {
+  font-size: 0.72rem; color: var(--muted); margin-bottom: 5px; line-height: 1.5;
+}
+.hint code { color: var(--accent); font-family: 'Sora', sans-serif; background: var(--surface2); border-radius: 4px; padding: 0 4px; }
+.feedback { font-size: 0.75rem; min-height: 1.15em; margin-bottom: 0.5rem; font-weight: 500; }
+.feedback.ok  { color: var(--correct); }
+.feedback.err { color: var(--wrong); }
+
+/* ── Teacher mode ── */
+.teacher-row {
+  display: flex; gap: 8px; align-items: stretch; margin-bottom: 6px;
+}
+.example-display {
+  flex: 1;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.1rem; font-weight: 700;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  background: var(--surface2);
+  color: var(--text);
+  min-height: 40px;
+  display: flex; align-items: center;
+}
+.example-meta {
+  font-size: 0.75rem; color: var(--muted);
+  margin-bottom: 0.6rem; line-height: 1.5; min-height: 2.2em;
+}
+
+/* ── Concept card ── */
+@keyframes fadeSlide { from{opacity:0;transform:translateY(-5px);} to{opacity:1;transform:translateY(0);} }
+.concept-card {
+  background: #fff8e6;
+  border: 1.5px solid #f4a261;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 0.9rem;
+  animation: fadeSlide 0.28s ease forwards;
+}
+.concept-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.72rem; font-weight: 700;
+  color: #b5621a;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+.concept-body { font-size: 0.8rem; color: #4a3010; line-height: 1.55; }
+
+/* ── Expr display ── */
+.expr-display {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem; font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.6rem;
+  color: var(--text);
+  letter-spacing: 0.5px;
+  min-height: 2rem;
+}
+
+/* ── Buttons ── */
+.btn-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 0.9rem; flex-wrap: wrap; }
+.btn {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.85rem; font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: none; cursor: pointer;
+  padding: 9px 18px;
+  transition: all 0.14s;
+  min-height: 44px;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; box-shadow: var(--shadow-sm); }
+.btn-primary:hover:not(:disabled) { background: #2358d4; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-primary:disabled { background: #a8bff8; cursor: default; transform: none; box-shadow: none; }
+.btn-ghost { background: var(--surface2); color: var(--muted); border: 1.5px solid var(--border); }
+.btn-ghost:hover { color: var(--text); border-color: var(--accent); }
+.btn-teacher { background: #fff8e6; color: #b5621a; border: 1.5px solid #f4a261; }
+.btn-teacher:hover { background: #fff0cc; }
+.btn-next { background: var(--correct); color: #fff; box-shadow: var(--shadow-sm); min-width: 140px; }
+.btn-next:hover:not(:disabled) { background: #14853c; transform: translateY(-1px); }
+.btn-next:disabled { background: #a8d5bb; cursor: default; transform: none; box-shadow: none; }
+
+/* ── Legend ── */
+.legend {
+  display: flex; gap: 14px; justify-content: center;
+  font-size: 0.73rem; color: var(--muted); margin-bottom: 0.85rem;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid; }
+
+/* ── Narration ── */
+.narration-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-bottom: 0.75rem; min-height: 38px;
+}
+.step-badge {
+  flex-shrink: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.7rem; font-weight: 700;
+  background: var(--surface2); color: var(--accent);
+  border: 1.5px solid var(--border);
+  border-radius: 6px; padding: 2px 8px;
+  white-space: nowrap; margin-top: 2px;
+}
+.narration { font-size: 0.82rem; color: var(--muted); line-height: 1.55; transition: opacity 0.2s; }
+
+/* ── Canvas area ── */
+.canvas-wrap {
+  position: relative; width: 100%;
+  display: flex; justify-content: center;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  padding: 6px 0 4px;
+  margin-bottom: 0.9rem;
+}
+canvas { display: block; }
+
+/* ── Result ── */
+@keyframes slideUp { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:translateY(0);} }
+.result-row {
+  display: none; align-items: center; justify-content: center; gap: 10px;
+  background: #f0fdf4; border: 1.5px solid #86efac;
+  border-radius: var(--radius-sm); padding: 10px 16px;
+}
+.result-row.show { display: flex; animation: slideUp 0.28s ease forwards; }
+.result-eq   { font-family: 'Sora', sans-serif; font-size: 0.85rem; color: var(--muted); }
+.result-val  { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--correct); }
+.result-desc { font-size: 0.73rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Tegnefurs Matte <span class="sep">·</span> <span>Laddningsmodellen</span></div>
+</header>
+
+<main>
+<div class="card">
+
+  <div class="card-title">🧪 Kulor i bägaren</div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tabText"    onclick="setTab('text')">Skriv uttryck</button>
+    <button class="tab"        id="tabTeacher" onclick="setTab('teacher')">Lärarexempel</button>
+  </div>
+
+  <!-- TEXT MODE -->
+  <div id="modeText">
+    <input class="expr-in" id="exprIn" type="text" autocomplete="off" spellcheck="false"
+           placeholder="t.ex.  7 + (-2)  eller  5 - (-3)"
+           oninput="onTextInput()" onkeydown="if(event.key==='Enter')tryStart()">
+    <div class="hint">Format: <code>7 + (-2)</code> · <code>-3 - (-5)</code> · <code>(-4) + 2</code> &nbsp;·&nbsp; tal mellan <code>-12</code> och <code>12</code></div>
+    <div class="feedback" id="feedback">&nbsp;</div>
+  </div>
+
+  <!-- TEACHER MODE -->
+  <div id="modeTeacher" style="display:none">
+    <div class="teacher-row">
+      <div class="example-display" id="exampleDisplay">—</div>
+      <button class="btn btn-teacher" onclick="pickExample()">🎲 Slumpa</button>
+    </div>
+    <div class="example-meta" id="exampleMeta">Tryck Slumpa för att välja ett exempel.</div>
+  </div>
+
+  <!-- Concept card -->
+  <div class="concept-card" id="conceptCard" style="display:none">
+    <div class="concept-title" id="conceptTitle">Nyckelbegrepp</div>
+    <div class="concept-body"  id="conceptBody"></div>
+  </div>
+
+  <!-- Expression -->
+  <div class="expr-display" id="exprDisplay">&nbsp;</div>
+
+  <!-- Buttons -->
+  <div class="btn-row">
+    <button class="btn btn-primary" id="playBtn"  onclick="tryStart()">▶ Starta</button>
+    <button class="btn btn-next"    id="nextBtn"  onclick="clickNext()" style="display:none" disabled>Nästa steg →</button>
+    <button class="btn btn-ghost"                 onclick="doReset()">↺ Återställ</button>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--pos-fill);border-color:var(--pos-stroke)"></div>
+      Positiv kula (+1)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--neg-fill);border-color:var(--neg-stroke)"></div>
+      Negativ kula (−1)
+    </div>
+  </div>
+
+  <!-- Narration -->
+  <div class="narration-row">
+    <div class="step-badge" id="stepBadge">—</div>
+    <div class="narration"  id="narration">Välj ett läge ovan och tryck Starta.</div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-wrap">
+    <canvas id="c" width="420" height="252"></canvas>
+  </div>
+
+  <!-- Result -->
+  <div class="result-row" id="resultRow">
+    <span class="result-eq"   id="resultEq"></span>
+    <span class="result-val"  id="resultVal"></span>
+    <span class="result-desc" id="resultDesc"></span>
+  </div>
+
+</div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════
+// TEACHER EXAMPLES
+// ═══════════════════════════════════════════════════
+const EXAMPLES = [
+  {
+    a:1, b:-1, op:'add',
+    meta:'Grundläget: vad händer när vi adderar ett tals "motpart"?',
+    steps:[
+      'Vi lägger <strong>1 positiv</strong> kula i bägaren.',
+      'Nu lägger vi till <strong>1 negativ</strong> kula.',
+      'En positiv och en negativ tar alltid ut varandra — de bildar <strong>0</strong>. Det är nyckelregeln!'
+    ],
+    concept:{title:'Kompletterande tal — nollparet',
+      body:'Varje tal har ett "mottal" som gör summan till noll.\n+1 och −1 är varandras mottal.\n+5 och −5 är varandras mottal.\nDetta är grunden för hur negativa tal fungerar.'}
+  },
+  {
+    a:3, b:-2, op:'add',
+    meta:'Addition med negativt tal: kulorna tar delvis ut varandra.',
+    steps:[
+      'Vi lägger <strong>3 positiva</strong> kulor i bägaren.',
+      'Vi adderar <strong>2 negativa</strong> kulor.',
+      '<strong>2 par</strong> (+1 och −1) tar ut varandra. Kvar: 1 positiv kula.'
+    ],
+    concept:{title:'Addition med negativt tal',
+      body:'3 + (−2) = 3 − 2 = 1\nAtt addera ett negativt tal är detsamma som att subtrahera dess absolutbelopp.\nVisuellt: varje nollpar försvinner — resten är svaret.'}
+  },
+  {
+    a:5, b:-5, op:'add',
+    meta:'Vad händer när talen är exakt varandras mottal?',
+    steps:[
+      'Vi lägger <strong>5 positiva</strong> kulor i bägaren.',
+      'Vi adderar <strong>5 negativa</strong> kulor.',
+      'Alla 5 par tar ut varandra! Bägaren är helt tom — resultatet är <strong>0</strong>.'
+    ],
+    concept:{title:'Mottal ger alltid 0',
+      body:'5 + (−5) = 0\nEtt tal plus sitt mottal = 0, alltid.\nDetta kallas additiv invers och är en grundläggande räkneregel.'}
+  },
+  {
+    a:2, b:-5, op:'add',
+    meta:'Negativt tal med större absolutbelopp — resultatet byter tecken!',
+    steps:[
+      'Vi lägger <strong>2 positiva</strong> kulor i bägaren.',
+      'Vi adderar <strong>5 negativa</strong> kulor.',
+      '<strong>2 par</strong> tar ut varandra. Kvar: <strong>3 negativa</strong> kulor. Resultatet är negativt!'
+    ],
+    concept:{title:'När det negativa "vinner"',
+      body:'2 + (−5) = −3\nNär absolutbeloppet hos det negativa talet är större tar de negativa kulorna överhanden.\nResultatet byter tecken jämfört med starttalet.'}
+  },
+  {
+    a:5, b:-2, op:'sub',
+    meta:'Subtraktion av negativt tal — det klassiska fallet som förvirrar elever.',
+    steps:[
+      'Vi lägger <strong>5 positiva</strong> kulor i bägaren.',
+      'Vi vill <em>ta bort</em> 2 negativa kulor — men bägaren har inga! Vi lägger in <strong>2 nollpar</strong> (varje par = +1 och −1 = 0, så värdet förändras inte).',
+      'Nu plockar vi ut de <strong>2 negativa</strong> kulorna. Kvar: 7 positiva!'
+    ],
+    concept:{title:'Varför 5 − (−2) = 7',
+      body:'Att subtrahera ett negativt tal ökar värdet.\nVi "lånar" nollor (0 = +1 + (−1)) för att ha negativa kulor att ta bort.\nNär de negativa försvinner är de positiva kvar — fler än vi startade med!'}
+  },
+  {
+    a:-3, b:-2, op:'sub',
+    meta:'Subtraktion av negativt från negativt tal.',
+    steps:[
+      'Vi lägger <strong>3 negativa</strong> kulor i bägaren.',
+      'Vi vill ta bort 2 negativa kulor — de finns redan! Vi plockar bort dem direkt.',
+      'Kvar: <strong>1 negativ</strong> kula. (−3) − (−2) = −1'
+    ],
+    concept:{title:'Subtraktion av negativt',
+      body:'(−3) − (−2) = −3 + 2 = −1\nAtt subtrahera ett negativt tal = addera absolutbeloppet.\nHär hade vi kulorna redan — ingen "noll-trick" behövdes.'}
+  },
+  {
+    a:-3, b:2, op:'add',
+    meta:'Negativ start, positiv addition.',
+    steps:[
+      'Vi lägger <strong>3 negativa</strong> kulor i bägaren.',
+      'Vi adderar <strong>2 positiva</strong> kulor.',
+      '<strong>2 par</strong> tar ut varandra. Kvar: <strong>1 negativ</strong> kula.'
+    ],
+    concept:{title:'Negativ start',
+      body:'(−3) + 2 = −1\nSamma logik, men vi startar med negativa kulor.\nDe positiva "äter upp" negativa par för par.'}
+  },
+  {
+    a:0, b:-4, op:'add',
+    meta:'Vad är 0 + negativt tal?',
+    steps:[
+      'Bägaren är tom — <strong>0 kulor</strong>.',
+      'Vi adderar <strong>4 negativa</strong> kulor.',
+      'Inga par bildas. Kvar: <strong>4 negativa</strong> kulor. 0 + (−4) = −4'
+    ],
+    concept:{title:'Noll plus negativt',
+      body:'0 + (−4) = −4\nNoll är neutralt — det förändrar ingenting.\nDetta visar att negativa tal verkligen existerar som egna storheter.'}
+  }
+];
+
+let currentExample = null;
+function pickExample(){
+  let idx;
+  do { idx = Math.floor(Math.random()*EXAMPLES.length); }
+  while(EXAMPLES.length>1 && currentExample===EXAMPLES[idx]);
+  currentExample = EXAMPLES[idx];
+  const ex = currentExample;
+  parsedA=ex.a; parsedB=ex.b; parsedOp=ex.op; parseValid=true;
+  const bD=ex.b<0?'('+ex.b+')':''+ex.b;
+  const opS=ex.op==='add'?'+':'−';
+  document.getElementById('exampleDisplay').textContent=ex.a+' '+opS+' '+bD;
+  document.getElementById('exampleMeta').textContent=ex.meta;
+  updateExprDisplay(); doReset(false);
+}
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentTab='text';
+let parsedA=null,parsedB=null,parsedOp=null,parseValid=false;
+let simRunning=false;
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+function setTab(t){
+  currentTab=t;
+  ['text','teacher'].forEach(id=>{
+    document.getElementById('tab'+id[0].toUpperCase()+id.slice(1)).classList.toggle('active',id===t);
+    document.getElementById('mode'+id[0].toUpperCase()+id.slice(1)).style.display=id===t?'':'none';
+  });
+  hideConceptCard(); doReset(false);
+  if(t==='text'){
+    document.getElementById('exprIn').value='';
+    setFeedback('',''); parseValid=false;
+    document.getElementById('exprDisplay').innerHTML='&nbsp;';
+  } else {
+    parseValid=false;
+    document.getElementById('exprDisplay').innerHTML='&nbsp;';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// TEXT PARSER
+// ═══════════════════════════════════════════════════
+function parseExpr(raw){
+  const s=raw.replace(/\u2212/g,'-').replace(/\s+/g,'');
+  if(!s) return null;
+  const pats=[
+    /^(-?\d+)([+\-])\((-?\d+)\)$/,
+    /^\((-?\d+)\)([+\-])\((-?\d+)\)$/,
+    /^\((-?\d+)\)([+\-])(\d+)$/,
+    /^(-?\d+)([+\-])(\d+)$/,
+  ];
+  for(const re of pats){
+    const m=s.match(re);
+    if(m){
+      const a=parseInt(m[1]),b=parseInt(m[3]);
+      if(isNaN(a)||isNaN(b)) return {err:'Ogiltigt tal.'};
+      if(Math.abs(a)>12||Math.abs(b)>12) return {err:'Håll talen mellan −12 och 12.'};
+      return {a,b,op:m[2]==='+'?'add':'sub'};
+    }
+  }
+  return {err:'Format: 7 + (-2) eller 5 - (-3)'};
+}
+function setFeedback(msg,type){
+  const el=document.getElementById('feedback');
+  el.className='feedback'+(type?' '+type:'');
+  el.textContent=msg||'\u00a0';
+}
+function onTextInput(){
+  const raw=document.getElementById('exprIn').value;
+  const res=parseExpr(raw);
+  if(!raw.trim()){setFeedback('','');parseValid=false;updateExprDisplay();return;}
+  if(!res||res.err){setFeedback(res?res.err:'Ogiltigt format.','err');parseValid=false;return;}
+  parsedA=res.a;parsedB=res.b;parsedOp=res.op;parseValid=true;
+  const bD=res.b<0?'('+res.b+')':''+res.b;
+  setFeedback('✓ '+res.a+' '+(res.op==='add'?'+':'−')+' '+bD,'ok');
+  updateExprDisplay();
+}
+function updateExprDisplay(){
+  const el=document.getElementById('exprDisplay');
+  if(!parseValid){el.innerHTML='&nbsp;';return;}
+  const bD=parsedB<0?'('+parsedB+')':''+parsedB;
+  el.textContent=parsedA+' '+(parsedOp==='add'?'+':'−')+' '+bD;
+}
+
+// ═══════════════════════════════════════════════════
+// CONCEPT CARD
+// ═══════════════════════════════════════════════════
+function showConceptCard(title,body){
+  document.getElementById('conceptTitle').textContent=title;
+  document.getElementById('conceptBody').innerHTML=body.replace(/\n/g,'<br>');
+  document.getElementById('conceptCard').style.display='block';
+}
+function hideConceptCard(){ document.getElementById('conceptCard').style.display='none'; }
+
+// ═══════════════════════════════════════════════════
+// CANVAS
+// ═══════════════════════════════════════════════════
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=canvas.width, H=canvas.height;
+
+// Cup geometry
+const CL=78, CR=W-78, CW=CR-CL;
+const CUP_TOP=42, CUP_BOT=H-24;
+const BALL_R=13;
+
+let balls=[],dropping=null;
+let flashMsg=null,flashAlpha=0,flashX=W/2,flashY=CUP_TOP+60;
+let queue=[],queueRunning=false;
+let rafId=null;
+let waitClickResolve=null;
+
+// Next-step button
+function clickNext(){
+  document.getElementById('nextBtn').disabled=true;
+  if(waitClickResolve){const r=waitClickResolve;waitClickResolve=null;r();}
+}
+function showNextBtn(label){
+  const btn=document.getElementById('nextBtn');
+  btn.style.display='';btn.textContent=label||'Nästa steg →';btn.disabled=false;
+}
+function hideNextBtn(){
+  const btn=document.getElementById('nextBtn');
+  btn.style.display='none';btn.disabled=true;waitClickResolve=null;
+}
+
+function startLoop(){if(!rafId)rafId=requestAnimationFrame(loop);}
+function stopLoop(){if(rafId){cancelAnimationFrame(rafId);rafId=null;}}
+
+function loop(){
+  rafId=null; physicsStep(); render();
+  if(dropping||flashAlpha>0) startLoop();
+}
+function physicsStep(){
+  if(!dropping)return;
+  dropping.vy+=0.65; dropping.y+=dropping.vy;
+  const restY=calcRestY();
+  if(dropping.y>=restY){
+    dropping.y=restY; dropping.vy=0;
+    balls.push({type:dropping.type,x:dropping.x,y:dropping.y,alpha:1});
+    dropping=null; render(); advanceQueue();
+  }
+}
+function calcRestY(){
+  const cols=Math.max(1,Math.floor(CW/(BALL_R*2+6)));
+  const row=Math.floor(balls.length/cols);
+  return CUP_BOT-BALL_R-8-row*(BALL_R*2+6);
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  const taper=8,wallW=9,rimH=6,botH=6;
+
+  // Cup interior — light lavender to stand out from page bg
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(CL,CUP_TOP); ctx.lineTo(CR,CUP_TOP);
+  ctx.lineTo(CR-taper,CUP_BOT); ctx.lineTo(CL+taper,CUP_BOT);
+  ctx.closePath();
+  ctx.fillStyle='#ede9ff'; ctx.fill();
+  ctx.restore();
+
+  // Left wall
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(CL-wallW,CUP_TOP); ctx.lineTo(CL,CUP_TOP);
+  ctx.lineTo(CL+taper,CUP_BOT); ctx.lineTo(CL-wallW+taper,CUP_BOT);
+  ctx.closePath();
+  ctx.fillStyle='#b8b0e8'; ctx.fill();
+  ctx.restore();
+
+  // Right wall
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(CR,CUP_TOP); ctx.lineTo(CR+wallW,CUP_TOP);
+  ctx.lineTo(CR+wallW-taper,CUP_BOT); ctx.lineTo(CR-taper,CUP_BOT);
+  ctx.closePath();
+  ctx.fillStyle='#ccc5f0'; ctx.fill();
+  ctx.restore();
+
+  // Bottom
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(CL+taper,CUP_BOT); ctx.lineTo(CR-taper,CUP_BOT);
+  ctx.lineTo(CR-taper,CUP_BOT+botH); ctx.lineTo(CL+taper,CUP_BOT+botH);
+  ctx.closePath();
+  ctx.fillStyle='#a9a0e0'; ctx.fill();
+  ctx.restore();
+
+  // Rim
+  ctx.save();
+  ctx.fillStyle='#9d94d8';
+  ctx.fillRect(CL-wallW,CUP_TOP-rimH,CW+wallW*2,rimH);
+  // subtle highlight
+  ctx.beginPath();
+  ctx.moveTo(CL-wallW+2,CUP_TOP-rimH+1.5);
+  ctx.lineTo(CR+wallW-2,CUP_TOP-rimH+1.5);
+  ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1;ctx.stroke();
+  ctx.restore();
+
+  // Balls
+  for(const b of balls) drawBall(b.x,b.y,b.type,b.alpha??1,b._marked);
+  if(dropping) drawBall(dropping.x,dropping.y,dropping.type,1,false);
+
+  // Flash bubble
+  if(flashMsg&&flashAlpha>0){
+    ctx.save();
+    ctx.globalAlpha=flashAlpha;
+    const pad=10,fs=12;
+    ctx.font=`600 ${fs}px 'Sora',sans-serif`;
+    const tw=ctx.measureText(flashMsg).width;
+    ctx.fillStyle='#fff8e6';
+    roundRect(ctx,flashX-tw/2-pad,flashY-fs-pad/2,tw+pad*2,fs+pad,6);
+    ctx.fill();
+    ctx.strokeStyle='#f4a261';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#b5621a';ctx.textBaseline='middle';
+    ctx.fillText(flashMsg,flashX-tw/2,flashY-1);
+    ctx.restore();
+  }
+}
+
+function drawBall(x,y,type,alpha,marked){
+  ctx.save();
+  ctx.globalAlpha=alpha;
+  ctx.translate(x,y);
+  if(marked){
+    ctx.shadowColor=type==='pos'?'#306BF0':'#EC6095';
+    ctx.shadowBlur=14;
+  }
+  ctx.beginPath();
+  ctx.arc(0,0,BALL_R,0,Math.PI*2);
+  ctx.fillStyle=type==='pos'?'#dbeafe':'#fce7f3';
+  ctx.fill();
+  ctx.strokeStyle=type==='pos'?'#306BF0':'#EC6095';
+  ctx.lineWidth=2;ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.fillStyle=type==='pos'?'#1d4ed8':'#9d174d';
+  ctx.font="600 9px 'Sora',sans-serif";
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(type==='pos'?'+1':'−1',0,0);
+  ctx.restore();
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+// ═══════════════════════════════════════════════════
+// QUEUE
+// ═══════════════════════════════════════════════════
+function enqueue(a){queue.push(a);}
+
+function advanceQueue(){
+  if(!queueRunning||queue.length===0)return;
+  const action=queue.shift();
+  if(action.type==='narrate'){
+    setNarration(action.html,action.step,action.total);
+    if(currentTab==='teacher'){
+      const isLast=queue.length>0&&queue[0].type==='done';
+      showNextBtn(isLast?'Visa resultat →':'Nästa steg →');
+      waitClickResolve=()=>advanceQueue();
+    } else { advanceQueue(); }
+  }
+  else if(action.type==='pause'){
+    setTimeout(advanceQueue,action.ms);
+  }
+  else if(action.type==='drop'){
+    const cols=Math.max(1,Math.floor(CW/(BALL_R*2+6)));
+    const col=balls.length%cols;
+    const sx=CL+BALL_R+6+col*(BALL_R*2+6)+(Math.random()-0.5)*2;
+    const x=Math.min(CR-BALL_R-4,Math.max(CL+BALL_R+4,sx));
+    dropping={type:action.ballType,x,y:CUP_TOP-BALL_R-8,vy:0};
+    startLoop();
+  }
+  else if(action.type==='flash'){
+    const posEl=balls.find(b=>b.type==='pos'&&!b._marked);
+    const negEl=balls.find(b=>b.type==='neg'&&!b._marked);
+    if(!posEl||!negEl){advanceQueue();return;}
+    posEl._marked=true;negEl._marked=true;
+    flashMsg='+1 + (−1) = 0';flashAlpha=1;
+    flashX=(posEl.x+negEl.x)/2;
+    flashY=Math.min(posEl.y,negEl.y)-32;
+    startLoop();
+    setTimeout(()=>{
+      let tick=0;
+      const fade=setInterval(()=>{
+        flashAlpha=Math.max(0,1-tick/10);tick++;
+        if(tick>10){
+          clearInterval(fade);flashMsg=null;flashAlpha=0;
+          balls=balls.filter(b=>!b._marked);
+          render();advanceQueue();
+        } else render();
+      },40);
+    },680);
+  }
+  else if(action.type==='remove'){
+    const idx=balls.findIndex(b=>b.type===action.ballType&&!b._removing);
+    if(idx===-1){advanceQueue();return;}
+    balls[idx]._removing=true;balls[idx]._marked=true;
+    let a=1;
+    const fade=setInterval(()=>{
+      a-=0.09;balls[idx].alpha=Math.max(0,a);render();
+      if(a<=0){clearInterval(fade);balls.splice(idx,1);render();advanceQueue();}
+    },28);
+  }
+  else if(action.type==='done'){
+    queueRunning=false;onDone();
+  }
+}
+
+function setNarration(html,step,total){
+  document.getElementById('stepBadge').textContent=(step&&total)?step+'/'+total:(step||'—');
+  const n=document.getElementById('narration');
+  n.style.opacity='0';
+  setTimeout(()=>{n.innerHTML=html;n.style.opacity='1';},190);
+}
+
+function onDone(){
+  hideNextBtn(); render();
+  document.getElementById('playBtn').disabled=false;
+  simRunning=false;
+  const result=parsedOp==='add'?parsedA+parsedB:parsedA-parsedB;
+  const bD=parsedB<0?'('+parsedB+')':''+parsedB;
+  const opS=parsedOp==='add'?'+':'−';
+  document.getElementById('resultEq').textContent=parsedA+' '+opS+' '+bD+' =';
+  document.getElementById('resultVal').textContent=result;
+  document.getElementById('resultDesc').textContent=
+    result===0?'noll':result>0?'positiva kulor':'negativa kulor';
+  document.getElementById('resultRow').classList.add('show');
+  setNarration('Klart! <strong>'+balls.length+'</strong> kula'+(balls.length!==1?'r':'')+' kvar i bägaren.','✓','');
+  if(currentTab==='teacher'&&currentExample?.concept)
+    showConceptCard(currentExample.concept.title,currentExample.concept.body);
+}
+
+// ═══════════════════════════════════════════════════
+// START / RESET
+// ═══════════════════════════════════════════════════
+function tryStart(){
+  if(currentTab==='text'){
+    const raw=document.getElementById('exprIn').value;
+    const res=parseExpr(raw);
+    if(!res||res.err){
+      setFeedback(res?res.err:'Skriv ett giltigt uttryck, t.ex. 7 + (-2)','err');
+      document.getElementById('exprIn').focus();return;
+    }
+    parsedA=res.a;parsedB=res.b;parsedOp=res.op;parseValid=true;
+    const bD=res.b<0?'('+res.b+')':''+res.b;
+    setFeedback('✓ '+res.a+' '+(res.op==='add'?'+':'−')+' '+bD,'ok');
+    updateExprDisplay();
+  } else {
+    if(!currentExample){document.getElementById('exampleMeta').textContent='Tryck Slumpa först!';return;}
+  }
+  startSim();
+}
+
+function startSim(){
+  if(simRunning)return;
+  simRunning=true; hideConceptCard(); hideNextBtn();
+  document.getElementById('playBtn').disabled=true;
+  document.getElementById('resultRow').classList.remove('show');
+  balls=[];dropping=null;queue=[];flashMsg=null;flashAlpha=0;render();
+
+  const a=parsedA,b=parsedB,op=parsedOp;
+  const aAbs=Math.abs(a),bAbs=Math.abs(b);
+  const aType=a>=0?'pos':'neg';
+  const bType=b>=0?'pos':'neg';
+  const hasBType=(aType===bType)?aAbs:0;
+  const rich=(currentTab==='teacher'&&currentExample);
+
+  let totalSteps=2;
+  if(op==='add'&&bAbs>0&&aType!==bType) totalSteps=3;
+  if(op==='sub'&&bAbs>hasBType) totalSteps=3;
+
+  const s1=rich?currentExample.steps[0]
+    :'Lägg <strong>'+aAbs+' '+(a>=0?'positiva':'negativa')+'</strong> kulor i bägaren.';
+  enqueue({type:'narrate',html:s1,step:1,total:totalSteps});
+  for(let i=0;i<aAbs;i++){enqueue({type:'drop',ballType:aType});enqueue({type:'pause',ms:55});}
+  enqueue({type:'pause',ms:380});
+
+  if(b===0){
+    enqueue({type:'narrate',html:'Vi '+(op==='add'?'adderar':'subtraherar')+' <strong>0</strong> — bägaren förblir oförändrad.',step:2,total:totalSteps});
+    enqueue({type:'pause',ms:700});
+  } else if(op==='add'){
+    const s2=rich?currentExample.steps[1]
+      :'Lägg till <strong>'+bAbs+' '+(b>=0?'positiva':'negativa')+'</strong> kulor.';
+    enqueue({type:'narrate',html:s2,step:2,total:totalSteps});
+    for(let i=0;i<bAbs;i++){enqueue({type:'drop',ballType:bType});enqueue({type:'pause',ms:55});}
+    enqueue({type:'pause',ms:350});
+    if(aType!==bType){
+      const cancel=Math.min(aAbs,bAbs);
+      const s3=rich?currentExample.steps[2]
+        :'<strong>'+cancel+' par</strong> (+1) och (−1) tar ut varandra — de försvinner!';
+      enqueue({type:'narrate',html:s3,step:3,total:totalSteps});
+      enqueue({type:'pause',ms:250});
+      for(let i=0;i<cancel;i++){enqueue({type:'flash'});enqueue({type:'pause',ms:80});}
+    }
+  } else {
+    if(bAbs>hasBType){
+      const s2=rich?currentExample.steps[1]
+        :'Saknar '+(bType==='neg'?'negativa':'positiva')+' kulor — lägg in <strong>'+bAbs+' nollpar</strong> (+1 och −1).';
+      enqueue({type:'narrate',html:s2,step:2,total:totalSteps});
+      for(let i=0;i<bAbs;i++){
+        enqueue({type:'drop',ballType:'pos'});enqueue({type:'pause',ms:25});
+        enqueue({type:'drop',ballType:'neg'});enqueue({type:'pause',ms:80});
+      }
+      enqueue({type:'pause',ms:350});
+      const s3=rich?currentExample.steps[2]
+        :'Ta bort <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor.';
+      enqueue({type:'narrate',html:s3,step:3,total:totalSteps});
+      enqueue({type:'pause',ms:250});
+      for(let i=0;i<bAbs;i++){enqueue({type:'remove',ballType:bType});enqueue({type:'pause',ms:75});}
+    } else {
+      const s2=rich?currentExample.steps[1]
+        :'Ta bort <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor direkt.';
+      enqueue({type:'narrate',html:s2,step:2,total:totalSteps});
+      enqueue({type:'pause',ms:350});
+      for(let i=0;i<bAbs;i++){enqueue({type:'remove',ballType:bType});enqueue({type:'pause',ms:90});}
+    }
+  }
+  enqueue({type:'done'});
+  queueRunning=true; advanceQueue();
+}
+
+function doReset(clearTab=true){
+  stopLoop();
+  balls=[];dropping=null;queue=[];queueRunning=false;simRunning=false;
+  flashMsg=null;flashAlpha=0;waitClickResolve=null;
+  hideNextBtn();
+  document.getElementById('playBtn').disabled=false;
+  document.getElementById('resultRow').classList.remove('show');
+  hideConceptCard();
+  document.getElementById('narration').innerHTML='Välj ett läge ovan och tryck Starta.';
+  document.getElementById('stepBadge').textContent='—';
+  if(clearTab){
+    document.getElementById('exprDisplay').innerHTML='&nbsp;';
+    if(currentTab==='text'){
+      document.getElementById('exprIn').value='';setFeedback('','');parseValid=false;
+    }
+    if(currentTab==='teacher'){
+      currentExample=null;parseValid=false;
+      document.getElementById('exampleDisplay').textContent='—';
+      document.getElementById('exampleMeta').textContent='Tryck Slumpa för att välja ett exempel.';
+    }
+  }
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

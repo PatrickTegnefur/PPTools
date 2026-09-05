@@ -42,14 +42,14 @@
   .toolbar-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 1px; }
 
   /* vertical left toolbar — sits beside canvas-wrap in a flex row */
-  .left-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex-shrink:0;align-content:start;}
+  .left-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex-shrink:0;align-content:start;}
   .lt-full{grid-column:1/-1;}
-  .lt-sep{grid-column:1/-1;width:100%;height:1.5px;background:var(--border);margin:2px 0;}
+  .lt-sep{grid-column:1/-1;width:100%;height:1.5px;background:var(--border);margin:1px 0;}
   .canvas-and-toolbar{display:flex;flex-direction:row;gap:8px;align-items:flex-start;}
   .lt-btn{
-    width:42px; height:42px; border-radius:11px;
+    width:38px; height:38px; border-radius:10px;
     border:1.5px solid var(--border); background:rgba(255,255,255,.94);
-    color:var(--muted); font-size:.95rem; font-weight:700; cursor:pointer;
+    color:var(--muted); font-size:.86rem; font-weight:700; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     transition:all .15s; backdrop-filter:blur(2px); position:relative;
   }
@@ -63,7 +63,9 @@
   .lt-btn.reveal-dim{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
   .lt-btn.kang-on{ background:#F4A261 !important; color:#fff !important; border-color:#F4A261 !important; }
   .lt-btn.kang-on:hover{ background:#e8954a !important; }
-  .lt-sep{ width:100%; height:1.5px; background:var(--border); margin:4px 0; }
+  .lt-btn.nav-preset{ background:#EAFBF8; border-color:#5EEAD4; color:#0D9488; }
+  .lt-btn.nav-preset:hover{ background:#CFF5EF; border-color:#0D9488; color:#0D9488; }
+  .lt-sep{ width:100%; height:1.5px; background:var(--border); margin:3px 0; }
   .lt-btn.invert-right{ color:#66C7C2; border-color:#66C7C2; }
   .lt-btn.invert-right:hover{ background:#66C7C2; color:#fff; }
   .lt-btn.invert-left{ color:#EC6095; border-color:#EC6095; }
@@ -443,31 +445,32 @@
     <div class="lt-group-label">Uttryck</div>
     <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
     <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
-    <button class="lt-btn" id="ltBtnPrevPreset"><span>◀</span><span class="lt-tip">Föregående uttryck</span></button>
-    <button class="lt-btn" id="ltBtnNextPreset"><span>▶</span><span class="lt-tip">Nästa uttryck</span></button>
+    <button class="lt-btn nav-preset" id="ltBtnPrevPreset"><span>◀</span><span class="lt-tip">Föregående uttryck</span></button>
+    <button class="lt-btn nav-preset" id="ltBtnNextPreset"><span>▶</span><span class="lt-tip">Nästa uttryck</span></button>
     <button class="lt-btn" id="ltBtnRandom"><span>🎲</span><span class="lt-tip">Slumpa uttryck</span></button>
     <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
     <div class="lt-sep"></div>
 
-    <!-- SVAR: köra animationen och presentera/förklara svaret -->
+    <!-- SVAR: köra animationen och presentera svaret -->
     <div class="lt-group-label">Svar</div>
-    <button class="lt-btn play lt-full" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
+    <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
     <button class="lt-btn reveal-ready" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
     <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
-    <button class="lt-btn lt-full" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
+    <button class="lt-btn" id="ltBtnColorNumbers"><span>🎨</span><span class="lt-tip">Färgkoda tal (positiva/negativa)</span></button>
     <div class="lt-sep"></div>
 
     <!-- LÄGEN: undervisningslägen som styr hur tallinjen beter sig/visas -->
     <div class="lt-group-label">Lägen</div>
-    <button class="lt-btn lt-full" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
-    <button class="lt-btn lt-full" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
-    <button class="lt-btn lt-full" id="ltBtnPlacement"><span>🙈</span><span class="lt-tip">Placeringsläge (dölj roboten)</span></button>
-    <button class="lt-btn lt-sub" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Visa riktningspilen (annars bara huvud-triangeln)</span></button>
+    <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
+    <button class="lt-btn" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
+    <button class="lt-btn" id="ltBtnPlacement"><span>🙈</span><span class="lt-tip">Placeringsläge (dölj roboten)</span></button>
+    <button class="lt-btn" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Visa riktningspilen (annars bara huvud-triangeln)</span></button>
     <div class="lt-sep"></div>
 
     <!-- VERKTYG -->
     <div class="lt-group-label">Verktyg</div>
-    <button class="lt-btn lt-full" id="ltBtnExport"><span>📷</span><span class="lt-tip">Exportera bild</span></button>
+    <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
+    <button class="lt-btn" id="ltBtnExport"><span>📷</span><span class="lt-tip">Exportera bild</span></button>
     <div class="lt-sep"></div>
 
     <!-- hidden refs for JS compat -->
@@ -831,6 +834,7 @@ const ltBtnSave   = document.getElementById('ltBtnSave');
 const ltBtnKang   = document.getElementById('ltBtnKang');
 const ltBtnLock   = document.getElementById('ltBtnLock');
 const ltBtnPlacement = document.getElementById('ltBtnPlacement');
+const ltBtnColorNumbers = document.getElementById('ltBtnColorNumbers');
 const ltBtnHideArrow = document.getElementById('ltBtnHideArrow');
 const ltBtnArrows = document.getElementById('ltBtnArrows');
 const ltBtnTotal  = document.getElementById('ltBtnTotal');
@@ -1637,13 +1641,13 @@ function continueAnimation() {
 
 function finishAnimation() {
   S.animating=false; S.phase='done';
-  S.revealStep=0;
+  S.revealStep=2;   // svaret visas nu automatiskt så fort animationen är klar
   S.canvasHint='';
   btnAnim.disabled=false;
   btnRevl.style.display='';
   updatePlayButton();
   render(1,0);
-  setStrip('\u00a0');   // no text needed at goal, per spec
+  setStrip(`Svaret är ${S.answer}.`);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -2283,13 +2287,14 @@ function updateLeftToolbar() {
   ltBtnInvert.querySelector('span').textContent = facingRight ? '+' : '−';
 
   // Kang
-  ltBtnKang.className = 'lt-btn lt-full' + (S.kangMode ? ' kang-on' : '');
+  ltBtnKang.className = 'lt-btn' + (S.kangMode ? ' kang-on' : '');
 
-  // Lås tallinje / Placeringsläge / Visa riktningspil (nästlad under placeringsläge)
+  // Lås tallinje / Placeringsläge / Visa riktningspil / Färgkoda tal
   ltBtnLock.classList.toggle('active', S.lockRange);
   ltBtnPlacement.classList.toggle('active', S.placementMode);
   ltBtnHideArrow.disabled = !S.placementMode;
   ltBtnHideArrow.classList.toggle('active', S.placementMode && !S.hideDirArrow);
+  ltBtnColorNumbers.classList.toggle('active', S.showColorNumbers);
 
   // Step arrows
   ltBtnArrows.className = 'lt-btn' + (S.showStepArrows ? ' active' : '');
@@ -2303,7 +2308,7 @@ function updateLeftToolbar() {
 
   // Play / Next / Reset button
   ltBtnPlay.disabled = S.animating;
-  ltBtnPlay.className = 'lt-btn lt-full';
+  ltBtnPlay.className = 'lt-btn';
   if (S.phase === 'paused') {
     ltBtnPlay.classList.add('play-next');
     ltBtnPlay.querySelector('span').textContent = '⏭';
@@ -2318,8 +2323,8 @@ function updateLeftToolbar() {
     ltBtnPlay.querySelector('.lt-tip').textContent = 'Animera';
   }
 
-  // Reveal button — always visible, enabled only when done
-  ltBtnReveal.disabled = (S.phase !== 'done');
+  // Reveal button — alltid klickbar (går bra att visa svaret innan man animerar)
+  ltBtnReveal.disabled = false;
 }
 function toggleExpr() {
   S.showExpr = !S.showExpr;
@@ -2442,7 +2447,16 @@ btnExplainToggle.addEventListener('click', () => {
 btnColorNumbers.addEventListener('click', () => {
   S.showColorNumbers = !S.showColorNumbers;
   btnColorNumbers.classList.toggle('active', S.showColorNumbers);
+  colorToggleSettings.checked = S.showColorNumbers;
   render(1, 0);
+  saveSettings();
+});
+ltBtnColorNumbers.addEventListener('click', () => {
+  S.showColorNumbers = !S.showColorNumbers;
+  btnColorNumbers.classList.toggle('active', S.showColorNumbers);
+  colorToggleSettings.checked = S.showColorNumbers;
+  render(1, 0);
+  saveSettings();
 });
 function updateUtteranceBtn() {
   btnUtterance.className = 'ibtn';
@@ -2997,9 +3011,8 @@ const ltBtnExplain = document.getElementById('ltBtnExplain');
 const ltBtnRandom  = document.getElementById('ltBtnRandom');
 const ltBtnExport  = document.getElementById('ltBtnExport');
 
-ltBtnExplain.addEventListener('click', () => {
-  // Trigger same popup as btnExplainSteps
-  const fake = {getBoundingClientRect: () => ltBtnExplain.getBoundingClientRect()};
+ltBtnExplain.addEventListener('click', (e) => {
+  e.stopPropagation(); // annars stänger dokumentets "klick utanför"-lyssnare popupen direkt igen
   toggleExplainPopup();
   // Reposition to open next to ltBtnExplain
   const r = ltBtnExplain.getBoundingClientRect();

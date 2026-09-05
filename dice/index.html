@@ -95,6 +95,19 @@
     html[data-theme="dark"] #scene1 .face-value { color: var(--die1-ink); }
     html[data-theme="dark"] #scene2 .face-value { color: var(--die2-ink); }
 
+    /* ── Mynt: samma ljus/mörk-logik som tärningarna, återanvänder
+       front/back-kulörerna som "krona"/"klave"-sidor. ── */
+    #coinScene1 .coin-face.heads { background: #f17ba6; }
+    #coinScene1 .coin-face.tails { background: #c04a79; }
+    #coinScene2 .coin-face.heads { background: #85d4cf; }
+    #coinScene2 .coin-face.tails { background: #479c98; }
+    .coin-label { color: #ffffff; }
+
+    html[data-theme="dark"] .coin-face.heads { background: #ffffff; }
+    html[data-theme="dark"] .coin-face.tails { background: #f5f3ff; }
+    html[data-theme="dark"] #coinScene1 .coin-label { color: var(--die1-ink); }
+    html[data-theme="dark"] #coinScene2 .coin-label { color: var(--die2-ink); }
+
     body {
       font-family: 'Montserrat', sans-serif;
       background: var(--bg);
@@ -151,9 +164,6 @@
       max-width: 860px;
     }
 
-    /* Vertikal rad med diskreta ikonknappar: inställningar, kasta, historik, frekvens.
-       Var och en har sin egen flytande popover (position: absolute) så att
-       öppning/stängning aldrig trycker på tärningarnas layout. */
     .toolbar {
       display: flex;
       flex-direction: column;
@@ -198,8 +208,6 @@
     #historyPanel .panel-body { width: 190px; }
     #freqPanel .panel-body { width: 270px; }
 
-    /* Den runda "kasta"-knappen — medvetet liten, tärningarna gör jobbet
-       med att förklara sig själva, knappen är bara en snabb genväg. */
     .roll-icon-btn {
       width: 38px; height: 38px;
       border-radius: 50%;
@@ -263,10 +271,10 @@
 
     .history { display: flex; gap: 6px; flex-wrap: wrap; }
     .hist-chip {
-      min-width: 30px; height: 30px; padding: 0 5px; border-radius: var(--radius-sm);
+      min-width: 30px; height: 30px; padding: 0 6px; border-radius: var(--radius-sm);
       background: var(--surface2); border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Montserrat', sans-serif; font-size: .88rem; font-weight: 800; color: var(--accent);
+      font-family: 'Montserrat', sans-serif; font-size: .82rem; font-weight: 800; color: var(--accent);
       animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
     }
     @keyframes popIn { from { transform:scale(0);opacity:0; } to { transform:scale(1);opacity:1; } }
@@ -300,7 +308,7 @@
       max-height: 220px; overflow-y: auto; padding-right: 2px;
     }
     .freq-row { display: flex; align-items: center; gap: 8px; }
-    .freq-label { width: 22px; font-size: .78rem; font-weight: 700; color: var(--muted); text-align: right; }
+    .freq-label { min-width: 46px; font-size: .74rem; font-weight: 700; color: var(--muted); text-align: right; }
     .freq-track {
       flex: 1; height: 14px; border-radius: 7px;
       background: var(--surface2); border: 1px solid var(--border);
@@ -309,7 +317,7 @@
     .freq-fill { height: 100%; background: var(--accent); border-radius: 7px; min-width: 2px; transition: width .3s; }
     .freq-count { width: 62px; font-size: .72rem; color: var(--muted); }
 
-    /* ─── Scen (bara tärningarna — inga siffror runtomkring) ─── */
+    /* ─── Scen (bara tärningarna/mynten — inga siffror runtomkring) ─── */
     .stage {
       flex: 1;
       min-width: 280px;
@@ -318,7 +326,7 @@
       align-items: center;
     }
 
-    .dice-row { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+    .mode-group { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
 
     .scene {
       width: calc(var(--die-size) + 24px);
@@ -329,8 +337,8 @@
     }
     .scene.die-hidden { display: none; }
     .scene.die-rolling { cursor: not-allowed; }
-    #scene1 { filter: drop-shadow(0 16px 32px var(--die1-shadow)); }
-    #scene2 { filter: drop-shadow(0 16px 32px var(--die2-shadow)); }
+    #scene1, #coinScene1 { filter: drop-shadow(0 16px 32px var(--die1-shadow)); }
+    #scene2, #coinScene2 { filter: drop-shadow(0 16px 32px var(--die2-shadow)); }
 
     .cube {
       width: var(--die-size);
@@ -370,6 +378,39 @@
     }
     .face-value.two-digit { font-size: calc(var(--die-size) * 0.24); }
 
+    /* ── Mynt: platt rund "flip"-skiva, roterar runt Y-axeln.
+       Ser realistiskt ut eftersom skivan blir kant-tunn (nästan osynlig)
+       mitt i rotationen — precis som ett riktigt snurrande mynt. ── */
+    .coin {
+      width: var(--die-size);
+      height: var(--die-size);
+      margin: 12px;
+      position: relative;
+      transform-style: preserve-3d;
+      border-radius: 50%;
+    }
+    .coin-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      box-shadow: inset 0 0 0 6px rgba(255,255,255,.15);
+    }
+    .coin-face.heads { transform: translateZ(.5px); }
+    .coin-face.tails { transform: rotateY(180deg) translateZ(.5px); }
+    .coin-label {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: calc(var(--die-size) * 0.15);
+      letter-spacing: .04em;
+      user-select: none;
+    }
+
     @keyframes suspenseGlow1 {
       from { filter: drop-shadow(0 0 2px var(--die1-shadow)); }
       to   { filter: drop-shadow(0 0 22px var(--die1-glow)); }
@@ -378,11 +419,11 @@
       from { filter: drop-shadow(0 0 2px var(--die2-shadow)); }
       to   { filter: drop-shadow(0 0 22px var(--die2-glow)); }
     }
-    #scene1.suspense-rolling { animation: suspenseGlow1 .55s ease-in-out infinite alternate; }
-    #scene2.suspense-rolling { animation: suspenseGlow2 .55s ease-in-out infinite alternate; }
+    #scene1.suspense-rolling, #coinScene1.suspense-rolling { animation: suspenseGlow1 .55s ease-in-out infinite alternate; }
+    #scene2.suspense-rolling, #coinScene2.suspense-rolling { animation: suspenseGlow2 .55s ease-in-out infinite alternate; }
 
     @media (prefers-reduced-motion: reduce) {
-      .cube, .scene { transition: none !important; animation: none !important; }
+      .cube, .coin, .scene { transition: none !important; animation: none !important; }
     }
   </style>
 </head>
@@ -403,6 +444,18 @@
         <summary title="Inställningar" aria-label="Öppna inställningar">⚙️</summary>
         <div class="panel-body">
           <div class="control-group">
+            <span class="control-label">Läge</span>
+            <div class="toggle-wrap">
+              <span id="labelModeDice" class="active">🎲 Tärning</span>
+              <label class="toggle">
+                <input type="checkbox" id="modeToggle" onchange="updateMode(); saveSettings();">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              </label>
+              <span id="labelModeCoin">🪙 Slant</span>
+            </div>
+          </div>
+
+          <div class="control-group" id="sidesGroup">
             <span class="control-label">Antal sidor</span>
             <select id="sidesSelect" onchange="onSidesChange(); saveSettings();">
               <option value="4">4 sidor</option>
@@ -417,7 +470,7 @@
           </div>
 
           <div class="control-group">
-            <span class="control-label">Antal tärningar</span>
+            <span class="control-label" id="countLabel">Antal tärningar</span>
             <div class="toggle-wrap">
               <span id="labelOneDie" class="active">1</span>
               <label class="toggle">
@@ -485,12 +538,20 @@
     </div>
 
     <div class="stage">
-      <div class="dice-row" id="diceRow">
+      <div class="mode-group" id="diceGroup">
         <div class="scene" id="scene1" onclick="rollDie(0)" title="Slå tärning 1">
           <div class="cube" id="cube1"></div>
         </div>
         <div class="scene die-hidden" id="scene2" onclick="rollDie(1)" title="Slå tärning 2">
           <div class="cube" id="cube2"></div>
+        </div>
+      </div>
+      <div class="mode-group" id="coinGroup" style="display:none;">
+        <div class="scene" id="coinScene1" onclick="rollCoin(0)" title="Singla mynt 1">
+          <div class="coin" id="coin1"></div>
+        </div>
+        <div class="scene die-hidden" id="coinScene2" onclick="rollCoin(1)" title="Singla mynt 2">
+          <div class="coin" id="coin2"></div>
         </div>
       </div>
     </div>
@@ -521,6 +582,20 @@ function buildCube(cubeEl) {
   });
   return faceEls;
 }
+function buildCoin(coinEl) {
+  const faceEls = {};
+  [['heads', 'KRONA'], ['tails', 'KLAVE']].forEach(([cls, label]) => {
+    const face = document.createElement('div');
+    face.className = 'coin-face ' + cls;
+    const val = document.createElement('div');
+    val.className = 'coin-label';
+    val.textContent = label;
+    face.appendChild(val);
+    coinEl.appendChild(face);
+    faceEls[cls] = face;
+  });
+  return faceEls;
+}
 
 const dice = [
   { scene: document.getElementById('scene1'), cube: document.getElementById('cube1'), rolling: false },
@@ -528,15 +603,22 @@ const dice = [
 ];
 dice.forEach(d => { d.faceEls = buildCube(d.cube); applyTransform(d.cube, 0, 0, 0); });
 
+const coins = [
+  { scene: document.getElementById('coinScene1'), coin: document.getElementById('coin1'), rolling: false },
+  { scene: document.getElementById('coinScene2'), coin: document.getElementById('coin2'), rolling: false },
+];
+coins.forEach(c => { c.faceEls = buildCoin(c.coin); applyTransform(c.coin, 0, 0, 0); });
+
 const rollHistory = [];
-let freqCounts = [];
+let freqCounts = {};
+let freqLabelsOrder = [];
 let totalRolls = 0;
 
-function applyTransform(cubeEl, rx, ry, ms, easing) {
-  cubeEl.style.transition = ms > 0
+function applyTransform(el, rx, ry, ms, easing) {
+  el.style.transition = ms > 0
     ? `transform ${ms}ms ${easing || 'cubic-bezier(.22,1,.36,1)'}`
     : 'none';
-  cubeEl.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+  el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
 }
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function finalAngle(targetDeg, spins) {
@@ -561,21 +643,43 @@ function clampCustomSides() {
 function onSidesChange() {
   const isCustom = document.getElementById('sidesSelect').value === 'custom';
   document.getElementById('customSides').classList.toggle('hidden', !isCustom);
-  resetFrequencyIfNeeded(getSides());
+  resetFrequencyIfNeeded();
   renderFrequencyChart();
 }
 function isDual() { return document.getElementById('diceCountToggle').checked; }
 function isSuspense() { return document.getElementById('suspenseToggle').checked; }
 function isSoundOn() { return document.getElementById('soundToggle').checked; }
+function isCoinMode() { return document.getElementById('modeToggle').checked; }
+
+function updateRollBtnState() {
+  const coin = isCoinMode();
+  const dual = isDual();
+  const btn = document.getElementById('rollBtn');
+  btn.textContent = coin ? '🪙' : '🎲';
+  btn.title = coin ? (dual ? 'Singla slantarna' : 'Singla slanten') : (dual ? 'Kasta tärningarna' : 'Kasta tärningen');
+  btn.setAttribute('aria-label', btn.title);
+}
+
+function updateMode() {
+  const coin = isCoinMode();
+  document.getElementById('diceGroup').style.display = coin ? 'none' : 'flex';
+  document.getElementById('coinGroup').style.display = coin ? 'flex' : 'none';
+  document.getElementById('sidesGroup').style.display = coin ? 'none' : 'flex';
+  document.getElementById('countLabel').textContent = coin ? 'Antal mynt' : 'Antal tärningar';
+  document.getElementById('labelModeDice').classList.toggle('active', !coin);
+  document.getElementById('labelModeCoin').classList.toggle('active', coin);
+  updateRollBtnState();
+  resetFrequencyIfNeeded();
+  renderFrequencyChart();
+}
 
 function updateDiceCount() {
   const dual = isDual();
   document.getElementById('labelOneDie').classList.toggle('active', !dual);
   document.getElementById('labelTwoDice').classList.toggle('active', dual);
   document.getElementById('scene2').classList.toggle('die-hidden', !dual);
-  const btn = document.getElementById('rollBtn');
-  btn.title = dual ? 'Kasta tärningarna' : 'Kasta tärningen';
-  btn.setAttribute('aria-label', btn.title);
+  document.getElementById('coinScene2').classList.toggle('die-hidden', !dual);
+  updateRollBtnState();
 }
 function updateSpeedLabel() {
   const on = isSuspense();
@@ -593,14 +697,13 @@ function togglePresent() {
 }
 // Stäng inställningspanelen om man klickar utanför den. Historik- och
 // frekvenspanelerna är riktiga toggles — de ligger kvar öppna även om man
-// klickar på tärningarna, och stängs bara via sin egen ikon.
+// klickar på tärningarna/mynten, och stängs bara via sin egen ikon.
 document.addEventListener('click', function (e) {
   const panel = document.getElementById('settingsPanel');
   if (panel.open && !panel.contains(e.target)) panel.removeAttribute('open');
 });
 
-// Mellanslag/Enter kastar tärningen/tärningarna när inget UI-element har fokus,
-// så man kan stå längre bort från datorn under en genomgång.
+// Mellanslag/Enter kastar/singlar när inget UI-element har fokus.
 document.addEventListener('keydown', function (e) {
   if (e.code !== 'Space' && e.code !== 'Enter') return;
   if (document.activeElement && document.activeElement !== document.body) return;
@@ -616,7 +719,7 @@ function toggleTheme() {
   saveSettings();
 }
 
-/* ── Ljud: en kort, självgenererad tärningsrassel-effekt via Web Audio API
+/* ── Ljud: en kort, självgenererad rassel-effekt via Web Audio API
      (inga externa ljudfiler — filen är fortfarande helt självbärande). ── */
 function playSoundIfEnabled() {
   if (!isSoundOn()) return;
@@ -641,33 +744,47 @@ function playSoundIfEnabled() {
   } catch (e) { /* tyst fallback om Web Audio saknas */ }
 }
 
-/* ── Frekvenstabell ── */
-function resetFrequencyIfNeeded(sides) {
-  if (freqCounts.length !== sides) {
-    freqCounts = new Array(sides).fill(0);
+/* ── Frekvenstabell — fungerar generellt för både tärnings- och myntläge,
+     genom att räkna på etiketter ("1".."sidor" eller "Krona"/"Klave")
+     istället för ett fast index. ── */
+function currentFreqLabels() {
+  if (isCoinMode()) return ['Krona', 'Klave'];
+  const sides = getSides();
+  const labels = [];
+  for (let i = 1; i <= sides; i++) labels.push(String(i));
+  return labels;
+}
+function resetFrequencyIfNeeded() {
+  const labels = currentFreqLabels();
+  const same = labels.length === freqLabelsOrder.length && labels.every((l, i) => l === freqLabelsOrder[i]);
+  if (!same) {
+    freqLabelsOrder = labels;
+    freqCounts = {};
+    labels.forEach(l => { freqCounts[l] = 0; });
     totalRolls = 0;
   }
 }
-function recordFrequency(val, sides) {
-  resetFrequencyIfNeeded(sides);
-  freqCounts[val - 1]++;
+function recordFrequency(label) {
+  resetFrequencyIfNeeded();
+  if (!(label in freqCounts)) freqCounts[label] = 0;
+  freqCounts[label]++;
   totalRolls++;
 }
 function resetFrequencyManual() {
-  freqCounts = new Array(getSides()).fill(0);
+  resetFrequencyIfNeeded();
+  freqLabelsOrder.forEach(l => { freqCounts[l] = 0; });
   totalRolls = 0;
   renderFrequencyChart();
 }
 function renderFrequencyChart() {
-  const sides = getSides();
-  resetFrequencyIfNeeded(sides);
-  const max = Math.max(1, ...freqCounts);
-  document.getElementById('freqChart').innerHTML = freqCounts.map((c, idx) => {
-    const val = idx + 1;
+  resetFrequencyIfNeeded();
+  const max = Math.max(1, ...freqLabelsOrder.map(l => freqCounts[l] || 0));
+  document.getElementById('freqChart').innerHTML = freqLabelsOrder.map(label => {
+    const c = freqCounts[label] || 0;
     const pct = totalRolls ? Math.round((c / totalRolls) * 100) : 0;
     const widthPct = Math.round((c / max) * 100);
     return `<div class="freq-row">
-      <span class="freq-label">${val}</span>
+      <span class="freq-label">${label}</span>
       <div class="freq-track"><div class="freq-fill" style="width:${widthPct}%"></div></div>
       <span class="freq-count">${c}${totalRolls ? ' (' + pct + '%)' : ''}</span>
     </div>`;
@@ -675,6 +792,7 @@ function renderFrequencyChart() {
   document.getElementById('freqTotal').textContent = 'Totalt: ' + totalRolls + ' kast';
 }
 
+/* ── Tärningar ── */
 function paintDie(die, sides, targetIndex, targetVal) {
   FACES.forEach((f, i) => {
     const val = (i === targetIndex) ? targetVal : randInt(1, sides);
@@ -683,7 +801,6 @@ function paintDie(die, sides, targetIndex, targetVal) {
     el.classList.toggle('two-digit', String(val).length > 1);
   });
 }
-
 function spinDie(die, sides, suspense, forcedVal) {
   const val = (forcedVal !== undefined) ? forcedVal : randInt(1, sides);
   const targetIndex = randInt(0, 5);
@@ -701,8 +818,6 @@ function spinDie(die, sides, suspense, forcedVal) {
   return val;
 }
 
-/* Klick på en enskild tärning — rullar bara den, oberoende av den andra.
-   Praktiskt i sannolikhetsmoment där man ibland vill kasta om bara en. */
 function rollDie(i) {
   const die = dice[i];
   if (die.rolling) return;
@@ -712,20 +827,19 @@ function rollDie(i) {
   const duration = suspense ? 3500 : 900;
   playSoundIfEnabled();
   const val = spinDie(die, sides, suspense);
-  recordFrequency(val, sides);
+  recordFrequency(String(val));
   renderFrequencyChart();
 
   setTimeout(() => die.scene.classList.remove('suspense-rolling'), duration - 20);
   setTimeout(() => {
     die.rolling = false;
     die.scene.classList.remove('die-rolling');
-    rollHistory.unshift({ type: 'single', die: i, val });
+    rollHistory.unshift({ type: 'single', slot: i, label: String(val) });
     trimAndRenderHistory();
   }, duration + 30);
 }
 
-/* Verktygsradens tärningsknapp — rullar alla aktiva tärningar tillsammans. */
-function rollAllActive() {
+function rollAllDice() {
   const dual = isDual();
   const activeIdx = dual ? [0, 1] : [0];
   if (activeIdx.some(i => dice[i].rolling)) return;
@@ -742,32 +856,23 @@ function rollAllActive() {
   activeIdx.forEach(i => {
     dice[i].rolling = true;
     results[i] = spinDie(dice[i], sides, suspense);
-    recordFrequency(results[i], sides);
+    recordFrequency(String(results[i]));
   });
   renderFrequencyChart();
 
   setTimeout(() => activeIdx.forEach(i => dice[i].scene.classList.remove('suspense-rolling')), duration - 20);
   setTimeout(() => {
-    activeIdx.forEach(i => {
-      dice[i].rolling = false;
-      dice[i].scene.classList.remove('die-rolling');
-    });
-    rollHistory.unshift({ type: 'combo', vals: activeIdx.map(i => results[i]) });
+    activeIdx.forEach(i => { dice[i].rolling = false; dice[i].scene.classList.remove('die-rolling'); });
+    rollHistory.unshift({ type: 'combo', labels: activeIdx.map(i => String(results[i])) });
     trimAndRenderHistory();
     btn.disabled = false;
   }, duration + 30);
 }
 
-/* Snabba omgångskast (1/10/50/100) för att bygga upp frekvenstabellen fort.
-   Vid fler än 1 räknas alla omgångar direkt och bara den sista animeras
-   visuellt — annars skulle 100 kast ta för lång tid att titta på. */
-function rollBatch(n) {
-  if (n === 1) { rollAllActive(); return; }
-
+function rollBatchDice(n) {
   const dual = isDual();
   const activeIdx = dual ? [0, 1] : [0];
   if (activeIdx.some(i => dice[i].rolling)) return;
-
   const sides = getSides();
   const suspense = isSuspense();
   const duration = suspense ? 3500 : 900;
@@ -776,35 +881,120 @@ function rollBatch(n) {
   for (let k = 0; k < n; k++) {
     activeIdx.forEach(i => {
       const val = randInt(1, sides);
-      recordFrequency(val, sides);
+      recordFrequency(String(val));
       finalVal[i] = val;
     });
   }
   renderFrequencyChart();
   playSoundIfEnabled();
-
-  activeIdx.forEach(i => {
-    dice[i].rolling = true;
-    spinDie(dice[i], sides, suspense, finalVal[i]);
-  });
-
+  activeIdx.forEach(i => { dice[i].rolling = true; spinDie(dice[i], sides, suspense, finalVal[i]); });
   setTimeout(() => activeIdx.forEach(i => dice[i].scene.classList.remove('suspense-rolling')), duration - 20);
+  setTimeout(() => activeIdx.forEach(i => { dice[i].rolling = false; dice[i].scene.classList.remove('die-rolling'); }), duration + 30);
+}
+
+/* ── Mynt — samma princip, men bara två fasta sidor (Krona/Klave) och
+     rotation runt Y-axeln så myntet blir kant-tunt mitt i singlingen. ── */
+function spinCoin(coinObj, suspense, forcedFace) {
+  const face = forcedFace || (Math.random() < 0.5 ? 'heads' : 'tails');
+  const ry = face === 'heads' ? 0 : 180;
+  const spins = suspense ? 7 : 3;
+  const fy = finalAngle(ry, spins);
+  if (suspense) coinObj.scene.classList.add('suspense-rolling');
+  coinObj.scene.classList.add('die-rolling');
+  applyTransform(coinObj.coin, 0, 0, 0);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    applyTransform(coinObj.coin, 0, fy, suspense ? 3500 : 900, suspense ? 'cubic-bezier(.15,.5,.2,1)' : 'cubic-bezier(.22,1,.36,1)');
+  }));
+  return face;
+}
+function coinLabel(face) { return face === 'heads' ? 'Krona' : 'Klave'; }
+function coinAbbrev(face) { return face === 'heads' ? 'Kr' : 'Kl'; }
+
+function rollCoin(i) {
+  const c = coins[i];
+  if (c.rolling) return;
+  c.rolling = true;
+  const suspense = isSuspense();
+  const duration = suspense ? 3500 : 900;
+  playSoundIfEnabled();
+  const face = spinCoin(c, suspense);
+  recordFrequency(coinLabel(face));
+  renderFrequencyChart();
+
+  setTimeout(() => c.scene.classList.remove('suspense-rolling'), duration - 20);
   setTimeout(() => {
-    activeIdx.forEach(i => {
-      dice[i].rolling = false;
-      dice[i].scene.classList.remove('die-rolling');
-    });
+    c.rolling = false;
+    c.scene.classList.remove('die-rolling');
+    rollHistory.unshift({ type: 'single', slot: i, label: coinAbbrev(face) });
+    trimAndRenderHistory();
   }, duration + 30);
+}
+
+function rollAllCoins() {
+  const dual = isDual();
+  const activeIdx = dual ? [0, 1] : [0];
+  if (activeIdx.some(i => coins[i].rolling)) return;
+
+  const btn = document.getElementById('rollBtn');
+  btn.disabled = true;
+  const suspense = isSuspense();
+  const duration = suspense ? 3500 : 900;
+  playSoundIfEnabled();
+
+  const results = {};
+  activeIdx.forEach(i => {
+    coins[i].rolling = true;
+    results[i] = spinCoin(coins[i], suspense);
+    recordFrequency(coinLabel(results[i]));
+  });
+  renderFrequencyChart();
+
+  setTimeout(() => activeIdx.forEach(i => coins[i].scene.classList.remove('suspense-rolling')), duration - 20);
+  setTimeout(() => {
+    activeIdx.forEach(i => { coins[i].rolling = false; coins[i].scene.classList.remove('die-rolling'); });
+    rollHistory.unshift({ type: 'combo', labels: activeIdx.map(i => coinAbbrev(results[i])) });
+    trimAndRenderHistory();
+    btn.disabled = false;
+  }, duration + 30);
+}
+
+function rollBatchCoins(n) {
+  const dual = isDual();
+  const activeIdx = dual ? [0, 1] : [0];
+  if (activeIdx.some(i => coins[i].rolling)) return;
+  const suspense = isSuspense();
+  const duration = suspense ? 3500 : 900;
+
+  const finalFace = {};
+  for (let k = 0; k < n; k++) {
+    activeIdx.forEach(i => {
+      const face = Math.random() < 0.5 ? 'heads' : 'tails';
+      recordFrequency(coinLabel(face));
+      finalFace[i] = face;
+    });
+  }
+  renderFrequencyChart();
+  playSoundIfEnabled();
+  activeIdx.forEach(i => { coins[i].rolling = true; spinCoin(coins[i], suspense, finalFace[i]); });
+  setTimeout(() => activeIdx.forEach(i => coins[i].scene.classList.remove('suspense-rolling')), duration - 20);
+  setTimeout(() => activeIdx.forEach(i => { coins[i].rolling = false; coins[i].scene.classList.remove('die-rolling'); }), duration + 30);
+}
+
+/* ── Dispatchers — samma knappar/genvägar styr rätt läge automatiskt ── */
+function rollAllActive() { if (isCoinMode()) rollAllCoins(); else rollAllDice(); }
+function rollBatch(n) {
+  if (n === 1) { rollAllActive(); return; }
+  if (isCoinMode()) rollBatchCoins(n); else rollBatchDice(n);
 }
 
 function trimAndRenderHistory() {
   if (rollHistory.length > 9) rollHistory.length = 9;
   document.getElementById('history').innerHTML = rollHistory.map(entry => {
     if (entry.type === 'combo') {
-      return `<div class="hist-chip">${entry.vals.join('+')}</div>`;
+      return `<div class="hist-chip">${entry.labels.join('+')}</div>`;
     }
-    const color = entry.die === 0 ? 'var(--die1-ink)' : 'var(--die2-ink)';
-    return `<div class="hist-chip" style="color:${color}">${entry.val}</div>`;
+    const color = entry.slot === 0 ? 'var(--die1-ink)' : 'var(--die2-ink)';
+    return `<div class="hist-chip" style="color:${color}">${entry.label}</div>`;
   }).join('');
 }
 
@@ -814,6 +1004,7 @@ const SETTINGS_KEY = 'tarningInstallningar';
 function saveSettings() {
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      mode: isCoinMode() ? 'coin' : 'dice',
       sidesSelect: document.getElementById('sidesSelect').value,
       customSides: document.getElementById('customSides').value,
       dual: isDual(),
@@ -834,6 +1025,7 @@ function loadSettings() {
     if (typeof data.dual === 'boolean') { document.getElementById('diceCountToggle').checked = data.dual; updateDiceCount(); }
     if (typeof data.suspense === 'boolean') { document.getElementById('suspenseToggle').checked = data.suspense; updateSpeedLabel(); }
     if (typeof data.sound === 'boolean') { document.getElementById('soundToggle').checked = data.sound; updateSoundLabel(); }
+    if (data.mode === 'coin') { document.getElementById('modeToggle').checked = true; updateMode(); }
     if (data.theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
       document.getElementById('themeBtn').textContent = '🌙';
