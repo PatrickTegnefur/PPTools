@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procent &amp; Bråk — 100-rutan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f6f4ff;
+      --surface:   #ffffff;
+      --surface2:  #eae6ff;
+      --border:    #ccc5f0;
+      --text:      #100e28;
+      --muted:     #585078;
+      --accent:    #306BF0;
+      --accent-dk: #1f55d0;
+      --accent2:   #EC6095;
+      --accent2-dk:#c44a7a;
+      --overlap:   #7c4fc4;
+      --overlap-dk:#5a3a9e;
+      --font-body: 'Sora', sans-serif;
+      --font-num:  'Playfair Display', serif;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: var(--font-body);
+      color: var(--text);
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 3rem;
+    }
+
+    header { text-align: center; margin-bottom: 1.75rem; }
+    header h1 {
+      font-family: var(--font-num);
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    .mode-tabs {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      width: fit-content;
+      margin: 0 auto 1.75rem;
+      background: var(--surface);
+    }
+    .mode-tab {
+      padding: 8px 24px;
+      font-size: 13px;
+      font-family: var(--font-body);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      transition: all .15s;
+      font-weight: 500;
+    }
+    .mode-tab.active { background: var(--accent); color: #fff; }
+    .mode-tab:first-child { border-radius: 11px 0 0 11px; }
+    .mode-tab:last-child  { border-radius: 0 11px 11px 0; }
+
+    .main {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 780px;
+    }
+
+    /* ── GRID ── */
+    .grid-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .grid-wrapper {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+    .grid100 {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 4px;
+      width: 100%;
+      height: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 9px;
+    }
+    .cell {
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background .08s, transform .06s;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+    }
+    .cell:hover { transform: scale(1.12); z-index: 1; }
+    .cell.a    { background: var(--accent);  border-color: var(--accent-dk); }
+    .cell.b    { background: var(--accent2); border-color: var(--accent2-dk); }
+    .cell.ab   { background: var(--overlap); border-color: var(--overlap-dk); }
+    .cell.preview-a { background: rgba(48,107,240,0.28); border-color: var(--accent); }
+    .cell.preview-b { background: rgba(236,96,149,0.28); border-color: var(--accent2); }
+
+    .row-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .row-overlay.visible { opacity: 1; }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .leg { display: flex; align-items: center; gap: 5px; }
+    .leg-dot { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+
+    /* Toggle button */
+    .tog {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 5px 12px;
+      font-size: 11px;
+      font-family: var(--font-body);
+      cursor: pointer;
+      background: var(--surface);
+      color: var(--muted);
+      transition: all .12s;
+      font-weight: 500;
+    }
+    .tog:hover { border-color: var(--accent); color: var(--text); }
+    .tog.on { background: var(--accent); color: #fff; border-color: var(--accent-dk); }
+
+    /* ── PANEL ── */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 250px;
+      min-width: 220px;
+    }
+
+    .stamp-section { display: flex; flex-direction: column; gap: 6px; }
+    .stamp-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .stamp-bar { display: flex; flex-wrap: wrap; gap: 5px; }
+    .stamp-btn {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 11px;
+      font-size: 12px;
+      font-family: var(--font-body);
+      cursor: pointer;
+      background: var(--surface);
+      color: var(--text);
+      transition: all .12s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      line-height: 1;
+    }
+    .stamp-btn:hover { border-color: var(--accent); background: var(--bg); }
+    .stamp-btn.active-a { background: var(--accent);  color: #fff; border-color: var(--accent-dk); }
+    .stamp-btn.active-b { background: var(--accent2); color: #fff; border-color: var(--accent2-dk); }
+    .stamp-frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: var(--font-num);
+      font-size: 11px;
+      line-height: 1.2;
+      gap: 1px;
+    }
+    .stamp-frac .bar { width: 100%; height: 0.5px; background: currentColor; }
+
+    /* ── CTRL CARD ── */
+    .ctrl-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ctrl-row { display: flex; align-items: center; gap: 10px; padding: 2px 0; }
+
+    /* Fraction-style input: editable numerator, fixed /100 denominator */
+    .frac-input {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: var(--font-num);
+      flex-shrink: 0;
+    }
+    .frac-input input[type=number] {
+      width: 56px;
+      padding: 4px 4px 3px;
+      font-size: 20px;
+      font-family: var(--font-num);
+      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      border-bottom: none;
+      background: var(--bg);
+      color: var(--text);
+      text-align: center;
+      transition: border-color .12s, box-shadow .12s;
+      -moz-appearance: textfield;
+    }
+    .frac-input input[type=number]::-webkit-inner-spin-button,
+    .frac-input input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .frac-input input[type=number]:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--surface);
+      box-shadow: 0 0 0 3px rgba(48,107,240,.12);
+    }
+    .frac-input input.b:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(236,96,149,.12);
+    }
+    .frac-bar-line {
+      width: 56px;
+      height: 2px;
+      background: var(--border);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .frac-bar-line.b-col { background: var(--accent2); border-color: var(--accent2); }
+    .frac-denom {
+      width: 56px;
+      font-size: 15px;
+      font-family: var(--font-num);
+      text-align: center;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      padding: 2px 4px 4px;
+      background: var(--bg);
+      line-height: 1.3;
+    }
+    .frac-denom.b-col { color: var(--accent2); border-color: var(--accent2); }
+
+    .slider-wrap {
+      flex: 1;
+      padding: 10px 0;
+      overflow: hidden;
+    }
+    .slider-mini {
+      display: block;
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--surface2);
+      outline: none;
+      cursor: pointer;
+      margin: 0;
+    }
+    .slider-mini::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(48,107,240,.35);
+      cursor: pointer;
+    }
+    .slider-mini.b::-webkit-slider-thumb {
+      background: var(--accent2);
+      box-shadow: 0 1px 4px rgba(236,96,149,.35);
+    }
+    .slider-mini::-moz-range-thumb {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .slider-mini.b::-moz-range-thumb { background: var(--accent2); }
+    .key-hint { font-size: 10px; color: var(--muted); text-align: right; }
+
+    /* ── INFO CARD ── */
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .info-head {
+      display: flex;
+      border-bottom: 1px solid var(--surface2);
+      background: var(--bg);
+    }
+    /* Fixed-width label column so value columns are truly equal */
+    .info-head-spacer {
+      width: 72px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--surface2);
+    }
+    .info-head-cell {
+      flex: 1;
+      padding: 7px 6px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      text-align: center;
+      border-right: 1px solid var(--surface2);
+      font-weight: 600;
+    }
+    .info-head-cell:last-child { border-right: none; }
+    .info-head-cell.col-a { color: var(--accent); }
+    .info-head-cell.col-b { color: var(--accent2); }
+
+    .info-row {
+      display: flex;
+      border-bottom: 1px solid var(--surface2);
+    }
+    .info-row:last-child { border-bottom: none; }
+
+    .info-row-label {
+      width: 72px;
+      flex-shrink: 0;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      padding: 10px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-right: 1px solid var(--surface2);
+      background: var(--bg);
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      gap: 4px;
+      transition: color .12s;
+    }
+    .info-row-label:hover { color: var(--text); }
+    .row-eye { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.5; transition: opacity .12s; }
+    .info-row-label:hover .row-eye { opacity: 1; }
+    .row-eye.open { color: var(--accent); opacity: 0.8; }
+    .row-eye.open path { stroke: var(--accent); }
+    .row-eye.closed { opacity: 0.35; }
+
+    .info-cell {
+      flex: 1;
+      padding: 9px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--surface2);
+      gap: 5px;
+      flex-wrap: wrap;
+      min-height: 48px;
+      transition: opacity .15s;
+    }
+    .info-cell:last-child { border-right: none; }
+    /* When concealed: keep height but hide content */
+    .info-cell.concealed > * { visibility: hidden; }
+
+    /* FRACTION DISPLAY */
+    .frac-v {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: var(--font-num);
+      line-height: 1.15;
+    }
+    .frac-v .fn { font-size: 15px; }
+    .frac-v .fb { height: 1.5px; background: var(--text); width: 100%; min-width: 16px; margin: 2px 0; }
+    .frac-v .fd { font-size: 15px; }
+    .frac-v.simp   .fn, .frac-v.simp   .fd { color: var(--accent); }
+    .frac-v.simp   .fb { background: var(--accent); }
+    .frac-v.simp-b .fn, .frac-v.simp-b .fd { color: var(--accent2); }
+    .frac-v.simp-b .fb { background: var(--accent2); }
+
+    .frac-eq { font-size: 11px; color: var(--muted); }
+    .val-big  { font-family: var(--font-num); font-size: 16px; }
+    .val-pct  { font-family: var(--font-num); font-size: 18px; font-weight: 600; }
+
+    .note-text {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      text-align: center;
+      min-height: 16px;
+    }
+
+    footer { margin-top: 3rem; font-size: 11px; color: var(--muted); text-align: center; }
+
+    @media (max-width: 600px) {
+      .main { gap: 1.25rem; }
+      .grid-wrapper { width: 260px; height: 260px; }
+      .panel { width: 100%; max-width: 340px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Procent &amp; Bråk</h1>
+  <p>Utforska kopplingen mellan 100-rutan, bråkform, decimalform och procent</p>
+</header>
+
+<div class="mode-tabs">
+  <button class="mode-tab active" id="tabSingle">Enkel</button>
+  <button class="mode-tab" id="tabCompare">Jämför två</button>
+</div>
+
+<div class="main">
+
+  <div class="grid-area">
+    <div class="grid-wrapper">
+      <div class="grid100" id="grid"></div>
+      <svg class="row-overlay" id="rowOverlay" viewBox="0 0 300 300"
+           preserveAspectRatio="none" aria-hidden="true"></svg>
+    </div>
+    <button class="tog" id="togRows">▤ &nbsp;Visa tiodelsrader</button>
+    <div class="legend" id="legend">
+      <div class="leg">
+        <div class="leg-dot" style="background:#306BF0;border:1px solid #1f55d0"></div>
+        <span>Markerad andel</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+
+    <div class="stamp-section">
+      <div class="stamp-label">Stambråk</div>
+      <div class="stamp-bar" id="stampBar"></div>
+    </div>
+
+    <div class="ctrl-card">
+      <div class="ctrl-row">
+        <div class="frac-input">
+          <input type="number" min="0" max="100" value="25" id="numA" aria-label="Täljare">
+          <div class="frac-bar-line"></div>
+          <div class="frac-denom">100</div>
+        </div>
+        <div class="slider-wrap">
+          <input class="slider-mini" type="range" min="0" max="100" value="25" step="1" id="sliderA">
+        </div>
+      </div>
+
+      <div class="ctrl-row" id="ctrlB" style="display:none">
+        <div class="frac-input">
+          <input type="number" min="0" max="100" value="50" id="numB" class="b" aria-label="Täljare B">
+          <div class="frac-bar-line b-col"></div>
+          <div class="frac-denom b-col">100</div>
+        </div>
+        <div class="slider-wrap">
+          <input class="slider-mini b" type="range" min="0" max="100" value="50" step="1" id="sliderB">
+        </div>
+      </div>
+
+      <div class="key-hint">← → ±1 &nbsp;·&nbsp; ↑ ↓ ±10</div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-head" id="infoHead"></div>
+      <div class="info-body" id="infoBody"></div>
+    </div>
+
+    <div class="note-text" id="noteText"></div>
+  </div>
+</div>
+
+<footer>Alfred Dalinskolan · Matematik åk 7–9</footer>
+
+<script>
+const STAMPS = [
+  { n:1, d:100, note:'1/100 — minsta procentenheten' },
+  { n:1, d:10,  note:'1/10 = 10 %' },
+  { n:1, d:5,   note:'1/5 = 20 %' },
+  { n:1, d:4,   note:'1/4 = 25 %' },
+  { n:1, d:3,   note:'1/3 ≈ 33,333 … % — periodiskt decimaltal' },
+  { n:1, d:2,   note:'1/2 = 50 %' },
+];
+
+/* Which info rows are currently revealed */
+const rowVisible = { pct: false, frac: false, dec: false };
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+function simplify(n, d) {
+  if (n === 0) return [0, d];
+  const g = gcd(Math.abs(n), Math.abs(d));
+  return [n / g, d / g];
+}
+
+let mode = 'single';
+let filledA = 25, filledB = 50;
+let stampA = null, stampB = null;
+let rowsOn = false;
+
+const gridEl     = document.getElementById('grid');
+const stampBar   = document.getElementById('stampBar');
+const sliderA    = document.getElementById('sliderA');
+const sliderB    = document.getElementById('sliderB');
+const numA       = document.getElementById('numA');
+const numB       = document.getElementById('numB');
+const noteText   = document.getElementById('noteText');
+const infoHead   = document.getElementById('infoHead');
+const infoBody   = document.getElementById('infoBody');
+const ctrlB      = document.getElementById('ctrlB');
+const legendEl   = document.getElementById('legend');
+const rowOverlay = document.getElementById('rowOverlay');
+const togRows    = document.getElementById('togRows');
+
+/* Draw 9 horizontal row-separator lines in the SVG overlay.
+   Grid: 300×300px total, 9px padding each side, 4px gap, 10 rows.
+   Inner = 282px. Row height = (282 − 9×4) / 10 = 24.6px */
+(function buildLines() {
+  const pad = 9, total = 300, rows = 10, gap = 4;
+  const rowH = (total - 2*pad - gap*(rows-1)) / rows;
+  for (let n = 1; n < rows; n++) {
+    const y = pad + n * (rowH + gap) - gap / 2;
+    const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ln.setAttribute('x1', pad);       ln.setAttribute('x2', total - pad);
+    ln.setAttribute('y1', y);         ln.setAttribute('y2', y);
+    ln.setAttribute('stroke', '#306BF0');
+    ln.setAttribute('stroke-width', '2.5');
+    ln.setAttribute('stroke-opacity', '0.7');
+    rowOverlay.appendChild(ln);
+  }
+})();
+
+togRows.addEventListener('click', () => {
+  rowsOn = !rowsOn;
+  togRows.classList.toggle('on', rowsOn);
+  rowOverlay.classList.toggle('visible', rowsOn);
+});
+
+/* Grid cells */
+const cells = [];
+for (let i = 0; i < 100; i++) {
+  const c = document.createElement('div');
+  c.className = 'cell';
+  c.addEventListener('click', () => {
+    stampA = null; stampB = null; updateStampBtns();
+    filledA = i + 1; syncA(); update();
+  });
+  c.addEventListener('mouseover', () => {
+    if (stampA !== null || mode === 'compare') return;
+    cells.forEach((cc, j) => cc.classList.toggle('preview-a', j >= filledA && j <= i));
+  });
+  c.addEventListener('mouseout', () => cells.forEach(cc => cc.classList.remove('preview-a', 'preview-b')));
+  gridEl.appendChild(c);
+  cells.push(c);
+}
+
+/* Stamp buttons */
+STAMPS.forEach((s, idx) => {
+  const btn = document.createElement('button');
+  btn.className = 'stamp-btn';
+  const sf = document.createElement('span'); sf.className = 'stamp-frac';
+  const sn = document.createElement('span'); sn.textContent = s.n;
+  const sb = document.createElement('span'); sb.className = 'bar';
+  const sd = document.createElement('span'); sd.textContent = s.d;
+  sf.append(sn, sb, sd);
+  btn.appendChild(sf);
+  btn.addEventListener('click', () => {
+    if (mode === 'single') {
+      stampA = stampA === idx ? null : idx;
+      if (stampA !== null) filledA = Math.round(s.n / s.d * 100);
+    } else {
+      if      (stampA === idx) { stampA = null; }
+      else if (stampB === idx) { stampB = null; }
+      else if (stampA === null){ stampA = idx; filledA = Math.round(s.n / s.d * 100); }
+      else                     { stampB = idx; filledB = Math.round(s.n / s.d * 100); }
+    }
+    syncA(); syncB(); updateStampBtns(); update();
+  });
+  stampBar.appendChild(btn);
+  s.btn = btn;
+});
+
+function updateStampBtns() {
+  STAMPS.forEach((s, i) => {
+    s.btn.classList.remove('active-a', 'active-b');
+    if (stampA === i) s.btn.classList.add('active-a');
+    if (stampB === i) s.btn.classList.add('active-b');
+  });
+}
+
+function syncA() { sliderA.value = filledA; numA.value = filledA; }
+function syncB() { sliderB.value = filledB; numB.value = filledB; }
+
+function bindControls(slider, numIn, isB) {
+  const getVal   = () => isB ? filledB : filledA;
+  const setVal   = v  => { if (isB) { filledB = v; syncB(); } else { filledA = v; syncA(); } };
+  const clrStamp = () => { if (isB) stampB = null; else stampA = null; };
+
+  slider.addEventListener('input', () => {
+    clrStamp(); updateStampBtns();
+    setVal(parseInt(slider.value)); update();
+  });
+  slider.addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp')   { e.preventDefault(); setVal(Math.min(100, getVal()+10)); update(); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setVal(Math.max(0,   getVal()-10)); update(); }
+  });
+  numIn.addEventListener('input', () => {
+    let v = parseInt(numIn.value);
+    if (isNaN(v)) return;
+    v = Math.max(0, Math.min(100, v));
+    clrStamp(); updateStampBtns();
+    setVal(v); update();
+  });
+  numIn.addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp')   { e.preventDefault(); setVal(Math.min(100, getVal()+10)); update(); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setVal(Math.max(0,   getVal()-10)); update(); }
+  });
+}
+bindControls(sliderA, numA, false);
+bindControls(sliderB, numB, true);
+
+/* Mode tabs */
+document.getElementById('tabSingle').addEventListener('click', () => {
+  mode = 'single'; stampB = null;
+  document.getElementById('tabSingle').classList.add('active');
+  document.getElementById('tabCompare').classList.remove('active');
+  ctrlB.style.display = 'none';
+  legendEl.innerHTML = `<div class="leg"><div class="leg-dot" style="background:#306BF0;border:1px solid #1f55d0"></div><span>Markerad andel</span></div>`;
+  updateStampBtns(); update();
+});
+document.getElementById('tabCompare').addEventListener('click', () => {
+  mode = 'compare';
+  document.getElementById('tabCompare').classList.add('active');
+  document.getElementById('tabSingle').classList.remove('active');
+  ctrlB.style.display = 'flex';
+  legendEl.innerHTML = `
+    <div class="leg"><div class="leg-dot" style="background:#306BF0;border:1px solid #1f55d0"></div><span>Bråk A</span></div>
+    <div class="leg"><div class="leg-dot" style="background:#EC6095;border:1px solid #c44a7a"></div><span>Bråk B</span></div>
+    <div class="leg"><div class="leg-dot" style="background:#7c4fc4;border:1px solid #5a3a9e"></div><span>Överlapp</span></div>`;
+  update();
+});
+
+/* Helpers */
+function fracInfo(sN, sD, cells100) {
+  const exact = sN / sD;
+  const pct   = exact * 100;
+  const isExact = Math.abs(pct - Math.round(pct)) < 0.00001;
+  const pctStr  = (isExact ? Math.round(pct) : pct.toFixed(3).replace('.', ',')) + '%';
+  const decStr  = exact.toLocaleString('sv-SE', { maximumFractionDigits: 6 });
+  const [sn2, sd2] = simplify(cells100, 100);
+  return { pctStr, decStr, numN: sN, numD: sD, simpN: sn2, simpD: sd2, same: sd2 === sD && sn2 === sN };
+}
+
+function makeFracEl(n, d, cls) {
+  const w  = document.createElement('span'); w.className = 'frac-v' + (cls ? ' ' + cls : '');
+  const fn = document.createElement('span'); fn.className = 'fn'; fn.textContent = n;
+  const fb = document.createElement('span'); fb.className = 'fb';
+  const fd = document.createElement('span'); fd.className = 'fd'; fd.textContent = d;
+  w.append(fn, fb, fd);
+  return w;
+}
+
+function makeFracCell(info, simpCls) {
+  const wrap = document.createElement('span');
+  wrap.style.cssText = 'display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:center';
+  wrap.appendChild(makeFracEl(info.numN, info.numD));
+  if (!info.same) {
+    const eq = document.createElement('span'); eq.className = 'frac-eq'; eq.textContent = '=';
+    wrap.appendChild(eq);
+    wrap.appendChild(makeFracEl(info.simpN, info.simpD, simpCls));
+  }
+  return wrap;
+}
+
+/* SVG eye icons */
+function eyeSVG(open) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 20 20');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.8');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.classList.add('row-eye', open ? 'open' : 'closed');
+  if (open) {
+    // Eye open: outer shape + pupil
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', 'M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z');
+    const circle = document.createElementNS(ns, 'circle');
+    circle.setAttribute('cx', '10'); circle.setAttribute('cy', '10'); circle.setAttribute('r', '2.5');
+    svg.append(path, circle);
+  } else {
+    // Eye closed: curved line + slash
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', 'M2 2l16 16M6.5 6.7A8.5 8.5 0 0 0 1 10s3.5 6 9 6a8.6 8.6 0 0 0 4.5-1.3M9 4.1A8.8 8.8 0 0 1 10 4c5.5 0 9 6 9 6a14 14 0 0 1-1.8 2.6');
+    svg.appendChild(path);
+  }
+  return svg;
+}
+
+/* Row label with eye-toggle */
+function makeRowLabel(text, key) {
+  const lbl = document.createElement('div');
+  lbl.className = 'info-row-label';
+  const txt = document.createElement('span'); txt.textContent = text;
+  let eyeEl = eyeSVG(rowVisible[key]);
+  lbl.append(txt, eyeEl);
+  lbl.title = 'Klicka för att visa/dölja';
+  lbl.addEventListener('click', () => {
+    rowVisible[key] = !rowVisible[key];
+    const newEye = eyeSVG(rowVisible[key]);
+    lbl.replaceChild(newEye, eyeEl);
+    eyeEl = newEye;
+    const row = lbl.closest('.info-row');
+    row.querySelectorAll('.info-cell').forEach(c => c.classList.toggle('concealed', !rowVisible[key]));
+  });
+  return lbl;
+}
+
+/* Main render */
+function update() {
+  const isSingle = mode === 'single';
+
+  const snA = stampA !== null ? STAMPS[stampA].n : filledA;
+  const sdA = stampA !== null ? STAMPS[stampA].d : 100;
+  const cA  = Math.round(snA / sdA * 100);
+  const snB = stampB !== null ? STAMPS[stampB].n : filledB;
+  const sdB = stampB !== null ? STAMPS[stampB].d : 100;
+  const cB  = Math.round(snB / sdB * 100);
+
+  cells.forEach((c, i) => {
+    c.classList.remove('a', 'b', 'ab', 'preview-a', 'preview-b');
+    const inA = i < cA, inB = !isSingle && i < cB;
+    if (inA && inB)  c.classList.add('ab');
+    else if (inA)    c.classList.add('a');
+    else if (inB)    c.classList.add('b');
+  });
+
+  const iA = fracInfo(snA, sdA, cA);
+  const iB = fracInfo(snB, sdB, cB);
+
+  infoHead.innerHTML = '';
+  infoBody.innerHTML = '';
+
+  const ROWS = [
+    { key: 'pct',  label: 'Procent',
+      aEl: () => { const s = document.createElement('span'); s.className = 'val-pct'; s.style.color = isSingle ? '' : '#306BF0'; s.textContent = iA.pctStr; return s; },
+      bEl: () => { const s = document.createElement('span'); s.className = 'val-pct'; s.style.color = '#EC6095'; s.textContent = iB.pctStr; return s; } },
+    { key: 'frac', label: 'Bråk',
+      aEl: () => makeFracCell(iA, 'simp'),
+      bEl: () => makeFracCell(iB, 'simp-b') },
+    { key: 'dec',  label: 'Decimal',
+      aEl: () => { const s = document.createElement('span'); s.className = 'val-big'; s.style.color = isSingle ? '' : '#306BF0'; s.textContent = iA.decStr; return s; },
+      bEl: () => { const s = document.createElement('span'); s.className = 'val-big'; s.style.color = '#EC6095'; s.textContent = iB.decStr; return s; } },
+  ];
+
+  if (isSingle) {
+    const spacer = document.createElement('div'); spacer.className = 'info-head-spacer';
+    const hcol   = document.createElement('div'); hcol.className   = 'info-head-cell col-a'; hcol.textContent = 'Värde';
+    infoHead.append(spacer, hcol);
+
+    ROWS.forEach(r => {
+      const row  = document.createElement('div'); row.className = 'info-row';
+      const lbl  = makeRowLabel(r.label, r.key);
+      const cell = document.createElement('div'); cell.className = 'info-cell';
+      if (!rowVisible[r.key]) cell.classList.add('concealed');
+      cell.appendChild(r.aEl());
+      row.append(lbl, cell);
+      infoBody.appendChild(row);
+    });
+  } else {
+    const spacer = document.createElement('div'); spacer.className = 'info-head-spacer';
+    const hA     = document.createElement('div'); hA.className = 'info-head-cell col-a'; hA.textContent = 'Bråk A';
+    const hB     = document.createElement('div'); hB.className = 'info-head-cell col-b'; hB.textContent = 'Bråk B';
+    infoHead.append(spacer, hA, hB);
+
+    ROWS.forEach(r => {
+      const row = document.createElement('div'); row.className = 'info-row';
+      const lbl = makeRowLabel(r.label, r.key);
+      const ca  = document.createElement('div'); ca.className = 'info-cell';
+      const cb  = document.createElement('div'); cb.className = 'info-cell';
+      if (!rowVisible[r.key]) { ca.classList.add('concealed'); cb.classList.add('concealed'); }
+      ca.appendChild(r.aEl());
+      cb.appendChild(r.bEl());
+      row.append(lbl, ca, cb);
+      infoBody.appendChild(row);
+    });
+  }
+
+  const notes = [];
+  if (stampA !== null) notes.push(STAMPS[stampA].note);
+  if (stampB !== null && mode === 'compare') notes.push(STAMPS[stampB].note);
+  noteText.textContent = notes.join(' · ');
+}
+
+update();
+</script>
+</body>
+</html>

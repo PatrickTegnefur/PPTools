@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laddningsmodellen – Negativa tal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #f6f4ff;
+      --surface: #ffffff;
+      --surf2:   #eae6ff;
+      --border:  #ccc5f0;
+      --text:    #100e28;
+      --muted:   #585078;
+      --accent:  #306BF0;
+      --accent2: #EC6095;
+      --correct: #18a348;
+      --wrong:   #e02020;
+      --shadow:  rgba(48,107,240,.11);
+      --r-md: 12px; --r-lg: 18px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.5rem 1rem 4rem;
+    }
+
+    /* ── Header ── */
+    header { text-align: center; margin-bottom: 1.25rem; }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.35rem, 4vw, 1.9rem);
+      margin-bottom: 0.2rem;
+    }
+    header p { font-size: 0.8rem; color: var(--muted); }
+    .hline {
+      width: 46px; height: 3px;
+      background: linear-gradient(90deg,#66C7C2,#F4A261,#EC6095);
+      border-radius: 3px; margin: 0.55rem auto 0;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: 0 4px 24px var(--shadow);
+      max-width: 700px;
+      margin: 0 auto 1rem;
+      padding: 1.5rem 1.75rem;
+    }
+
+    /* ════════════════════════════
+       KORT 1 – Scenen
+    ════════════════════════════ */
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--r-md);
+    }
+    .empty-state .big { font-size: 2rem; margin-bottom: 0.5rem; opacity: .4; }
+
+    /* Expression */
+    .expr-display {
+      text-align: center;
+      font-size: clamp(2rem, 7vw, 3rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      min-height: 1.2em;
+    }
+    .c-pos   { color: var(--accent); }
+    .c-neg   { color: var(--accent2); }
+    .c-op    { color: var(--muted); }
+    .c-paren { color: var(--muted); font-weight: 400; }
+
+    /* Arena */
+    .arena {
+      background: var(--surf2);
+      border: 1.5px dashed var(--border);
+      border-radius: var(--r-lg);
+      min-height: 90px;
+      padding: 0.85rem 1.1rem 1rem;
+      margin-bottom: 1rem;
+      transition: border-color .3s;
+    }
+    .arena.active { border-color: var(--accent); }
+    .arena-lbl {
+      font-size: 0.65rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;
+    }
+    .balls-row { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; align-items: center; }
+
+    /* Balls */
+    .ball {
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; flex-shrink: 0; user-select: none;
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .4s;
+    }
+    .ball.pos  { background: radial-gradient(circle at 35% 30%,#6b9bf5,var(--accent) 65%); color:#fff; box-shadow:0 2px 8px rgba(48,107,240,.28); }
+    .ball.neg  { background: radial-gradient(circle at 35% 30%,#f490b8,var(--accent2) 65%); color:#fff; box-shadow:0 2px 8px rgba(236,96,149,.28); }
+    .ball.zero-pos { background: radial-gradient(circle at 35% 30%,#a0b4f5,#6680cc 65%); color:#fff; opacity:.72; border:2px dashed #8899ee; box-shadow:none; }
+    .ball.zero-neg { background: radial-gradient(circle at 35% 30%,#f4a0c8,#cc6690 65%); color:#fff; opacity:.72; border:2px dashed #ee8899; box-shadow:none; }
+    .ball.added    { animation: popIn .38s cubic-bezier(.34,1.56,.64,1); }
+    .ball.paired   { opacity:.18 !important; transform:scale(.66) !important; }
+    .ball.removed  { opacity:0  !important; transform:scale(.22) rotate(30deg) !important; pointer-events:none; }
+    @keyframes popIn {
+      0%   { transform:scale(0) rotate(-15deg); opacity:0; }
+      60%  { transform:scale(1.22) rotate(3deg); }
+      100% { transform:scale(1) rotate(0); opacity:1; }
+    }
+
+    /* ── Control bar ── */
+    .ctrl-bar {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: .75rem;
+    }
+    .btn-next {
+      flex:2; min-width:110px;
+      padding:.6rem .9rem; border-radius:var(--r-md);
+      background:var(--surface); color:var(--accent);
+      border:1.5px solid var(--accent);
+      font-family:'Sora',sans-serif; font-size:.88rem; font-weight:600;
+      cursor:pointer; transition:background .15s, transform .1s;
+    }
+    .btn-next:hover:not(:disabled) { background:var(--surf2); transform:translateY(-1px); }
+    .btn-next:disabled { opacity:.32; cursor:not-allowed; }
+    .btn-run {
+      flex:2; min-width:110px;
+      padding:.6rem .9rem; border-radius:var(--r-md);
+      background:linear-gradient(135deg,var(--accent),#5b8ef5);
+      color:#fff; border:none;
+      font-family:'Sora',sans-serif; font-size:.88rem; font-weight:600;
+      cursor:pointer; box-shadow:0 3px 10px var(--shadow);
+      transition:opacity .15s, transform .1s;
+    }
+    .btn-run:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+    .btn-run:disabled { opacity:.32; cursor:not-allowed; }
+    .btn-reset {
+      flex:1; min-width:80px;
+      padding:.6rem .75rem; border-radius:var(--r-md);
+      background:var(--surf2); color:var(--muted);
+      border:1px solid var(--border);
+      font-family:'Sora',sans-serif; font-size:.82rem; font-weight:500;
+      cursor:pointer; transition:background .15s;
+    }
+    .btn-reset:hover { background:var(--border); }
+
+    /* ── Toggle explanation ── */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .5rem;
+    }
+    .toggle-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; cursor: pointer;
+      font-family: 'Sora', sans-serif; font-size: .8rem;
+      color: var(--muted); padding: 0;
+      transition: color .15s;
+    }
+    .toggle-btn:hover { color: var(--accent); }
+    .toggle-btn .chevron {
+      display: inline-block;
+      width: 14px; height: 14px;
+      transition: transform .25s;
+      flex-shrink: 0;
+    }
+    .toggle-btn.open .chevron { transform: rotate(180deg); }
+
+    .step-panel {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .3s ease, opacity .3s ease;
+      opacity: 0;
+    }
+    .step-panel.open { max-height: 200px; opacity: 1; }
+
+    .step-box {
+      background: var(--surf2);
+      border: 1.5px solid var(--accent);
+      border-radius: var(--r-md);
+      padding: .7rem 1rem;
+      font-size: .86rem; color: var(--text); line-height: 1.6;
+      margin-bottom: .5rem;
+    }
+    .step-counter { font-size: .66rem; color: var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:3px; }
+
+    /* Result */
+    .result-box {
+      padding: .9rem 1.25rem; border-radius: var(--r-md);
+      background: linear-gradient(135deg,#e8f0ff,#f0f7ff);
+      border: 1.5px solid var(--border);
+      text-align: center; font-size: 1.1rem; font-weight: 600; color: var(--accent);
+      display: none; margin-top: .5rem;
+    }
+    .result-box.show { display:block; animation:popIn .5s cubic-bezier(.34,1.56,.64,1); }
+
+    /* ════════════════════════════
+       KORT 2 – Inmatning
+    ════════════════════════════ */
+    .card-input { padding: 1rem 1.75rem 1.1rem; }
+
+    .input-row {
+      display: flex; gap: 8px; align-items: stretch;
+      margin-bottom: .45rem;
+    }
+    .input-row input[type=text] {
+      flex:1;
+      font-family:'Sora',sans-serif; font-size:.95rem;
+      padding:.5rem .9rem;
+      border:1.5px solid var(--border); border-radius:var(--r-md);
+      background:var(--surf2); color:var(--text); outline:none;
+      transition:border-color .2s, background .2s;
+    }
+    .input-row input:focus  { border-color:var(--accent); background:var(--surface); }
+    .input-row input.error  { border-color:var(--wrong); background:#fff5f5; }
+    .btn-parse {
+      padding:.5rem 1rem; border-radius:var(--r-md);
+      background:var(--surf2); color:var(--text);
+      border:1.5px solid var(--border);
+      font-family:'Sora',sans-serif; font-size:.88rem; font-weight:600;
+      cursor:pointer; white-space:nowrap;
+      transition:border-color .15s, background .15s;
+    }
+    .btn-parse:hover { border-color:var(--accent); background:#e0dcff; }
+
+    .input-meta {
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:6px;
+    }
+    .input-hint { font-size:.7rem; color:var(--muted); }
+    .input-hint span { color:var(--accent); font-weight:500; }
+    .error-msg  { font-size:.75rem; color:var(--wrong); min-height:1rem; }
+
+    .parsed-badge {
+      display:none; align-items:center; gap:6px;
+      font-size:.8rem; font-weight:600; color:var(--correct);
+    }
+    .parsed-badge.show { display:flex; animation:fadeIn .3s ease; }
+    .parsed-badge svg  { width:15px; height:15px; flex-shrink:0; }
+    @keyframes fadeIn  { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+
+    /* Legend toggle in card 2 */
+    .legend-toggle-row { margin-top: .6rem; }
+    .legend-panel {
+      overflow:hidden; max-height:0; transition:max-height .3s ease, opacity .3s ease; opacity:0;
+    }
+    .legend-panel.open { max-height:120px; opacity:1; }
+    .legend-inner {
+      display:flex; gap:.9rem; flex-wrap:wrap;
+      padding:.65rem .9rem; margin-top:.5rem;
+      background:var(--surf2); border-radius:var(--r-md); border:1px solid var(--border);
+    }
+    .legend-item { display:flex; align-items:center; gap:7px; font-size:.74rem; color:var(--muted); }
+    .legend-dot  { width:18px; height:18px; border-radius:50%; flex-shrink:0; }
+
+    footer { text-align:center; margin-top:1.5rem; font-size:.7rem; color:var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Laddningsmodellen</h1>
+  <p>Räkning med negativa tal – steg för steg</p>
+  <div class="hline"></div>
+</header>
+
+<!-- ══ KORT 1: Scenen ══ -->
+<div class="card" id="sceneCard">
+
+  <!-- Expression -->
+  <div class="expr-display" id="exprDisplay">
+    <div class="empty-state">
+      <div class="big">±</div>
+      Skriv en beräkning nedan för att börja
+    </div>
+  </div>
+
+  <!-- Arena -->
+  <div class="arena" id="arena" style="display:none;">
+    <div class="arena-lbl">Arenan</div>
+    <div class="balls-row" id="ballsRow"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="ctrl-bar" id="ctrlBar" style="display:none;">
+    <button class="btn-next" id="btnNext" onclick="doNextStep()" disabled>Nästa steg →</button>
+    <button class="btn-run"  id="btnRun"  onclick="runAll()"     disabled>▶ Kör allt</button>
+    <button class="btn-reset" onclick="resetScene()">↺ Återställ</button>
+  </div>
+
+  <!-- Toggle explanation -->
+  <div id="toggleWrap" style="display:none;">
+    <div class="toggle-row">
+      <button class="toggle-btn" id="toggleBtn" onclick="toggleExpl()">
+        <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 6 8 10 12 6"/>
+        </svg>
+        Visa förklaring
+      </button>
+      <span id="stepCounterLabel" style="font-size:.7rem;color:var(--muted);"></span>
+    </div>
+    <div class="step-panel" id="stepPanel">
+      <div class="step-box" id="stepBox">
+        <div class="step-counter" id="stepCounter"></div>
+        <div id="stepText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-box" id="resultBox"></div>
+
+</div>
+
+<!-- ══ KORT 2: Inmatning ══ -->
+<div class="card card-input">
+
+  <div class="input-row">
+    <input type="text" id="exprInput"
+      placeholder="T.ex.  5 + (-3)  eller  -2 - (-4)"
+      autocomplete="off"
+      onkeydown="if(event.key==='Enter') parseExpr()" />
+    <button class="btn-parse" onclick="parseExpr()">Tolka →</button>
+  </div>
+
+  <div class="input-meta">
+    <span class="input-hint">
+      Format: <span>5 + (-3)</span> &nbsp;|&nbsp; <span>-2 - (-4)</span> &nbsp;|&nbsp; <span>3 - 4</span> &nbsp;· Tal: −12 till 12
+    </span>
+    <div class="parsed-badge" id="parsedBadge">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 8 6.5 12 13 4"/>
+      </svg>
+      <span id="parsedBadgeText"></span>
+    </div>
+  </div>
+  <div class="error-msg" id="errMsg"></div>
+
+  <!-- Legend toggle -->
+  <div class="legend-toggle-row">
+    <button class="toggle-btn" id="legendToggleBtn" onclick="toggleLegend()">
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 6 8 10 12 6"/>
+      </svg>
+      Visa teckenförklaring
+    </button>
+    <div class="legend-panel" id="legendPanel">
+      <div class="legend-inner">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:radial-gradient(circle at 35% 30%,#6b9bf5,#306BF0 65%);"></div>
+          Positiv laddning (+1)
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:radial-gradient(circle at 35% 30%,#f490b8,#EC6095 65%);"></div>
+          Negativ laddning (−1)
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#d4d0ee;border:2px dashed #9990cc;"></div>
+          Nollpar (+1 och −1 = 0)
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Patrick Tegnefur · Matematikportalen · Alfred Dalinskolan</footer>
+
+<script>
+/* ─────────────────────────────
+   Parser
+───────────────────────────── */
+function parseInput(raw) {
+  const s = raw.trim().replace(/\u2212/g,'-').replace(/\s+/g,'');
+  const re = /^(-?\d+)([+\-])(\(([+\-]?\d+)\)|([+\-]?\d+))$/;
+  const m  = s.match(re);
+  if (!m) return null;
+  const t1 = parseInt(m[1], 10);
+  const op = m[2] === '+' ? 1 : -1;
+  const t2 = parseInt(m[4] !== undefined ? m[4] : m[5], 10);
+  if (isNaN(t1)||isNaN(t2)) return null;
+  if (Math.abs(t1)>12||Math.abs(t2)>12) return null;
+  return { t1, op, t2 };
+}
+
+/* ─────────────────────────────
+   State
+───────────────────────────── */
+let parsed   = null;
+let steps    = [];
+let stepIdx  = -1;
+let ballData = [];
+let running  = false;
+let explOpen = false;
+
+/* ─────────────────────────────
+   Parse & render
+───────────────────────────── */
+function parseExpr() {
+  const inp = document.getElementById('exprInput');
+  const err = document.getElementById('errMsg');
+  parsed = parseInput(inp.value);
+
+  if (!parsed) {
+    inp.classList.add('error');
+    err.textContent = 'Kunde inte tolka uttrycket. Prova t.ex. 5 + (-3) eller -2 - (-4). Varje tal ska vara mellan −12 och 12.';
+    document.getElementById('parsedBadge').classList.remove('show');
+    return;
+  }
+  inp.classList.remove('error');
+  err.textContent = '';
+
+  renderExpr();
+  showBadge();
+  buildSteps();
+  activateScene();
+}
+
+function renderExpr() {
+  const { t1, op, t2 } = parsed;
+  const opStr = op === 1 ? '+' : '−';
+
+  const t1html = t1 < 0
+    ? `<span class="c-paren">(</span><span class="c-neg">${t1}</span><span class="c-paren">)</span>`
+    : `<span class="c-pos">${t1}</span>`;
+
+  const t2html = t2 < 0
+    ? `<span class="c-paren">(</span><span class="c-neg">${t2}</span><span class="c-paren">)</span>`
+    : `<span class="c-pos">${t2}</span>`;
+
+  document.getElementById('exprDisplay').innerHTML =
+    `${t1html} <span class="c-op">${opStr}</span> ${t2html}`;
+}
+
+function showBadge() {
+  const { t1, op, t2 } = parsed;
+  const opStr  = op === 1 ? '+' : '−';
+  const t1disp = t1 < 0 ? `(${t1})` : `${t1}`;
+  const t2disp = t2 < 0 ? `(${t2})` : `${t2}`;
+  document.getElementById('parsedBadgeText').textContent = `${t1disp} ${opStr} ${t2disp} tolkad`;
+  document.getElementById('parsedBadge').classList.add('show');
+}
+
+/* ─────────────────────────────
+   Activate scene card
+───────────────────────────── */
+function activateScene() {
+  document.getElementById('arena').style.display    = 'block';
+  document.getElementById('ctrlBar').style.display  = 'flex';
+  document.getElementById('toggleWrap').style.display = 'block';
+  document.getElementById('arena').classList.add('active');
+  document.getElementById('ballsRow').innerHTML     = '';
+  document.getElementById('resultBox').className    = 'result-box';
+  document.getElementById('stepBox').style.display  = '';
+  ballData = []; stepIdx = -1; running = false;
+  document.getElementById('btnNext').disabled = false;
+  document.getElementById('btnRun').disabled  = false;
+  updateStepLabel();
+}
+
+function resetScene() {
+  parsed = null;
+  document.getElementById('exprDisplay').innerHTML =
+    `<div class="empty-state"><div class="big">±</div>Skriv en beräkning nedan för att börja</div>`;
+  document.getElementById('arena').style.display    = 'none';
+  document.getElementById('ctrlBar').style.display  = 'none';
+  document.getElementById('toggleWrap').style.display = 'none';
+  document.getElementById('resultBox').className    = 'result-box';
+  document.getElementById('ballsRow').innerHTML     = '';
+  document.getElementById('parsedBadge').classList.remove('show');
+  document.getElementById('errMsg').textContent     = '';
+  const inp = document.getElementById('exprInput');
+  inp.value = ''; inp.classList.remove('error');
+  // close explanation panel if open
+  if (explOpen) toggleExpl();
+  ballData = []; steps = []; stepIdx = -1; running = false;
+  inp.focus();
+}
+
+/* ─────────────────────────────
+   Toggle explanation
+───────────────────────────── */
+function toggleExpl() {
+  explOpen = !explOpen;
+  const btn   = document.getElementById('toggleBtn');
+  const panel = document.getElementById('stepPanel');
+  btn.classList.toggle('open', explOpen);
+  panel.classList.toggle('open', explOpen);
+  btn.querySelector('.chevron').style.transform = explOpen ? 'rotate(180deg)' : '';
+  // Update label text
+  btn.childNodes[1] && (btn.childNodes[1].textContent = '');
+  btn.lastChild.nodeType === 3 && btn.removeChild(btn.lastChild);
+  btn.append(document.createTextNode(explOpen ? ' Dölj förklaring' : ' Visa förklaring'));
+}
+
+function toggleLegend() {
+  const btn   = document.getElementById('legendToggleBtn');
+  const panel = document.getElementById('legendPanel');
+  const isOpen = panel.classList.contains('open');
+  btn.classList.toggle('open', !isOpen);
+  panel.classList.toggle('open', !isOpen);
+}
+
+/* ─────────────────────────────
+   Build steps
+───────────────────────────── */
+function buildSteps() {
+  const { t1, op, t2 } = parsed;
+  steps = []; stepIdx = -1; ballData = [];
+  const absT1 = Math.abs(t1), absT2 = Math.abs(t2);
+  const t1type  = t1 >= 0 ? 'pos' : 'neg';
+  const t1label = t1 >= 0 ? 'positiva' : 'negativa';
+  const answer  = t1 + (op === 1 ? t2 : -t2);
+
+  /* Step 1: place t1 */
+  steps.push({
+    text: `Placera ${absT1} ${t1label} kula${absT1!==1?'r':''} i arenan (startvärde = ${t1>=0?'+':''}${t1}).`,
+    action: async () => {
+      const row = document.getElementById('ballsRow');
+      for (let i = 0; i < absT1; i++) {
+        const b = makeBall(t1type); row.appendChild(b);
+        ballData.push({ el:b, type:t1type }); await sleep(90);
+      }
+      scaleBalls();
+    }
+  });
+
+  if (op === 1) {
+    if (t2 >= 0) {
+      /* a + b */
+      steps.push({
+        text: `Lägg till ${absT2} positiv${absT2!==1?'a':''} kula${absT2!==1?'r':''}.`,
+        action: async () => {
+          const row = document.getElementById('ballsRow');
+          for (let i = 0; i < absT2; i++) {
+            const b = makeBall('pos'); row.appendChild(b);
+            ballData.push({ el:b, type:'pos' }); await sleep(90);
+          }
+          scaleBalls();
+        }
+      });
+    } else {
+      /* a + (-b) */
+      steps.push({
+        text: `Lägg ned ${absT2} negativ${absT2!==1?'a':''} kula${absT2!==1?'r':''} (laddning −1 vardera).`,
+        action: async () => {
+          const row = document.getElementById('ballsRow');
+          for (let i = 0; i < absT2; i++) {
+            const b = makeBall('neg'); row.appendChild(b);
+            ballData.push({ el:b, type:'neg' }); await sleep(100);
+          }
+          scaleBalls();
+        }
+      });
+      const pairs = Math.min(absT1, absT2);
+      if (pairs > 0) {
+        steps.push({
+          text: `Para ihop ${pairs} positiv${pairs!==1?'a':''} och ${pairs} negativ${pairs!==1?'a':''} kula${pairs!==1?'r':''} – de tar ut varandra (nollpar).`,
+          action: async () => {
+            const pos = ballData.filter(x=>x.type==='pos');
+            const neg = ballData.filter(x=>x.type==='neg');
+            for (let i = 0; i < pairs; i++) {
+              pos[i].el.classList.add('paired'); pos[i].type='paired';
+              neg[i].el.classList.add('paired'); neg[i].type='paired';
+              await sleep(260);
+            }
+          }
+        });
+        steps.push({
+          text: `Ta bort nollparen – neutraliserade och försvinner.`,
+          action: async () => {
+            for (const b of ballData) {
+              if (b.type==='paired') {
+                b.el.classList.remove('paired');
+                b.el.classList.add('removed');
+                b.type='gone';
+              }
+            }
+            await sleep(400); scaleBalls();
+          }
+        });
+      }
+    }
+  } else {
+    /* SUBTRACTION */
+    if (t2 > 0) {
+      /* a - b */
+      steps.push({
+        text: `Ta bort ${absT2} positiv${absT2!==1?'a':''} kula${absT2!==1?'r':''} ur arenan.`,
+        action: async () => {
+          let r = 0;
+          for (const b of ballData) {
+            if (b.type==='pos' && r<absT2) {
+              b.el.classList.add('removed'); b.type='gone'; r++;
+              await sleep(200);
+            }
+          }
+          scaleBalls();
+        }
+      });
+    } else if (t2 < 0) {
+      /* a - (-b) */
+      const existingNeg = ballData.filter(x=>x.type==='neg').length;
+      const need = absT2 - existingNeg;
+      if (need > 0) {
+        steps.push({
+          text: `Vi ska ta bort ${absT2} negativ${absT2!==1?'a':''} kula${absT2!==1?'r':''} – men det finns ${existingNeg===0?'inga':'bara '+existingNeg}! Lägg till ${need} nollpar (värdet i arenan ändras inte).`,
+          action: async () => {
+            const row = document.getElementById('ballsRow');
+            for (let i = 0; i < need; i++) {
+              const bp = makeBall('zero-pos'); row.appendChild(bp);
+              ballData.push({ el:bp, type:'zp' }); await sleep(80);
+              const bn = makeBall('zero-neg'); row.appendChild(bn);
+              ballData.push({ el:bn, type:'neg_rem' }); await sleep(130);
+            }
+            scaleBalls();
+          }
+        });
+      }
+      steps.push({
+        text: `Nu finns det ${absT2} negativ${absT2!==1?'a':''} kula${absT2!==1?'r':''} att ta bort. Ta bort dem – de vi subtraherar.`,
+        action: async () => {
+          let r = 0;
+          for (const b of ballData) {
+            if ((b.type==='neg_rem'||b.type==='neg') && r<absT2) {
+              b.el.classList.add('removed'); b.type='gone'; r++;
+              await sleep(220);
+            }
+          }
+          scaleBalls();
+        }
+      });
+    }
+  }
+
+  /* Final step */
+  const opStr  = op===1?'+':'−';
+  const t1d    = t1<0?`(${t1})`:`${t1}`;
+  const t2d    = t2<0?`(${t2})`:`${t2}`;
+  steps.push({
+    text: `Räkna de kvarvarande kulorna. &nbsp;<strong>${t1d} ${opStr} ${t2d} = ${answer}</strong>`,
+    action: async () => {}
+  });
+}
+
+/* ─────────────────────────────
+   Step execution
+───────────────────────────── */
+async function doNextStep() {
+  if (stepIdx >= steps.length-1 || running) return;
+  stepIdx++;
+  showStep(stepIdx);
+  setBusy(true);
+  await steps[stepIdx].action();
+  setBusy(false);
+  if (stepIdx === steps.length-1) finalize();
+}
+
+async function runAll() {
+  if (running) return;
+  running = true; setBusy(true);
+  while (stepIdx < steps.length-1) {
+    stepIdx++;
+    showStep(stepIdx);
+    await steps[stepIdx].action();
+    await sleep(360);
+  }
+  finalize(); running = false; setBusy(false);
+}
+
+function showStep(idx) {
+  document.getElementById('stepCounter').textContent = `Steg ${idx+1} av ${steps.length}`;
+  document.getElementById('stepText').innerHTML = steps[idx].text;
+  updateStepLabel(idx);
+  // Auto-open panel if not open
+  if (!explOpen) toggleExpl();
+}
+
+function updateStepLabel(idx) {
+  const lbl = document.getElementById('stepCounterLabel');
+  if (idx === undefined || idx < 0) { lbl.textContent = ''; return; }
+  lbl.textContent = `${idx+1} / ${steps.length}`;
+}
+
+function setBusy(on) {
+  const done = stepIdx >= steps.length-1;
+  document.getElementById('btnNext').disabled = on || done;
+  document.getElementById('btnRun').disabled  = on || done;
+}
+
+function finalize() {
+  const { t1, op, t2 } = parsed;
+  const answer = t1 + (op===1?t2:-t2);
+  const opStr  = op===1?'+':'−';
+  const t1d    = t1<0?`(${t1})`:`${t1}`;
+  const t2d    = t2<0?`(${t2})`:`${t2}`;
+  const rb = document.getElementById('resultBox');
+  rb.textContent = `✓  ${t1d} ${opStr} ${t2d} = ${answer}`;
+  rb.className = 'result-box show';
+  document.getElementById('arena').classList.remove('active');
+  document.getElementById('btnNext').disabled = true;
+  document.getElementById('btnRun').disabled  = true;
+  updateStepLabel(steps.length-1);
+}
+
+/* ─────────────────────────────
+   Ball helpers
+───────────────────────────── */
+function makeBall(cls) {
+  const b = document.createElement('div');
+  b.className = 'ball '+cls+' added';
+  b.textContent = (cls==='pos'||cls==='zero-pos') ? '+' : '−';
+  return b;
+}
+function scaleBalls() {
+  const v = document.querySelectorAll('#ballsRow .ball:not(.removed)').length;
+  const s = v<=10?44 : v<=16?38 : v<=22?33 : 28;
+  const f = v<=10?'1.2rem' : v<=16?'1rem' : v<=22?'.88rem' : '.75rem';
+  document.querySelectorAll('#ballsRow .ball').forEach(b=>{
+    b.style.width=s+'px'; b.style.height=s+'px'; b.style.fontSize=f;
+  });
+}
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+</script>
+</body>
+</html>
