@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procentverktyg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --c-amber:   #f59e0b;
+  --c-amber-d: #92400e;
+  --c-amber-l: #fffbeb;
+  --c-orange:  #EC6095;
+  --c-orange-d:#9e2558;
+  --c-orange-l:#fef0f6;
+  --c-red:     #66C7C2;
+  --c-red-d:   #2a8a85;
+  --c-red-l:   #f0fafa;
+  --c-blue:    #F4A261;
+  --c-blue-d:  #b85e1a;
+  --c-blue-m:  #f6b47e;
+  --c-blue-l:  #fff5ec;
+  --c-green:   #16a34a;
+  --c-green-l: #f0fdf4;
+  --c-slate:   #64748b;
+  --c-slate-l: #f8fafc;
+  --c-slate-m: #e2e8f0;
+  --c-ink:     #0f172a;
+  --c-bg:      #f1f5f9;
+  --c-rect:    #cbd5e1;
+  --c-rect-d:  #94a3b8;
+  --c-rect-t:  #475569;
+  --r-sm: 8px;
+  --r:    14px;
+  --mono: 'Space Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--c-bg);
+  color: var(--c-ink);
+  min-height: 100vh;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+#app {
+  width: 100%;
+  max-width: 860px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── BANDS ──────────────────────────────────────────────────────── */
+.band {
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.38s cubic-bezier(.4,0,.2,1), opacity 0.3s, padding 0.3s;
+}
+.band.visible        { max-height: 40px; opacity: 1; padding: 11px 20px; }
+.band.prop-band      { justify-content: center; } /* full-width centered */
+.band.partial-band   { justify-content: center; } /* width set by JS */
+
+/* Hela band – full width, above or below rect */
+#hela-band  { background: var(--c-orange); color: #fff; border: 2px solid var(--c-orange-d); }
+
+/* Del band – above rect in mode=hela, same width as andel */
+#del-band-wrap {
+  height: 0; overflow: hidden;
+  transition: height 0.38s cubic-bezier(.4,0,.2,1);
+}
+#del-band-wrap.visible { height: 46px; }
+#del-band {
+  margin-bottom: 6px;
+  height: 36px; width: 0%;
+  background: var(--c-orange); border: 2px solid var(--c-orange-d);
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+/* Andel band – below rect, same width as del-band */
+#andel-band-wrap {
+  height: 0; overflow: hidden;
+  transition: height 0.38s cubic-bezier(.4,0,.2,1);
+}
+#andel-band-wrap.visible { height: 46px; }
+#andel-band {
+  margin-top: 6px;
+  height: 36px; width: 0%;
+  background: var(--c-red); border: 2px solid var(--c-red-d);
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+#del-band-inner, #andel-band-inner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px; white-space: nowrap;
+  font-family: var(--mono); font-size: 0.95rem; font-weight: 700;
+  color: #fff; letter-spacing: 0.5px;
+}
+.band-pill {
+  background: rgba(255,255,255,0.25);
+  border-radius: 100px;
+  padding: 2px 13px; font-size: 0.95rem;
+}
+
+/* ── RECT WRAPPER ───────────────────────────────────────────────── */
+#rect-wrapper { display: flex; flex-direction: column; gap: 0; flex-shrink: 0; }
+
+/* ANDEL-FILL: blue pixel-fill layer inside rect for mode=hela */
+#andel-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0%;
+  background: #306BF0;
+  border-radius: var(--r) 0 0 var(--r);
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+  z-index: 0; pointer-events: none;
+}
+#andel-fill.full-radius { border-radius: var(--r); }
+
+/* Hela-mode: parts-overlay only covers the blue fill zone */
+#parts-overlay.hela-mode {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  z-index: 1;
+}
+/* Hela-mode cell colors: bright orange (gradient midpoint) on blue */
+.hela-mode .part-cell.marked   { background: #F4A261; }
+.hela-mode .part-cell.unmarked { background: rgba(255,255,255,0.15); }
+
+/* Gray zone cells (right of blue) in mode=hela */
+.part-cell.gray-zone {
+  background: rgba(255,255,255,0.08);
+  cursor: default;
+  pointer-events: none;
+}
+.part-cell.gray-zone:hover { filter: none; }
+
+
+#rect-container {
+  position: relative;
+  background: var(--c-rect);
+  border: 2.5px solid var(--c-rect-d);
+  border-radius: var(--r);
+  height: 100px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#rect-label {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--c-rect-t);
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+  text-transform: uppercase;
+}
+#parts-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  z-index: 1;
+  pointer-events: auto;
+}
+.part-cell {
+  flex: 1;
+  border-right: 1.5px solid rgba(100,116,139,0.35);
+  transition: background 0.18s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.part-cell:last-child { border-right: none; }
+.part-cell.marked   { background: #F4A261; }
+.part-cell.unmarked { background: rgba(255,255,255,0.15); }
+.part-cell:hover    { filter: brightness(0.92); }
+.part-label {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(15,23,42,0.8);
+  text-align: center;
+  pointer-events: none;
+  line-height: 1.2;
+  padding: 2px;
+}
+
+/* BOTTOM ROW */
+#bottom-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+/* PANELS */
+.panel {
+  background: #fff;
+  border: 1.5px solid var(--c-slate-m);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+#fact-box    { min-width: 240px; flex: 1; }
+#control-box { flex: 1; min-width: 220px; }
+
+.panel-head {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+  color: var(--c-slate);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--c-slate-m);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.unit-input {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  margin-left: auto;
+  width: 64px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--c-slate-m);
+  background: var(--c-slate-l);
+  color: var(--c-ink);
+  outline: none;
+  text-align: center;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.unit-input:focus { border-color: var(--c-green); }
+.unit-input::placeholder { color: var(--c-slate); opacity: 0.6; }
+
+.fact-val-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.unit-suffix {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--c-slate);
+  white-space: nowrap;
+}
+
+.formula-tog-btn {
+  margin-left: auto;
+  background: var(--c-slate-l);
+  border: 1px solid var(--c-slate-m);
+  border-radius: 5px;
+  padding: 1px 7px;
+  font-size: 0.8rem;
+  color: var(--c-slate);
+  cursor: pointer;
+  line-height: 1.4;
+  transition: background 0.15s, color 0.15s;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.formula-tog-btn:hover, .formula-tog-btn.active {
+  background: var(--c-ink);
+  color: #fff;
+  border-color: var(--c-ink);
+}
+
+/* Formula box – hidden by default */
+#formula-box {
+  padding-top: 11px;
+  border-top: 1px solid var(--c-slate-m);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 0.79rem;
+  color: var(--c-slate);
+  line-height: 1.6;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  border-top-width: 0;
+  transition: max-height 0.35s cubic-bezier(.4,0,.2,1), opacity 0.3s, padding 0.3s, border-top-width 0.3s;
+}
+#formula-box.visible {
+  max-height: 80px;
+  opacity: 1;
+  padding-top: 11px;
+  border-top-width: 1px;
+}
+
+/* FACT ROWS */
+.fact-row { display: flex; align-items: center; gap: 10px; }
+.fact-label {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--c-slate);
+  width: 46px;
+  flex-shrink: 0;
+}
+.fact-input {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  width: 86px;
+  text-align: center;
+  padding: 7px 9px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--c-slate-m);
+  background: var(--c-slate-l);
+  color: var(--c-ink);
+  outline: none;
+  transition: border-color 0.18s, background 0.18s;
+}
+.fact-input:focus { border-color: var(--c-green); background: var(--c-green-l); }
+.fact-input.answer-hidden {
+  background: var(--c-slate-m);
+  color: var(--c-slate-m);
+  border-color: transparent;
+  cursor: default;
+  user-select: none;
+}
+.fact-input.answer-shown {
+  background: var(--c-amber-l);
+  border-color: var(--c-amber);
+  color: var(--c-amber-d);
+  font-weight: 700;
+}
+
+/* TOGGLE */
+.tog-wrap { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.toggle { position: relative; width: 46px; height: 25px; cursor: pointer; flex-shrink: 0; }
+.toggle input { display: none; }
+.tog-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 13px;
+  background: var(--c-slate-m);
+  transition: background 0.22s;
+}
+.tog-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 19px; height: 19px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  transition: transform 0.24s cubic-bezier(.34,1.56,.64,1);
+}
+.toggle.on .tog-thumb  { transform: translateX(21px); }
+.toggle.on-x .tog-track { background: var(--c-orange); }
+.toggle.on-y .tog-track { background: #1e293b; }
+.toggle.on-z .tog-track { background: var(--c-red); }
+
+/* CONTROL BOX */
+.ctrl-row { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: #334155; }
+.ctrl-input {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  width: 68px;
+  text-align: center;
+  padding: 7px 8px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--c-slate-m);
+  background: var(--c-slate-l);
+  color: var(--c-ink);
+  outline: none;
+  transition: border-color 0.18s;
+}
+.ctrl-input:focus { border-color: var(--c-green); }
+
+/* Formula */
+#formula-box {
+  margin-top: auto;
+  padding-top: 11px;
+  border-top: 1px solid var(--c-slate-m);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 0.79rem;
+  color: var(--c-slate);
+  line-height: 1.6;
+}
+.f-line { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.fc {
+  font-family: var(--mono);
+  font-size: 0.73rem;
+  background: var(--c-slate-l);
+  border: 1px solid var(--c-slate-m);
+  border-radius: 5px;
+  padding: 1px 7px;
+  color: var(--c-ink);
+  font-weight: 700;
+}
+.fc.ans { background: var(--c-amber-l); border-color: var(--c-amber); color: var(--c-amber-d); }
+
+/* Del-info reveal box */
+.del-info-box {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--c-slate);
+  background: var(--c-blue-l);
+  border: 1.5px solid #bfdbfe;
+  border-radius: var(--r-sm);
+  padding: 0 12px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.35s cubic-bezier(.4,0,.2,1), opacity 0.3s, padding 0.3s;
+}
+.del-info-box.visible {
+  max-height: 60px;
+  opacity: 1;
+  padding: 8px 12px;
+}
+.toggle.on-d .tog-track { background: var(--c-blue); }
+
+/* MODE SWITCHER */
+.mode-switcher {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  background: var(--c-slate-m);
+  border-radius: 7px;
+  padding: 3px;
+}
+.mode-btn {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 5px;
+  border: none;
+  background: transparent;
+  color: var(--c-slate);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.mode-btn.active {
+  background: #fff;
+  color: var(--c-ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.10);
+}
+
+.vdiv { width: 1px; background: var(--c-slate-m); align-self: stretch; flex-shrink: 0; }
+@media (max-width: 520px) { .vdiv { display: none; } }
+
+/* Fact-box collapse */
+.collapse-btn {
+  background: none;
+  border: 1px solid var(--c-slate-m);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 0.75rem;
+  color: var(--c-slate);
+  cursor: pointer;
+  line-height: 1.4;
+  transition: background 0.15s, color 0.15s;
+}
+.collapse-btn:hover { background: var(--c-slate-m); color: var(--c-ink); }
+.collapse-btn.active { background: var(--c-ink); color: #fff; border-color: var(--c-ink); }
+
+#fact-body {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  overflow: hidden;
+  max-height: 300px;
+  opacity: 1;
+  transition: max-height 0.35s cubic-bezier(.4,0,.2,1), opacity 0.25s;
+}
+#fact-body.collapsed { max-height: 0; opacity: 0; }
+
+/* f-line and fc styles */
+.f-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; font-size: 0.82rem; color: var(--c-slate); }
+.fc {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  background: var(--c-slate-l);
+  border: 1px solid var(--c-slate-m);
+  border-radius: 5px;
+  padding: 1px 7px;
+  color: var(--c-ink);
+  font-weight: 700;
+}
+.fc.ans { background: var(--c-amber-l); border-color: var(--c-amber); color: var(--c-amber-d); }
+
+/* Vertical fraction */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.88rem;
+  line-height: 1.15;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+.frac-num, .frac-den {
+  display: block;
+  padding: 0 6px;
+  background: var(--c-slate-l);
+  border: 1px solid var(--c-slate-m);
+  color: var(--c-ink);
+}
+.frac-num { border-radius: 5px 5px 0 0; border-bottom: 2px solid var(--c-ink); }
+.frac-den { border-radius: 0 0 5px 5px; border-top: none; }
+.frac.ans .frac-num, .frac.ans .frac-den {
+  background: var(--c-amber-l);
+  border-color: var(--c-amber);
+  color: var(--c-amber-d);
+}
+.frac.ans .frac-num { border-bottom-color: var(--c-amber-d); }
+
+
+#formula-box {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.38s cubic-bezier(.4,0,.2,1), opacity 0.3s, padding 0.3s;
+}
+#formula-box.visible {
+  max-height: 420px;
+  opacity: 1;
+}
+#formula-inner {
+  border-top: 1px solid var(--c-slate-m);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.formula-question {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--c-ink);
+  line-height: 1.6;
+}
+.formula-question .fq-val {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  background: var(--c-blue-l);
+  border: 1px solid #bfdbfe;
+  border-radius: 5px;
+  padding: 2px 10px;
+  color: var(--c-blue-d);
+  font-weight: 700;
+}
+.formula-step {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.formula-step-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--c-slate);
+}
+.f-line { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 1rem; color: var(--c-slate); }
+.fc {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  background: var(--c-slate-l);
+  border: 1px solid var(--c-slate-m);
+  border-radius: 5px;
+  padding: 2px 9px;
+  color: var(--c-ink);
+  font-weight: 700;
+}
+.fc.ans { background: var(--c-amber-l); border-color: var(--c-amber); color: var(--c-amber-d); }
+/* SIGNATURE */
+#signature {
+  margin-top: 4px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  gap: 12px;
+  min-height: 52px;
+}
+#sig-left, #sig-right {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#sig-left img, #sig-right img {
+  max-width: 36px;
+  max-height: 36px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+#sig-text {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  letter-spacing: 0.2px;
+}
+.sig-dot {
+  opacity: 0.65;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div class="band" id="hela-band">
+  <span>HELA</span>
+  <span class="band-pill" id="hela-band-val">–</span>
+</div>
+
+<div id="rect-wrapper">
+  <!-- DEL-BAND: above rect, mode=hela only -->
+  <div id="del-band-wrap">
+    <div id="del-band">
+      <span id="del-band-inner">
+        <span class="band-pill" id="del-band-val">–</span>
+      </span>
+    </div>
+  </div>
+
+  <div id="rect-container">
+    <!-- blue pixel-fill for andel (mode=hela, Z-toggle) -->
+    <div id="andel-fill"></div>
+    <div id="parts-overlay"></div>
+    <div id="rect-label">Det hela</div>
+  </div>
+
+  <!-- ANDEL-BAND: below rect, partial width = andel% -->
+  <div id="andel-band-wrap">
+    <div id="andel-band">
+      <span id="andel-band-inner">
+        <span class="band-pill" id="andel-band-val">–</span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div id="bottom-row">
+
+  <div class="panel" id="fact-box">
+    <div class="panel-head">
+      <span>Faktaruta</span>
+      <button class="collapse-btn" id="fact-collapse-btn" title="Minimera">−</button>
+      <div class="mode-switcher">
+        <button class="mode-btn active" id="mode-btn-delen" onclick="setMode('delen')">Delen</button>
+        <button class="mode-btn" id="mode-btn-hela" onclick="setMode('hela')">Hela</button>
+      </div>
+      <input class="unit-input" id="inp-unit" type="text" placeholder="enhet" autocomplete="off">
+    </div>
+
+    <div id="fact-body">
+      <div class="fact-row">
+        <span class="fact-label">Andel:</span>
+        <div class="fact-val-wrap">
+          <input class="fact-input" id="inp-andel" type="text" autocomplete="off">
+        </div>
+        <div class="tog-wrap">
+          <label class="toggle" id="tog-z"><input type="checkbox" id="chk-z"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+        </div>
+      </div>
+
+      <div class="fact-row">
+        <span class="fact-label">Del:</span>
+        <div class="fact-val-wrap">
+          <!-- mode=delen: readonly answer. mode=hela: editable input -->
+          <input class="fact-input" id="inp-del" type="text" autocomplete="off">
+          <span class="unit-suffix" id="del-unit"></span>
+        </div>
+        <div class="tog-wrap">
+          <label class="toggle" id="tog-y"><input type="checkbox" id="chk-y"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+        </div>
+      </div>
+
+      <div class="fact-row">
+        <span class="fact-label">Hela:</span>
+        <div class="fact-val-wrap">
+          <!-- mode=delen: editable. mode=hela: readonly answer -->
+          <input class="fact-input" id="inp-hela" type="text" autocomplete="off">
+          <span class="unit-suffix" id="hela-unit"></span>
+        </div>
+        <div class="tog-wrap">
+          <label class="toggle" id="tog-x"><input type="checkbox" id="chk-x"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vdiv"></div>
+
+  <div class="panel" id="control-box">
+    <div class="panel-head">
+      <span>Uppdelning</span>
+      <button class="formula-tog-btn" id="formula-tog-btn" title="Visa förklaring">≡</button>
+    </div>
+
+    <div class="ctrl-row">
+      <span>Dela i:</span>
+      <input class="ctrl-input" id="inp-a" type="number" min="1" max="200" value="" autocomplete="off">
+      <span>delar</span>
+      <label class="toggle" id="tog-d" style="margin-left:auto"><input type="checkbox" id="chk-d"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+    </div>
+
+    <div class="ctrl-row">
+      <span>Markera:</span>
+      <input class="ctrl-input" id="inp-b" type="number" min="0" max="200" value="0" autocomplete="off">
+      <span>delar</span>
+    </div>
+
+
+
+    <div id="formula-box">
+      <div id="formula-inner">
+        <div class="formula-question" id="f-question"></div>
+        <div class="formula-step">
+          <div class="formula-step-label" id="f-label1">Steg 1 — Dela helheten i valda antalet delar</div>
+          <div class="f-line" id="f-line1"></div>
+        </div>
+        <div class="formula-step">
+          <div class="formula-step-label" id="f-label2">Steg 2 — Multiplicera 1 del med antalet valda delar</div>
+          <div class="f-line" id="f-line2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────
+const st = {
+  mode: 'delen',
+  hela: null, andel: null, del: null,
+  A: 10, B: 0,
+  showX: false, showY: false, showZ: false, showD: false
+};
+const $ = id => document.getElementById(id);
+
+// ─── PARSING ──────────────────────────────────────────────────────────────
+function parseAndel(s) {
+  s = s.trim();
+  if (!s) return null;
+  if (s.includes('/')) {
+    const [a, b] = s.split('/').map(n => parseFloat(n.replace(',', '.')));
+    return (!b || isNaN(a) || isNaN(b)) ? null : a / b;
+  }
+  if (s.endsWith('%')) {
+    const n = parseFloat(s.replace(',', '.'));
+    return isNaN(n) ? null : n / 100;
+  }
+  const norm = s.replace(',', '.');
+  const n = parseFloat(norm);
+  if (isNaN(n)) return null;
+  if (norm.startsWith('0') || norm.startsWith('-0')) return n;
+  return n > 1 ? n / 100 : n;
+}
+
+function fmt(n) {
+  if (n === null || n === undefined || isNaN(n)) return '–';
+  const r = Math.round(n * 10000) / 10000;
+  return r.toLocaleString('sv-SE');
+}
+
+// Format andel as fraction string if it's a clean fraction (e.g. 2/7)
+function fmtAndel(raw, decimal) {
+  if (decimal === null) return '?';
+  // If raw input contains '/', keep it as fraction
+  const t = raw.trim();
+  if (t.includes('/')) return t;
+  // Otherwise show as %
+  return fmt(decimal * 100) + ' %';
+}
+
+// ─── MODE SWITCH ──────────────────────────────────────────────────────────
+function setMode(mode) {
+  st.mode = mode;
+  st.showX = false; st.showY = false; st.showZ = false; st.showD = false;
+  ['x','y','z','d'].forEach(k => { $('chk-'+k).checked = false; });
+  st.B = 0; $('inp-b').value = 0;
+  $('inp-andel').value = '';
+  $('inp-del').value = '';
+  $('inp-hela').value = '';
+
+  $('mode-btn-delen').classList.toggle('active', mode === 'delen');
+  $('mode-btn-hela').classList.toggle('active', mode === 'hela');
+
+  const inpDel  = $('inp-del');
+  const inpHela = $('inp-hela');
+
+  if (mode === 'delen') {
+    inpDel.readOnly  = true;
+    inpHela.readOnly = false;
+    inpDel.className  = 'fact-input answer-hidden';
+    inpHela.className = 'fact-input';
+    $('rect-label').textContent = 'Det hela';
+  } else {
+    inpHela.readOnly = true;
+    inpDel.readOnly  = false;
+    inpHela.className = 'fact-input answer-hidden';
+    inpDel.className  = 'fact-input';
+    $('rect-label').textContent = 'Det hela';
+  }
+
+  // Reset all bands
+  ['hela-band','andel-band-wrap','del-band-wrap'].forEach(id => {
+    $( id).classList.remove('visible');
+  });
+  $('andel-band').style.width = '0%';
+  $('del-band').style.width   = '0%';
+  $('andel-fill').style.width = '0%';
+  $('parts-overlay').classList.remove('hela-mode');
+  $('parts-overlay').style.width = '';
+
+  update();
+}
+
+// ─── TOGGLES ──────────────────────────────────────────────────────────────
+function setTog(el, on, cls) {
+  ['on','on-x','on-y','on-z','on-d'].forEach(c => el.classList.remove(c));
+  if (on) { el.classList.add('on'); el.classList.add(cls); }
+}
+
+// ─── RENDER PARTS ─────────────────────────────────────────────────────────
+function renderParts(noLines) {
+  const ov = $('parts-overlay');
+  ov.innerHTML = '';
+  const unit = $('inp-unit').value.trim();
+  const u = unit ? ' ' + unit : '';
+
+  if (st.mode === 'hela') {
+    ov.classList.add('hela-mode');
+
+    if (noLines || !st.showZ || st.andel === null) {
+      ov.style.width = '0%';
+      const grayOv = $('gray-overlay');
+      if (grayOv) grayOv.innerHTML = '';
+      return;
+    }
+
+    const A = st.A; // cells in blue zone
+    const totalCells = Math.round(A / st.andel); // total cells for 100%
+    const grayCells  = Math.max(0, totalCells - A);
+    const B = Math.min(st.B, totalCells); // mark can go all the way to totalCells
+
+    // Helper: build a cell at global index i (0-based across all cells)
+    function makeCell(i, isGray) {
+      const c = document.createElement('div');
+      const marked = i < B;
+      c.className = 'part-cell ' + (marked ? 'marked' : (isGray ? 'gray-zone' : 'unmarked'));
+
+      // D-toggle label
+      if (st.showD && st.del !== null) {
+        const lbl = document.createElement('div');
+        lbl.className = 'part-label';
+        if (isGray) lbl.style.opacity = '0.55';
+        const valStr = fmt(st.del / A) + u;
+        const rawAndel = $('inp-andel').value.trim();
+        let pctStr;
+        if (rawAndel.includes('/')) {
+          const [an, ad] = rawAndel.split('/').map(s => parseFloat(s.replace(',', '.')));
+          pctStr = an + '/' + (ad * A);
+        } else {
+          pctStr = fmt(st.andel * 100 / A) + ' %';
+        }
+        lbl.innerHTML = valStr + '<br><span style="font-size:0.7em;opacity:0.75">' + pctStr + '</span>';
+        c.appendChild(lbl);
+      }
+
+      c.addEventListener('click', () => {
+        const wasMarked = i < st.B;
+        if (wasMarked) {
+          // clicking a marked cell: unmark from this cell onward
+          st.B = i < st.B ? i : Math.max(0, st.B - 1);
+        } else {
+          st.B = i + 1;
+        }
+        st.B = Math.max(0, Math.min(totalCells, st.B));
+        $('inp-b').value = st.B;
+        update();
+      });
+      return c;
+    }
+
+    // Blue zone cells (inside parts-overlay, which is clipped to andel%)
+    for (let i = 0; i < A; i++) {
+      const c = ov.appendChild(makeCell(i, false));
+      // Last blue cell: add explicit right border — the overlay clips it otherwise
+      if (i === A - 1 && grayCells > 0) c.style.borderRight = '1.5px solid rgba(100,116,139,0.35)';
+    }
+
+    // Gray zone (separate overlay, right of blue)
+    let grayOv = $('gray-overlay');
+    if (!grayOv) {
+      grayOv = document.createElement('div');
+      grayOv.id = 'gray-overlay';
+      grayOv.style.cssText = 'position:absolute;top:0;bottom:0;right:0;display:flex;z-index:1;pointer-events:auto;';
+      $('rect-container').appendChild(grayOv);
+    }
+    grayOv.innerHTML = '';
+
+    if (grayCells > 0) {
+      grayOv.style.width = (100 - Math.min(100, st.andel * 100)) + '%';
+      for (let i = 0; i < grayCells; i++) {
+        const globalIndex = A + i;
+        const c = makeCell(globalIndex, true);
+        c.style.cursor = 'pointer';
+        c.style.pointerEvents = 'auto';
+        // First gray cell: explicit left border to close the gap at the zone junction
+        if (i === 0) c.style.borderLeft = '1.5px solid rgba(100,116,139,0.35)';
+        grayOv.appendChild(c);
+      }
+    } else {
+      grayOv.style.width = '0%';
+    }
+
+    // Also update inp-b max to totalCells
+    $('inp-b').max = totalCells;
+
+  } else {
+    // mode=delen: full-width parts, remove hela-mode artifacts
+    ov.classList.remove('hela-mode');
+    ov.style.width = '';
+    const grayOv = $('gray-overlay');
+    if (grayOv) { grayOv.innerHTML = ''; grayOv.style.width = '0%'; }
+
+    const A = st.A, B = Math.min(st.B, A);
+    const cellVal = (st.showD && st.hela !== null && !noLines) ? fmt(st.hela / A) : null;
+
+    for (let i = 0; i < A; i++) {
+      const c = document.createElement('div');
+      c.className = 'part-cell ' + (i < B ? 'marked' : 'unmarked');
+      if (noLines) c.style.borderRight = 'none';
+
+      if (cellVal !== null) {
+        const lbl = document.createElement('div');
+        lbl.className = 'part-label';
+        lbl.textContent = cellVal + u;
+        c.appendChild(lbl);
+      }
+
+      c.addEventListener('click', () => {
+        const isMarked = c.classList.contains('marked');
+        st.B = isMarked ? (i < st.B ? i : Math.max(0, st.B - 1)) : i + 1;
+        $('inp-b').value = st.B;
+        update();
+      });
+      ov.appendChild(c);
+    }
+  }
+}
+
+// ─── MAIN UPDATE ──────────────────────────────────────────────────────────
+function update() {
+  const aRaw = $('inp-a').value.trim();
+  st.A   = aRaw === '' ? 1 : Math.max(1, Math.min(200, parseInt(aRaw) || 1));
+  const aEmpty = aRaw === '';
+  st.andel = parseAndel($('inp-andel').value);
+
+  // In hela-mode B can go up to totalCells; in delen-mode up to A
+  const totalCellsForClamp = (st.mode === 'hela' && st.andel !== null && !aEmpty)
+    ? Math.round(st.A / st.andel) : st.A;
+  st.B = Math.max(0, Math.min(totalCellsForClamp, parseInt($('inp-b').value) || 0));
+
+  const unit = $('inp-unit').value.trim();
+  const u = unit ? ' ' + unit : '';
+
+  if (st.mode === 'delen') {
+    // ── MODE: HITTA DELEN ─────────────────────────────────────────────
+    st.hela = parseFloat($('inp-hela').value.replace(',','.')) || null;
+    const del = (st.hela !== null && st.andel !== null) ? st.andel * st.hela : null;
+    st.del = del;
+
+    // Clear hela-mode visuals
+    $('andel-fill').style.width = '0%';
+    $('parts-overlay').classList.remove('hela-mode');
+    $('parts-overlay').style.width = '';
+    $('del-band-wrap').classList.remove('visible');
+    $('del-band').style.width = '0%';
+    const grayOv = $('gray-overlay');
+    if (grayOv) grayOv.innerHTML = '';
+
+    // Del answer
+    const inpDel = $('inp-del');
+    if (st.showY && del !== null) {
+      inpDel.value = fmt(del);
+      inpDel.className = 'fact-input answer-shown';
+    } else {
+      inpDel.value = '';
+      inpDel.className = 'fact-input answer-hidden';
+    }
+
+    // Hela-band (full width, above)
+    const hb = $('hela-band');
+    if (st.showX && st.hela !== null) {
+      $('hela-band-val').textContent = fmt(st.hela) + u;
+      hb.classList.add('visible');
+    } else hb.classList.remove('visible');
+
+    // Andel-band (teal, below, proportional)
+    const abWrap = $('andel-band-wrap');
+    if (st.showZ && st.andel !== null) {
+      const pct = Math.min(1, Math.max(0, st.andel)) * 100;
+      $('andel-band-val').textContent = $('inp-andel').value.trim() || (fmt(st.andel * 100) + '%');
+      abWrap.classList.add('visible');
+      requestAnimationFrame(() => { $('andel-band').style.width = pct + '%'; });
+    } else {
+      $('andel-band').style.width = '0%';
+      abWrap.classList.remove('visible');
+    }
+
+    $('rect-label').style.display = (!aEmpty && st.A > 1) ? 'none' : '';
+
+    // Formula
+    const andelStr = $('inp-andel').value.trim() || '?';
+    const helaFmt = st.hela !== null ? fmt(st.hela) : '?';
+    const delFmt  = st.hela !== null ? fmt(st.hela / st.A) : '?';
+    const svarFmt = st.hela !== null ? fmt((st.hela / st.A) * st.B) : '?';
+    $('f-question').innerHTML = `Hur mycket är ${fq(andelStr)} av ${fq(helaFmt + u)}?`;
+    $('f-label1').textContent = 'Steg 1 — Dela helheten i valda antalet delar';
+    $('f-label2').textContent = 'Steg 2 — Multiplicera 1 del med antalet valda delar';
+    $('f-line1').innerHTML = aEmpty ? '<em>Ange antal delar ovan.</em>' :
+      `1 del är värd: ${frac(helaFmt + u, st.A)} = ${fc(delFmt + u, 'ans')}`;
+    $('f-line2').innerHTML = (aEmpty || st.B === 0) ? '<em>Markera delar i figuren.</em>' :
+      `Valda delar värda: ${fc(st.B)} · ${fc(delFmt + u)} = ${fc(svarFmt + u, 'ans')}`;
+
+  } else {
+    // ── MODE: HITTA HELA ──────────────────────────────────────────────
+    st.del = parseFloat($('inp-del').value.replace(',','.')) || null;
+    const hela = (st.del !== null && st.andel !== null && st.andel !== 0)
+      ? st.del / st.andel : null;
+    st.hela = hela;
+
+    // Hela answer field
+    const inpHela = $('inp-hela');
+    if (st.showX && hela !== null) {
+      inpHela.value = fmt(hela);
+      inpHela.className = 'fact-input answer-shown';
+    } else {
+      inpHela.value = '';
+      inpHela.className = 'fact-input answer-hidden';
+    }
+
+    // Hela-band (full width, above rect)
+    const hb = $('hela-band');
+    if (st.showX && hela !== null) {
+      $('hela-band-val').textContent = fmt(hela) + u;
+      hb.classList.add('visible');
+    } else hb.classList.remove('visible');
+
+    // Andel% for geometry
+    const andelPct = (st.andel !== null)
+      ? Math.min(100, Math.max(0, st.andel * 100)) : 0;
+
+    // Blue fill inside rect = andel%
+    const showBands = st.showZ && st.andel !== null;
+    const fill = $('andel-fill');
+    fill.classList.toggle('full-radius', andelPct >= 99.9);
+    requestAnimationFrame(() => {
+      fill.style.width = showBands ? andelPct + '%' : '0%';
+    });
+    $('parts-overlay').style.width = showBands ? andelPct + '%' : '0%';
+
+    // DEL-BAND: above rect, same width as andel, orange, shows Del value
+    const dbWrap = $('del-band-wrap');
+    if (showBands && st.del !== null) {
+      $('del-band-val').textContent = fmt(st.del) + u;
+      dbWrap.classList.add('visible');
+      requestAnimationFrame(() => { $('del-band').style.width = andelPct + '%'; });
+    } else if (showBands) {
+      $('del-band-val').textContent = '?';
+      dbWrap.classList.add('visible');
+      requestAnimationFrame(() => { $('del-band').style.width = andelPct + '%'; });
+    } else {
+      $('del-band').style.width = '0%';
+      dbWrap.classList.remove('visible');
+    }
+
+    // ANDEL-BAND: below rect, same width, teal, shows andel label
+    const abWrap = $('andel-band-wrap');
+    if (showBands) {
+      const rawAndel = $('inp-andel').value.trim();
+      $('andel-band-val').textContent = rawAndel || (fmt(andelPct) + '%');
+      abWrap.classList.add('visible');
+      requestAnimationFrame(() => { $('andel-band').style.width = andelPct + '%'; });
+    } else {
+      $('andel-band').style.width = '0%';
+      abWrap.classList.remove('visible');
+    }
+
+    // rect-label
+    const subdivided = showBands && !aEmpty && st.A > 1;
+    $('rect-label').style.display = subdivided ? 'none' : '';
+
+    // Formula
+    const andelStr = $('inp-andel').value.trim() || '?';
+    const delStr   = st.del !== null ? fmt(st.del) : '?';
+    const enDelFmt = st.del !== null ? fmt(st.del / st.A) : '?';
+    // Each blue cell = andel/A of the whole → as percentage
+    const enDelPct = (st.andel !== null && !aEmpty)
+      ? fmt(st.andel * 100 / st.A) + ' %' : '?';
+    // As fraction of whole: andel/A (display as fraction if raw is fraction)
+    const rawAndel = $('inp-andel').value.trim();
+    let enDelFracStr;
+    if (rawAndel.includes('/') && !aEmpty) {
+      const [an, ad] = rawAndel.split('/').map(s => parseFloat(s.replace(',','.')));
+      enDelFracStr = an + '/' + (ad * st.A);
+    } else {
+      enDelFracStr = enDelPct;
+    }
+    const totalCells = (st.andel !== null && !aEmpty) ? Math.round(st.A / st.andel) : null;
+    const svarFmt = hela !== null ? fmt(hela) : '?';
+
+    $('f-question').innerHTML = `Om ${fq(andelStr)} är ${fq(delStr + u)}, hur mycket är då ${fq('100 %')}?`;
+    $('f-label1').textContent = 'Steg 1 — Dela andelen i valda antalet delar';
+    $('f-label2').textContent = 'Steg 2 — Räkna ut hur många delar som krävs för 100 %';
+
+    $('f-line1').innerHTML = aEmpty ? '<em>Ange antal delar ovan.</em>' :
+      `1 del av ${fq(andelStr)} är: ${frac(delStr + u, st.A)} = ${fc(enDelFmt + u, 'ans')} och utgör ${fc(enDelFracStr)} av hela`;
+
+    const tcStr = totalCells !== null ? String(totalCells) : '?';
+    $('f-line2').innerHTML = (aEmpty || st.del === null || st.andel === null) ?
+      '<em>Fyll i andel och del ovan.</em>' :
+      `Hela = ${fc(tcStr)} delar · ${fc(enDelFmt + u)} = ${fc(svarFmt + u, 'ans')}`;
+  }
+
+  // ── SHARED ────────────────────────────────────────────────────────
+  setTog($('tog-x'), st.showX, 'on-x');
+  setTog($('tog-y'), st.showY, 'on-y');
+  setTog($('tog-z'), st.showZ, 'on-z');
+  setTog($('tog-d'), st.showD, 'on-d');
+  $('hela-unit').textContent = unit;
+  $('del-unit').textContent  = unit;
+
+  document.querySelectorAll('.chip').forEach(ch => {
+    const aRaw2 = $('inp-a').value.trim();
+    ch.classList.toggle('active', aRaw2 !== '' && parseInt(ch.dataset.a) === st.A);
+  });
+
+  renderParts(aEmpty);
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────
+function fc(text, cls = '') {
+  return `<span class="fc${cls ? ' ' + cls : ''}">${text}</span>`;
+}
+function fq(text) {
+  return `<span class="fq-val">${text}</span>`;
+}
+function frac(num, den, cls = '') {
+  return `<span class="frac${cls ? ' ' + cls : ''}"><span class="frac-num">${num}</span><span class="frac-den">${den}</span></span>`;
+}
+
+// ─── EVENT LISTENERS ──────────────────────────────────────────────────────
+$('inp-hela').addEventListener('input', update);
+$('inp-andel').addEventListener('input', update);
+$('inp-del').addEventListener('input', update);
+
+['x','y','z'].forEach(k => {
+  $('chk-' + k).addEventListener('change', () => { st['show' + k.toUpperCase()] = $('chk-' + k).checked; update(); });
+});
+$('chk-d').addEventListener('change', () => { st.showD = $('chk-d').checked; update(); });
+
+$('inp-a').addEventListener('input', () => {
+  const aRaw = $('inp-a').value.trim();
+  st.A = aRaw === '' ? 1 : Math.max(1, Math.min(200, parseInt(aRaw) || 1));
+  // don't clamp B here — update() will do it correctly per mode
+  update();
+});
+$('inp-b').addEventListener('input', () => {
+  st.B = Math.max(0, Math.min(st.A, parseInt($('inp-b').value) || 0));
+  update();
+});
+
+$('fact-collapse-btn').addEventListener('click', () => {
+  const body = $('fact-body');
+  const btn  = $('fact-collapse-btn');
+  const collapsed = body.classList.toggle('collapsed');
+  btn.textContent = collapsed ? '+' : '−';
+  btn.classList.toggle('active', collapsed);
+});
+
+$('inp-unit').addEventListener('input', update);
+
+$('formula-tog-btn').addEventListener('click', () => {
+  const fb = $('formula-box');
+  const btn = $('formula-tog-btn');
+  const isVisible = fb.classList.toggle('visible');
+  btn.classList.toggle('active', isVisible);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  const k = e.key.toLowerCase();
+  if (k === 'x') { const c = $('chk-x'); c.checked = !c.checked; st.showX = c.checked; update(); }
+  if (k === 'y') { const c = $('chk-y'); c.checked = !c.checked; st.showY = c.checked; update(); }
+  if (k === 'z') { const c = $('chk-z'); c.checked = !c.checked; st.showZ = c.checked; update(); }
+});
+
+setMode('delen');
+</script>
+
+<div id="signature">
+  <div id="sig-left">
+    <img id="sig-logo-left" src="PT_Vit.svg" alt="" onerror="this.style.display='none'">
+  </div>
+  <div id="sig-text">
+    <span>© Patrick Tegnefur</span>
+    <span class="sig-dot">·</span>
+    <span>Förstelärare i matematik &amp; IT-pedagog</span>
+    <span class="sig-dot">·</span>
+    <span>Alfred Dalinskolan, Huskvarna</span>
+  </div>
+  <div id="sig-right">
+    <img id="sig-logo-right" src="AD_pippi_vit.svg" alt="" onerror="this.style.display='none'">
+  </div>
+</div>
+</div><!-- #app -->
+</body>
+</html>
