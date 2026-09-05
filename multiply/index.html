@@ -77,14 +77,29 @@
     .banner-sep, .banner-title{display:none;}
   }
 
-  .active-fact{
+  .active-fact-panel{
+    width:100%;
+    background:var(--accent);
+    color:#fff;
+    border-radius:16px;
+    padding:16px 12px;
     text-align:center;
-    min-height:30px;
-    margin:0 auto 12px;
-    font-weight:700;
-    font-size:1.15rem;
-    color:var(--header-glow);
+    box-shadow:0 8px 22px rgba(48,107,240,.3);
+  }
+  .active-fact-value{
+    font-family:'Montserrat',sans-serif;
+    font-weight:800;
+    font-size:1.3rem;
     letter-spacing:.3px;
+    min-height:1.6rem;
+  }
+  .active-fact-label{
+    font-size:.7rem;
+    font-weight:600;
+    opacity:.85;
+    margin-top:3px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
   }
 
   .mini-icon-btn{
@@ -304,6 +319,16 @@
     font-weight:700;
   }
 
+  .workspace{
+    display:flex;
+    gap:26px;
+    align-items:flex-start;
+    justify-content:center;
+    flex-wrap:wrap;
+    max-width:1160px;
+    margin:0 auto;
+  }
+
   .grid-panel{
     background: linear-gradient(150deg, #e7e1fb 0%, #dbd2f8 100%);
     border:1px solid var(--border);
@@ -311,7 +336,7 @@
     padding:26px 22px;
     box-shadow:0 10px 34px rgba(48,107,240,.16);
     max-width:fit-content;
-    margin:0 auto 24px;
+    margin:0;
   }
 
   .grid-wrap{
@@ -320,15 +345,97 @@
     justify-content:center;
   }
 
-  .mini-toggles{
+  .side-column{
     display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:22px;
-    max-width:760px;
-    margin:26px auto 0;
-    padding-top:16px;
+    flex-direction:column;
+    gap:16px;
+    width:200px;
+    flex-shrink:0;
   }
+
+  .side-panel{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:20px 18px;
+    box-shadow:0 6px 22px var(--shadow);
+  }
+  .side-toggle{
+    width:100%;
+    justify-content:space-between;
+  }
+  .side-toggle.highlight{
+    background:var(--surface2);
+    border-radius:10px;
+    padding:7px 10px;
+    margin:0 -10px;
+    width:calc(100% + 20px);
+  }
+  .side-toggle.highlight .mini-label{
+    color:var(--text);
+    font-weight:700;
+  }
+  .side-toggle .mini-label{
+    order:-1;
+    font-size:.85rem;
+  }
+  .timer-display-big{
+    text-align:center;
+    font-weight:800;
+    font-size:1.35rem;
+    color:var(--accent);
+    background:var(--surface2);
+    border-radius:14px;
+    padding:10px 6px;
+    letter-spacing:.4px;
+  }
+  .timer-display-big.hidden{display:none;}
+  .side-panel-actions{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    padding-top:10px;
+    border-top:1px solid var(--border);
+    margin-top:2px;
+  }
+
+  .game-cta-btn{
+    width:100%;
+    background:var(--accent2);
+    color:#fff;
+    border:none;
+    font-family:'Montserrat',sans-serif;
+    font-weight:800;
+    font-size:.95rem;
+    padding:16px 12px;
+    border-radius:16px;
+    cursor:pointer;
+    line-height:1.4;
+    box-shadow:0 8px 22px rgba(236,96,149,.35);
+    transition:transform .15s;
+  }
+  .game-cta-btn:hover{transform:translateY(-2px);}
+  .game-cta-sub{
+    display:block;
+    font-size:.72rem;
+    font-weight:600;
+    opacity:.9;
+    margin-top:3px;
+  }
+
+  @media (max-width:860px){
+    .workspace{flex-direction:column; align-items:center;}
+    .side-column{width:100%; max-width:340px;}
+    .side-panel{flex-direction:row; flex-wrap:wrap; justify-content:center; gap:14px 20px;}
+    .side-toggle{width:auto;}
+    .timer-display-big{width:100%;}
+    .side-panel-actions{width:100%;}
+  }
+
   .mini-toggle{
     display:flex;
     align-items:center;
@@ -369,6 +476,7 @@
     letter-spacing:.2px;
   }
   .mini-toggle input:checked ~ .mini-label{color:var(--text);}
+  .mini-toggle:has(input:checked) .mini-label{color:var(--text);}
   table{
     border-collapse:separate;
     border-spacing:4px;
@@ -388,7 +496,9 @@
     font-size:1.05rem;
     letter-spacing:.2px;
     transition:background .12s, box-shadow .12s;
+    cursor:pointer;
   }
+  th:hover{box-shadow:0 0 0 2px rgba(255,255,255,.6) inset;}
   th.active-header{
     background:var(--header-glow);
     box-shadow:0 0 0 3px rgba(236,96,149,.35);
@@ -399,7 +509,9 @@
     font-family:'Montserrat',sans-serif;
     font-weight:700;
     font-size:1.1rem;
+    cursor:default;
   }
+  th.corner:hover{box-shadow:none;}
   td.cell{
     padding:0;
     background:var(--surface);
@@ -434,6 +546,10 @@
   }
   td.cell.correct::after{color:var(--correct);}
   td.cell.wrong::after{color:var(--wrong);}
+  td.cell.cell-mirror-shadow{
+    background-image: repeating-linear-gradient(135deg, rgba(60,52,92,.24) 0, rgba(60,52,92,.24) 4px, transparent 4px, transparent 8px);
+    border-color: rgba(60,52,92,.35);
+  }
   td.cell.cell-shaded{
     opacity:.1;
     border-color:transparent;
@@ -471,6 +587,167 @@
     font-weight:600;
     font-size:.9rem;
     color:var(--text);
+  }
+
+  .game-modal{max-width:800px;}
+  .game-modal .modal-body{
+    padding:26px 28px 30px;
+    gap:26px;
+  }
+  .game-modal .setting-block{gap:10px;}
+  .game-view.hidden{display:none;}
+
+  .segmented{
+    display:flex;
+    gap:10px;
+  }
+  .segmented button{
+    flex:1;
+    padding:14px 8px;
+    border-radius:12px;
+    border:1.5px solid var(--border);
+    background:var(--surface2);
+    font-family:'Montserrat',sans-serif;
+    font-weight:700;
+    font-size:.88rem;
+    color:var(--muted);
+    cursor:pointer;
+    line-height:1.6;
+    transition:.15s;
+  }
+  .segmented button:hover{border-color:var(--accent);}
+  .segmented button.active{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+    box-shadow:0 4px 14px rgba(48,107,240,.25);
+  }
+  .segmented-sub{
+    display:block;
+    font-size:.72rem;
+    font-weight:500;
+    opacity:.8;
+    margin-top:2px;
+  }
+
+  .code-row{
+    display:flex;
+    gap:10px;
+  }
+  .code-row input{
+    flex:1;
+    padding:12px 14px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    font-family:'Montserrat',sans-serif;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--text);
+    font-size:.95rem;
+  }
+
+  .game-start-btn{
+    background:var(--accent);
+    color:#fff;
+    font-size:1.05rem;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 6px 20px rgba(48,107,240,.28);
+  }
+
+  .game-play-header{
+    background:var(--surface2);
+    border-radius:16px;
+    padding:18px 16px 16px;
+    margin-bottom:22px;
+  }
+  .game-timer-big{
+    text-align:center;
+    font-weight:800;
+    font-size:2.1rem;
+    color:var(--accent);
+    margin-bottom:8px;
+  }
+  .game-progress{
+    text-align:center;
+    color:var(--muted);
+    font-size:.85rem;
+    font-weight:600;
+  }
+  .game-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:14px 18px;
+    margin-bottom:22px;
+  }
+  .game-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--surface);
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    padding:10px 12px;
+    position:relative;
+    box-shadow:0 2px 8px rgba(48,107,240,.06);
+    transition:background .15s, border-color .15s, box-shadow .15s;
+  }
+  .game-item:focus-within{border-color:var(--accent); box-shadow:0 0 0 3px rgba(48,107,240,.15);}
+  .game-item.correct{background:var(--correct-bg); border-color:var(--correct);}
+  .game-item.wrong{background:var(--wrong-bg); border-color:var(--wrong);}
+  .game-num{
+    font-size:.7rem;
+    color:var(--muted);
+    font-weight:700;
+    min-width:16px;
+  }
+  .game-expr{
+    font-family:'Montserrat',sans-serif;
+    font-weight:600;
+    font-size:.88rem;
+    white-space:nowrap;
+  }
+  .game-item input{
+    width:48px;
+    flex-shrink:0;
+    margin-left:auto;
+    text-align:center;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:6px 2px;
+    font-family:'Montserrat',sans-serif;
+    font-weight:700;
+    font-size:.9rem;
+    color:var(--text);
+  }
+  .game-item.correct input, .game-item.wrong input{border-color:transparent;}
+
+  .result-stat-row{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .result-stat{
+    flex:1;
+    text-align:center;
+    background:var(--surface2);
+    border-radius:14px;
+    padding:16px 8px;
+  }
+  .result-stat .num{font-size:1.7rem; font-weight:800; color:var(--accent);}
+  .result-stat .label{font-size:.75rem; color:var(--muted); font-weight:600; margin-top:2px;}
+
+  .result-actions{
+    display:flex;
+    gap:12px;
+    margin-top:8px;
+  }
+  .result-actions .btn{flex:1; padding:13px;}
+
+  @media (max-width:600px){
+    .game-grid{grid-template-columns:repeat(2, 1fr);}
   }
 
   #printArea{display:none;}
@@ -571,52 +848,148 @@
 </header>
 
 <div class="status" id="status"></div>
-<div class="timer-display hidden" id="timerDisplay">⏱ 00:00</div>
 <div class="misslist" id="misslist"></div>
-<div class="active-fact" id="activeFact">&nbsp;</div>
 
-<div class="grid-panel">
-  <div class="grid-wrap">
-    <table id="grid"></table>
+<div class="workspace">
+  <div class="grid-panel">
+    <div class="grid-wrap">
+      <table id="grid"></table>
+    </div>
+  </div>
+
+  <div class="side-column">
+    <div class="active-fact-panel">
+      <div class="active-fact-value" id="activeFact">&nbsp;</div>
+      <div class="active-fact-label">Aktiv uppgift</div>
+    </div>
+
+    <aside class="side-panel">
+      <div class="timer-display-big hidden" id="timerDisplay">⏱ 00:00</div>
+
+      <label class="mini-toggle side-toggle">
+        <span class="mini-label">Spegla</span>
+        <input type="checkbox" id="mirrorToggle">
+        <span class="mini-slider"></span>
+      </label>
+      <label class="mini-toggle side-toggle highlight">
+        <span class="mini-label">Rättning</span>
+        <input type="checkbox" id="checkToggle">
+        <span class="mini-slider"></span>
+      </label>
+      <label class="mini-toggle side-toggle">
+        <span class="mini-label">Fokusläge</span>
+        <input type="checkbox" id="focusToggle">
+        <span class="mini-slider accent2"></span>
+      </label>
+      <label class="mini-toggle side-toggle">
+        <span class="mini-label">Svåra tal</span>
+        <input type="checkbox" id="hardFactsToggle">
+        <span class="mini-slider accent2"></span>
+      </label>
+      <label class="mini-toggle side-toggle">
+        <span class="mini-label">Tid</span>
+        <input type="checkbox" id="timerToggle">
+        <span class="mini-slider"></span>
+      </label>
+      <label class="mini-toggle side-toggle">
+        <span class="mini-label">12×12</span>
+        <input type="checkbox" id="size12Toggle">
+        <span class="mini-slider"></span>
+      </label>
+      <label class="mini-toggle side-toggle">
+        <span class="mini-label">15×15</span>
+        <input type="checkbox" id="size15Toggle">
+        <span class="mini-slider"></span>
+      </label>
+
+      <div class="side-panel-actions">
+        <button class="mini-icon-btn" id="infoBtn" aria-label="Information">ℹ️</button>
+        <button class="mini-icon-btn" id="settingsBtn" aria-label="Inställningar">⚙️</button>
+        <button class="mini-icon-btn" id="resetAllBtn" aria-label="Återställ allt">🔄</button>
+      </div>
+    </aside>
+
+    <button class="game-cta-btn" id="openGameBtn">🎮 Spelläge<span class="game-cta-sub">40 uppgifter på tid</span></button>
   </div>
 </div>
 
 <div id="printArea"></div>
 
-<div class="mini-toggles">
-  <button class="mini-icon-btn" id="infoBtn" aria-label="Information">ℹ️</button>
-  <label class="mini-toggle">
-    <input type="checkbox" id="mirrorToggle">
-    <span class="mini-slider"></span>
-    <span class="mini-label">Spegla</span>
-  </label>
-  <label class="mini-toggle">
-    <input type="checkbox" id="checkToggle">
-    <span class="mini-slider"></span>
-    <span class="mini-label">Rättning</span>
-  </label>
-  <label class="mini-toggle">
-    <input type="checkbox" id="focusToggle">
-    <span class="mini-slider accent2"></span>
-    <span class="mini-label">Fokusläge</span>
-  </label>
-  <label class="mini-toggle">
-    <input type="checkbox" id="timerToggle">
-    <span class="mini-slider"></span>
-    <span class="mini-label">Tid</span>
-  </label>
-  <label class="mini-toggle">
-    <input type="checkbox" id="size12Toggle">
-    <span class="mini-slider"></span>
-    <span class="mini-label">12×12</span>
-  </label>
-  <label class="mini-toggle">
-    <input type="checkbox" id="size15Toggle">
-    <span class="mini-slider"></span>
-    <span class="mini-label">15×15</span>
-  </label>
-  <button class="mini-icon-btn" id="settingsBtn" aria-label="Inställningar">⚙️</button>
-  <button class="mini-icon-btn" id="resetAllBtn" aria-label="Återställ allt">🔄</button>
+<div class="modal-overlay hidden" id="gameOverlay">
+  <div class="modal game-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+    <div class="modal-header">
+      <h2 id="gameTitle">Spelläge</h2>
+      <button class="icon-btn" id="closeGameBtn" aria-label="Stäng">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="game-view" id="gameSetupView">
+        <div class="setting-block">
+          <div class="setting-block-label">Svårighet</div>
+          <div class="segmented" id="difficultySegmented">
+            <button type="button" data-value="easy">Enkelt<br><span class="segmented-sub">1–6</span></button>
+            <button type="button" data-value="mixed" class="active">Blandat<br><span class="segmented-sub">1–10</span></button>
+            <button type="button" data-value="hard">Svårast<br><span class="segmented-sub">3–9, klurigt</span></button>
+          </div>
+        </div>
+
+        <div class="setting-block">
+          <div class="setting-block-label">Rättning</div>
+          <div class="segmented" id="correctionSegmented">
+            <button type="button" data-value="live" class="active">Direkt</button>
+            <button type="button" data-value="end">Vid slutet</button>
+          </div>
+          <div class="setting-block-hint">Läget låses för hela omgången när du startar.</div>
+        </div>
+
+        <div class="setting-block">
+          <div class="setting-block-label">Kod (valfritt)</div>
+          <div class="code-row">
+            <input type="text" id="gameCodeInput" placeholder="T.ex. B1A2K3">
+            <button class="btn subtle" id="clearGameCodeBtn">Rensa</button>
+          </div>
+          <div class="setting-block-hint">Ange en kod för att köra exakt samma 40 uppgifter igen — bra om alla elever ska få samma set. Lämna tomt för ett nytt slumpat set.</div>
+        </div>
+
+        <button class="btn full game-start-btn" id="startGameBtn">▶️ Starta</button>
+      </div>
+
+      <div class="game-view hidden" id="gamePlayView">
+        <div class="game-play-header">
+          <div class="game-timer-big" id="gameTimerEl">⏱ 00:00</div>
+          <div class="game-progress" id="gameProgressEl">0 / 40 ifyllda</div>
+        </div>
+        <div class="game-grid" id="gameGrid"></div>
+        <button class="btn subtle full" id="quitGameBtn">Avbryt omgången</button>
+      </div>
+
+      <div class="game-view hidden" id="gameResultsView">
+        <div class="result-stat-row">
+          <div class="result-stat"><div class="num" id="resultTimeEl">00:00</div><div class="label">Tid</div></div>
+          <div class="result-stat"><div class="num" id="resultCorrectEl">0</div><div class="label">Rätt</div></div>
+          <div class="result-stat"><div class="num" id="resultWrongEl">0</div><div class="label">Fel</div></div>
+        </div>
+        <div class="setting-block" id="resultWrongBlock">
+          <div class="setting-block-label">Blev fel</div>
+          <div class="misslist-chips" id="resultWrongChips"></div>
+        </div>
+        <div class="setting-block" id="resultSlowBlock">
+          <div class="setting-block-label">Tog längst tid</div>
+          <div class="misslist-chips" id="resultSlowChips"></div>
+        </div>
+        <div class="setting-block">
+          <div class="setting-block-label">Kod för denna omgång</div>
+          <div class="game-code-display" id="resultCodeEl">—</div>
+          <div class="setting-block-hint">Dela koden för att låta någon annan köra exakt samma uppgifter.</div>
+        </div>
+        <div class="result-actions">
+          <button class="btn subtle" id="replaySameBtn">🔁 Öva om (samma set)</button>
+          <button class="btn full" id="newSetBtn">🎲 Nytt set</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay hidden" id="infoOverlay">
@@ -630,16 +1003,20 @@
         <div class="setting-block-hint">Fyll i alla svar i tabellen — det är oftast bara några få tal du inte redan kan.</div>
       </div>
       <div class="setting-block">
+        <div class="setting-block-label">Kortkommandon</div>
+        <div class="setting-block-hint">Piltangenterna flyttar dig mellan celler i rutan. Tab går till nästa cell, Shift+Tab till föregående — bra om du vill hålla händerna kvar på tangentbordet.</div>
+      </div>
+      <div class="setting-block">
         <div class="setting-block-label">Spegla</div>
-        <div class="setting-block-hint">Skriver du t.ex. i 4×5 fylls 5×4 i automatiskt — bra påminnelse om att multiplikation är kommutativt.</div>
+        <div class="setting-block-hint">Skriver du t.ex. i 4×5 fylls 5×4 i automatiskt — bra påminnelse om att multiplikation är kommutativt. Den nedre halvan av rutan skuggas samtidigt lite, som en påminnelse om att du egentligen bara behöver kunna den övre.</div>
       </div>
       <div class="setting-block">
         <div class="setting-block-label">Rättning</div>
         <div class="setting-block-hint">Grönt är rätt, rött är fel, gult väntar på svar (även markerat med ✓/✗ i hörnet för den som har svårt att skilja färgerna åt). När hela rutan är ifylld visas exakt vilka tal som behöver mer övning, med en knapp för att öva bara på dem.</div>
       </div>
       <div class="setting-block">
-        <div class="setting-block-label">Fokusläge</div>
-        <div class="setting-block-hint">Skuggar bort de flesta celler och lämnar bara ett slumpat urval synliga — justera andel och dra nya tal under ⚙️.</div>
+        <div class="setting-block-label">Fokusläge & Svåra tal</div>
+        <div class="setting-block-hint">Skuggar bort de flesta celler och lämnar bara ett urval synliga. Slumpas andelen under ⚙️, eller slå på "Svåra tal" för ett förslag på de tal som oftast sitter längst (6, 7, 8, 9 i olika kombinationer).</div>
       </div>
       <div class="setting-block">
         <div class="setting-block-label">Tid</div>
@@ -673,6 +1050,8 @@
         </div>
         <div class="setting-block-hint">Andel synliga celler när fokusläge är på</div>
         <button class="btn subtle hidden" id="shuffleBtn">🎲 Nya slumptal</button>
+        <button class="btn subtle" id="hardFactsBtn">🧠 Svåra tal (standard)</button>
+        <div class="setting-block-hint">Ett första gissat urval av tal som ofta sitter längst — 6, 7, 8 och 9 i olika kombinationer. Justera gärna listan i koden när du ser vilka tal dina elever faktiskt fastnar på.</div>
       </div>
 
       <div class="setting-block">
@@ -726,6 +1105,18 @@ const printWorksheetBtn = document.getElementById('printWorksheetBtn');
 const worksheetCount = document.getElementById('worksheetCount');
 const worksheetAnswersToggle = document.getElementById('worksheetAnswersToggle');
 const printArea = document.getElementById('printArea');
+const hardFactsBtn = document.getElementById('hardFactsBtn');
+const hardFactsToggle = document.getElementById('hardFactsToggle');
+
+// Ett första, gissat urval av "svåra" multiplikationsfakta (a <= b).
+// Baserat på vanlig erfarenhet: 6, 7, 8 och 9 i kombination med varandra
+// är de tal flest elever fastnar på. Justera fritt utifrån vad som visar
+// sig stämma i din egen klass.
+const HARD_FACTS = [
+  [6,7], [6,8], [6,9],
+  [7,8], [7,9],
+  [8,9]
+];
 
 let timerInterval = null;
 let timerStart = null;
@@ -808,6 +1199,83 @@ function setCrosshair(r, c){
   activeFactEl.textContent = r + ' × ' + c;
 }
 
+function applyMirrorHalfShading(){
+  for(let r=1;r<=N;r++){
+    for(let c=1;c<=N;c++){
+      const td = inputs[r][c].td;
+      if(mirrorToggle.checked && r > c){
+        td.classList.add('cell-mirror-shadow');
+      } else {
+        td.classList.remove('cell-mirror-shadow');
+      }
+    }
+  }
+}
+
+function isRowFilled(r){
+  for(let c=1;c<=N;c++){
+    if(inputs[r][c].input.value !== String(r*c)) return false;
+  }
+  return true;
+}
+
+function isColumnFilled(c){
+  for(let r=1;r<=N;r++){
+    if(inputs[r][c].input.value !== String(r*c)) return false;
+  }
+  return true;
+}
+
+function fillRow(r){
+  const clear = isRowFilled(r);
+  for(let c=1;c<=N;c++){
+    const val = clear ? '' : String(r*c);
+    inputs[r][c].input.value = val;
+    updateCellStyle(r,c);
+    if(mirrorToggle.checked && r !== c){
+      inputs[c][r].input.value = val;
+      updateCellStyle(c,r);
+    }
+  }
+  updateStatus();
+}
+
+function fillColumn(c){
+  const clear = isColumnFilled(c);
+  for(let r=1;r<=N;r++){
+    const val = clear ? '' : String(r*c);
+    inputs[r][c].input.value = val;
+    updateCellStyle(r,c);
+    if(mirrorToggle.checked && r !== c){
+      inputs[c][r].input.value = val;
+      updateCellStyle(c,r);
+    }
+  }
+  updateStatus();
+}
+
+function computeHardFactsSet(){
+  const set = new Set();
+  HARD_FACTS.forEach(([a,b]) => {
+    if(a <= N && b <= N){
+      set.add(a + '-' + b);
+      set.add(b + '-' + a);
+    }
+  });
+  return set;
+}
+
+function useHardFactsPreset(){
+  const set = computeHardFactsSet();
+  if(set.size === 0) return;
+  activeSet = set;
+  focusToggle.checked = true;
+  hardFactsToggle.checked = true;
+  shuffleBtn.classList.remove('hidden');
+  applyFocusVisual();
+  updateAllStyles();
+}
+
 function buildGrid(size){
   N = size;
   grid.innerHTML = '';
@@ -829,6 +1297,7 @@ function buildGrid(size){
   for(let c=1;c<=N;c++){
     const th = document.createElement('th');
     th.textContent = c;
+    th.addEventListener('click', () => fillColumn(c));
     headRow.appendChild(th);
     colHeaders[c] = th;
   }
@@ -840,6 +1309,7 @@ function buildGrid(size){
     const tr = document.createElement('tr');
     const th = document.createElement('th');
     th.textContent = r;
+    th.addEventListener('click', () => fillRow(r));
     tr.appendChild(th);
     rowHeaders[r] = th;
     inputs[r] = {};
@@ -868,19 +1338,24 @@ function buildGrid(size){
   }
   grid.appendChild(tbody);
 
-  if(focusToggle.checked){ generateActiveSet(); }
+  if(focusToggle.checked){
+    if(hardFactsToggle.checked){ activeSet = computeHardFactsSet(); }
+    else { generateActiveSet(); }
+  }
   applyFocusVisual();
+  applyMirrorHalfShading();
   updateAllStyles();
 }
 
-function updateCellStyle(r, c){
+function updateCellStyle(r, c, evaluate){
+  if(evaluate === undefined) evaluate = true;
   const { input, td } = inputs[r][c];
   td.classList.remove('pending','correct','wrong');
   td.removeAttribute('data-symbol');
   if(!checkToggle.checked) return;
 
   const val = input.value.trim();
-  if(val === ''){
+  if(val === '' || !evaluate){
     td.classList.add('pending');
     return;
   }
@@ -908,7 +1383,7 @@ function updateStatus(){
   misslistEl.innerHTML = '';
 
   if(!checkToggle.checked){
-    statusEl.innerHTML = 'Skriv in ditt svar i varje ruta.';
+    statusEl.innerHTML = '&nbsp;';
     return;
   }
   let correct=0, wrong=0, pending=0;
@@ -970,6 +1445,7 @@ function practiceMissed(){
   lastMissedCells.forEach(({r,c}) => { inputs[r][c].input.value = ''; });
   activeSet = new Set(lastMissedCells.map(({r,c}) => r + '-' + c));
   focusToggle.checked = true;
+  hardFactsToggle.checked = false;
   shuffleBtn.classList.remove('hidden');
   applyFocusVisual();
   updateAllStyles();
@@ -1023,13 +1499,13 @@ grid.addEventListener('input', (e) => {
 
   const r = parseInt(e.target.dataset.r, 10);
   const c = parseInt(e.target.dataset.c, 10);
-  updateCellStyle(r,c);
+  updateCellStyle(r, c, false);
 
   if(mirrorToggle.checked && r !== c){
     const mirrorInput = inputs[c][r].input;
     if(!mirrorInput.disabled && mirrorInput.value !== e.target.value){
       mirrorInput.value = e.target.value;
-      updateCellStyle(c,r);
+      updateCellStyle(c, r, false);
     }
   }
   updateStatus();
@@ -1075,6 +1551,15 @@ grid.addEventListener('focusin', (e) => {
 });
 
 grid.addEventListener('focusout', (e) => {
+  if(e.target.tagName === 'INPUT'){
+    const r = parseInt(e.target.dataset.r, 10);
+    const c = parseInt(e.target.dataset.c, 10);
+    updateCellStyle(r, c, true);
+    if(mirrorToggle.checked && r !== c){
+      updateCellStyle(c, r, true);
+    }
+    updateStatus();
+  }
   if(!grid.contains(e.relatedTarget)){
     clearHeaderHighlight();
     clearCrosshair();
@@ -1095,12 +1580,27 @@ mirrorToggle.addEventListener('change', () => {
     }
     updateAllStyles();
   }
+  applyMirrorHalfShading();
+});
+
+hardFactsBtn.addEventListener('click', useHardFactsPreset);
+
+hardFactsToggle.addEventListener('change', () => {
+  if(hardFactsToggle.checked){
+    useHardFactsPreset();
+  } else if(focusToggle.checked){
+    generateActiveSet();
+    applyFocusVisual();
+  }
 });
 
 focusToggle.addEventListener('change', () => {
   shuffleBtn.classList.toggle('hidden', !focusToggle.checked);
   if(focusToggle.checked){
-    generateActiveSet();
+    if(hardFactsToggle.checked){ activeSet = computeHardFactsSet(); }
+    else { generateActiveSet(); }
+  } else {
+    hardFactsToggle.checked = false;
   }
   applyFocusVisual();
 });
@@ -1108,6 +1608,7 @@ focusToggle.addEventListener('change', () => {
 focusSlider.addEventListener('input', () => {
   focusPercent = parseInt(focusSlider.value, 10);
   focusPercentLabel.textContent = focusPercent + '%';
+  hardFactsToggle.checked = false;
   if(focusToggle.checked){
     generateActiveSet();
     applyFocusVisual();
@@ -1115,6 +1616,7 @@ focusSlider.addEventListener('input', () => {
 });
 
 shuffleBtn.addEventListener('click', () => {
+  hardFactsToggle.checked = false;
   generateActiveSet();
   applyFocusVisual();
 });
@@ -1154,6 +1656,7 @@ resetAllBtn.addEventListener('click', () => {
   mirrorToggle.checked = false;
   checkToggle.checked = false;
   focusToggle.checked = false;
+  hardFactsToggle.checked = false;
   timerToggle.checked = false;
   size12Toggle.checked = false;
   size15Toggle.checked = false;
@@ -1252,6 +1755,344 @@ document.addEventListener('keydown', (e) => {
   if(e.key !== 'Escape') return;
   if(!settingsOverlay.classList.contains('hidden')) settingsOverlay.classList.add('hidden');
   if(!infoOverlay.classList.contains('hidden')) infoOverlay.classList.add('hidden');
+  if(!gameOverlay.classList.contains('hidden')) closeGame();
+});
+
+/* ============ SPELLÄGE ============ */
+
+const openGameBtn = document.getElementById('openGameBtn');
+const gameOverlay = document.getElementById('gameOverlay');
+const closeGameBtn = document.getElementById('closeGameBtn');
+const gameSetupView = document.getElementById('gameSetupView');
+const gamePlayView = document.getElementById('gamePlayView');
+const gameResultsView = document.getElementById('gameResultsView');
+const difficultySegmented = document.getElementById('difficultySegmented');
+const correctionSegmented = document.getElementById('correctionSegmented');
+const gameCodeInput = document.getElementById('gameCodeInput');
+const clearGameCodeBtn = document.getElementById('clearGameCodeBtn');
+const startGameBtn = document.getElementById('startGameBtn');
+const gameTimerEl = document.getElementById('gameTimerEl');
+const gameProgressEl = document.getElementById('gameProgressEl');
+const gameGrid = document.getElementById('gameGrid');
+const quitGameBtn = document.getElementById('quitGameBtn');
+const resultTimeEl = document.getElementById('resultTimeEl');
+const resultCorrectEl = document.getElementById('resultCorrectEl');
+const resultWrongEl = document.getElementById('resultWrongEl');
+const resultWrongBlock = document.getElementById('resultWrongBlock');
+const resultSlowBlock = document.getElementById('resultSlowBlock');
+const resultWrongChips = document.getElementById('resultWrongChips');
+const resultSlowChips = document.getElementById('resultSlowChips');
+const resultCodeEl = document.getElementById('resultCodeEl');
+const replaySameBtn = document.getElementById('replaySameBtn');
+const newSetBtn = document.getElementById('newSetBtn');
+
+let gameDifficulty = 'mixed';
+let gameCorrectionMode = 'live';
+let gameSeed = null;
+let gameProblems = [];
+let gameTimerInterval = null;
+let gameStartTime = null;
+let gameLastAnswerTime = null;
+let gameElapsedFinal = 0;
+let gameFinished = false;
+
+// Enkel, deterministisk slumpgenerator (mulberry32) — samma frö ger alltid samma tal.
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function gameCodeFromParts(difficulty, seed){
+  const letter = difficulty === 'easy' ? 'E' : (difficulty === 'hard' ? 'S' : 'B');
+  return letter + Math.abs(seed).toString(36).toUpperCase();
+}
+
+function parseGameCode(code){
+  code = code.trim().toUpperCase();
+  if(code.length < 2) return null;
+  const letter = code[0];
+  const seed = parseInt(code.slice(1), 36);
+  if(isNaN(seed)) return null;
+  const difficulty = letter === 'E' ? 'easy' : (letter === 'S' ? 'hard' : 'mixed');
+  return { difficulty, seed };
+}
+
+function pickProblem(rng, difficulty){
+  let a, b;
+  if(difficulty === 'easy'){
+    a = 1 + Math.floor(rng() * 6);
+    b = 1 + Math.floor(rng() * 6);
+  } else if(difficulty === 'hard'){
+    a = 3 + Math.floor(rng() * 7);
+    b = 3 + Math.floor(rng() * 7);
+  } else {
+    a = 1 + Math.floor(rng() * 10);
+    b = 1 + Math.floor(rng() * 10);
+  }
+  return [a, b];
+}
+
+function buildGameProblems(difficulty, seed){
+  const rng = mulberry32(seed);
+  const problems = [];
+  for(let i=0;i<40;i++){
+    const [a,b] = pickProblem(rng, difficulty);
+    problems.push({ a, b, answer:'', correct:null, timeMs:null });
+  }
+  return problems;
+}
+
+function setSegmented(container, value){
+  [...container.querySelectorAll('button')].forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.value === value);
+  });
+}
+
+difficultySegmented.addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  gameDifficulty = btn.dataset.value;
+  setSegmented(difficultySegmented, gameDifficulty);
+});
+
+correctionSegmented.addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  gameCorrectionMode = btn.dataset.value;
+  setSegmented(correctionSegmented, gameCorrectionMode);
+});
+
+clearGameCodeBtn.addEventListener('click', () => { gameCodeInput.value = ''; });
+
+function showGameView(view){
+  gameSetupView.classList.toggle('hidden', view !== 'setup');
+  gamePlayView.classList.toggle('hidden', view !== 'play');
+  gameResultsView.classList.toggle('hidden', view !== 'results');
+}
+
+function startGameTimer(){
+  gameStartTime = Date.now();
+  gameLastAnswerTime = gameStartTime;
+  gameTimerEl.textContent = '⏱ 00:00';
+  if(gameTimerInterval) clearInterval(gameTimerInterval);
+  gameTimerInterval = setInterval(() => {
+    gameTimerEl.textContent = '⏱ ' + formatTime(Date.now() - gameStartTime);
+  }, 500);
+}
+
+function stopGameTimer(){
+  if(gameTimerInterval){ clearInterval(gameTimerInterval); gameTimerInterval = null; }
+  gameElapsedFinal = Date.now() - gameStartTime;
+  gameTimerEl.textContent = '⏱ ' + formatTime(gameElapsedFinal);
+}
+
+function renderGamePlay(){
+  gameGrid.innerHTML = '';
+  gameProblems.forEach((p, idx) => {
+    const item = document.createElement('div');
+    item.className = 'game-item';
+    item.dataset.index = idx;
+
+    const num = document.createElement('span');
+    num.className = 'game-num';
+    num.textContent = (idx+1) + '.';
+
+    const expr = document.createElement('span');
+    expr.className = 'game-expr';
+    expr.textContent = `${p.a} × ${p.b} =`;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.inputMode = 'numeric';
+    input.pattern = '[0-9]*';
+    input.maxLength = 3;
+    input.autocomplete = 'off';
+    input.dataset.index = idx;
+
+    item.appendChild(num);
+    item.appendChild(expr);
+    item.appendChild(input);
+    gameGrid.appendChild(item);
+  });
+  updateGameProgress();
+}
+
+function updateGameItemStyle(idx){
+  const item = gameGrid.querySelector(`.game-item[data-index="${idx}"]`);
+  if(!item) return;
+  item.classList.remove('correct','wrong');
+  const p = gameProblems[idx];
+  if(p.correct === true) item.classList.add('correct');
+  if(p.correct === false) item.classList.add('wrong');
+}
+
+function updateGameProgress(){
+  const filled = gameProblems.filter(p => p.answer !== '').length;
+  gameProgressEl.textContent = `${filled} / 40 ifyllda`;
+}
+
+gameGrid.addEventListener('input', (e) => {
+  if(e.target.tagName !== 'INPUT') return;
+  const cleaned = e.target.value.replace(/[^0-9]/g, '');
+  if(cleaned !== e.target.value) e.target.value = cleaned;
+
+  const idx = parseInt(e.target.dataset.index, 10);
+  const p = gameProblems[idx];
+  p.answer = cleaned;
+  p.correct = null;
+  updateGameItemStyle(idx);
+  updateGameProgress();
+});
+
+gameGrid.addEventListener('focusout', (e) => {
+  if(e.target.tagName !== 'INPUT') return;
+  const idx = parseInt(e.target.dataset.index, 10);
+  const p = gameProblems[idx];
+
+  if(p.answer !== '' && p.timeMs === null){
+    const now = Date.now();
+    p.timeMs = now - gameLastAnswerTime;
+    gameLastAnswerTime = now;
+  }
+
+  if(gameCorrectionMode === 'live' && p.answer !== ''){
+    p.correct = (parseInt(p.answer,10) === p.a * p.b);
+    updateGameItemStyle(idx);
+  }
+
+  const allFilled = gameProblems.every(pr => pr.answer !== '');
+  if(allFilled && !gameFinished){
+    finishGame();
+  }
+});
+
+gameGrid.addEventListener('keydown', (e) => {
+  if(e.target.tagName !== 'INPUT') return;
+  const arrows = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+  if(!arrows.includes(e.key)) return;
+  e.preventDefault();
+  const idx = parseInt(e.target.dataset.index, 10);
+  const cols = window.innerWidth <= 600 ? 2 : 4;
+  let next = idx;
+  if(e.key === 'ArrowUp') next = idx - cols;
+  if(e.key === 'ArrowDown') next = idx + cols;
+  if(e.key === 'ArrowLeft') next = idx - 1;
+  if(e.key === 'ArrowRight') next = idx + 1;
+  if(next >= 0 && next < gameProblems.length){
+    const nextInput = gameGrid.querySelector(`input[data-index="${next}"]`);
+    if(nextInput){ nextInput.focus(); nextInput.select(); }
+  }
+});
+
+function finishGame(){
+  gameFinished = true;
+  stopGameTimer();
+  if(gameCorrectionMode === 'end'){
+    gameProblems.forEach((p, idx) => {
+      p.correct = (parseInt(p.answer,10) === p.a * p.b);
+      updateGameItemStyle(idx);
+    });
+  }
+  showGameResults();
+}
+
+function renderChipList(container, items){
+  container.innerHTML = '';
+  if(items.length === 0){
+    const span = document.createElement('span');
+    span.className = 'setting-block-hint';
+    span.textContent = '—';
+    container.appendChild(span);
+    return;
+  }
+  items.forEach(text => {
+    const chip = document.createElement('span');
+    chip.className = 'miss-chip';
+    chip.textContent = text;
+    container.appendChild(chip);
+  });
+}
+
+function showGameResults(){
+  showGameView('results');
+  const correctCount = gameProblems.filter(p => p.correct === true).length;
+  const wrongCount = gameProblems.filter(p => p.correct === false).length;
+  resultTimeEl.textContent = formatTime(gameElapsedFinal);
+  resultCorrectEl.textContent = correctCount;
+  resultWrongEl.textContent = wrongCount;
+
+  const wrongFacts = gameProblems.filter(p => p.correct === false).map(p => `${p.a} × ${p.b}`);
+  const uniqueWrong = [...new Set(wrongFacts)];
+  renderChipList(resultWrongChips, uniqueWrong);
+
+  const slowest = [...gameProblems]
+    .filter(p => p.timeMs !== null)
+    .sort((a,b) => b.timeMs - a.timeMs)
+    .slice(0,5)
+    .map(p => `${p.a} × ${p.b}`);
+  renderChipList(resultSlowChips, slowest);
+
+  resultCodeEl.textContent = gameCodeFromParts(gameDifficulty, gameSeed);
+}
+
+function launchGame(difficulty, seed){
+  gameDifficulty = difficulty;
+  gameSeed = seed;
+  gameFinished = false;
+  gameProblems = buildGameProblems(difficulty, seed);
+  renderGamePlay();
+  showGameView('play');
+  startGameTimer();
+}
+
+startGameBtn.addEventListener('click', () => {
+  const codeVal = gameCodeInput.value.trim();
+  let difficulty = gameDifficulty;
+  let seed;
+  if(codeVal){
+    const parsed = parseGameCode(codeVal);
+    if(parsed){
+      difficulty = parsed.difficulty;
+      seed = parsed.seed;
+    } else {
+      seed = Math.floor(Math.random() * 0xFFFFFFFF);
+    }
+  } else {
+    seed = Math.floor(Math.random() * 0xFFFFFFFF);
+  }
+  launchGame(difficulty, seed);
+});
+
+quitGameBtn.addEventListener('click', () => {
+  if(gameTimerInterval){ clearInterval(gameTimerInterval); gameTimerInterval = null; }
+  showGameView('setup');
+});
+
+replaySameBtn.addEventListener('click', () => {
+  launchGame(gameDifficulty, gameSeed);
+});
+
+newSetBtn.addEventListener('click', () => {
+  const seed = Math.floor(Math.random() * 0xFFFFFFFF);
+  launchGame(gameDifficulty, seed);
+});
+
+function closeGame(){
+  if(gameTimerInterval){ clearInterval(gameTimerInterval); gameTimerInterval = null; }
+  gameOverlay.classList.add('hidden');
+  showGameView('setup');
+}
+
+openGameBtn.addEventListener('click', () => {
+  gameOverlay.classList.remove('hidden');
+});
+closeGameBtn.addEventListener('click', closeGame);
+gameOverlay.addEventListener('click', (e) => {
+  if(e.target === gameOverlay) closeGame();
 });
 
 buildGrid(10);
