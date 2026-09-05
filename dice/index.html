@@ -1,420 +1,3664 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tärning</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tallinje</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f6f4ff;--surface:#fff;--surface2:#eae6ff;--border:#ccc5f0;
+    --text:#100e28;--muted:#585078;--accent:#306BF0;--accent2:#EC6095;
+    --shadow:rgba(48,107,240,.12);
+    --grad:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+    --total-arc:#7c3aed;
+  }
+  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;transition:background .3s,color .3s}
+  body.dark{
+    --bg:#12111f;--surface:#1e1c30;--surface2:#252340;--border:#3a3660;
+    --text:#f0eeff;--muted:#9b96c0;--shadow:rgba(0,0,0,.4);
+  }
+  header{width:100%;background:var(--grad);padding:8px 24px}
+  main{width:100%;max-width:1400px;padding:14px 32px 30px;display:flex;flex-direction:column;gap:10px}
 
-    :root {
-      --bg:      #f6f4ff;
-      --surface: #ffffff;
-      --surface2:#eae6ff;
-      --border:  #ccc5f0;
-      --text:    #100e28;
-      --muted:   #585078;
-      --accent:  #306BF0;
-    }
+  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:visible;padding:18px 10px 10px;position:relative;flex:1;min-width:0}
+  canvas{display:block;width:100%;height:auto;cursor:default}
 
-    body {
-      font-family: 'Sora', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-      padding: 2rem;
-    }
+  /* HTML overlay edit input for the expression box (positioned via JS) */
+  #exprEditInput{
+    position:absolute; display:none; z-index:30;
+    font-family:'Sora',sans-serif; font-weight:700; font-size:17px;
+    border:1.5px solid var(--accent); border-radius:8px;
+    padding:9px 11px; background:#fff; color:var(--text); outline:none;
+    box-shadow:0 3px 10px rgba(48,107,240,.2);
+  }
 
-    h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-    }
-    .subtitle { font-size: .88rem; color: var(--muted); margin-top: -1.5rem; }
+  /* invert-operator button lives inside the float-toolbar; colour reflects facing direction */
+  #btnInvertOp.facing-right{ color:#66C7C2; border-color:#66C7C2; }
+  #btnInvertOp.facing-right:hover{ background:#66C7C2; color:#fff; }
+  #btnInvertOp.facing-left{ color:#EC6095; border-color:#EC6095; }
+  #btnInvertOp.facing-left:hover{ background:#EC6095; color:#fff; }
+  .toolbar-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 1px; }
 
-    /* ─── 3D CUBE ─────────────────────────────────────
-       CRITICAL: filter on the cube parent breaks preserve-3d in Chrome/Edge.
-       Shadow is placed on the .scene wrapper instead.
-    ─────────────────────────────────────────────────── */
-    .scene {
-      width: 180px;
-      height: 180px;
-      perspective: 600px;
-      cursor: pointer;
-      /* shadow here — NOT on the cube element itself */
-      filter: drop-shadow(0 16px 32px rgba(48,107,240,.18));
-    }
+  /* vertical left toolbar — sits beside canvas-wrap in a flex row */
+  .left-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex-shrink:0;align-content:start;}
+  .lt-full{grid-column:1/-1;}
+  .lt-sep{grid-column:1/-1;width:100%;height:1.5px;background:var(--border);margin:2px 0;}
+  .canvas-and-toolbar{display:flex;flex-direction:row;gap:8px;align-items:flex-start;}
+  .lt-btn{
+    width:42px; height:42px; border-radius:11px;
+    border:1.5px solid var(--border); background:rgba(255,255,255,.94);
+    color:var(--muted); font-size:.95rem; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .15s; backdrop-filter:blur(2px); position:relative;
+  }
+  .lt-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .lt-btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .lt-btn.active{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
+  .lt-btn.play{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .lt-btn.play-next{ background:#18a348; color:#fff; border-color:#18a348; }
+  .lt-btn.play-reset{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
+  .lt-btn.reveal-ready{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
+  .lt-btn.reveal-dim{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
+  .lt-btn.kang-on{ background:#F4A261 !important; color:#fff !important; border-color:#F4A261 !important; }
+  .lt-btn.kang-on:hover{ background:#e8954a !important; }
+  .lt-sep{ width:100%; height:1.5px; background:var(--border); margin:4px 0; }
+  .lt-btn.invert-right{ color:#66C7C2; border-color:#66C7C2; }
+  .lt-btn.invert-right:hover{ background:#66C7C2; color:#fff; }
+  .lt-btn.invert-left{ color:#EC6095; border-color:#EC6095; }
+  .lt-btn.invert-left:hover{ background:#EC6095; color:#fff; }
+  .lt-btn.utter-on{ background:#7c3aed; color:#fff; border-color:#7c3aed; }
+  .lt-btn.utter-full{ background:#EC6095; color:#fff; border-color:#EC6095; }
 
-    .cube {
-      width: 160px;
-      height: 160px;
-      margin: 10px;
-      position: relative;
-      transform-style: preserve-3d;
-      /* start at a nice 3-face-visible angle */
-      transform: rotateX(-25deg) rotateY(30deg);
-    }
+  /* input popup — fixed, opens next to the 🔢 button */
+  .input-popup{
+    display:none; position:fixed; z-index:300;
+    flex-direction:column;
+    background:var(--surface); border:1.5px solid var(--border); border-radius:16px;
+    box-shadow:0 8px 40px rgba(16,14,40,.22); width:340px;
+    overflow:hidden;
+  }
+  .input-popup.open{ display:flex; }
+  /* tabs */
+  .sp-tabs{ display:flex; border-bottom:1.5px solid var(--border); }
+  .sp-tab{
+    flex:1; padding:11px 0; border:none; background:none;
+    font-family:'Sora',sans-serif; font-size:.82rem; font-weight:700;
+    color:var(--muted); cursor:pointer; transition:all .15s;
+  }
+  .sp-tab.active{ color:var(--accent); border-bottom:2.5px solid var(--accent); background:var(--surface2); }
+  .sp-body{ padding:14px; display:flex; flex-direction:column; gap:12px; max-height:80vh; overflow-y:auto; }
+  /* preset grid: categories */
+  .preset-cat{ display:flex; flex-direction:column; gap:4px; }
+  .preset-cat-label{
+    font-size:.68rem; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.06em; margin-bottom:2px;
+  }
+  .preset-pills{ display:flex; flex-wrap:wrap; gap:5px; }
+  .preset-pill{
+    padding:6px 11px; border-radius:20px; border:1.5px solid var(--border);
+    background:var(--surface2); font-family:'Sora',sans-serif; font-size:.82rem;
+    font-weight:600; color:var(--text); cursor:pointer; transition:all .12s;
+    touch-action:manipulation;
+  }
+  .preset-pill:active{ transform:scale(.93); }
+  .preset-pill.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .preset-pill.cat-0{ border-color:#18a348; color:#18a348; }
+  .preset-pill.cat-0.active,.preset-pill.cat-0:hover{ background:#18a348; color:#fff; }
+  .preset-pill.cat-1{ border-color:#306BF0; color:#306BF0; }
+  .preset-pill.cat-1.active,.preset-pill.cat-1:hover{ background:#306BF0; color:#fff; }
+  .preset-pill.cat-2{ border-color:#F4A261; color:#F4A261; }
+  .preset-pill.cat-2.active,.preset-pill.cat-2:hover{ background:#F4A261; color:#fff; }
+  .preset-pill.cat-3{ border-color:#7c3aed; color:#7c3aed; }
+  .preset-pill.cat-3.active,.preset-pill.cat-3:hover{ background:#7c3aed; color:#fff; }
+  .preset-pill.cat-4{ border-color:#EC6095; color:#EC6095; }
+  .preset-pill.cat-4.active,.preset-pill.cat-4:hover{ background:#EC6095; color:#fff; }
+  /* numpad inside panel */
+  .numpad-display{
+    font-family:'Sora',sans-serif; font-size:1.5rem; font-weight:700; color:var(--text);
+    text-align:center; padding:8px 0 10px; letter-spacing:.02em;
+    border-bottom:1.5px solid var(--border); margin-bottom:8px;
+  }
+  .numpad-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+  .np-btn{
+    padding:13px 0; border-radius:11px; border:1.5px solid var(--border);
+    background:var(--surface2); font-family:'Sora',sans-serif; font-size:1.15rem;
+    font-weight:700; color:var(--text); cursor:pointer; transition:all .12s;
+    touch-action:manipulation;
+  }
+  .np-btn:active{ transform:scale(.92); }
+  .np-btn.op{ color:var(--accent); border-color:var(--accent); }
+  .np-btn.neg{ color:#EC6095; border-color:#EC6095; }
+  .np-btn.go{ background:var(--accent); color:#fff; border-color:var(--accent); font-size:.95rem; }
+  .np-btn.clr{ background:#fee2e2; color:#e02020; border-color:#f87171; }
 
-    /* ── Face base ── */
-    .face {
-      position: absolute;
-      width: 160px;
-      height: 160px;
-      border: 2.5px solid var(--border);
-      border-radius: 22px;
-      display: grid;
-      padding: 22px;
-      gap: 0;
-    }
+  /* user saved pearl row */
+  .user-pearl-row{
+    display:flex; align-items:center; gap:6px; padding:4px 0;
+    flex-wrap:wrap;
+  }
+  .user-pearl-btn{
+    width:28px; height:28px; border-radius:50%; border:2px solid #e8a020;
+    background:#fde68a; color:#92400e; font-size:.62rem; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .12s; position:relative; flex-shrink:0;
+  }
+  .user-pearl-btn.active{ background:#e8a020; color:#fff; }
+  .user-pearl-btn:hover{ transform:scale(1.15); }
+  .user-pearl-add{
+    width:28px; height:28px; border-radius:50%; border:2px dashed #e8a020;
+    background:transparent; color:#e8a020; font-size:1.1rem; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .12s;
+  }
+  .user-pearl-add:hover{ background:#fde68a; }
+  .user-pearl-wrap{
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+    min-height:36px; padding:6px 10px 8px;
+    border-top:1px dashed var(--border);
+  }
+  .user-pearl-hint{
+    font-size:.72rem; color:var(--muted); font-style:italic;
+  }
 
-    /* Face colours — lighter/darker for perceived lighting */
-    .face.front  { background: #ffffff; }
-    .face.back   { background: #f5f3ff; }
-    .face.top    { background: #fafafe; }
-    .face.bottom { background: #eae6fc; }
-    .face.right  { background: #f0eeff; }
-    .face.left   { background: #ece8ff; }
+  /* history + task */
+  .hist-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;
+    background:var(--surface2);border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;}
+  .hist-item:hover{background:var(--border);}
+  .hist-item .hi-expr{flex:1;}
+  .hist-item .hi-use{font-size:.72rem;color:var(--accent);font-weight:700;}
+  .task-card{background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:10px;}
+  .task-card .tc-desc{font-size:.88rem;line-height:1.5;color:var(--text);margin-bottom:10px;}
+  .task-card .tc-btns{display:flex;gap:6px;flex-wrap:wrap;}
+  .task-pill{padding:6px 12px;border-radius:20px;border:1.5px solid var(--accent);
+    background:var(--surface);font-size:.8rem;font-weight:600;color:var(--accent);
+    cursor:pointer;transition:all .12s;}
+  .task-pill:hover{background:var(--accent);color:#fff;}
+  .task-random{margin-top:8px;padding:8px 0;text-align:center;font-size:.8rem;
+    color:var(--accent2);cursor:pointer;font-weight:700;border-top:1px dashed var(--border);}
 
-    /* ── Positions: half-size = 80px ── */
-    .face.front  { transform: translateZ(80px); }
-    .face.back   { transform: rotateY(180deg)  translateZ(80px); }
-    .face.right  { transform: rotateY( 90deg)  translateZ(80px); }
-    .face.left   { transform: rotateY(-90deg)  translateZ(80px); }
-    .face.top    { transform: rotateX( 90deg)  translateZ(80px); }
-    .face.bottom { transform: rotateX(-90deg)  translateZ(80px); }
+  .lt-btn .lt-tip{
+    position:absolute; left:50px; top:50%; transform:translateY(-50%);
+    background:var(--text); color:#fff; font-size:.68rem; font-weight:600;
+    padding:4px 8px; border-radius:6px; white-space:nowrap; opacity:0;
+    pointer-events:none; transition:opacity .15s; z-index:50;
+  }
+  .lt-btn:hover .lt-tip{ opacity:1; }
 
-    /* ── Dots ── */
-    .dot {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 2px 5px rgba(48,107,240,.35);
-      align-self: center;
-      justify-self: center;
-    }
+  /* floating step-input bubble — appears above the robot, inside .canvas-wrap */
+  .step-bubble{
+    position:absolute; z-index:35; display:none;
+    flex-direction:column; align-items:center; gap:4px;
+    pointer-events:none;
+  }
+  .step-bubble.open{ display:flex; pointer-events:auto; }
+  .step-bubble .sb-card{
+    background:#fff; border:1.5px solid var(--accent); border-radius:10px;
+    padding:7px 9px; box-shadow:0 4px 16px rgba(16,14,40,.18);
+    display:flex; align-items:center; gap:6px;
+  }
+  .step-bubble .sb-label{ font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; }
+  .step-bubble input{
+    width:54px; padding:4px 6px; border:1.5px solid var(--border); border-radius:6px;
+    font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; text-align:center;
+    color:var(--text); outline:none; background:var(--bg);
+  }
+  .step-bubble input:focus{ border-color:var(--accent); }
+  .step-bubble .sb-arrow{
+    position:absolute; bottom:-6px; left:50%; transform:translateX(-50%) rotate(45deg);
+    width:11px; height:11px; background:#fff; border-right:1.5px solid var(--accent); border-bottom:1.5px solid var(--accent);
+  }
 
-    /* ── Dot layouts (3×3 grid, only occupied cells) ──
-       Grid areas:
-         tl tc tr
-         ml mc mr
-         bl bc br
-    ── */
-    .face { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+  /* floating icon toolbar over canvas (hover-revealed) */
+  .float-toolbar{
+    position:absolute; top:14px; right:14px; z-index:25;
+    display:flex; gap:6px; opacity:0; transition:opacity .2s;
+    pointer-events:none;
+  }
+  .canvas-wrap:hover .float-toolbar{ opacity:1; pointer-events:auto; }
+  .float-toolbar.force-visible{ opacity:1; pointer-events:auto; }
+  .icon-btn{
+    width:34px; height:34px; border-radius:9px; border:1.5px solid var(--border);
+    background:rgba(255,255,255,.92); color:var(--muted); font-size:1rem;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .15s; backdrop-filter:blur(2px);
+  }
+  .icon-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .icon-btn.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
 
-    /* 1 — center */
-    .face[data-n="1"] .dot:nth-child(1) { grid-area: 2 / 2; }
+  /* bottom action row — icons only */
+  .action-row{ display:flex; align-items:center; gap:8px; justify-content:center; flex-wrap:wrap }
+  .ibtn{
+    width:46px; height:46px; border-radius:12px; border:none;
+    font-size:1.25rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:filter .15s, transform .1s; background:var(--surface2); color:var(--accent);
+    border:1.5px solid var(--border); position:relative;
+  }
+  .ibtn:active{ transform:scale(.94) }
+  .ibtn:disabled{ opacity:.4; cursor:not-allowed }
+  .ibtn.primary{ background:var(--accent); color:#fff; border-color:var(--accent) }
+  .ibtn.next{ background:#18a348; color:#fff; border-color:#18a348 }
+  .ibtn.reveal{ background:var(--accent2); color:#fff; border-color:var(--accent2) }
+  .ibtn.utterance{ background:#7c3aed; color:#fff; border-color:#7c3aed }
+  .ibtn.utterance-full{ background:#EC6095; color:#fff; border-color:#EC6095 }
+  .ibtn:hover:not(:disabled){ filter:brightness(1.08) }
 
-    /* 2 — top-right, bottom-left */
-    .face[data-n="2"] .dot:nth-child(1) { grid-area: 1 / 3; }
-    .face[data-n="2"] .dot:nth-child(2) { grid-area: 3 / 1; }
+  .ibtn .tip{
+    position:absolute; bottom:-30px; left:50%; transform:translateX(-50%);
+    background:var(--text); color:#fff; font-size:.68rem; font-weight:600;
+    padding:4px 8px; border-radius:6px; white-space:nowrap; opacity:0;
+    pointer-events:none; transition:opacity .15s; z-index:50;
+  }
+  .ibtn:hover .tip{ opacity:1 }
 
-    /* 3 — top-right, center, bottom-left */
-    .face[data-n="3"] .dot:nth-child(1) { grid-area: 1 / 3; }
-    .face[data-n="3"] .dot:nth-child(2) { grid-area: 2 / 2; }
-    .face[data-n="3"] .dot:nth-child(3) { grid-area: 3 / 1; }
+  .step-strip{ display:none; }
 
-    /* 4 — four corners */
-    .face[data-n="4"] .dot:nth-child(1) { grid-area: 1 / 1; }
-    .face[data-n="4"] .dot:nth-child(2) { grid-area: 1 / 3; }
-    .face[data-n="4"] .dot:nth-child(3) { grid-area: 3 / 1; }
-    .face[data-n="4"] .dot:nth-child(4) { grid-area: 3 / 3; }
+  /* explanation popup — positioned via JS (fixed, escapes canvas-wrap's overflow:hidden) */
+  .explain-popup{
+    position:fixed; z-index:140;
+    display:none; flex-direction:column; gap:8px;
+    background:#fff; border:1.5px solid var(--border); border-radius:12px;
+    padding:14px 16px; box-shadow:0 8px 28px rgba(16,14,40,.18);
+    width:280px; max-width:80vw;
+  }
+  .explain-popup.open{ display:flex; }
+  .explain-popup .ep-title{ font-weight:700; font-size:.82rem; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px; }
+  .explain-step{ display:flex; gap:10px; align-items:flex-start; font-size:.86rem; line-height:1.45; color:var(--text); }
+  .explain-step .es-num{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%;
+    background:var(--accent); color:#fff; font-size:.72rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center; margin-top:1px;
+  }
+  .explain-step b{ color:var(--accent); }
 
-    /* 5 — four corners + center */
-    .face[data-n="5"] .dot:nth-child(1) { grid-area: 1 / 1; }
-    .face[data-n="5"] .dot:nth-child(2) { grid-area: 1 / 3; }
-    .face[data-n="5"] .dot:nth-child(3) { grid-area: 2 / 2; }
-    .face[data-n="5"] .dot:nth-child(4) { grid-area: 3 / 1; }
-    .face[data-n="5"] .dot:nth-child(5) { grid-area: 3 / 3; }
+  /* settings modal */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(16,14,40,.35);z-index:100;align-items:center;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal-box{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:18px 20px;box-shadow:0 8px 32px rgba(16,14,40,.18);min-width:250px;max-width:320px;width:100%}
+  .modal-close{float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);line-height:1}
+  .modal-close:hover{color:var(--text)}
+  .modal-title{font-weight:700;font-size:.95rem;margin-bottom:12px;color:var(--text)}
+  .modal-section{display:flex;flex-direction:column;gap:9px}
+  .toggle-label{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--text);font-weight:600;cursor:pointer;user-select:none;padding:5px 0;border-bottom:1px solid var(--surface2)}
+  .toggle-label:last-child{border-bottom:none}
+  .toggle-label input{width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+  .toggle-label .ic{ width:20px; text-align:center }
 
-    /* 6 — two columns of three */
-    .face[data-n="6"] .dot:nth-child(1) { grid-area: 1 / 1; }
-    .face[data-n="6"] .dot:nth-child(2) { grid-area: 1 / 3; }
-    .face[data-n="6"] .dot:nth-child(3) { grid-area: 2 / 1; }
-    .face[data-n="6"] .dot:nth-child(4) { grid-area: 2 / 3; }
-    .face[data-n="6"] .dot:nth-child(5) { grid-area: 3 / 1; }
-    .face[data-n="6"] .dot:nth-child(6) { grid-area: 3 / 3; }
+  /* ═══════════ STUDENT MODE OVERLAY ═══════════ */
+  .student-overlay{
+    display:none; position:fixed; inset:0; z-index:500;
+    background:var(--bg); flex-direction:column; align-items:center;
+    overflow-y:auto;
+  }
+  .student-overlay.open{ display:flex; }
+  .student-header{
+    width:100%; background:var(--grad); padding:14px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .student-header h2{
+    font-family:'Playfair Display',serif; font-size:1.1rem; color:#fff; margin:0;
+  }
+  .student-exit{
+    background:rgba(255,255,255,.25); border:none; border-radius:8px;
+    color:#fff; font-weight:700; font-size:.82rem; padding:7px 14px;
+    cursor:pointer; transition:background .15s;
+  }
+  .student-exit:hover{ background:rgba(255,255,255,.4); }
+  .student-body{
+    width:100%; max-width:760px; padding:24px 20px 60px;
+    display:flex; flex-direction:column; gap:18px; align-items:center;
+  }
 
-    /* ── Result ── */
-    .result-area {
-      display: flex; flex-direction: column;
-      align-items: center; gap: .3rem; min-height: 64px;
-    }
-    .result-number {
-      font-family: 'Playfair Display', serif;
-      font-size: 3.8rem; font-weight: 700;
-      color: var(--accent); line-height: 1;
-      opacity: 0; transform: scale(.6);
-      transition: opacity .3s, transform .4s cubic-bezier(.34,1.56,.64,1);
-    }
-    .result-number.show { opacity: 1; transform: scale(1); }
-    .result-label { font-size: .85rem; color: var(--muted); opacity: 0; transition: opacity .3s .1s; }
-    .result-label.show { opacity: 1; }
+  /* mode picker */
+  .mode-picker{ display:flex; flex-direction:column; gap:14px; width:100%; max-width:480px; margin-top:20px; }
+  .mode-card{
+    background:var(--surface); border:2px solid var(--border); border-radius:16px;
+    padding:20px; cursor:pointer; transition:all .15s; text-align:left;
+  }
+  .mode-card:hover{ border-color:var(--accent); transform:translateY(-2px); box-shadow:0 6px 20px var(--shadow); }
+  .mode-card h3{ font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--text); margin-bottom:6px; }
+  .mode-card p{ font-size:.85rem; color:var(--muted); line-height:1.5; }
 
-    /* ── Button ── */
-    .roll-btn {
-      font-family: 'Sora', sans-serif;
-      font-size: .95rem; font-weight: 600;
-      padding: 12px 34px; border-radius: 12px;
-      border: 2px solid var(--accent);
-      background: var(--accent); color: #fff;
-      cursor: pointer; letter-spacing: .02em;
-      transition: background .15s, transform .1s;
-      box-shadow: 0 4px 16px rgba(48,107,240,.22);
-    }
-    .roll-btn:hover   { background: #1f58d4; border-color: #1f58d4; }
-    .roll-btn:active  { transform: scale(.96); }
-    .roll-btn:disabled{ opacity: .45; cursor: not-allowed; }
+  /* level picker */
+  .level-row{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .level-btn{
+    padding:9px 16px; border-radius:20px; border:1.5px solid var(--border);
+    background:var(--surface2); font-family:'Sora',sans-serif; font-size:.85rem;
+    font-weight:600; color:var(--text); cursor:pointer; transition:all .12s;
+  }
+  .level-btn:hover{ border-color:var(--accent); }
+  .level-btn.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
 
-    /* ── Speed toggle ── */
-    .toggle-wrap {
-      display: flex; align-items: center; gap: .75rem;
-      font-size: .85rem; color: var(--muted);
-    }
-    .toggle-wrap span { transition: color .2s; }
-    .toggle-wrap span.active { color: var(--accent); font-weight: 600; }
+  /* score bar */
+  .score-bar{
+    display:flex; align-items:center; gap:10px; font-family:'Sora',sans-serif;
+    font-size:.85rem; font-weight:700; color:var(--muted);
+  }
+  .score-pill{
+    background:var(--surface2); border-radius:20px; padding:5px 14px;
+    border:1.5px solid var(--border);
+  }
+  .score-pill.correct{ color:#18a348; }
 
-    .toggle {
-      position: relative; width: 52px; height: 28px; flex-shrink: 0;
-    }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .toggle-track {
-      position: absolute; inset: 0;
-      background: var(--surface2); border: 2px solid var(--border);
-      border-radius: 99px; cursor: pointer;
-      transition: background .25s, border-color .25s;
-    }
-    .toggle input:checked ~ .toggle-track {
-      background: var(--accent); border-color: var(--accent);
-    }
-    .toggle-thumb {
-      position: absolute; top: 3px; left: 3px;
-      width: 18px; height: 18px; border-radius: 50%;
-      background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2);
-      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
-      pointer-events: none;
-    }
-    .toggle input:checked ~ .toggle-track .toggle-thumb {
-      transform: translateX(24px);
-    }
+  /* question canvas wrap (reuses look of main canvas-wrap) */
+  .sq-canvas-wrap{
+    width:100%; background:var(--surface); border:1.5px solid var(--border);
+    border-radius:14px; box-shadow:0 2px 12px var(--shadow); padding:14px; position:relative;
+  }
+  #sqCanvas{ display:block; width:100%; height:auto; }
 
-    /* Suspense: tärningen glöder medan den rullar */
-    @keyframes suspenseGlow {
-      from { filter: drop-shadow(0 0 2px rgba(48,107,240,.1)); }
-      to   { filter: drop-shadow(0 0 22px rgba(48,107,240,.6)); }
-    }
-    .scene.suspense-rolling {
-      animation: suspenseGlow .55s ease-in-out infinite alternate;
-    }
+  .sq-expr{
+    font-family:'Sora',sans-serif; font-size:1.4rem; font-weight:700;
+    color:var(--accent); text-align:center; background:var(--surface2);
+    border-radius:10px; padding:8px 18px; letter-spacing:.02em;
+  }
+  .sq-question{
+    font-family:'Sora',sans-serif; font-size:1.05rem; font-weight:700;
+    color:var(--text); text-align:center; margin-bottom:4px;
+  }
+  .sq-options{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%;
+  }
+  .sq-opt{
+    padding:14px 10px; border-radius:12px; border:2px solid var(--border);
+    background:var(--surface); font-family:'Sora',sans-serif; font-size:1rem;
+    font-weight:700; color:var(--text); cursor:pointer; transition:all .12s;
+  }
+  .sq-opt:hover{ border-color:var(--accent); }
+  .sq-opt.correct{ background:#dcfce7; border-color:#18a348; color:#15803d; }
+  .sq-opt.wrong{ background:#fee2e2; border-color:#e02020; color:#b91c1c; }
+  .sq-opt:disabled{ cursor:default; }
 
-    /* ── History ── */
-    .hist-label { font-size: .75rem; color: var(--muted); text-align: center; margin-bottom: 6px; }
-    .history { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 340px; min-height: 36px; }
-    .hist-chip {
-      width: 34px; height: 34px; border-radius: 8px;
-      background: var(--surface2); border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--accent);
-      animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
-    }
-    @keyframes popIn { from { transform:scale(0);opacity:0; } to { transform:scale(1);opacity:1; } }
-  </style>
+  .sq-feedback{
+    font-size:.92rem; font-weight:700; text-align:center; min-height:1.4em;
+  }
+  .sq-feedback.correct{ color:#18a348; }
+  .sq-feedback.wrong{ color:#e02020; }
+
+  .sq-next-btn{
+    padding:11px 28px; border-radius:12px; border:none; background:var(--accent);
+    color:#fff; font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem;
+    cursor:pointer; transition:filter .15s;
+  }
+  .sq-next-btn:hover{ filter:brightness(1.1); }
+
+  /* minitest rows */
+  .mt-row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:12px; padding:12px 14px;
+  }
+  .mt-expr{
+    font-family:'Sora',sans-serif; font-size:1.1rem; font-weight:700;
+    color:var(--accent); min-width:120px;
+  }
+  .mt-eq{ font-size:1.1rem; font-weight:700; color:var(--muted); }
+  .mt-input{
+    width:72px; padding:8px 10px; border:2px solid var(--border);
+    border-radius:9px; font-family:'Sora',sans-serif; font-size:1.05rem;
+    font-weight:700; text-align:center; color:var(--text); background:var(--bg);
+    outline:none; transition:border-color .15s;
+  }
+  .mt-input:focus{ border-color:var(--accent); }
+  .mt-input.correct{ border-color:#18a348; background:#dcfce7; color:#15803d; }
+  .mt-input.wrong{ border-color:#e02020; background:#fee2e2; color:#b91c1c; }
+  .mt-verdict{ font-size:.82rem; font-weight:700; color:var(--muted); flex:1; }
+  .mt-verdict.correct{ color:#18a348; }
+  .mt-verdict.wrong{ color:#e02020; }
+  /* summary screen */
+  .summary-card{
+    background:var(--surface); border:1.5px solid var(--border); border-radius:16px;
+    padding:32px 24px; text-align:center; max-width:380px; width:100%;
+  }
+  .summary-card .big-score{
+    font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:700;
+    color:var(--accent); margin:10px 0;
+  }
+
+</style>
 </head>
 <body>
+<header></header>
+<main>
 
-<h1>Tärning</h1>
-<p class="subtitle">Klicka för att slå</p>
-
-<div class="toggle-wrap">
-  <span id="labelSnabb" class="active">Snabbt</span>
-  <label class="toggle">
-    <input type="checkbox" id="suspenseToggle" onchange="updateToggleLabel()">
-    <div class="toggle-track"><div class="toggle-thumb"></div></div>
-  </label>
-  <span id="labelSpanning">🎭 Spänningsläge</span>
-</div>
-
-<div class="scene" id="scene" onclick="rollDice()" title="Slå tärningen">
-  <div class="cube" id="cube">
-    <!--
-      Standard dice: opposite faces sum to 7
-        front=1 ↔ back=6
-        right=2 ↔ left=5
-        top=3   ↔ bottom=4
-    -->
-    <div class="face front"  data-n="1"><div class="dot"></div></div>
-    <div class="face back"   data-n="6"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-    <div class="face right"  data-n="2"><div class="dot"></div><div class="dot"></div></div>
-    <div class="face left"   data-n="5"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-    <div class="face top"    data-n="3"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-    <div class="face bottom" data-n="4"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  <div class="canvas-and-toolbar">
+  <div class="left-toolbar">
+    <!-- Row 0: tools -->
+    <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
+    <button class="lt-btn" id="ltBtnSettings"><span>⚙️</span><span class="lt-tip">Inställningar</span></button>
+    <div class="lt-sep"></div>
+    <!-- Row 1: play + utterance (paired by intent) -->
+    <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
+    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
+    <!-- Row 2: reveal + save -->
+    <button class="lt-btn reveal-ready" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
+    <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
+    <div class="lt-sep"></div>
+    <!-- Row 3: expr toggle + invert -->
+    <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
+    <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
+    <!-- Row 4: kang + explain -->
+    <button class="lt-btn lt-full" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
+    <button class="lt-btn lt-full" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
+    <button class="lt-btn lt-full" id="ltBtnPlacement"><span>🙈</span><span class="lt-tip">Placeringsläge (dölj roboten)</span></button>
+    <button class="lt-btn lt-full" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Dölj riktningspilen (behåll bara huvud-triangeln)</span></button>
+    <div class="lt-sep"></div>
+    <!-- Row 5: explain + random + export -->
+    <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
+    <button class="lt-btn" id="ltBtnRandom"><span>🎲</span><span class="lt-tip">Slumpa uttryck</span></button>
+    <button class="lt-btn lt-full" id="ltBtnExport"><span>📷</span><span class="lt-tip">Exportera bild</span></button>
+    <div class="lt-sep"></div>
+    <!-- Preset navigation -->
+    <button class="lt-btn" id="ltBtnPrevPreset"><span>◀</span><span class="lt-tip">Föregående uttryck</span></button>
+    <button class="lt-btn" id="ltBtnNextPreset"><span>▶</span><span class="lt-tip">Nästa uttryck</span></button>
+    <!-- hidden refs for JS compat -->
+    <span style="display:none">
+      <button id="ltBtnTotal"></button>
+      <button id="ltBtnStep"></button>
+      <button id="ltBtnArrows"></button>
+    </span>
   </div>
-</div>
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="tl" width="960" height="360"></canvas>
+    <input type="text" id="exprEditInput" autocomplete="off" spellcheck="false">
+    <button id="btnToggleExprInline" style="display:none" title="Visa/dölj uttrycket">👁</button>
 
-<div class="result-area">
-  <div class="result-number" id="resultNum"></div>
-  <div class="result-label"  id="resultLbl"></div>
-</div>
 
-<button class="roll-btn" id="rollBtn" onclick="rollDice()">🎲 Slå tärningen</button>
+    <!-- step-input bubble inside canvas-wrap -->
+    <div class="step-bubble" id="stepBubble">
+      <div class="sb-card">
+        <span class="sb-label">Steg</span>
+        <input type="text" id="stepBubbleInput" autocomplete="off" spellcheck="false">
+        <span class="sb-arrow"></span>
+      </div>
+    </div>
 
-<div>
-  <p class="hist-label">Senaste kast</p>
-  <div class="history" id="history"></div>
-</div>
+    <!-- floating toolbar: only 💡 and ⚙️ remain -->
+    <!-- keep hidden refs for JS compat -->
+    <span style="display:none">
+      <button id="btnInvertOp">+</button>
+      <button id="btnToggleExpr">𝑓</button>
+      <button id="btnTotalToggle">↔</button>
+      <button id="btnStepToggle">⛓</button>
+      <button id="btnStepArrowToggle">➡</button>
+      <button id="btnExplainToggle">💬</button>
+      <button id="btnColorNumbers">🎨</button>
+      <button id="btnDark">🌙</button>
+      <button id="btnFullscreen">⛶</button>
+      <button id="btnSettings">⚙️</button>
+      <button id="btnExplainSteps">💡</button>
+      <input type="checkbox" id="slowToggle" style="display:none" checked>
+    </span>
+    <div class="float-toolbar" id="floatToolbar">
+      <button class="icon-btn" id="btnStudentMode" title="Elevläge">🎓</button>
+      <button class="icon-btn" id="btnKeyHelp" title="Tangentbordsgenvägar (?)">?</button>
+    </div>
+  </div>
+  </div>
+
+  <!-- explanation popup — positioned via JS relative to btnExplainSteps -->
+  <div class="explain-popup" id="explainPopup">
+    <div class="ep-title">Så här tänker vi</div>
+    <div id="explainStepsList"></div>
+  </div>
+
+
+
+  <!-- hidden action-row refs for JS compat -->
+  <span style="display:none">
+    <button id="btnAnimate">▶</button>
+    <button id="btnReset">↺</button>
+    <button id="btnUtterance">🗣</button>
+    <button id="btnReveal">👁</button>
+  </span>
+
+  <div class="step-strip" id="stepStrip">&nbsp;</div>
+
+  <!-- input popup: numpad + presets, fixed-positioned next to 🔢 button -->
+  <div id="sidePanel" class="input-popup">
+    <div class="sp-tabs" style="flex-wrap:wrap;">
+      <button class="sp-tab active" id="spTabNumpad">🔢 Knappsats</button>
+      <button class="sp-tab" id="spTabPreset">📋 Uttryck</button>
+      <button class="sp-tab" id="spTabHistory">🕐 Historik</button>
+      <button class="sp-tab" id="spTabTasks">🎯 Uppgifter</button>
+    </div>
+    <div class="sp-body">
+      <!-- Numpad tab (default) -->
+      <div id="spNumpadContent">
+        <div class="numpad-display" id="numpadDisplay">—</div>
+        <div class="numpad-grid">
+          <button class="np-btn" data-val="7">7</button>
+          <button class="np-btn" data-val="8">8</button>
+          <button class="np-btn" data-val="9">9</button>
+          <button class="np-btn clr" data-action="clear">C</button>
+          <button class="np-btn" data-val="4">4</button>
+          <button class="np-btn" data-val="5">5</button>
+          <button class="np-btn" data-val="6">6</button>
+          <button class="np-btn neg" data-action="negate">±</button>
+          <button class="np-btn" data-val="1">1</button>
+          <button class="np-btn" data-val="2">2</button>
+          <button class="np-btn" data-val="3">3</button>
+          <button class="np-btn op" data-action="op+">+</button>
+          <button class="np-btn" data-val="0">0</button>
+          <button class="np-btn" data-val="BS">⌫</button>
+          <button class="np-btn op" data-action="op−">−</button>
+          <button class="np-btn go" data-action="go">OK ▶</button>
+        </div>
+      </div>
+      <!-- User saved row -->
+      <div class="user-pearl-wrap" id="userPearlWrap">
+        <span class="user-pearl-hint" id="userPearlHint">Klicka ★ för att spara aktuellt uttryck</span>
+      </div>
+      <!-- Preset tab -->
+      <div id="spPresetContent" style="display:none">
+        <div id="presetCatContainer"></div>
+      </div>
+      <!-- History tab -->
+      <div id="spHistoryContent" style="display:none">
+        <div id="historyList" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+      <!-- Tasks tab -->
+      <div id="spTasksContent" style="display:none">
+        <div id="taskContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-title">⚙️ Inställningar</div>
+      <div class="modal-section">
+        <label class="toggle-label"><span class="ic">🦘</span><input type="checkbox" id="kangToggle" checked> Känguruhopp</label>
+        <label class="toggle-label" style="flex-direction:column;align-items:flex-start;gap:4px;">
+          <span><span class="ic">🐇</span><span id="speedLabel">Hastighet: Långsam</span></span>
+          <input type="range" id="speedSlider" min="1" max="5" value="2" style="width:100%;accent-color:var(--accent);">
+        </label>
+        <label class="toggle-label"><span class="ic">⛓</span><input type="checkbox" id="stepChainSettings" checked> Steg för steg</label>
+        <label class="toggle-label"><span class="ic">↔</span><input type="checkbox" id="totalSettings"> Totalt hopp</label>
+        <label class="toggle-label"><span class="ic">➡</span><input type="checkbox" id="arrowSettings"> Steg-pilar</label>
+        <label class="toggle-label"><span class="ic">🎨</span><input type="checkbox" id="colorToggleSettings"> Färgkoda tal</label>
+        <label class="toggle-label"><span class="ic">💬</span><input type="checkbox" id="hintToggleSettings"> Hjälptexter</label>
+        <label class="toggle-label"><span class="ic">🌙</span><input type="checkbox" id="darkToggleSettings"> Mörkt läge</label>
+        <label class="toggle-label"><span class="ic">⛶</span><input type="checkbox" id="fsToggleSettings"> Helskärm</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- keyboard shortcut overlay — lives inside main so it's always parsed before <script> -->
+  <div id="kbOverlay" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(16,14,40,.45);align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:22px 26px;max-width:420px;width:92%;box-shadow:0 10px 40px rgba(16,14,40,.25);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-weight:700;font-size:1rem;">
+        ⌨️ Tangentbordsgenvägar
+        <button id="kbClose" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--muted);">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;font-family:'Sora',sans-serif;">
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">Space / Enter</kbd><span style="font-size:.82rem;color:var(--muted);">Animera / Nästa hopp</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">R</kbd><span style="font-size:.82rem;color:var(--muted);">Återställ</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">K</kbd><span style="font-size:.82rem;color:var(--muted);">Växla känguruhopp</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">L</kbd><span style="font-size:.82rem;color:var(--muted);">Lås tallinje (−12 till 12)</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">+ / −</kbd><span style="font-size:.82rem;color:var(--muted);">Växla operator</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">U</kbd><span style="font-size:.82rem;color:var(--muted);">Uttalat uttryck</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">E</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj uttrycket</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">V</kbd><span style="font-size:.82rem;color:var(--muted);">Visa svar</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">Esc</kbd><span style="font-size:.82rem;color:var(--muted);">Stäng popup / elevläge</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">?</kbd><span style="font-size:.82rem;color:var(--muted);">Visa den här hjälpen</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+  <!-- ═══════════ STUDENT MODE OVERLAY ═══════════ -->
+  <div class="student-overlay" id="studentOverlay">
+    <div class="student-header">
+      <h2>🎓 Elevläge — Tallinjen</h2>
+      <button class="student-exit" id="studentExit">✕ Avsluta</button>
+    </div>
+    <div class="student-body" id="studentBody">
+
+      <!-- SCREEN: mode picker -->
+      <div id="scrModePicker" style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:480px;">
+        <p style="text-align:center;color:var(--muted);font-size:.9rem;">Välj hur du vill öva</p>
+        <div class="mode-card" id="cardModeA">
+          <h3>🪜 Steg för steg</h3>
+          <p>Du svarar på tre frågor i taget: var roboten börjar, vilket håll den tittar åt, och om den går framåt eller bakåt. Sedan får du se animationen.</p>
+        </div>
+        <div class="mode-card" id="cardModeB">
+          <h3>🔮 Förutspå svaret</h3>
+          <p>Du ser ett färdigt uttryck och gissar svaret bland fyra alternativ innan du får se facit på tallinjen.</p>
+        </div>
+        <div class="mode-card" id="cardModeC">
+          <h3>📝 Minitest</h3>
+          <p>Du får 10 uttryck att räkna ut. Fyll i svaren och rätta sedan allt på en gång — som ett riktigt prov.</p>
+        </div>
+      </div>
+
+      <!-- SCREEN: level picker -->
+      <div id="scrLevelPicker" style="display:none;flex-direction:column;gap:16px;width:100%;max-width:480px;align-items:center;">
+        <p style="text-align:center;color:var(--muted);font-size:.9rem;">Välj svårighetsgrad</p>
+        <div class="level-row">
+          <button class="level-btn active" data-level="0">🟢 Positiva tal</button>
+          <button class="level-btn" data-level="1">🔵 Subtraktion</button>
+          <button class="level-btn" data-level="2">🟠 Via nollan</button>
+          <button class="level-btn" data-level="3">🟣 Negativt starttal</button>
+          <button class="level-btn" data-level="4">🩷 Teckensregeln</button>
+        </div>
+        <button class="sq-next-btn" id="btnStartQuiz">Starta ▶</button>
+      </div>
+
+      <!-- SCREEN: quiz in progress -->
+      <div id="scrQuiz" style="display:none;flex-direction:column;gap:16px;width:100%;align-items:center;">
+        <div class="score-bar">
+          <span class="score-pill correct" id="scoreCorrect">0 rätt</span>
+          <span class="score-pill" id="scoreTotal">av 0</span>
+          <button class="level-btn" id="btnFinishRound" style="margin-left:8px;">Avsluta &amp; se resultat</button>
+        </div>
+
+        <div class="sq-canvas-wrap">
+          <canvas id="sqCanvas" width="700" height="260"></canvas>
+        </div>
+
+        <div class="sq-expr" id="sqExprText"></div>
+        <div class="sq-question" id="sqQuestionText"></div>
+        <div class="sq-options" id="sqOptions"></div>
+        <div class="sq-feedback" id="sqFeedback">&nbsp;</div>
+        <button class="sq-next-btn" id="sqNextBtn" style="display:none">Nästa ▶</button>
+      </div>
+
+      <!-- SCREEN: Mode C — minitest -->
+      <div id="scrMinitest" style="display:none;flex-direction:column;gap:14px;width:100%;max-width:560px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div style="font-weight:700;font-size:.9rem;color:var(--muted);">📝 Minitest — fyll i alla svar och rätta</div>
+          <button class="sq-next-btn" id="btnCheckMinitest">Rätta ✓</button>
+        </div>
+        <div id="minitestList" style="display:flex;flex-direction:column;gap:10px;width:100%;"></div>
+      </div>
+
+      <!-- SCREEN: Mode C result -->
+      <div id="scrMinitestResult" style="display:none;flex-direction:column;gap:14px;width:100%;max-width:560px;">
+        <div style="font-weight:700;font-size:.9rem;color:var(--muted);">📝 Resultat</div>
+        <div id="minitestResultList" style="display:flex;flex-direction:column;gap:8px;width:100%;"></div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:4px;">
+          <button class="sq-next-btn" id="btnMinitestAgain">Nytt test</button>
+          <button class="sq-next-btn" style="background:var(--surface2);color:var(--accent);" id="btnMinitestBack">← Tillbaka</button>
+        </div>
+      </div>
+
+      <!-- SCREEN: summary -->
+      <div id="scrSummary" style="display:none;flex-direction:column;align-items:center;gap:16px;width:100%;">
+        <div class="summary-card">
+          <div style="font-size:2rem;">🎉</div>
+          <div style="color:var(--muted);font-size:.9rem;margin-top:6px;">Du klarade</div>
+          <div class="big-score" id="summaryScore">0 / 0</div>
+          <button class="sq-next-btn" id="btnPlayAgain">Spela igen</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<footer style="width:100%;text-align:center;padding:10px 0 18px;font-family:'Sora',sans-serif;font-size:.72rem;color:#aaa;letter-spacing:.02em;">
+  Skapat av Patrick Tegnefur &nbsp;·&nbsp; Förstelärare i matematik &nbsp;·&nbsp; Alfred Dalinskolan, Huskvarna
+</footer>
 
 <script>
-/*
-  Face placement and the rotation needed to face it toward the viewer:
+// ═══════════════════════════════════════════════════════════════════
+//  COLOURS
+// ═══════════════════════════════════════════════════════════════════
+const C_FWD_POS = '#306BF0';
+const C_FWD_NEG = '#66C7C2';
+const C_BWD_POS = '#F4A261';
+const C_BWD_NEG = '#EC6095';
+const C_TOTAL   = '#7c3aed';
+const C_START   = '#66C7C2';  // green — matches gradient left edge
+const C_END     = '#EC6095';  // pink — matches gradient right edge
 
-  Face    CSS-transform              → Cube rotation to show face
-  front   translateZ(80)             → rx=0,   ry=0
-  back    rotateY(180) translateZ    → rx=0,   ry=180
-  right   rotateY(90)  translateZ    → rx=0,   ry=-90
-  left    rotateY(-90) translateZ    → rx=0,   ry=90
-  top     rotateX(90)  translateZ    → rx=90,  ry=0
-  bottom  rotateX(-90) translateZ    → rx=-90, ry=0
-
-  data-n on each face element tells us its pip value.
-  We build the lookup from face class → {rx,ry} and read data-n after landing.
-*/
-/*
-  Single source of truth — face class, pip value, and the cube rotation
-  needed to bring that face toward the viewer are all defined here together.
-  No DOM reading, no order assumptions.
-
-  Face transform in CSS         → inverse cube rotation to show it
-  front:  translateZ(80)        → rx=0,   ry=0
-  back:   rotateY(180)+Z        → rx=0,   ry=180
-  right:  rotateY(90)+Z         → rx=0,   ry=-90   (counter-rotate)
-  left:   rotateY(-90)+Z        → rx=0,   ry=90
-  top:    rotateX(90)+Z         → rx=-90, ry=0
-  bottom: rotateX(-90)+Z        → rx=90,  ry=0
-*/
-const FACES = [
-  { cls: 'front',  val: 1, rx:   0, ry:   0 },
-  { cls: 'back',   val: 6, rx:   0, ry: 180 },
-  { cls: 'right',  val: 2, rx:   0, ry: -90 },
-  { cls: 'left',   val: 5, rx:   0, ry:  90 },
-  { cls: 'top',    val: 3, rx: -90, ry:   0 },
-  { cls: 'bottom', val: 4, rx:  90, ry:   0 },
-];
-
-// Verify that data-n in the HTML matches our table — warn in console if not
-FACES.forEach(f => {
-  const el = document.querySelector(`.face.${f.cls}`);
-  const domVal = el ? parseInt(el.dataset.n, 10) : null;
-  if (domVal !== f.val) console.warn(`Face mismatch: .${f.cls} has data-n="${domVal}" but FACES says ${f.val}`);
-});
-
-const names = ['','etta','tvåa','trea','fyra','femma','sexa'];
-let rolling = false;
-const rolls = [];
-const cube  = document.getElementById('cube');
-const scene = document.getElementById('scene');
-
-applyTransform(0, 0, 0);
-
-function applyTransform(rx, ry, ms, easing) {
-  cube.style.transition = ms > 0
-    ? `transform ${ms}ms ${easing || 'cubic-bezier(.22,1,.36,1)'}`
-    : 'none';
-  cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+function isForward(from, to) {
+  const movingRight = to > from;
+  return (S.op === '+') ? movingRight : !movingRight;
+}
+function hopColor(from, to) {
+  const fwd = isForward(from, to);
+  if (fwd) return to >= 0 ? C_FWD_POS : C_FWD_NEG;
+  else      return to >= 0 ? C_BWD_POS : C_BWD_NEG;
 }
 
-function isSuspense() {
-  return document.getElementById('suspenseToggle').checked;
+// ═══════════════════════════════════════════════════════════════════
+//  ALTERNATE FORM (via-zero decomposition)
+// ═══════════════════════════════════════════════════════════════════
+function fmtNum(n) { return n < 0 ? `(${n})` : String(n); }
+
+function altForm(t1, op, t2) {
+  const step   = op === '+' ? t2 : -t2;
+  const answer = t1 + step;
+
+  // Case A: sign-rule rewrite, e.g. 5 − (−8) → 5 + 8,  or  5 + (−3) → 5 − 3
+  // This applies whenever t2 is negative (so the written form hides a sign flip)
+  if (t2 < 0) {
+    const newOp   = (op === '+') ? '−' : '+';
+    const newOpChar = newOp === '+' ? '+' : '−';
+    const absT2   = Math.abs(t2);
+    const label = `${fmtNum(t1)} ${newOpChar} ${absT2}  =  ${fmtNum(answer)}`;
+    return { label, kind:'sign' };
+  }
+
+  // Case B: via-zero decomposition (känguruhopp), e.g. 5 − 8 → 5 − 5 − 3 = 0 − 3 = −3
+  const crossesZero = (t1 > 0 && answer < 0) || (t1 < 0 && answer > 0);
+  if (crossesZero) {
+    const part1 = Math.abs(t1);
+    const part2 = Math.abs(answer);
+    const opChar = op === '+' ? '+' : '−';
+    const label = `${fmtNum(t1)} ${opChar} ${part1} ${opChar} ${part2}  =  0 ${opChar} ${part2}  =  ${fmtNum(answer)}`;
+    return { label, kind:'zero' };
+  }
+
+  return null;
 }
 
-function updateToggleLabel() {
-  const on = isSuspense();
-  document.getElementById('labelSnabb').classList.toggle('active', !on);
-  document.getElementById('labelSpanning').classList.toggle('active', on);
+// ═══════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════
+const S = {
+  t1:5, op:'−', t2:7, answer:-2,
+  robotPos:5,
+  animating:false,
+  kangMode:true,
+  showTotal:false,
+  showExpr:true,         // toggle for the expression box top-left of canvas
+  showStepChain:true,   // "steg för steg" = show per-leg arcs/labels (default on)
+  showHints:false,      // verbose interpretation strip text ("3 steg baklänges" etc)
+  canvasHint:'',        // the "X steg kvar" text drawn under the step arrows on canvas
+  slowMode:true,
+  showStepArrows:false,
+  showColorNumbers:false,
+  showUtterance:false,
+  showFullUtterance:false,
+  lastExpr:null,         // {t1,op,t2} — saved before each new setExpr call
+  presetIdx:-1,          // which preset is active (-1 = none)
+  savedExprs:[],         // user-saved expressions
+  revealStep:0,
+  phase:'idle',
+  completedArcs:[],
+  revealedPositions:[],
+  facingRight:false,
+  isDragging:false,     // true while the robot is being dragged
+  lockRange:false,      // when true, number line is fixed at LOCKED_RANGE (-12..12), no pan/zoom animation
+  placementMode:false,  // when true, the robot is hidden on every new expression until manually placed + given a direction
+  needsPlacement:false, // true = robot hidden, waiting for a click on the number line to set its start position
+  needsDirection:false, // true = robot placed but facing is neutral, waiting for a click to choose left/right
+  hideDirArrow:false,   // when true (placeringsläge only), the arrow above the head is skipped — only the head triangle shows facing
+};
+
+// ═══════════════════════════════════════════════════════════════════
+//  DOM
+// ═══════════════════════════════════════════════════════════════════
+const canvas       = document.getElementById('tl');
+const ctx          = canvas.getContext('2d');
+const canvasWrap    = document.getElementById('canvasWrap');
+const exprEditInput = document.getElementById('exprEditInput');
+const btnInvertOp   = document.getElementById('btnInvertOp');
+const floatToolbar  = document.getElementById('floatToolbar');
+const btnTotalToggle= document.getElementById('btnTotalToggle');
+const btnToggleExpr       = document.getElementById('btnToggleExpr');
+const btnToggleExprInline = document.getElementById('btnToggleExprInline');
+const ltBtnExpr   = document.getElementById('ltBtnExpr');
+const ltBtnInvert = document.getElementById('ltBtnInvert');
+const ltBtnUtter  = document.getElementById('ltBtnUtter');
+const ltBtnPlay   = document.getElementById('ltBtnPlay');
+const ltBtnReveal = document.getElementById('ltBtnReveal');
+const ltBtnSave   = document.getElementById('ltBtnSave');
+const ltBtnKang   = document.getElementById('ltBtnKang');
+const ltBtnLock   = document.getElementById('ltBtnLock');
+const ltBtnPlacement = document.getElementById('ltBtnPlacement');
+const ltBtnHideArrow = document.getElementById('ltBtnHideArrow');
+const ltBtnArrows = document.getElementById('ltBtnArrows');
+const ltBtnTotal  = document.getElementById('ltBtnTotal');
+const ltBtnStep   = document.getElementById('ltBtnStep');
+const colorToggleSettings = document.getElementById('colorToggleSettings');
+const hintToggleSettings  = document.getElementById('hintToggleSettings');
+const stepChainSettings   = document.getElementById('stepChainSettings');
+const totalSettings       = document.getElementById('totalSettings');
+const arrowSettings       = document.getElementById('arrowSettings');
+const btnStepToggle = document.getElementById('btnStepToggle');
+const btnExplainToggle = document.getElementById('btnExplainToggle');
+const btnExplainSteps  = document.getElementById('btnExplainSteps');
+const explainPopup     = document.getElementById('explainPopup');
+const explainStepsList = document.getElementById('explainStepsList');
+const stepBubble       = document.getElementById('stepBubble');
+const stepBubbleInput  = document.getElementById('stepBubbleInput');
+
+const btnAnim  = document.getElementById('btnAnimate');
+const btnReset = document.getElementById('btnReset');
+const btnRevl  = document.getElementById('btnReveal');
+const btnSettings   = document.getElementById('btnSettings');
+const ltBtnSettings = document.getElementById('ltBtnSettings');
+const settingsModal = document.getElementById('settingsModal');
+const modalClose    = document.getElementById('modalClose');
+
+const kangChk      = document.getElementById('kangToggle');
+const slowChk      = document.getElementById('slowToggle');
+const btnStepArrowToggle = document.getElementById('btnStepArrowToggle');
+const btnColorNumbers    = document.getElementById('btnColorNumbers');
+const btnUtterance      = document.getElementById('btnUtterance');
+
+const stripEl   = document.getElementById('stepStrip');
+
+// ═══════════════════════════════════════════════════════════════════
+//  LAYOUT
+// ═══════════════════════════════════════════════════════════════════
+const CW=960, CH=360;
+const LINE_Y  = 188;
+const TICK_H  = 13;
+const LABEL_Y = LINE_Y + TICK_H + 14;
+const BOX_Y   = LINE_Y + TICK_H + 30;
+
+let range = {lo:-4, hi:14};
+let exprBoxRect = {x:16,y:14,w:120,h:40}; // updated each render, used for click-to-edit
+
+// Fixed window used when "Lås tallinje" is active (see S.lockRange)
+const LOCKED_RANGE = { lo:-12, hi:12 };
+
+function computeRange(t1, t2) {
+  if (S.lockRange) return { lo: LOCKED_RANGE.lo, hi: LOCKED_RANGE.hi };
+  const abs2 = Math.abs(t2);
+  let lo = t1 - abs2, hi = t1 + abs2;
+  if (lo > 0) lo = 0;
+  if (hi < 0) hi = 0;
+  const span = hi - lo;
+  if (span < 10) { const e=Math.ceil((10-span)/2); lo-=e; hi+=e; }
+  const pad = Math.ceil((hi-lo)*0.18+1);
+  return { lo:Math.floor(lo-pad), hi:Math.ceil(hi+pad) };
+}
+function worldToX(w) { return 48 + (w-range.lo)/(range.hi-range.lo)*(CW-96); }
+function xToWorld(x) { return range.lo + (x-48)/(CW-96)*(range.hi-range.lo); }
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW helpers
+// ═══════════════════════════════════════════════════════════════════
+function roundRect(c,x,y,w,h,r){
+  c.beginPath();
+  c.moveTo(x+r,y); c.lineTo(x+w-r,y); c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y);
+  c.closePath();
 }
 
-function rollDice() {
-  if (rolling) return;
-  rolling = true;
-
-  const numEl = document.getElementById('resultNum');
-  const lblEl = document.getElementById('resultLbl');
-  const btn   = document.getElementById('rollBtn');
-  btn.disabled = true;
-  numEl.classList.remove('show');
-  lblEl.classList.remove('show');
-
-  const target = FACES[Math.floor(Math.random() * 6)];
-  const val    = target.val;
-
-  if (isSuspense()) {
-    runSuspenseRoll(target, val, numEl, lblEl, btn);
-  } else {
-    runQuickRoll(target, val, numEl, lblEl, btn);
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — number line
+// ═══════════════════════════════════════════════════════════════════
+function drawLine() {
+  const lo=range.lo, hi=range.hi;
+  const isDark = document.body.classList.contains('dark');
+  const lineCol  = isDark ? '#e0dbff' : '#100e28';
+  const tickCol  = isDark ? '#c5bfee' : '#100e28';
+  const zeroCol  = isDark ? '#ffffff' : '#100e28';
+  const labelDim = isDark ? '#a09acc' : '#444';
+  ctx.strokeStyle=lineCol; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(worldToX(lo)-20,LINE_Y); ctx.lineTo(worldToX(hi)+20,LINE_Y); ctx.stroke();
+  const rsx = worldToX(hi)+20;
+  ctx.fillStyle=lineCol; ctx.beginPath();
+  ctx.moveTo(rsx+9,LINE_Y); ctx.lineTo(rsx-5,LINE_Y-5); ctx.lineTo(rsx-5,LINE_Y+5);
+  ctx.closePath(); ctx.fill();
+  for (let n=lo; n<=hi; n++) {
+    const x=worldToX(n);
+    ctx.strokeStyle=n===0 ? zeroCol : tickCol; ctx.lineWidth=n===0?2.5:1;
+    ctx.beginPath(); ctx.moveTo(x,LINE_Y-TICK_H); ctx.lineTo(x,LINE_Y+TICK_H); ctx.stroke();
+    const isZero = n === 0;
+    ctx.font = isZero ? 'bold 17px Sora' : '14px Sora';
+    let labelCol;
+    if (isZero) {
+      labelCol = zeroCol;
+    } else if (S.showColorNumbers) {
+      labelCol = n > 0 ? '#306BF0' : '#EC6095';
+    } else {
+      labelCol = labelDim;
+    }
+    ctx.fillStyle = labelCol;
+    ctx.textAlign='center'; ctx.fillText(n, x, LABEL_Y);
   }
 }
 
-/* Räknar ut slutvinkeln från 0 med exakt 'spins' hela varv + target.
-   target normaliseras till [0, 360) så vi alltid snurrar framåt. */
-function finalAngle(targetDeg, spins) {
-  const t = ((targetDeg % 360) + 360) % 360;   // alltid 0–359
-  return spins * 360 + t;
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — expression box (now ALSO the click-to-edit input trigger)
+// ═══════════════════════════════════════════════════════════════════
+function drawExprBox() {
+  const opChar   = S.op==='+'?'+':'−';
+  const mainExpr = `${fmtNum(S.t1)} ${opChar} ${fmtNum(S.t2)}`;
+  const alt      = altForm(S.t1, S.op, S.t2);
+  const step     = S.revealStep || 0;
+
+  const FS  = 24;   // larger for classroom visibility
+  const pad = 14;
+  const bx  = 16, by = 14;
+
+  ctx.font = `bold ${FS}px Sora`;
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'left';
+
+  let chain = mainExpr + '  =';
+  if (step >= 1 && alt) chain += `  ${alt.label}  =`;
+  if (step >= 2)        chain += `  ${S.answer}`;
+
+  const chainW = ctx.measureText(chain).width;
+  const boxW = chainW + pad*2;
+  const boxH = FS + pad*2;
+
+  // Always update exprBoxRect so click-to-edit works even when box is hidden
+  exprBoxRect = {x:bx, y:by, w:boxW, h:boxH};
+
+  if (!S.showExpr) {
+    ctx.textBaseline = 'alphabetic';
+    return;
+  }
+
+  ctx.fillStyle   = 'rgba(246,244,255,0.97)';
+  ctx.strokeStyle = '#ccc5f0';
+  ctx.lineWidth   = 1.5;
+  roundRect(ctx, bx, by, boxW, boxH, 8);
+  ctx.fill(); ctx.stroke();
+
+  let cx = bx + pad;
+  const cy = by + pad;
+  function piece(text, color) {
+    ctx.fillStyle = color;
+    ctx.fillText(text, cx, cy);
+    cx += ctx.measureText(text).width;
+  }
+  piece(mainExpr, '#100e28');
+  piece('  =', '#585078');
+  if (step >= 1 && alt) {
+    piece(`  ${alt.label}`, '#18a348');
+    piece('  =', '#585078');
+  }
+  if (step >= 2) piece(`  ${S.answer}`, '#306BF0');
+
+  ctx.textBaseline = 'alphabetic';
 }
 
-/* ── Snabbt läge ── */
-function runQuickRoll(target, val, numEl, lblEl, btn) {
-  const fx = finalAngle(target.rx, 3);
-  const fy = finalAngle(target.ry, 3);
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — arc segment
+// ═══════════════════════════════════════════════════════════════════
+function drawArcSegment(from, to, frac, color, noLabel) {
+  if (frac<=0 || from===to) return;
+  const x1=worldToX(from), x2=worldToX(to), xMid=(x1+x2)/2;
+  const span=Math.abs(x2-x1);
+  const arcH=Math.min(62,span*0.42+14);
 
-  applyTransform(0, 0, 0);
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    applyTransform(fx, fy, 900, 'cubic-bezier(.22,1,.36,1)');
-  }));
+  ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.setLineDash([]);
+  ctx.beginPath();
+  for (let i=0;i<=60;i++) {
+    const t=(i/60)*frac;
+    const bx=(1-t)*(1-t)*x1+2*(1-t)*t*xMid+t*t*x2;
+    const by=(1-t)*(1-t)*LINE_Y+2*(1-t)*t*(LINE_Y-arcH)+t*t*LINE_Y;
+    i===0?ctx.moveTo(bx,by):ctx.lineTo(bx,by);
+  }
+  ctx.stroke();
 
-  // Ingen snap — animationen landar redan rätt
-  setTimeout(() => showResult(val, numEl, lblEl, btn), 920);
+  if (!noLabel && frac>0.44) {
+    // Show the signed t2 value so students see "+5 steg" or "−2 steg"
+    // For kangaroo leg1 (t1→0) and leg2 (0→answer), compute the sub-step t2 sign:
+    // forward movement = positive, backward = negative (relative to robot facing)
+    const fwd = isForward(from, to);
+    const absSteps = Math.abs(to - from);
+    const signedSteps = fwd ? absSteps : -absSteps;
+    const sign = signedSteps >= 0 ? '+' : '−';
+    const label = `${sign}${Math.abs(signedSteps)} steg`;
+    const lt=0.5*frac;
+    const lx=(1-lt)*(1-lt)*x1+2*(1-lt)*lt*xMid+lt*lt*x2;
+    const ly=(1-lt)*(1-lt)*LINE_Y+2*(1-lt)*lt*(LINE_Y-arcH)+lt*lt*LINE_Y-6;
+    ctx.font='bold 14px Sora';
+    const tw=ctx.measureText(label).width;
+    ctx.fillStyle=color;
+    roundRect(ctx,lx-tw/2-8,ly-22,tw+16,22,5); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(label,lx,ly-11); ctx.textBaseline='alphabetic';
+  }
+
+  if (frac>=0.98) {
+    const t0=0.96;
+    const bx0=(1-t0)*(1-t0)*x1+2*(1-t0)*t0*xMid+t0*t0*x2;
+    const by0=(1-t0)*(1-t0)*LINE_Y+2*(1-t0)*t0*(LINE_Y-arcH)+t0*t0*LINE_Y;
+    const ang=Math.atan2(LINE_Y-by0,x2-bx0);
+    ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(x2,LINE_Y);
+    ctx.lineTo(x2-10*Math.cos(ang-0.4),LINE_Y-10*Math.sin(ang-0.4));
+    ctx.lineTo(x2-10*Math.cos(ang+0.4),LINE_Y-10*Math.sin(ang+0.4));
+    ctx.closePath(); ctx.fill();
+  }
 }
 
-/* ── Spänningsläge ──
-   En enda lång CSS-transition med custom cubic-bezier som
-   börjar snabbt och bromsar kraftigt in mot slutet.
-   Ingen osynlig snap — slutvinkeln är exakt rätt från start.
-── */
-function runSuspenseRoll(target, val, numEl, lblEl, btn) {
-  // Många extra varv i fas 1, sen ett sista varv in mot rätt sida
-  const fx = finalAngle(target.rx, 7);
-  const fy = finalAngle(target.ry, 7);
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — total arc
+// ═══════════════════════════════════════════════════════════════════
+function drawTotalArc() {
+  if (!S.showTotal) return;
+  if (S.phase!=='done' && S.phase!=='paused' && S.phase!=='leg2') return;
+  if (S.t1===S.answer) return;
 
-  scene.classList.add('suspense-rolling');
-  applyTransform(0, 0, 0);
+  const x1=worldToX(S.t1), x2=worldToX(S.answer), xMid=(x1+x2)/2;
+  const span=Math.abs(x2-x1);
+  const arcH=Math.min(105,span*0.58+32);
 
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    // cubic-bezier: startar fort, bromsar kraftigt in på slutet
-    applyTransform(fx, fy, 3500, 'cubic-bezier(.15,.5,.2,1)');
-  }));
+  ctx.strokeStyle=C_TOTAL; ctx.lineWidth=2.2; ctx.setLineDash([6,4]);
+  ctx.beginPath();
+  for (let i=0;i<=60;i++) {
+    const t=i/60;
+    const bx=(1-t)*(1-t)*x1+2*(1-t)*t*xMid+t*t*x2;
+    const by=(1-t)*(1-t)*LINE_Y+2*(1-t)*t*(LINE_Y-arcH)+t*t*LINE_Y;
+    i===0?ctx.moveTo(bx,by):ctx.lineTo(bx,by);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
 
-  setTimeout(() => scene.classList.remove('suspense-rolling'), 3480);
-  setTimeout(() => showResult(val, numEl, lblEl, btn), 3520);
+  const t0=0.96;
+  const bx0=(1-t0)*(1-t0)*x1+2*(1-t0)*t0*xMid+t0*t0*x2;
+  const by0=(1-t0)*(1-t0)*LINE_Y+2*(1-t0)*t0*(LINE_Y-arcH)+t0*t0*LINE_Y;
+  const ang=Math.atan2(LINE_Y-by0,x2-bx0);
+  ctx.fillStyle=C_TOTAL;
+  ctx.beginPath();
+  ctx.moveTo(x2,LINE_Y);
+  ctx.lineTo(x2-10*Math.cos(ang-0.4),LINE_Y-10*Math.sin(ang-0.4));
+  ctx.lineTo(x2-10*Math.cos(ang+0.4),LINE_Y-10*Math.sin(ang+0.4));
+  ctx.closePath(); ctx.fill();
+
+  const lx=xMid, ly=LINE_Y-arcH-9;
+  let label;
+  if (S.completedArcs.length===2) {
+    const d1=Math.abs(S.completedArcs[0].to-S.completedArcs[0].from);
+    const d2=Math.abs(S.completedArcs[1].to-S.completedArcs[1].from);
+    label=`${d1} + ${d2} = ${d1+d2} steg`;
+  } else if (S.phase==='paused' && S.completedArcs.length===1) {
+    const d1=Math.abs(S.completedArcs[0].to-S.completedArcs[0].from);
+    const d2=Math.abs(S.answer);
+    label=`${d1} gjorda + ${d2} kvar = ${d1+d2} steg`;
+  } else {
+    label=`${Math.abs(S.answer-S.t1)} steg`;
+  }
+  ctx.font='bold 12px Sora';
+  const tw=ctx.measureText(label).width;
+  ctx.fillStyle=C_TOTAL;
+  roundRect(ctx,lx-tw/2-7,ly-14,tw+14,18,4); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(label,lx,ly-5); ctx.textBaseline='alphabetic';
 }
 
-function showResult(val, numEl, lblEl, btn) {
-  numEl.textContent = val;
-  lblEl.textContent = 'Du slog en ' + names[val];
-  numEl.classList.add('show');
-  lblEl.classList.add('show');
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — position boxes
+// ═══════════════════════════════════════════════════════════════════
+function drawPositionBoxes() {
+  if (S.placementMode && S.needsPlacement) return; // nothing revealed on the line until placed
+  S.revealedPositions.forEach((pos, idx) => {
+    const x=worldToX(pos);
+    const label=String(pos);
+    const isStart = (idx === 0);
+    const isEnd   = (S.phase === 'done' && pos === S.answer && idx === S.revealedPositions.length - 1);
 
-  rolls.unshift(val);
-  if (rolls.length > 9) rolls.pop();
-  document.getElementById('history').innerHTML =
-    rolls.map(v => `<div class="hist-chip">${v}</div>`).join('');
+    ctx.font='bold 13px Sora';
+    const tw=ctx.measureText(label).width;
+    const bw=tw+14, bh=20, bx=x-bw/2, by=BOX_Y-2;
+    ctx.strokeStyle='#bbb'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(x,LINE_Y+TICK_H+2); ctx.lineTo(x,by); ctx.stroke();
+    ctx.setLineDash([]);
 
-  rolling = false;
-  btn.disabled = false;
+    const borderCol = isStart ? C_START : (isEnd ? C_END : '#ccc5f0');
+    ctx.fillStyle='#fff'; ctx.strokeStyle=borderCol; ctx.lineWidth=isStart||isEnd ? 2 : 1.5;
+    roundRect(ctx,bx,by,bw,bh,4); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#100e28'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(label,x,by+bh/2); ctx.textBaseline='alphabetic';
+
+    // micro-label under the box
+    if (isStart) {
+      ctx.font='bold 13px Sora'; ctx.fillStyle=C_START;
+      ctx.textAlign='center'; ctx.fillText('start', x, by+bh+15);
+    } else if (isEnd) {
+      ctx.font='bold 13px Sora'; ctx.fillStyle=C_END;
+      ctx.textAlign='center'; ctx.fillText('svar', x, by+bh+15);
+    }
+  });
 }
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — canvas hint text (e.g. "12 − 5 = 7 steg kvar")
+//  Lives in the same vertical band as the step arrows so it's easy
+//  to find near the number line, instead of far away in the strip.
+// ═══════════════════════════════════════════════════════════════════
+function drawCanvasHint() {
+  if (!S.showHints) return;
+  if (!S.canvasHint) return;
+
+  const HINT_Y = BOX_Y + (S.showStepArrows ? 68 : 34);
+  const midX = CW / 2;
+
+  ctx.font = 'bold 13px Sora';
+  const tw = ctx.measureText(S.canvasHint).width;
+  ctx.fillStyle = '#7c3aed';
+  roundRect(ctx, midX - tw/2 - 10, HINT_Y - 11, tw + 20, 24, 6);
+  ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(S.canvasHint, midX, HINT_Y + 1);
+  ctx.textBaseline = 'alphabetic';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — step arrows below position boxes
+// ═══════════════════════════════════════════════════════════════════
+function drawStepArrows() {
+  if (!S.showStepArrows) return;
+  if (S.revealedPositions.length < 2) return;
+
+  const ARROW_Y = BOX_Y + 36;
+
+  for (let i = 0; i < S.revealedPositions.length - 1; i++) {
+    const from = S.revealedPositions[i];
+    const to   = S.revealedPositions[i + 1];
+    if (from === to) continue;
+
+    const x1 = worldToX(from);
+    const x2 = worldToX(to);
+    const mid = (x1 + x2) / 2;
+    const goRight = x2 > x1;
+    const col = S.completedArcs[i] ? S.completedArcs[i].color : '#aaa';
+
+    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(x1 + (goRight ? 6 : -6), ARROW_Y);
+    ctx.lineTo(x2 + (goRight ? -6 : 6), ARROW_Y);
+    ctx.stroke();
+
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    if (goRight) {
+      ctx.moveTo(x2, ARROW_Y); ctx.lineTo(x2-9, ARROW_Y-5); ctx.lineTo(x2-9, ARROW_Y+5);
+    } else {
+      ctx.moveTo(x2, ARROW_Y); ctx.lineTo(x2+9, ARROW_Y-5); ctx.lineTo(x2+9, ARROW_Y+5);
+    }
+    ctx.closePath(); ctx.fill();
+
+    const size = Math.abs(to - from);
+    const fwdA = isForward(from, to);
+    const signedA = fwdA ? size : -size;
+    const signA = signedA >= 0 ? '+' : '−';
+    const label = `${signA}${Math.abs(signedA)} steg`;
+    ctx.font = 'bold 14px Sora';
+    const tw = ctx.measureText(label).width;
+    ctx.fillStyle = col;
+    roundRect(ctx, mid - tw/2 - 8, ARROW_Y + 8, tw + 16, 20, 4);
+    ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(label, mid, ARROW_Y + 18);
+    ctx.textBaseline = 'alphabetic';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — start/end dots on the arc endpoints
+// ═══════════════════════════════════════════════════════════════════
+function drawEndpointDots() {
+  if (S.placementMode && S.needsPlacement) return; // nothing revealed on the line until placed
+  // start dot — always at t1
+  const sx = worldToX(S.t1);
+  ctx.fillStyle = C_START;
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(sx, LINE_Y, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+  // end dot — only once the robot has actually reached the final answer
+  if (S.phase === 'done') {
+    const ex = worldToX(S.answer);
+    ctx.fillStyle = C_END;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(ex, LINE_Y, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAW — robot
+// ═══════════════════════════════════════════════════════════════════
+function drawRobot(worldX, scaleX, walkPhase, neutral) {
+  const x=worldToX(worldX), baseY=LINE_Y;
+  const swing=Math.sin(walkPhase*Math.PI*2)*6;
+  const bob=Math.abs(Math.sin(walkPhase*Math.PI*2))*2;
+  const facingRight=scaleX>=0;
+
+  ctx.save();
+  ctx.translate(x,baseY-bob);
+  ctx.scale(scaleX,1);
+
+  ctx.fillStyle='#4a5568';
+  ctx.save(); ctx.translate(-6,0); ctx.rotate(swing*0.04); ctx.fillRect(-3.5,-20,7,20); ctx.restore();
+  ctx.save(); ctx.translate(6,0);  ctx.rotate(-swing*0.04); ctx.fillRect(-3.5,-20,7,20); ctx.restore();
+
+  ctx.fillStyle='#4a5568'; roundRect(ctx,-14,-54,28,36,4); ctx.fill();
+  ctx.fillStyle='#718096'; ctx.fillRect(-10,-48,20,3); ctx.fillRect(-10,-42,20,3);
+
+  ctx.fillStyle='#718096';
+  ctx.save(); ctx.translate(-14,-46); ctx.rotate(-swing*0.05); ctx.fillRect(-9,0,9,6); ctx.restore();
+  ctx.save(); ctx.translate(14,-46);  ctx.rotate(swing*0.05);  ctx.fillRect(0,0,9,6);  ctx.restore();
+
+  ctx.fillStyle='#2d3748'; roundRect(ctx,-16,-90,32,36,5); ctx.fill();
+  ctx.fillStyle='#e8f4fd'; ctx.strokeStyle='#63b3ed'; ctx.lineWidth=2;
+  roundRect(ctx,-13,-87,26,25,4); ctx.fill(); ctx.stroke();
+
+  // "Näs"-triangel på huvudet — en extra tydlig indikation på vilket håll
+  // roboten tittar, ritad i placeringsläget så fort riktningen är vald.
+  if (S.placementMode && !neutral) {
+    ctx.save();
+    ctx.fillStyle = facingRight ? '#66C7C2' : '#EC6095';
+    ctx.strokeStyle = '#1a365d';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(15,-85); ctx.lineTo(15,-59); ctx.lineTo(36,-72);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+
+  const numStr=String(Math.round(worldX));
+  const fontSize=numStr.length>2?12:15;
+  ctx.save();
+  ctx.scale(scaleX<0?-1:1,1);
+  ctx.fillStyle='#1a365d'; ctx.font=`bold ${fontSize}px Sora`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(numStr,0,-74); ctx.textBaseline='alphabetic';
+  ctx.restore();
+
+  ctx.strokeStyle='#718096'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(0,-90); ctx.lineTo(0,-98); ctx.stroke();
+  ctx.fillStyle='#EC6095'; ctx.beginPath(); ctx.arc(0,-101,4,0,Math.PI*2); ctx.fill();
+
+  ctx.restore();
+  if (!(S.placementMode && S.hideDirArrow)) {
+    drawDirectionArrow(x, baseY-bob-118, neutral ? null : facingRight);
+  }
+}
+
+function drawDirectionArrow(cx,cy,pointRight) {
+  const aw=40, ah=14;
+  if (pointRight === null) {
+    // Neutral / undecided — invites a left-or-right click to choose facing
+    ctx.save(); ctx.translate(cx,cy);
+    ctx.fillStyle='#CBD5E0';
+    ctx.beginPath(); ctx.roundRect(-aw/2+8, -ah/2+3, aw-16, ah-6, 3); ctx.fill();
+    ctx.fillStyle='#A0AEC0';
+    ctx.beginPath();
+    ctx.moveTo(-aw/2-2,0); ctx.lineTo(-aw/2+10,-ah/2-3); ctx.lineTo(-aw/2+10,ah/2+3);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(aw/2+2,0); ctx.lineTo(aw/2-10,-ah/2-3); ctx.lineTo(aw/2-10,ah/2+3);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+    return;
+  }
+  const col = pointRight ? '#66C7C2' : '#EC6095';
+  ctx.save(); ctx.translate(cx,cy);
+  if (!pointRight) ctx.scale(-1,1);
+  ctx.fillStyle=col;
+  ctx.beginPath();
+  ctx.roundRect(-aw/2, -ah/2+3, aw-12, ah-6, 3);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(aw/2,    0);
+  ctx.lineTo(aw/2-14, -ah/2-3);
+  ctx.lineTo(aw/2-14,  ah/2+3);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  UTTERANCE — spoken-form of the expression drawn at bottom of canvas
+//  Standard mode: only negatives get their sign spoken
+//  Full mode: all numbers get their sign spoken
+//  Colour: operation signs (plus/minus between terms) = neutral dark
+//          sign-of-number minus (for negative terms) = #EC6095 (pink)
+//          sign-of-number plus  (for positive terms, full mode) = #306BF0 (blue)
+// ═══════════════════════════════════════════════════════════════════
+function buildUtterance() {
+  // Returns an array of {text, color} segments
+  const segs = [];
+  const C_OP   = '#100e28';   // operation sign colour (neutral)
+  const C_NEG  = '#EC6095';   // negative term sign
+  const C_POS  = '#306BF0';   // positive term sign (full mode only)
+  const C_NUM  = '#100e28';   // number itself
+
+  function addSeg(text, color) { segs.push({text, color}); }
+
+  // Term 1 — number coloured by sign
+  const t1Col = S.t1 < 0 ? C_NEG : C_POS;
+  if (S.t1 < 0) {
+    addSeg('minus ', C_NEG);
+    addSeg(String(Math.abs(S.t1)), t1Col);
+  } else {
+    if (S.showFullUtterance) addSeg('plus ', C_POS);
+    addSeg(String(S.t1), t1Col);
+  }
+
+  // Operation
+  const opWord = S.op === '+' ? ' plus ' : ' minus ';
+  addSeg(opWord, C_OP);
+
+  // Term 2 — number coloured by sign
+  const t2Col = S.t2 < 0 ? C_NEG : C_POS;
+  if (S.t2 < 0) {
+    addSeg('minus ', C_NEG);
+    addSeg(String(Math.abs(S.t2)), t2Col);
+  } else {
+    if (S.showFullUtterance) addSeg('plus ', C_POS);
+    addSeg(String(S.t2), t2Col);
+  }
+
+  return segs;
+}
+
+function drawUtterance() {
+  if (!S.showUtterance) return;
+
+  const segs = buildUtterance();
+  const FS   = 18;
+  const pad  = 10;
+
+  // Measure total width
+  ctx.font = `bold ${FS}px Sora`;
+  let totalW = 0;
+  for (const seg of segs) totalW += ctx.measureText(seg.text).width;
+
+  const boxW = totalW + pad * 2;
+  const boxH = FS + pad * 1.4;
+  // Top-right corner, shifted left to clear the float toolbar
+  // The float toolbar is right:14px — measure it dynamically if possible
+  const toolbar = document.getElementById('floatToolbar');
+  const tbW = toolbar ? toolbar.getBoundingClientRect().width : 200;
+  const canvasRect = canvas.getBoundingClientRect();
+  const canvasScaleX = canvasRect.width / CW;
+  const tbWCanvas = (tbW + 28) / canvasScaleX;  // convert to canvas pixels
+  const bx   = CW - boxW - tbWCanvas;
+  const by   = 14;
+
+  // Background pill
+  ctx.fillStyle   = 'rgba(246,244,255,0.96)';
+  ctx.strokeStyle = '#ccc5f0';
+  ctx.lineWidth   = 1.5;
+  roundRect(ctx, bx, by, boxW, boxH, 10);
+  ctx.fill(); ctx.stroke();
+
+  // Draw each segment
+  ctx.textBaseline = 'middle';
+  ctx.textAlign    = 'left';
+  let cx = bx + pad;
+  const cy = by + boxH / 2;
+  for (const seg of segs) {
+    ctx.fillStyle = seg.color;
+    ctx.font      = `bold ${FS}px Sora`;
+    ctx.fillText(seg.text, cx, cy);
+    cx += ctx.measureText(seg.text).width;
+  }
+  ctx.textBaseline = 'alphabetic';
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  PEARL BAND — category dots at bottom of canvas
+//  Groups match PRESET_CATS order; no labels, just coloured dots.
+//  Clicking a dot sets the next preset in that category.
+// ═══════════════════════════════════════════════════════════════════
+const PEARL_COLORS = ['#18a348','#306BF0','#F4A261','#7c3aed','#EC6095'];
+const PEARL_Y = CH - 10;       // preset pearls near bottom
+const PEARL_R = 6;             // dot radius
+const PEARL_GAP = 10;           // gap between dots within a group
+const PEARL_GROUP_GAP = 25;    // gap between groups
+let pearlRects = [];           // [{x, y, catIdx, presetIdx}] for click-hit testing
+
+function drawPearlBand() {
+  if (typeof PRESET_CATS === 'undefined') return;
+  pearlRects = [];
+
+  // Calculate total width for centering
+  let totalW = 0;
+  PRESET_CATS.forEach((cat, ci) => {
+    totalW += cat.presets.length * (PEARL_R*2 + PEARL_GAP) - PEARL_GAP;
+    if (ci < PRESET_CATS.length - 1) totalW += PEARL_GROUP_GAP;
+  });
+
+  let x = CW/2 - totalW/2;
+  PRESET_CATS.forEach((cat, ci) => {
+    const col = PEARL_COLORS[ci % PEARL_COLORS.length];
+    cat.presets.forEach((p, pi) => {
+      const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
+      ctx.beginPath();
+      ctx.arc(x, PEARL_Y, isActive ? PEARL_R+2 : PEARL_R, 0, Math.PI*2);
+      ctx.fillStyle = isActive ? col : col + '55';
+      ctx.fill();
+      if (isActive) {
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+      pearlRects.push({x, y:PEARL_Y, r:PEARL_R+4, catIdx:ci, presetIdx:pi});
+      x += PEARL_R*2 + PEARL_GAP;
+    });
+    x += PEARL_GROUP_GAP - PEARL_GAP;
+  });
+}
+
+// Pearl band click handling
+canvas.addEventListener('click', (e) => {
+  if (e._handledByMain) return;
+  const {sx, sy, rect} = getCanvasScale();
+  const cx = (e.clientX - rect.left) / sx;
+  const cy = (e.clientY - rect.top) / sy;
+  for (const pr of pearlRects) {
+    const dx = cx - pr.x, dy = cy - pr.y;
+    if (dx*dx + dy*dy <= pr.r*pr.r) {
+      const p = PRESET_CATS[pr.catIdx].presets[pr.presetIdx];
+      setExpr(p.t1, p.op, p.t2, true);
+      buildPresetCats && buildPresetCats();
+      e.stopImmediatePropagation();
+      return;
+    }
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════════════
+function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robotScaleX) {
+  ctx.clearRect(0,0,CW,CH);
+  drawLine();
+  drawEndpointDots();
+  for (const a of S.completedArcs) drawArcSegment(a.from,a.to,1,a.color);
+  if (activeFrom!==undefined && arcProgress>0)
+    drawArcSegment(activeFrom,activeTo,arcProgress,activeColor);
+  drawTotalArc();
+  drawPositionBoxes();
+  drawStepArrows();
+  drawCanvasHint();
+  if (S.placementMode && S.needsPlacement) {
+    // Robot is completely hidden — waiting for a click on the number line
+  } else {
+    const sx=robotScaleX!==undefined ? robotScaleX
+      : (S.facingRight===null ? 1 : (S.facingRight?1:-1));
+    drawRobot(S.robotPos,sx,walkPhase||0,S.needsDirection);
+  }
+  drawExprBox();
+  drawUtterance();
+  drawPearlBand();
+  drawUserPearlBand();
+  updateLeftToolbar();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  FLIP ANIMATION
+// ═══════════════════════════════════════════════════════════════════
+let flipRAF=null;
+function animateFlip(fromRight, toRight, onDone) {
+  if (flipRAF) cancelAnimationFrame(flipRAF);
+  const DUR=220; let startTs=null;
+  const fromScale=fromRight?1:-1, toScale=toRight?1:-1;
+  function step(ts) {
+    if (!startTs) startTs=ts;
+    const p=Math.min((ts-startTs)/DUR,1);
+    let sx;
+    if (p<0.5) { sx=fromScale*(1-p*2); }
+    else {
+      const q=(p-0.5)*2;
+      const bounce=1+0.25*Math.sin(q*Math.PI);
+      sx=toScale*q*bounce;
+      if (Math.abs(sx)>1) sx=toScale;
+    }
+    render(undefined,0,undefined,undefined,undefined,sx);
+    if (p<1) { flipRAF=requestAnimationFrame(step); }
+    else { render(undefined,0,undefined,undefined,undefined,toScale); if (onDone) onDone(); }
+  }
+  flipRAF=requestAnimationFrame(step);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  ANIMATION ENGINE
+// ═══════════════════════════════════════════════════════════════════
+let animRAF=null;
+function animateLeg(from, to, color, onDone) {
+  const distPx=Math.abs(worldToX(to)-worldToX(from));
+  const spd = typeof speedSlider !== 'undefined' ? SPEED_MULT[parseInt(speedSlider.value)-1] : (S.slowMode ? 7.5 : 3.0);
+  const DUR=Math.max(800, distPx*spd); let startTime=null;
+  function step(ts) {
+    if (!startTime) startTime=ts;
+    const raw=Math.min((ts-startTime)/DUR,1);
+    const p=raw<0.5?2*raw*raw:-1+(4-2*raw)*raw;
+    S.robotPos=from+(to-from)*p;
+    const dt=Math.abs(worldToX(S.robotPos)-worldToX(from));
+    render(p,(dt/60)%1,from,to,color);
+    const rem=Math.round(Math.abs(to-S.robotPos));
+    setStrip(rem>0?'':``);
+    if (p<1) { animRAF=requestAnimationFrame(step); }
+    else { S.robotPos=to; render(1,0,from,to,color); onDone(); }
+  }
+  animRAF=requestAnimationFrame(step);
+}
+
+function kangApplies() {
+  const steps=S.op==='+'?S.t2:-S.t2;
+  return S.kangMode &&
+    ((S.t1>0&&steps<0&&S.t1+steps<0)||(S.t1<0&&steps>0&&S.t1+steps>0));
+}
+
+// Build the verbose interpretation hint, e.g. "(3 steg baklänges)"
+function stepHint(steps) {
+  const dir = steps >= 0 ? 'framlänges' : 'baklänges';
+  return `(${Math.abs(steps)} steg ${dir})`;
+}
+
+function startAnimation() {
+  if (S.animating) return;
+  if (S.phase==='idle') return;
+  range=computeRange(S.t1,S.t2);
+  S.robotPos=S.t1; S.animating=true;
+  S.completedArcs=[]; S.revealedPositions=[];
+  btnAnim.disabled=true;
+  btnRevl.style.display='none';
+  S.revealStep=0;
+  S.canvasHint='';
+  dismissStepBubble();
+  addPos(S.t1);
+  const kang=kangApplies();
+  const steps = S.op==='+' ? S.t2 : -S.t2;
+
+  if (kang) {
+    S.phase='leg1';
+    const c1=hopColor(S.t1,0);
+    // leg1 goes from t1 to 0 — determine forward/backward relative to facing direction
+    const leg1Fwd = isForward(S.t1, 0);
+    const leg1StepsSigned = leg1Fwd ? Math.abs(S.t1) : -Math.abs(S.t1);
+    setStrip(S.showHints ? stepHint(leg1StepsSigned) : `Hopp 1: ${Math.abs(S.t1)} steg mot nollan…`);
+    animateLeg(S.t1,0,c1,()=>{
+      S.completedArcs.push({from:S.t1,to:0,color:c1});
+      addPos(0); S.phase='paused'; S.animating=false;
+      btnAnim.disabled=false;
+      if (S.showHints) {
+        const remaining = Math.abs(S.answer);
+        const opChar = S.op === '+' ? '+' : '−';
+        S.canvasHint = `🦘 ${Math.abs(S.t2)} ${opChar} ${Math.abs(S.t1)} = ${remaining} steg kvar`;
+      } else {
+        S.canvasHint = '🦘 Vid nollan!';
+      }
+      setStrip('\u00a0');
+      updatePlayButton();
+      render(1,0);
+    });
+  } else {
+    S.phase='leg1';
+    const c=hopColor(S.t1,S.answer);
+    setStrip(S.showHints ? stepHint(steps) : '\u00a0');
+    animateLeg(S.t1,S.answer,c,()=>{
+      S.completedArcs.push({from:S.t1,to:S.answer,color:c});
+      addPos(S.answer); finishAnimation();
+    });
+  }
+  updatePlayButton();
+}
+
+function continueAnimation() {
+  if (S.phase!=='paused') return;
+  S.animating=true; S.phase='leg2';
+  S.canvasHint='';
+  updatePlayButton();
+  const c2=hopColor(0,S.answer);
+  // leg2 goes from 0 to answer — same forward/backward logic
+  const leg2Fwd = isForward(0, S.answer);
+  const leg2StepsSigned = leg2Fwd ? Math.abs(S.answer) : -Math.abs(S.answer);
+  setStrip(S.showHints ? stepHint(leg2StepsSigned) : `Hopp 2: ${Math.abs(S.answer)} steg mot svaret…`);
+  animateLeg(0,S.answer,c2,()=>{
+    S.completedArcs.push({from:0,to:S.answer,color:c2});
+    addPos(S.answer); finishAnimation();
+  });
+}
+
+function finishAnimation() {
+  S.animating=false; S.phase='done';
+  S.revealStep=0;
+  S.canvasHint='';
+  btnAnim.disabled=false;
+  btnRevl.style.display='';
+  updatePlayButton();
+  render(1,0);
+  setStrip('\u00a0');   // no text needed at goal, per spec
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  PLAY / NEXT-HOP BUTTON — single button, icon changes with phase
+// ═══════════════════════════════════════════════════════════════════
+function updatePlayButton() {
+  const awaiting = S.placementMode && (S.needsPlacement || S.needsDirection);
+  btnAnim.disabled = awaiting;
+  if (awaiting) {
+    btnAnim.textContent = '▶';
+    btnAnim.classList.remove('next');
+    btnAnim.classList.add('primary');
+    btnAnim.title = S.needsPlacement ? 'Placera roboten på tallinjen först' : 'Välj riktning på roboten först';
+  } else if (S.phase === 'paused') {
+    btnAnim.textContent = '⏭';
+    btnAnim.classList.remove('primary');
+    btnAnim.classList.add('next');
+    btnAnim.title = 'Nästa hopp';
+  } else if (S.phase === 'done') {
+    btnAnim.textContent = '✓';
+    btnAnim.classList.remove('next');
+    btnAnim.classList.add('primary');
+    btnAnim.title = 'Klar';
+  } else {
+    btnAnim.textContent = '▶';
+    btnAnim.classList.remove('next');
+    btnAnim.classList.add('primary');
+    btnAnim.title = 'Animera';
+  }
+  // restore tooltip span (textContent wipes it) — remove any stale one first
+  const oldTip = btnAnim.querySelector('.tip');
+  if (oldTip) oldTip.remove();
+  const tip = document.createElement('span');
+  tip.className = 'tip';
+  tip.textContent = btnAnim.title;
+  btnAnim.appendChild(tip);
+}
+
+function handlePlayClick() {
+  if (S.placementMode && (S.needsPlacement || S.needsDirection)) return;
+  if (S.phase === 'paused') {
+    continueAnimation();
+  } else if (S.phase === 'ready') {
+    startAnimation();
+  }
+  // 'done' and 'idle' states: no-op (✓ is just a confirmation, click does nothing further)
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  FREE TEXT PARSING
+// ═══════════════════════════════════════════════════════════════════
+function parseFreeText(raw) {
+  let s = raw.trim()
+    .replace(/−/g,'-').replace(/–/g,'-').replace(/\u2212/g,'-')
+    .replace(/\s+/g,'');
+  s = s.replace(/\((-?\d+)\)/g, '$1');
+  const m = s.match(/^(-?\d+)([+\-])(-?\d+)$/);
+  if (m) {
+    const t1 = parseInt(m[1]);
+    const op = m[2] === '-' ? '−' : '+';
+    const t2 = parseInt(m[3]);
+    if (!isNaN(t1) && !isNaN(t2)) return { t1, op, t2 };
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  EXPLANATION STEPS — "Så här tänker vi" popup content
+//  Three full-sentence steps, e.g. for 3 − 8:
+//    1. Börja på talet 3.
+//    2. Titta åt vänster på tallinjen.
+//    3. Gå 8 steg framlänges.
+// ═══════════════════════════════════════════════════════════════════
+function buildExplainSteps() {
+  const dirWord  = S.op === '+' ? 'höger' : 'vänster';
+  const dirCol   = S.op === '+' ? '#66C7C2' : '#EC6095';
+  const stepFwd  = S.t2 >= 0;
+  const stepWord = stepFwd ? 'framlänges' : 'baklänges';
+  const stepCol  = stepFwd ? '#306BF0' : '#F4A261';
+  // Show signed t2: "+5" or "−2"
+  const sign      = S.t2 >= 0 ? '+' : '−';
+  const stepLabel = `${sign}${Math.abs(S.t2)}`;
+
+  // Sign rule explanation
+  const opSign   = S.op === '+' ? '+' : '−';
+  const t2Sign   = S.t2 >= 0   ? '+' : '−';
+  const sameSign = opSign === t2Sign;
+  const ruleResult = sameSign ? 'PLUS' : 'MINUS';
+  const ruleCol    = sameSign ? '#306BF0' : '#EC6095';
+  const opColEx    = S.op === '+' ? '#306BF0' : '#EC6095';
+  const t2SignCol  = S.t2 >= 0   ? '#306BF0' : '#EC6095';
+
+  // Visual icon cards
+  const sign2 = S.t2 >= 0 ? '+' : '−';
+  const visualHtml = `<div style="display:flex;gap:8px;margin-bottom:12px;">
+    <div style="flex:1;background:${C_START}22;border:2px solid ${C_START};border-radius:10px;padding:8px 4px;text-align:center;">
+      <div style="font-size:1.4rem;font-weight:700;color:${C_START};">${fmtNum(S.t1)}</div>
+      <div style="font-size:.62rem;color:var(--muted);font-weight:700;letter-spacing:.04em;">START</div>
+    </div>
+    <div style="flex:1;background:${dirCol}22;border:2px solid ${dirCol};border-radius:10px;padding:8px 4px;text-align:center;">
+      <div style="font-size:1.5rem;color:${dirCol};">${S.op==='+'?'→':'←'}</div>
+      <div style="font-size:.62rem;color:var(--muted);font-weight:700;letter-spacing:.04em;">${S.op==='+'?'HÖGER':'VÄNSTER'}</div>
+    </div>
+    <div style="flex:1;background:${stepCol}22;border:2px solid ${stepCol};border-radius:10px;padding:8px 4px;text-align:center;">
+      <div style="font-size:1.2rem;font-weight:700;color:${stepCol};">${sign2}${Math.abs(S.t2)}</div>
+      <div style="font-size:.62rem;color:var(--muted);font-weight:700;letter-spacing:.04em;">${stepFwd?'FRAML.':'BAKL.'}</div>
+    </div>
+  </div>`;
+
+  const steps = [
+    `Börja på talet <b>${S.t1}</b>.`,
+    `Titta åt <b style="color:${dirCol}">${dirWord}</b> på tallinjen.`,
+    `Gå <b style="color:${stepCol}">${stepLabel} steg</b> <b style="color:${stepCol}">${stepWord}</b>.`
+  ];
+
+  const stepsHtml = steps.map((s, i) =>
+    `<div class="explain-step"><span class="es-num" style="background:var(--accent)">${i+1}</span><span>${s}</span></div>`
+  ).join('');
+
+  // Divider
+  const dividerHtml = `<div style="border-top:1.5px dashed var(--border);margin:4px 0 2px;"></div>
+    <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Teckensregeln</div>`;
+
+  // Show BOTH cases of the sign rule, highlight which applies NOW
+  const caseA_same   = sameSign;
+  const caseB_diff   = !sameSign;
+  const caseAStyle   = caseA_same ? 'font-weight:700;' : 'opacity:.45;';
+  const caseBStyle   = caseB_diff ? 'font-weight:700;' : 'opacity:.45;';
+
+  const signRuleHtml = `
+    <div style="display:flex;flex-direction:column;gap:6px;font-size:.84rem;">
+      <div style="display:flex;gap:8px;align-items:center;${caseAStyle}">
+        <span style="display:flex;gap:3px;align-items:center;min-width:60px;">
+          <b style="color:#306BF0">+</b><span style="color:var(--muted);font-size:.8rem;">och</span><b style="color:#306BF0">+</b>
+          &nbsp;eller&nbsp;
+          <b style="color:#EC6095">−</b><span style="color:var(--muted);font-size:.8rem;">och</span><b style="color:#EC6095">−</b>
+        </span>
+        <span style="color:var(--muted);">→</span>
+        <b style="color:#306BF0;">lika → PLUS</b>
+        ${caseA_same ? '<span style="font-size:1rem;">✓</span>' : ''}
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;${caseBStyle}">
+        <span style="display:flex;gap:3px;align-items:center;min-width:60px;">
+          <b style="color:#306BF0">+</b><span style="color:var(--muted);font-size:.8rem;">och</span><b style="color:#EC6095">−</b>
+          &nbsp;eller&nbsp;
+          <b style="color:#EC6095">−</b><span style="color:var(--muted);font-size:.8rem;">och</span><b style="color:#306BF0">+</b>
+        </span>
+        <span style="color:var(--muted);">→</span>
+        <b style="color:#EC6095;">olika → MINUS</b>
+        ${caseB_diff ? '<span style="font-size:1rem;">✓</span>' : ''}
+      </div>
+      <div style="margin-top:2px;padding:5px 8px;border-radius:7px;background:${ruleCol}18;border:1.5px solid ${ruleCol}44;font-size:.82rem;color:${ruleCol};font-weight:700;text-align:center;">
+        <b style="color:${opColEx}">${opSign}</b> och <b style="color:${t2SignCol}">${t2Sign}</b>
+        = <b style="color:${ruleCol}">${ruleResult}</b>
+      </div>
+    </div>`;
+
+  explainStepsList.innerHTML = visualHtml + stepsHtml + dividerHtml + signRuleHtml;
+}
+
+function toggleExplainPopup() {
+  const willOpen = !explainPopup.classList.contains('open');
+  if (willOpen) {
+    buildExplainSteps();
+    const r = btnExplainSteps.getBoundingClientRect();
+    const popupWidth = 280;
+    let left = r.right - popupWidth;
+    if (left < 8) left = 8;
+    explainPopup.style.left = left + 'px';
+    explainPopup.style.top  = (r.bottom + 8) + 'px';
+  }
+  explainPopup.classList.toggle('open', willOpen);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  INPUTS & STATE SYNC
+// ═══════════════════════════════════════════════════════════════════
+function setExpr(t1, op, t2, triggerFlip) {
+  // Save current as lastExpr before overwriting
+  S.lastExpr = {t1:S.t1, op:S.op, t2:S.t2};
+  addToHistory && addToHistory(S.t1, S.op, S.t2);  // add CURRENT expr to history before change
+  const oldOp = S.op;
+  S.t1 = t1; S.op = op; S.t2 = t2;
+  S.answer = op === '+' ? t1 + t2 : t1 - t2;
+  // Don't reset kangMode from checkbox here — ltBtnKang and kangChk are kept in sync separately
+  S.slowMode = slowChk.checked;
+  if (explainPopup.classList.contains('open')) buildExplainSteps();
+  // (step bubble is closed by startAnimation/resetAll, not on every expression change)
+
+  range = computeRange(S.t1, S.t2);
+  S.robotPos = S.t1;
+  S.phase = 'ready';
+  S.completedArcs = [];
+  S.revealedPositions = [S.t1];
+  S.revealStep = 0;
+  setStrip('\u00a0');
+  btnRevl.style.display = 'none';
+  updatePlayButton();
+
+  const newFacing = S.op === '+';
+  if (S.placementMode) {
+    // Placeringsläge: hide the robot again and require a fresh click-to-place
+    // + click-to-choose-direction before this (new) expression can be animated.
+    if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF = null; }
+    S.needsPlacement = true;
+    S.needsDirection = false;
+    S.facingRight = null;
+    setStrip('👉 Klicka valfritt för att avslöja var roboten börjar');
+    updatePlayButton();
+    render(undefined, 0);
+  } else if (triggerFlip && oldOp !== S.op && !S.animating) {
+    animateFlip(S.facingRight, newFacing, () => { S.facingRight = newFacing; });
+  } else {
+    S.facingRight = newFacing;
+    render(undefined, 0);
+  }
+}
+
+function resetAll() {
+  if (animRAF) { cancelAnimationFrame(animRAF); animRAF=null; }
+  if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF=null; }
+  if (panRAF)  { cancelAnimationFrame(panRAF);  panRAF=null;  }
+  S.animating=false;
+  btnAnim.disabled=false;
+  dismissStepBubble();
+  // Replay current expression (robot goes back to start, no new expression) —
+  // in placeringsläge this should NOT re-trigger the hide/place/direction dance,
+  // since it's the same already-revealed expression, just rewound.
+  const t1=S.t1, op=S.op, t2=S.t2;
+  const wasPlacementMode = S.placementMode;
+  S.placementMode = false;
+  setExpr(t1, op, t2, false);
+  S.placementMode = wasPlacementMode;
+  if (!S.showExpr) openStepBubble();
+}
+
+function addPos(pos) {
+  if (!S.revealedPositions.includes(pos)) S.revealedPositions.push(pos);
+}
+function setStrip(msg) { stripEl.textContent = msg || '\u00a0'; }
+
+// ═══════════════════════════════════════════════════════════════════
+//  PAN ANIMATION — smoothly slide the number line when t1 changes
+// ═══════════════════════════════════════════════════════════════════
+let panRAF = null;
+function panToRange(targetRange, onDone) {
+  if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
+  const fromLo = range.lo, fromHi = range.hi;
+  const toLo = targetRange.lo, toHi = targetRange.hi;
+  // Skip animation if range barely changed
+  if (Math.abs(toLo - fromLo) < 0.5 && Math.abs(toHi - fromHi) < 0.5) {
+    range = targetRange;
+    if (onDone) onDone();
+    return;
+  }
+  const DUR = 320; let startTs = null;
+  function step(ts) {
+    if (!startTs) startTs = ts;
+    const p = Math.min((ts - startTs) / DUR, 1);
+    const ease = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+    range = {
+      lo: fromLo + (toLo - fromLo) * ease,
+      hi: fromHi + (toHi - fromHi) * ease,
+    };
+    render(undefined, 0);
+    if (stepBubble.classList.contains('open')) positionStepBubble();
+    if (p < 1) { panRAF = requestAnimationFrame(step); }
+    else { range = targetRange; if (onDone) onDone(); }
+  }
+  panRAF = requestAnimationFrame(step);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  CLICK-TO-EDIT EXPRESSION BOX
+// ═══════════════════════════════════════════════════════════════════
+function getCanvasScale() {
+  const rect = canvas.getBoundingClientRect();
+  return { sx: rect.width / CW, sy: rect.height / CH, rect };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DRAG & DROP — robot body (moves t1) + direction arrow (flips op)
+//  Hit-test geometry mirrors drawRobot()/drawDirectionArrow() above.
+// ═══════════════════════════════════════════════════════════════════
+function robotHitTest(cx, cy) {
+  if (S.placementMode && S.needsPlacement) return false; // robot is hidden
+  // Robot body spans roughly x:[-16,16] local, y:[-90,0] local (LINE_Y = baseline)
+  const rx = worldToX(S.robotPos);
+  const dx = cx - rx;
+  const dy = cy - LINE_Y;
+  return dx >= -18 && dx <= 18 && dy >= -94 && dy <= 4;
+}
+
+function arrowHitTest(cx, cy) {
+  if (S.placementMode && S.needsPlacement) return false; // robot is hidden
+  // Arrow centre sits at (robotX, LINE_Y - 118), spans aw=40, ah=14 → generous padding
+  const rx = worldToX(S.robotPos);
+  const ay = LINE_Y - 118;
+  const dx = cx - rx;
+  const dy = cy - ay;
+  return dx >= -24 && dx <= 24 && dy >= -14 && dy <= 14;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  PLACERINGSLÄGE — dölj roboten tills läraren själv klickar fram
+//  var den ska börja, och därefter vilket håll den ska titta åt.
+// ═══════════════════════════════════════════════════════════════════
+function updatePlacementButton() {
+  ltBtnPlacement.classList.toggle('active', S.placementMode);
+}
+
+// Click #1: reveal the robot at the START POSITION the loaded expression
+// already has (S.t1 was fixed the moment the expression was set/typed/preset —
+// the click is purely a "reveal" trigger and never changes t1, wherever it lands).
+function placeRobotAt() {
+  S.robotPos = S.t1;
+  S.revealedPositions = [S.t1];
+  S.needsPlacement = false;
+  S.needsDirection = true;
+  S.facingRight = null; // neutral until a direction is revealed
+  setStrip('👉 Klicka för att avslöja vilket håll roboten tittar åt');
+  updatePlayButton();
+  render(undefined, 0);
+}
+
+// Click #2: reveal which way the robot is actually facing. Same principle as
+// above — the direction follows from the expression's operator (fixed already),
+// the click is just the trigger and never flips +/− on its own.
+function chooseDirection() {
+  S.facingRight = S.op === '+';
+  S.needsDirection = false;
+  setStrip('\u00a0');
+  updatePlayButton();
+  render(undefined, 0);
+}
+
+ltBtnPlacement.addEventListener('click', () => {
+  if (S.animating) return;
+  S.placementMode = !S.placementMode;
+  updatePlacementButton();
+  if (S.placementMode) {
+    if (flipRAF) { cancelAnimationFrame(flipRAF); flipRAF = null; }
+    S.needsPlacement = true;
+    S.needsDirection = false;
+    S.facingRight = null;
+    setStrip('👉 Klicka valfritt för att avslöja var roboten börjar');
+  } else {
+    S.needsPlacement = false;
+    S.needsDirection = false;
+    S.facingRight = S.op === '+';
+    setStrip('\u00a0');
+  }
+  updatePlayButton();
+  render(1, 0);
+});
+
+ltBtnHideArrow.addEventListener('click', () => {
+  S.hideDirArrow = !S.hideDirArrow;
+  ltBtnHideArrow.classList.toggle('active', S.hideDirArrow);
+  render(1, 0);
+});
+
+// Update the invert button's icon (+/−) and colour to match the robot's current facing
+function updateInvertButton() {
+  btnInvertOp.textContent = S.op === '+' ? '+' : '−';
+  btnInvertOp.classList.toggle('facing-right', S.op === '+');
+  btnInvertOp.classList.toggle('facing-left', S.op !== '+');
+}
+
+// Flip the operator (+ ↔ −) while keeping t1/t2 as-is, triggering the robot flip
+function invertOperator() {
+  if (S.animating) return;
+  if (S.placementMode) return; // direction is chosen via canvas clicks in this mode
+  const newOp = S.op === '+' ? '−' : '+';
+  setExpr(S.t1, newOp, S.t2, true);
+}
+btnInvertOp.addEventListener('click', invertOperator);
+
+function openExprEditor() {
+  if (S.animating) return;
+  const { sx, sy } = getCanvasScale();
+  const opChar = S.op === '+' ? '+' : '-';
+  exprEditInput.value = `${S.t1} ${opChar} ${S.t2}`;
+
+  // position over the expr box (canvas-wrap is the offset parent)
+  exprEditInput.style.left = (exprBoxRect.x * sx) + 'px';
+  exprEditInput.style.top  = (exprBoxRect.y * sy) + 'px';
+  exprEditInput.style.width  = Math.max(140, exprBoxRect.w * sx) + 'px';
+  exprEditInput.style.height = (exprBoxRect.h * sy) + 'px';
+  exprEditInput.style.display = 'block';
+  exprEditInput.focus();
+  exprEditInput.select();
+}
+
+function closeExprEditor(commit) {
+  if (commit) {
+    const p = parseFreeText(exprEditInput.value);
+    if (p) setExpr(p.t1, p.op, p.t2, true);
+  }
+  exprEditInput.style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  STEP BUBBLE — floating "how many steps?" input shown above the robot
+//  right after a drag-drop, lets the student type a signed number
+//  (e.g. "+5" or "-3") to set t2 directly.
+// ═══════════════════════════════════════════════════════════════════
+function positionStepBubble() {
+  const { sx, sy } = getCanvasScale();
+  // Position relative to .canvas-wrap (which has position:relative)
+  // canvas element is offset by the padding (18px top, 10px left) of canvas-wrap
+  const canvasOffsetLeft = 10;  // canvas-wrap padding-left
+  const canvasOffsetTop  = 18;  // canvas-wrap padding-top
+  const rx = canvasOffsetLeft + worldToX(S.robotPos) * sx;
+  const ry = canvasOffsetTop  + (LINE_Y - 158) * sy;   // well above direction arrow
+  stepBubble.style.left = rx + 'px';
+  stepBubble.style.top  = ry + 'px';
+  stepBubble.style.transform = 'translate(-50%, -100%)';
+}
+
+function openStepBubble() {
+  if (S.animating) return;
+  positionStepBubble();
+  const sign = S.t2 >= 0 ? '+' : '';
+  stepBubbleInput.value = `${sign}${S.t2}`;
+  stepBubble.classList.add('open');
+  stepBubbleInput.focus();
+  stepBubbleInput.select();
+}
+
+function commitStepBubble() {
+  // Parse and apply the value, but KEEP bubble open
+  const raw = stepBubbleInput.value.trim().replace(/−/g,'-').replace(/\s+/g,'');
+  const n = parseInt(raw, 10);
+  if (!isNaN(n) && n !== S.t2) {
+    // Update t2 without closing bubble — reposition in case range changed
+    S.t2 = n;
+    S.answer = S.op === '+' ? S.t1 + S.t2 : S.t1 - S.t2;
+    range = computeRange(S.t1, S.t2);
+    S.revealedPositions = [S.t1];
+    S.completedArcs = [];
+    S.phase = 'ready';
+    setStrip('\u00a0');
+    btnRevl.style.display = 'none';
+    updatePlayButton();
+    if (explainPopup.classList.contains('open')) buildExplainSteps();
+    render(undefined, 0);
+    positionStepBubble();   // reposition after potential range update
+  }
+  const sign = S.t2 >= 0 ? '+' : '';
+  stepBubbleInput.value = `${sign}${S.t2}`;
+}
+
+function dismissStepBubble() {
+  stepBubble.classList.remove('open');
+}
+
+function closeStepBubble(commit) {
+  if (commit) commitStepBubble();
+  dismissStepBubble();
+}
+
+stepBubbleInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    e.stopPropagation();
+    justConfirmedExpr = true;     // swallow the next document-level Enter
+    commitStepBubble();           // commit value but KEEP bubble open
+    stepBubbleInput.blur();       // hand focus back so next Enter can trigger play
+  }
+  else if (e.key === 'Escape') { e.preventDefault(); dismissStepBubble(); }
+});
+stepBubbleInput.addEventListener('blur', () => {
+  // On blur, commit value silently but keep bubble visible
+  commitStepBubble();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  CANVAS INTERACTION — click (expr box / play) + drag (robot) + arrow click (invert)
+// ═══════════════════════════════════════════════════════════════════
+let dragStartedOnRobot = false;
+let dragMoved = false;
+let dragStartedOnArrow = false;
+let justConfirmedExpr = false;   // swallows the document-level Enter right after confirming expr/step
+
+function canDragNow() {
+  // Only allow dragging when not mid-animation (idle/ready/done per spec)
+  if (S.placementMode) return false; // placeringsläge: position/riktning sätts endast via klick
+  return !S.animating && (S.phase === 'idle' || S.phase === 'ready' || S.phase === 'done');
+}
+
+canvas.addEventListener('mousedown', (e) => {
+  const { sx, sy, rect } = getCanvasScale();
+  const cx = (e.clientX - rect.left) / sx;
+  const cy = (e.clientY - rect.top) / sy;
+
+  if (!canDragNow()) return;
+
+  if (arrowHitTest(cx, cy)) {
+    dragStartedOnArrow = true;
+    return;
+  }
+  if (robotHitTest(cx, cy)) {
+    dragStartedOnRobot = true;
+    dragMoved = false;
+    S.isDragging = true;
+    canvas.style.cursor = 'grabbing';
+  }
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!dragStartedOnRobot) return;
+  const { sx, sy, rect } = getCanvasScale();
+  const cx = (e.clientX - rect.left) / sx;
+  const cy = (e.clientY - rect.top) / sy;
+  const newWorld = Math.round(xToWorld(cx));
+  const clamped = Math.max(range.lo, Math.min(range.hi, newWorld));
+  if (clamped !== S.t1) dragMoved = true;
+  S.robotPos = clamped;
+  render(undefined, 0);
+  // Keep step bubble tracking the robot if it's already visible
+  if (stepBubble.classList.contains('open')) positionStepBubble();
+});
+
+window.addEventListener('mouseup', (e) => {
+  if (dragStartedOnArrow) {
+    dragStartedOnArrow = false;
+    // Only treat as a tap-to-invert if the mouse hasn't moved away from the canvas drag state
+    const { sx, sy, rect } = getCanvasScale();
+    const cx = (e.clientX - rect.left) / sx;
+    const cy = (e.clientY - rect.top) / sy;
+    if (arrowHitTest(cx, cy) && canDragNow()) invertOperator();
+    return;
+  }
+  if (dragStartedOnRobot) {
+    dragStartedOnRobot = false;
+    S.isDragging = false;
+    canvas.style.cursor = 'default';
+    if (dragMoved) {
+      const newT1 = Math.round(xToWorld((e.clientX - getCanvasScale().rect.left) / getCanvasScale().sx));
+      const clamped = Math.max(range.lo, Math.min(range.hi, newT1));
+      // setExpr computes new range — pan to it smoothly
+      const newRange = computeRange(clamped, S.t2);
+      setExpr(clamped, S.op, S.t2, false);
+      panToRange(newRange, () => openStepBubble());
+    }
+  }
+});
+
+canvas.addEventListener('click', (e) => {
+  // Suppress the click that follows a real drag (prevents accidentally triggering play)
+  if (dragMoved) { dragMoved = false; return; }
+
+  const { sx, sy, rect } = getCanvasScale();
+  const cx = (e.clientX - rect.left) / sx;
+  const cy = (e.clientY - rect.top) / sy;
+  if (cx >= exprBoxRect.x && cx <= exprBoxRect.x + exprBoxRect.w &&
+      cy >= exprBoxRect.y && cy <= exprBoxRect.y + exprBoxRect.h) {
+    openExprEditor();
+    return;
+  }
+  if (S.placementMode && S.needsPlacement && !S.animating) {
+    placeRobotAt();
+    return;
+  }
+  if (S.placementMode && S.needsDirection && !S.animating) {
+    chooseDirection();
+    return;
+  }
+  if (robotHitTest(cx, cy) || arrowHitTest(cx, cy)) {
+    // clicking (not dragging) the robot or arrow shouldn't also trigger play
+    return;
+  }
+  handlePlayClick();
+});
+
+// Cursor feedback on hover
+canvas.addEventListener('mousemove', (e) => {
+  if (dragStartedOnRobot) return; // already handled above
+  const { sx, sy, rect } = getCanvasScale();
+  const cx = (e.clientX - rect.left) / sx;
+  const cy = (e.clientY - rect.top) / sy;
+  if (cx >= exprBoxRect.x && cx <= exprBoxRect.x + exprBoxRect.w &&
+      cy >= exprBoxRect.y && cy <= exprBoxRect.y + exprBoxRect.h) {
+    canvas.style.cursor = 'text';
+  } else if (S.placementMode && (S.needsPlacement || S.needsDirection)) {
+    canvas.style.cursor = 'pointer';
+  } else if (canDragNow() && (robotHitTest(cx, cy) || arrowHitTest(cx, cy))) {
+    canvas.style.cursor = 'grab';
+  } else {
+    canvas.style.cursor = 'default';
+  }
+});
+
+exprEditInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    e.stopPropagation();
+    justConfirmedExpr = true;
+    closeExprEditor(true);
+    // After closing, put focus on body so next Enter hits document listener
+    setTimeout(() => document.body.focus(), 0);
+  }
+  else if (e.key === 'Escape') { e.preventDefault(); closeExprEditor(false); }
+});
+exprEditInput.addEventListener('blur', () => closeExprEditor(true));
+
+// Global Enter: first Enter confirms expression (handled above), second starts animation.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  if (exprEditInput.style.display === 'block') return;  // editor open, let it handle
+  if (stepBubble.classList.contains('open')) return;    // step bubble open
+  if (justConfirmedExpr) { justConfirmedExpr = false; return; }  // swallow confirm Enter
+  e.preventDefault();
+  handlePlayClick();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  FLOATING TOOLBAR — total / step-chain toggles
+// ═══════════════════════════════════════════════════════════════════
+function syncExprButtons() {
+  updateLeftToolbar();
+}
+
+function updateLeftToolbar() {
+  // Expr toggle
+  const exprActive = S.showExpr;
+  btnToggleExpr.classList.toggle('active', exprActive);
+  ltBtnExpr.classList.toggle('active', exprActive);
+
+  // Invert operator
+  updateInvertButton();   // updates btnInvertOp in float toolbar
+  const facingRight = S.op === '+';
+  ltBtnInvert.className = 'lt-btn ' + (facingRight ? 'invert-right' : 'invert-left');
+  ltBtnInvert.querySelector('span').textContent = facingRight ? '+' : '−';
+
+  // Kang
+  ltBtnKang.className = 'lt-btn' + (S.kangMode ? ' kang-on' : '');
+
+  // Step arrows
+  ltBtnArrows.className = 'lt-btn' + (S.showStepArrows ? ' active' : '');
+
+  // Utterance
+  ltBtnUtter.className = 'lt-btn';
+  if (S.showFullUtterance) ltBtnUtter.classList.add('utter-full');
+  else if (S.showUtterance) ltBtnUtter.classList.add('utter-on');
+  ltBtnUtter.querySelector('span').textContent =
+    !S.showUtterance ? '🗣' : !S.showFullUtterance ? '🗣+' : '🗣++';
+
+  // Play / Next / Reset button
+  ltBtnPlay.disabled = S.animating;
+  ltBtnPlay.className = 'lt-btn';
+  if (S.phase === 'paused') {
+    ltBtnPlay.classList.add('play-next');
+    ltBtnPlay.querySelector('span').textContent = '⏭';
+    ltBtnPlay.querySelector('.lt-tip').textContent = 'Nästa hopp';
+  } else if (S.phase === 'done') {
+    ltBtnPlay.classList.add('play-reset');
+    ltBtnPlay.querySelector('span').textContent = '↺';
+    ltBtnPlay.querySelector('.lt-tip').textContent = 'Återställ';
+  } else {
+    ltBtnPlay.classList.add('play');
+    ltBtnPlay.querySelector('span').textContent = '▶';
+    ltBtnPlay.querySelector('.lt-tip').textContent = 'Animera';
+  }
+
+  // Reveal button — always visible, enabled only when done
+  ltBtnReveal.disabled = (S.phase !== 'done');
+}
+function toggleExpr() {
+  S.showExpr = !S.showExpr;
+  syncExprButtons();
+  render(1,0);
+}
+btnToggleExpr.addEventListener('click', toggleExpr);
+btnToggleExprInline.addEventListener('click', toggleExpr);
+ltBtnExpr.addEventListener('click', toggleExpr);
+ltBtnInvert.addEventListener('click', invertOperator);
+ltBtnArrows.addEventListener('click', () => {
+  S.showStepArrows = !S.showStepArrows;
+  btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
+  render(1, 0);
+});
+ltBtnKang.addEventListener('click', () => {
+  S.kangMode = !S.kangMode;
+  kangChk.checked = S.kangMode;
+  render(1, 0);
+});
+function updateLockButton() {
+  ltBtnLock.classList.toggle('active', S.lockRange);
+}
+ltBtnLock.addEventListener('click', () => {
+  if (S.animating) return;
+  S.lockRange = !S.lockRange;
+  updateLockButton();
+  // Snap (no pan animation) to the correct window for the new mode
+  if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
+  range = computeRange(S.t1, S.t2);
+  render(1, 0);
+});
+ltBtnReveal.addEventListener('click', () => btnRevl.click());
+ltBtnSave.addEventListener('click', saveCurrentExpr);
+
+// User pearl canvas click (handled before main canvas click)
+canvas.addEventListener('click', (e) => {
+  const {sx,sy,rect}=getCanvasScale();
+  const cx=(e.clientX-rect.left)/sx, cy=(e.clientY-rect.top)/sy;
+  for (const pr of userPearlCanvasRects) {
+    const dx=cx-pr.x,dy=cy-pr.y;
+    if (dx*dx+dy*dy<=pr.r*pr.r) {
+      setExpr(S.savedExprs[pr.idx].t1,S.savedExprs[pr.idx].op,S.savedExprs[pr.idx].t2,true);
+      buildUserPearls();
+      e.stopImmediatePropagation(); return;
+    }
+  }
+}, true);  // capture phase so it runs before other click listeners
+ltBtnUtter.addEventListener('click', () => {
+  if (!S.showUtterance) { S.showUtterance = true; S.showFullUtterance = false; }
+  else if (!S.showFullUtterance) { S.showFullUtterance = true; }
+  else { S.showUtterance = false; S.showFullUtterance = false; }
+  updateUtteranceBtn(); render(1, 0);
+});
+ltBtnTotal.addEventListener('click', () => {
+  S.showTotal = !S.showTotal;
+  btnTotalToggle.classList.toggle('active', S.showTotal);
+  ltBtnTotal.classList.toggle('active', S.showTotal);
+  render(1,0);
+});
+ltBtnStep.addEventListener('click', () => {
+  S.showStepChain = !S.showStepChain;
+  btnStepToggle.classList.toggle('active', S.showStepChain);
+  ltBtnStep.classList.toggle('active', S.showStepChain);
+  render(1,0);
+});
+colorToggleSettings.addEventListener('change', () => {
+  S.showColorNumbers = colorToggleSettings.checked;
+  btnColorNumbers.classList.toggle('active', S.showColorNumbers);
+  render(1,0);
+});
+hintToggleSettings.addEventListener('change', () => {
+  S.showHints = hintToggleSettings.checked;
+  btnExplainToggle.classList.toggle('active', S.showHints);
+});
+stepChainSettings.addEventListener('change', () => {
+  S.showStepChain = stepChainSettings.checked;
+  btnStepToggle.classList.toggle('active', S.showStepChain);
+  render(1,0);
+});
+totalSettings.addEventListener('change', () => {
+  S.showTotal = totalSettings.checked;
+  btnTotalToggle.classList.toggle('active', S.showTotal);
+  render(1,0);
+});
+arrowSettings.addEventListener('change', () => {
+  S.showStepArrows = arrowSettings.checked;
+  btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
+  render(1,0);
+});
+ltBtnPlay.addEventListener('click', () => {
+  if (S.phase === 'done') { resetAll(); }
+  else { handlePlayClick(); }
+});
+btnTotalToggle.addEventListener('click', () => {
+  S.showTotal = !S.showTotal;
+  btnTotalToggle.classList.toggle('active', S.showTotal);
+  render(1,0);
+});
+btnStepToggle.addEventListener('click', () => {
+  S.showStepChain = !S.showStepChain;
+  btnStepToggle.classList.toggle('active', S.showStepChain);
+  render(1,0);
+});
+btnExplainToggle.addEventListener('click', () => {
+  S.showHints = !S.showHints;
+  btnExplainToggle.classList.toggle('active', S.showHints);
+  // Refresh the strip to reflect new mode immediately if idle/ready
+  if (S.phase === 'ready' || S.phase === 'idle') setStrip('\u00a0');
+});
+btnColorNumbers.addEventListener('click', () => {
+  S.showColorNumbers = !S.showColorNumbers;
+  btnColorNumbers.classList.toggle('active', S.showColorNumbers);
+  render(1, 0);
+});
+function updateUtteranceBtn() {
+  btnUtterance.className = 'ibtn';
+  if (!S.showUtterance) {
+    btnUtterance.classList.add('utterance');
+    btnUtterance.innerHTML = '🗣<span class="tip">Uttalat uttryck</span>';
+  } else if (!S.showFullUtterance) {
+    btnUtterance.classList.add('utterance');
+    btnUtterance.innerHTML = '🗣+<span class="tip">Standard uttal (klicka för fullt)</span>';
+  } else {
+    btnUtterance.classList.add('utterance-full');
+    btnUtterance.innerHTML = '🗣++<span class="tip">Fullt uttal (klicka för av)</span>';
+  }
+}
+btnUtterance.addEventListener('click', () => {
+  if (!S.showUtterance) {
+    S.showUtterance = true; S.showFullUtterance = false;
+  } else if (!S.showFullUtterance) {
+    S.showFullUtterance = true;
+  } else {
+    S.showUtterance = false; S.showFullUtterance = false;
+  }
+  updateUtteranceBtn();
+  render(1, 0);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  SETTINGS MODAL
+// ═══════════════════════════════════════════════════════════════════
+btnSettings.addEventListener('click', () => settingsModal.classList.add('open'));
+if (ltBtnSettings) ltBtnSettings.addEventListener('click', () => settingsModal.classList.add('open'));
+modalClose.addEventListener('click', () => settingsModal.classList.remove('open'));
+settingsModal.addEventListener('click', e => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
+
+kangChk.addEventListener('change', () => { S.kangMode = kangChk.checked; render(1,0); });
+slowChk.addEventListener('change', () => { S.slowMode = slowChk.checked; });
+btnStepArrowToggle.addEventListener('click', () => {
+  S.showStepArrows = !S.showStepArrows;
+  btnStepArrowToggle.classList.toggle('active', S.showStepArrows);
+  render(1,0);
+});
+btnExplainSteps.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleExplainPopup();
+});
+document.addEventListener('click', (e) => {
+  if (!explainPopup.classList.contains('open')) return;
+  if (explainPopup.contains(e.target) || e.target === btnExplainSteps) return;
+  explainPopup.classList.remove('open');
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  ACTION BUTTONS
+// ═══════════════════════════════════════════════════════════════════
+btnAnim.addEventListener('click', handlePlayClick);
+btnReset.addEventListener('click', resetAll);
+btnRevl.addEventListener('click', () => {
+  const alt = altForm(S.t1, S.op, S.t2);
+  if (S.revealStep === 0 && alt) {
+    S.revealStep = 1;
+    render(1,0);
+  } else {
+    S.revealStep = 2;
+    setStrip(`Svaret är ${S.answer}.`);
+    render(1,0);
+  }
+});
+
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  USER SAVED EXPRESSIONS — persisted in URL hash
+// ═══════════════════════════════════════════════════════════════════
+function encodeSaved(arr) {
+  return arr.map(p => `${p.t1}${p.op==='+'?'+':'-'}${p.t2}`).join(',');
+}
+function decodeSaved(str) {
+  if (!str) return [];
+  return str.split(',').map(s => {
+    const m = s.match(/^(-?\d+)([+\-])(-?\d+)$/);
+    if (!m) return null;
+    return {t1:parseInt(m[1]), op:m[2]==='-'?'−':'+', t2:parseInt(m[3])};
+  }).filter(Boolean);
+}
+function saveToURL() {
+  const val = S.savedExprs.length ? encodeSaved(S.savedExprs) : '';
+  try { history.replaceState(null, '', window.location.pathname + (val ? '#saved=' + val : '')); } catch(e) {}
+  try { sessionStorage.setItem('tallinje_saved', val); } catch(e) {}
+}
+function loadFromURL() {
+  const m = window.location.hash.match(/saved=([^&]*)/);
+  if (m) { S.savedExprs = decodeSaved(decodeURIComponent(m[1])); return; }
+  try { const v = sessionStorage.getItem('tallinje_saved'); if (v) S.savedExprs = decodeSaved(v); } catch(e) {}
+}
+
+function buildUserPearls() {
+  const wrap = document.getElementById('userPearlWrap');
+  const hint = document.getElementById('userPearlHint');
+  if (!wrap) return;
+  // Clear except hint
+  Array.from(wrap.children).forEach(ch => { if (ch !== hint) ch.remove(); });
+
+  if (S.savedExprs.length === 0) {
+    hint.style.display = '';
+  } else {
+    hint.style.display = 'none';
+    S.savedExprs.forEach((p, i) => {
+      const btn = document.createElement('button');
+      const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
+      btn.className = 'user-pearl-btn' + (isActive ? ' active' : '');
+      btn.title = exprLabel(p);
+      btn.textContent = isActive ? '★' : '☆';
+      btn.addEventListener('click', () => {
+        setExpr(p.t1, p.op, p.t2, true);
+        buildUserPearls();
+      });
+      // Right-click to remove
+      btn.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        S.savedExprs.splice(i, 1);
+        saveToURL();
+        buildUserPearls();
+        render(1,0);
+      });
+      wrap.insertBefore(btn, hint);
+    });
+  }
+
+  // Add button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'user-pearl-add';
+  addBtn.title = 'Spara aktuellt uttryck';
+  addBtn.textContent = '+';
+  addBtn.addEventListener('click', saveCurrentExpr);
+  wrap.appendChild(addBtn);
+}
+
+function saveCurrentExpr() {
+  const already = S.savedExprs.some(p => p.t1===S.t1 && p.op===S.op && p.t2===S.t2);
+  if (!already) {
+    S.savedExprs.push({t1:S.t1, op:S.op, t2:S.t2});
+    saveToURL();
+    buildUserPearls();
+    render(1,0);
+  }
+}
+
+// Draw user saved pearls below the preset pearl band
+const USER_PEARL_Y = CH - 28;
+let userPearlCanvasRects = [];
+
+function drawUserPearlBand() {
+  if (S.savedExprs.length === 0) return;
+  userPearlCanvasRects = [];
+  const PR = 7, GAP = 6;
+  const totalW = S.savedExprs.length * (PR*2+GAP) - GAP;
+  let x = CW/2 - totalW/2;
+  const col = '#e8a020';
+  S.savedExprs.forEach((p, i) => {
+    const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
+    ctx.beginPath();
+    ctx.arc(x, USER_PEARL_Y, isActive ? PR+2 : PR, 0, Math.PI*2);
+    ctx.fillStyle = isActive ? col : col+'55';
+    ctx.fill();
+    if (isActive) { ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke(); }
+    userPearlCanvasRects.push({x, y:USER_PEARL_Y, r:PR+4, idx:i});
+    x += PR*2+GAP;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  PRESET CATEGORIES + SIDE PANEL
+// ═══════════════════════════════════════════════════════════════════
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  FÖRINSTÄLLDA UTTRYCK — redigera fritt!                     ║
+// ║  Format: {t1: starttal, op: '+' eller '−', t2: steg}        ║
+// ║  Kategoriernas ordning styr pärlbandets färger:             ║
+// ║   cat:0=grön  cat:1=blå  cat:2=orange  cat:3=lila  cat:4=rosa║
+// ╚══════════════════════════════════════════════════════════════╝
+const PRESET_CATS = [
+  { label:'Positiva tal', cat:0, presets:[
+    {t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:6,op:'+',t2:3},{t1:2,op:'+',t2:7}
+  ]},
+  { label:'Subtraktion – positivt svar', cat:1, presets:[
+    {t1:9,op:'−',t2:4},{t1:7,op:'−',t2:3},{t1:5,op:'−',t2:4}
+  ]},
+  { label:'Via nollan / komplementerande tal', cat:2, presets:[
+    {t1:5,op:'−',t2:5},
+    {t1:5,op:'−',t2:7},{t1:6,op:'−',t2:10},{t1:4,op:'−',t2:9}
+  ]},
+  { label:'Negativt starttal', cat:3, presets:[
+    {t1:-8,op:'+',t2:3},{t1:-8,op:'+',t2:5},{t1:-5,op:'+',t2:4},
+    {t1:-5,op:'+',t2:5},{t1:-5,op:'+',t2:8},
+    {t1:-4,op:'+',t2:4},{t1:-4,op:'+',t2:9}
+  ]},
+  { label:'Teckensregeln', cat:4, presets:[
+    {t1:5,op:'+',t2:3},{t1:5,op:'+',t2:-3},{t1:5,op:'−',t2:3},{t1:5,op:'−',t2:-3},
+    {t1:-6,op:'+',t2:4},{t1:-6,op:'+',t2:-4},{t1:-6,op:'−',t2:4},{t1:-6,op:'−',t2:-4}
+  ]},
+];
+
+function exprLabel(p) {
+  const opChar = p.op==='+' ? '+' : '−';
+  const t1s = p.t1 < 0 ? `(${p.t1})` : String(p.t1);
+  const t2s = p.t2 < 0 ? `(${p.t2})` : String(p.t2);
+  return `${t1s} ${opChar} ${t2s}`;
+}
+
+function buildPresetCats() {
+  const container = document.getElementById('presetCatContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  PRESET_CATS.forEach(cat => {
+    const div = document.createElement('div');
+    div.className = 'preset-cat';
+    const lbl = document.createElement('div');
+    lbl.className = 'preset-cat-label';
+    lbl.textContent = cat.label;
+    div.appendChild(lbl);
+    const pills = document.createElement('div');
+    pills.className = 'preset-pills';
+    cat.presets.forEach(p => {
+      const btn = document.createElement('button');
+      const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
+      btn.className = `preset-pill cat-${cat.cat}${isActive ? ' active' : ''}`;
+      btn.textContent = exprLabel(p);
+      btn.addEventListener('click', () => {
+        setExpr(p.t1, p.op, p.t2, true);
+        buildPresetCats();
+      });
+      pills.appendChild(btn);
+    });
+    div.appendChild(pills);
+    container.appendChild(div);
+  });
+}
+
+// Side panel open/close
+const sidePanel   = document.getElementById('sidePanel');
+const ltBtnPanel  = document.getElementById('ltBtnPanel');
+const spTabPreset = document.getElementById('spTabPreset');
+const spTabNumpad = document.getElementById('spTabNumpad');
+const spPresetContent = document.getElementById('spPresetContent');
+const spNumpadContent = document.getElementById('spNumpadContent');
+
+ltBtnPanel.addEventListener('click', () => {
+  const willOpen = !sidePanel.classList.contains('open');
+  if (willOpen) {
+    // Position popup to the right of the button
+    const r = ltBtnPanel.getBoundingClientRect();
+    sidePanel.style.left = (r.right + 10) + 'px';
+    sidePanel.style.top  = r.top + 'px';
+    buildPresetCats();
+    resetNp(); updateNumpadDisplay();
+  }
+  sidePanel.classList.toggle('open', willOpen);
+  ltBtnPanel.classList.toggle('active', willOpen);
+});
+
+// Close popup when clicking outside
+document.addEventListener('click', e => {
+  if (!sidePanel.classList.contains('open')) return;
+  if (sidePanel.contains(e.target) || e.target === ltBtnPanel || ltBtnPanel.contains(e.target)) return;
+  sidePanel.classList.remove('open');
+  ltBtnPanel.classList.remove('active');
+});
+
+spTabPreset.addEventListener('click', () => {
+  spTabPreset.classList.add('active');   spTabNumpad.classList.remove('active');
+  spPresetContent.style.display = '';   spNumpadContent.style.display = 'none';
+  buildPresetCats();
+});
+spTabNumpad.addEventListener('click', () => {
+  spTabNumpad.classList.add('active');   spTabPreset.classList.remove('active');
+  spNumpadContent.style.display = '';   spPresetContent.style.display = 'none';
+  resetNp(); updateNumpadDisplay();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  NUMPAD LOGIC
+// ═══════════════════════════════════════════════════════════════════
+const numpadDisplay = document.getElementById('numpadDisplay');
+
+let np = { stage:'t1', t1:'', op:'+', t2:'' };
+function resetNp() { np = { stage:'t1', t1:'', op:'+', t2:'' }; }
+
+function updateNumpadDisplay() {
+  const t1d = np.t1 !== '' ? np.t1 : '_';
+  const t2d = np.t2 !== '' ? (np.t2.startsWith('-') ? '('+np.t2+')' : np.t2) : (np.stage==='t2' ? '_' : '');
+  const opStr = np.stage==='t2' ? ` ${np.op} ` : '';
+  numpadDisplay.textContent = t1d + opStr + t2d || '—';
+}
+
+function numpadInput(action) {
+  if (action==='clear') { np={stage:'t1',t1:'',op:'+',t2:''}; updateNumpadDisplay(); return; }
+  if (action==='op+')   { if (np.t1!=='') { np.stage='t2'; np.op='+'; np.t2=''; } updateNumpadDisplay(); return; }
+  if (action==='op−')   { if (np.t1!=='') { np.stage='t2'; np.op='−'; np.t2=''; } updateNumpadDisplay(); return; }
+  if (action==='negate') {
+    const k = np.stage==='t1' ? 't1' : 't2';
+    np[k] = np[k].startsWith('-') ? np[k].slice(1) : (np[k] ? '-'+np[k] : '-');
+    updateNumpadDisplay(); return;
+  }
+  if (action==='BS') {
+    const k = np.stage==='t1' ? 't1' : 't2';
+    np[k] = np[k].slice(0,-1);
+    updateNumpadDisplay(); return;
+  }
+  if (action==='go') {
+    const t1v=parseInt(np.t1), t2v=parseInt(np.t2);
+    if (!isNaN(t1v) && !isNaN(t2v)) {
+      setExpr(t1v, np.op==='+'?'+':'−', t2v, true);
+      // Close popup after confirming
+      sidePanel.classList.remove('open');
+      ltBtnPanel.classList.remove('active');
+    }
+    return;
+  }
+  // digit
+  if (np.stage==='t1') np.t1+=action; else np.t2+=action;
+  updateNumpadDisplay();
+}
+
+document.querySelectorAll('.np-btn').forEach(btn => {
+  const val=btn.dataset.val, action=btn.dataset.action;
+  btn.addEventListener('click', () => numpadInput(action||val));
+});
+
+
+// Dark/fs from settings modal checkboxes
+document.getElementById('darkToggleSettings').addEventListener('change', e => {
+  document.body.classList.toggle('dark', e.target.checked);
+  render(1,0);
+});
+document.getElementById('fsToggleSettings').addEventListener('change', e => {
+  if (e.target.checked) document.documentElement.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
+});
+// Dark mode (old btn — keep for compat but it's hidden now)
+document.getElementById('btnDark').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  const on = document.body.classList.contains('dark');
+  document.getElementById('btnDark').textContent = on ? '☀️' : '🌙';
+  render(1,0);
+});
+
+// Fullscreen
+document.getElementById('btnFullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(()=>{});
+    document.getElementById('btnFullscreen').textContent = '⊡';
+  } else {
+    document.exitFullscreen();
+    document.getElementById('btnFullscreen').textContent = '⛶';
+  }
+});
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement)
+    document.getElementById('btnFullscreen').textContent = '⛶';
+});
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  SPEED SLIDER
+// ═══════════════════════════════════════════════════════════════════
+const speedSlider = document.getElementById('speedSlider');
+const speedLabel  = document.getElementById('speedLabel');
+const SPEED_NAMES = ['Väldigt långsam','Långsam','Normal','Snabb','Väldigt snabb'];
+const SPEED_MULT  = [8.0, 5.5, 3.0, 1.8, 1.0];  // px/ms multiplier (higher = slower animation)
+function getSpeedMult() { return SPEED_MULT[parseInt(speedSlider.value)-1]; }
+speedSlider.addEventListener('input', () => {
+  speedLabel.textContent = 'Hastighet: ' + SPEED_NAMES[parseInt(speedSlider.value)-1];
+  S.slowMode = parseInt(speedSlider.value) <= 2;  // keep legacy compat
+});
+// Update animateLeg to use slider speed
+// (done via patching animateLeg below)
+
+// ═══════════════════════════════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════════════════════════════
+const MAX_HISTORY = 10;
+let exprHistory = [];  // [{t1,op,t2}] most recent first
+
+function addToHistory(t1, op, t2) {
+  // Remove duplicate if exists
+  exprHistory = exprHistory.filter(p => !(p.t1===t1 && p.op===op && p.t2===t2));
+  exprHistory.unshift({t1, op, t2});
+  if (exprHistory.length > MAX_HISTORY) exprHistory.pop();
+}
+
+function buildHistoryList() {
+  const el = document.getElementById('historyList');
+  if (!el) return;
+  el.innerHTML = '';
+  if (exprHistory.length === 0) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:.82rem;text-align:center;padding:12px 0;">Inga uttryck ännu</div>';
+    return;
+  }
+  exprHistory.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'hist-item';
+    div.innerHTML = `<span class="hi-expr">${exprLabel(p)}</span><span class="hi-use">Använd →</span>`;
+    div.addEventListener('click', () => {
+      setExpr(p.t1, p.op, p.t2, true);
+      buildHistoryList();
+    });
+    el.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TASKS (Craig Barton-style)
+// ═══════════════════════════════════════════════════════════════════
+// Each task shows a setup and asks "Vad är uttrycket?"
+// Clicking a pill loads that expression to verify.
+const TASKS = [
+  {
+    desc: '🤖 Roboten börjar på <b>3</b>, tittar åt <b style="color:#66C7C2">höger</b> och tar <b style="color:#306BF0">+5 steg framlänges</b>. Vilket uttryck visar detta?',
+    options: [{t1:3,op:'+',t2:5},{t1:5,op:'+',t2:3},{t1:3,op:'−',t2:5}],
+    correct: {t1:3,op:'+',t2:5}
+  },
+  {
+    desc: '🤖 Roboten börjar på <b>5</b>, tittar åt <b style="color:#EC6095">vänster</b> och tar <b style="color:#306BF0">+3 steg framlänges</b>. Vilket uttryck visar detta?',
+    options: [{t1:5,op:'−',t2:3},{t1:3,op:'−',t2:5},{t1:5,op:'+',t2:3}],
+    correct: {t1:5,op:'−',t2:3}
+  },
+  {
+    desc: '🤖 Roboten börjar på <b>5</b>, tittar åt <b style="color:#EC6095">vänster</b> och tar <b style="color:#306BF0">+8 steg framlänges</b>. Den passerar 0:an på vägen! Vilket uttryck?',
+    options: [{t1:5,op:'−',t2:8},{t1:8,op:'−',t2:5},{t1:5,op:'+',t2:8}],
+    correct: {t1:5,op:'−',t2:8}
+  },
+  {
+    desc: '🤖 Roboten börjar på <b>(−5)</b>, tittar åt <b style="color:#66C7C2">höger</b> och tar <b style="color:#F4A261">−3 steg baklänges</b>. Vilket uttryck?',
+    options: [{t1:-5,op:'−',t2:3},{t1:-5,op:'+',t2:-3},{t1:-3,op:'+',t2:-5}],
+    correct: {t1:-5,op:'+',t2:-3}
+  },
+  {
+    desc: '🤖 Roboten börjar på <b>5</b>, tittar åt <b style="color:#EC6095">vänster</b> och tar <b style="color:#F4A261">−3 steg baklänges</b>. Lika tecken bredvid varandra — vad händer?',
+    options: [{t1:5,op:'−',t2:-3},{t1:5,op:'+',t2:-3},{t1:-5,op:'−',t2:3}],
+    correct: {t1:5,op:'−',t2:-3}
+  },
+  {
+    desc: '🤖 Roboten börjar på <b>(−3)</b>, tittar åt <b style="color:#EC6095">vänster</b> och tar <b style="color:#F4A261">−5 steg baklänges</b>. Olika tecken intill? Uttalas som vad?',
+    options: [{t1:-3,op:'−',t2:-5},{t1:-3,op:'+',t2:5},{t1:-3,op:'−',t2:5}],
+    correct: {t1:-3,op:'−',t2:-5}
+  },
+];
+
+let currentTaskIdx = 0;
+
+function buildTaskContent() {
+  const el = document.getElementById('taskContent');
+  if (!el) return;
+  el.innerHTML = '';
+
+  // Task counter
+  const counter = document.createElement('div');
+  counter.style.cssText = 'font-size:.72rem;color:var(--muted);margin-bottom:8px;text-align:right;';
+  counter.textContent = `Uppgift ${currentTaskIdx+1} av ${TASKS.length}`;
+  el.appendChild(counter);
+
+  const task = TASKS[currentTaskIdx];
+  const card = document.createElement('div');
+  card.className = 'task-card';
+  card.innerHTML = `<div class="tc-desc">${task.desc}</div><div class="tc-btns"></div>`;
+
+  const btns = card.querySelector('.tc-btns');
+  task.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'task-pill';
+    btn.textContent = exprLabel(opt);
+    btn.addEventListener('click', () => {
+      setExpr(opt.t1, opt.op, opt.t2, true);
+      // Highlight correct/wrong
+      btns.querySelectorAll('.task-pill').forEach(b => {
+        b.style.background = '';
+        b.style.color = '';
+        b.style.borderColor = '';
+      });
+      const isCorrect = opt.t1===task.correct.t1 && opt.op===task.correct.op && opt.t2===task.correct.t2;
+      btn.style.background = isCorrect ? '#18a348' : '#e02020';
+      btn.style.color = '#fff';
+      btn.style.borderColor = isCorrect ? '#18a348' : '#e02020';
+      // Auto-advance after 1.5s
+      if (isCorrect) setTimeout(() => {
+        currentTaskIdx = (currentTaskIdx+1) % TASKS.length;
+        buildTaskContent();
+      }, 1500);
+    });
+    btns.appendChild(btn);
+  });
+  el.appendChild(card);
+
+  // Navigation
+  const nav = document.createElement('div');
+  nav.style.cssText = 'display:flex;gap:8px;justify-content:space-between;margin-top:4px;';
+  nav.innerHTML = `
+    <button onclick="currentTaskIdx=(currentTaskIdx-1+${TASKS.length})%${TASKS.length};buildTaskContent();"
+      style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;">◀ Föreg.</button>
+    <button onclick="currentTaskIdx=Math.floor(Math.random()*${TASKS.length});buildTaskContent();"
+      style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--accent2);background:var(--surface);color:var(--accent2);cursor:pointer;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;">🎲 Slump</button>
+    <button onclick="currentTaskIdx=(currentTaskIdx+1)%${TASKS.length};buildTaskContent();"
+      style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;">Nästa ▶</button>
+  `;
+  el.appendChild(nav);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  RANDOM EXPRESSION
+// ═══════════════════════════════════════════════════════════════════
+function randomExpr() {
+  // Pick a random category, then a random preset within it
+  const cat = PRESET_CATS[Math.floor(Math.random() * PRESET_CATS.length)];
+  const p   = cat.presets[Math.floor(Math.random() * cat.presets.length)];
+  setExpr(p.t1, p.op, p.t2, true);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  EXPORT IMAGE
+// ═══════════════════════════════════════════════════════════════════
+function exportCanvasImage() {
+  // Temporarily render a clean frame then export
+  render(1, 0);
+  const dataURL = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = dataURL;
+  const opChar = S.op === '+' ? '+' : '-';
+  a.download = `tallinje_${S.t1}${opChar}${S.t2}.png`;
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+  // Skip if typing in an input
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); handlePlayClick(); }
+  if (e.key === 'r' || e.key === 'R') resetAll();
+  if (e.key === 'k' || e.key === 'K') { S.kangMode=!S.kangMode; kangChk.checked=S.kangMode; render(1,0); }
+  if (e.key === 'h' || e.key === 'H') { S.showHints=!S.showHints; render(1,0); }
+  if (e.key === 'e' || e.key === 'E') toggleExpr();
+  if (e.key === 'Escape') {
+    sidePanel.classList.remove('open');
+    if (ltBtnPanel) ltBtnPanel.classList.remove('active');
+  }
+});
+
+// Visual icons added directly inside buildExplainSteps below
+
+// ═══════════════════════════════════════════════════════════════════
+//  WIRE NEW DOM ELEMENTS
+// ═══════════════════════════════════════════════════════════════════
+const ltBtnExplain = document.getElementById('ltBtnExplain');
+const ltBtnRandom  = document.getElementById('ltBtnRandom');
+const ltBtnExport  = document.getElementById('ltBtnExport');
+
+ltBtnExplain.addEventListener('click', () => {
+  // Trigger same popup as btnExplainSteps
+  const fake = {getBoundingClientRect: () => ltBtnExplain.getBoundingClientRect()};
+  toggleExplainPopup();
+  // Reposition to open next to ltBtnExplain
+  const r = ltBtnExplain.getBoundingClientRect();
+  explainPopup.style.left = (r.right + 10) + 'px';
+  explainPopup.style.top  = r.top + 'px';
+  if (explainPopup.classList.contains('open')) buildExplainSteps();
+});
+
+ltBtnRandom.addEventListener('click', randomExpr);
+ltBtnExport.addEventListener('click', exportCanvasImage);
+
+// Speed slider wires
+document.getElementById('slowToggle') && Object.defineProperty(document.getElementById('slowToggle'), 'checked', {
+  get() { return parseInt(speedSlider.value) <= 2; },
+  set(v) { speedSlider.value = v ? 2 : 3; }
+});
+
+// Tab wiring for history + tasks
+const spTabHistory = document.getElementById('spTabHistory');
+const spTabTasks   = document.getElementById('spTabTasks');
+const spHistoryContent = document.getElementById('spHistoryContent');
+const spTasksContent   = document.getElementById('spTasksContent');
+
+spTabHistory.addEventListener('click', () => {
+  [spTabNumpad,spTabPreset,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
+  [spNumpadContent,spPresetContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
+  spTabHistory.classList.add('active');
+  spHistoryContent.style.display = '';
+  buildHistoryList();
+});
+spTabTasks.addEventListener('click', () => {
+  [spTabNumpad,spTabPreset,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
+  [spNumpadContent,spPresetContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
+  spTabTasks.classList.add('active');
+  spTasksContent.style.display = '';
+  buildTaskContent();
+});
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  PRESET NAVIGATION (◀ / ▶)
+// ═══════════════════════════════════════════════════════════════════
+// Flatten all presets into a single ordered list
+function allPresets() {
+  return PRESET_CATS.flatMap(cat => cat.presets);
+}
+function currentPresetIndex() {
+  return allPresets().findIndex(p => p.t1===S.t1 && p.op===S.op && p.t2===S.t2);
+}
+function stepPreset(delta) {
+  const all = allPresets();
+  let idx = currentPresetIndex();
+  if (idx === -1) idx = 0; else idx = (idx + delta + all.length) % all.length;
+  const p = all[idx];
+  setExpr(p.t1, p.op, p.t2, true);
+  buildPresetCats && buildPresetCats();
+}
+
+const ltBtnPrevPreset = document.getElementById('ltBtnPrevPreset');
+const ltBtnNextPreset = document.getElementById('ltBtnNextPreset');
+if (ltBtnPrevPreset) ltBtnPrevPreset.addEventListener('click', () => stepPreset(-1));
+if (ltBtnNextPreset) ltBtnNextPreset.addEventListener('click', () => stepPreset(1));
+
+// Dynamic tooltip positioning for lt-btn
+document.querySelectorAll('.lt-btn').forEach(btn => {
+  const tip = btn.querySelector('.lt-tip');
+  if (!tip) return;
+  btn.addEventListener('mouseenter', () => {
+    const r = btn.getBoundingClientRect();
+    tip.style.top  = (r.top + r.height/2 - 14) + 'px';
+    tip.style.left = (r.right + 8) + 'px';
+    // If tooltip would go off-screen right, show on left instead
+    const tipW = tip.offsetWidth || 120;
+    if (r.right + 8 + tipW > window.innerWidth - 10) {
+      tip.style.left = (r.left - tipW - 8) + 'px';
+    }
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  STUDENT MODE — self-contained quiz engine
+//  Reuses colour constants (C_FWD_POS etc) and isForward() from above.
+// ═══════════════════════════════════════════════════════════════════
+const studentOverlay = document.getElementById('studentOverlay');
+const btnStudentMode = document.getElementById('btnStudentMode');
+const studentExit    = document.getElementById('studentExit');
+
+const scrModePicker  = document.getElementById('scrModePicker');
+const scrLevelPicker = document.getElementById('scrLevelPicker');
+const scrQuiz        = document.getElementById('scrQuiz');
+const scrSummary      = document.getElementById('scrSummary');
+
+const cardModeA = document.getElementById('cardModeA');
+const cardModeB = document.getElementById('cardModeB');
+const btnStartQuiz = document.getElementById('btnStartQuiz');
+
+const scoreCorrectEl = document.getElementById('scoreCorrect');
+const scoreTotalEl   = document.getElementById('scoreTotal');
+const sqExprText     = document.getElementById('sqExprText');
+const sqQuestionText = document.getElementById('sqQuestionText');
+const sqOptions      = document.getElementById('sqOptions');
+const sqFeedback     = document.getElementById('sqFeedback');
+const sqNextBtn      = document.getElementById('sqNextBtn');
+const summaryScoreEl = document.getElementById('summaryScore');
+const btnPlayAgain   = document.getElementById('btnPlayAgain');
+
+const sqCanvas = document.getElementById('sqCanvas');
+const sqCtx    = sqCanvas.getContext('2d');
+
+// ── Quiz state ─────────────────────────────────────────────────────
+const QZ = {
+  mode: null,        // 'A' or 'B'
+  level: 0,
+  correct: 0,
+  total: 0,
+  current: null,     // {t1, op, t2, answer}
+  // Mode A sub-stage: 0=start, 1=direction, 2=steps
+  stageA: 0,
+  stageACorrect: [false, false, false],
+};
+
+// ── Difficulty-aware random expression generator ────────────────────
+// Mirrors the pedagogical structure of PRESET_CATS but randomised.
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function generateExpr(level) {
+  let t1, op, t2;
+  if (level === 0) {
+    // Positive numbers, positive result (t1 may be 0 — that's fine)
+    t1 = randInt(0, 8); op = '+'; t2 = randInt(2, 8);
+  } else if (level === 1) {
+    // Subtraction, positive result — ensure t2 in [1, t1-1] so it's never 0 and never equals t1
+    t1 = randInt(5, 12); t2 = randInt(1, Math.max(1, t1 - 1)); op = '−';
+  } else if (level === 2) {
+    // Via zero / negative result OR exactly zero (complementary numbers)
+    t1 = randInt(2, 8);
+    if (Math.random() < 0.3) { t2 = t1; }                 // lands exactly on 0
+    else { t2 = randInt(t1 + 1, t1 + 6); }                // overshoots past 0
+    op = '−';
+  } else if (level === 3) {
+    // Negative start
+    t1 = -randInt(2, 7);
+    op = Math.random() < 0.5 ? '+' : '−';
+    t2 = randInt(2, 8);
+  } else {
+    // Sign rule: negative t2, t1 never 0 (so the sign-rule reading is meaningful)
+    do { t1 = randInt(-6, 8); } while (t1 === 0);
+    op = Math.random() < 0.5 ? '+' : '−';
+    t2 = -randInt(2, 8);
+  }
+  // Safety net: t2 must never be 0 (would make "framåt/bakåt" meaningless)
+  if (t2 === 0) t2 = (Math.random() < 0.5 ? 1 : -1) * randInt(2, 5);
+  const answer = op === '+' ? t1 + t2 : t1 - t2;
+  return { t1, op, t2, answer };
+}
+
+// Kangaroo-hop check — mirrors kangApplies() logic from the teacher tool,
+// but operates on an arbitrary {t1, op, t2} rather than global state S.
+function exprCrossesZero(t1, op, t2) {
+  const steps = op === '+' ? t2 : -t2;
+  return (t1 > 0 && steps < 0 && t1 + steps < 0) ||
+         (t1 < 0 && steps > 0 && t1 + steps > 0);
+}
+
+// ── Screen navigation ─────────────────────────────────────────────
+function showScreen(name) {
+  // delegate to showScreenAll once it's defined; before that, basic version
+  scrModePicker.style.display  = name === 'mode'    ? 'flex' : 'none';
+  scrLevelPicker.style.display = name === 'level'   ? 'flex' : 'none';
+  scrQuiz.style.display        = name === 'quiz'    ? 'flex' : 'none';
+  scrSummary.style.display     = name === 'summary' ? 'flex' : 'none';
+  if (typeof scrMinitest !== 'undefined') {
+    scrMinitest.style.display       = name === 'minitest' ? 'flex' : 'none';
+    scrMinitestResult.style.display = name === 'result'   ? 'flex' : 'none';
+  }
+}
+
+btnStudentMode.addEventListener('click', () => {
+  studentOverlay.classList.add('open');
+  QZ.correct = 0; QZ.total = 0;
+  showScreen('mode');
+});
+studentExit.addEventListener('click', () => {
+  studentOverlay.classList.remove('open');
+});
+
+cardModeA.addEventListener('click', () => { QZ.mode = 'A'; showScreen('level'); });
+cardModeB.addEventListener('click', () => { QZ.mode = 'B'; showScreen('level'); });
+
+document.querySelectorAll('.level-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    QZ.level = parseInt(btn.dataset.level);
+  });
+});
+
+btnStartQuiz.addEventListener('click', () => {
+  QZ.correct = 0; QZ.total = 0;
+  updateScoreBar();
+  if (QZ.mode === 'C') {
+    startMinitest();
+  } else {
+    showScreen('quiz');
+    nextQuestion();
+  }
+});
+
+btnPlayAgain.addEventListener('click', () => { showScreen('level'); });
+
+document.getElementById('btnFinishRound').addEventListener('click', () => {
+  summaryScoreEl.textContent = `${QZ.correct} / ${QZ.total}`;
+  showScreen('summary');
+});
+
+function updateScoreBar() {
+  scoreCorrectEl.textContent = QZ.correct + ' rätt';
+  scoreTotalEl.textContent   = 'av ' + QZ.total;
+}
+
+// ── Mini number-line renderer (self-contained, reuses colour system) ──
+function sqWorldToX(w, lo, hi) {
+  return 40 + (w - lo) / (hi - lo) * (700 - 80);
+}
+function sqDrawLine(t1, t2, answer, robotPos, facingRight, showTrail) {
+  const vals = [t1, answer, 0];
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  let span = hi - lo; if (span < 8) span = 8;
+  const pad = Math.ceil(span * 0.2 + 1);
+  lo = Math.floor(lo - pad); hi = Math.ceil(hi + pad);
+
+  const LINE_Y = 130, TICK_H = 11;
+  sqCtx.clearRect(0, 0, 700, 260);
+
+  sqCtx.strokeStyle = '#100e28'; sqCtx.lineWidth = 2;
+  sqCtx.beginPath();
+  sqCtx.moveTo(sqWorldToX(lo,lo,hi)-16, LINE_Y);
+  sqCtx.lineTo(sqWorldToX(hi,lo,hi)+16, LINE_Y);
+  sqCtx.stroke();
+  const rsx = sqWorldToX(hi,lo,hi)+16;
+  sqCtx.fillStyle = '#100e28'; sqCtx.beginPath();
+  sqCtx.moveTo(rsx+8,LINE_Y); sqCtx.lineTo(rsx-4,LINE_Y-4); sqCtx.lineTo(rsx-4,LINE_Y+4);
+  sqCtx.closePath(); sqCtx.fill();
+
+  for (let n = lo; n <= hi; n++) {
+    const x = sqWorldToX(n,lo,hi);
+    sqCtx.strokeStyle = '#100e28'; sqCtx.lineWidth = n===0?2:1;
+    sqCtx.beginPath(); sqCtx.moveTo(x,LINE_Y-TICK_H); sqCtx.lineTo(x,LINE_Y+TICK_H); sqCtx.stroke();
+    sqCtx.font = n===0 ? 'bold 13px Sora' : '11px Sora';
+    sqCtx.fillStyle = n===0 ? '#100e28' : '#666';
+    sqCtx.textAlign = 'center';
+    sqCtx.fillText(n, x, LINE_Y+TICK_H+14);
+  }
+
+  // ── Start / arrow / mål trail — shown once the animation has finished ──
+  if (showTrail && t1 !== answer) {
+    const x1 = sqWorldToX(t1, lo, hi);
+    const x2 = sqWorldToX(answer, lo, hi);
+    const arcH = Math.min(46, Math.abs(x2 - x1) * 0.35 + 12);
+    const goRight = x2 > x1;
+
+    // Curved arc from start to goal
+    sqCtx.strokeStyle = '#7c3aed'; sqCtx.lineWidth = 2.5; sqCtx.setLineDash([5,4]);
+    sqCtx.beginPath();
+    const xMid = (x1+x2)/2;
+    for (let i=0;i<=40;i++){
+      const tt=i/40;
+      const bx=(1-tt)*(1-tt)*x1+2*(1-tt)*tt*xMid+tt*tt*x2;
+      const by=(1-tt)*(1-tt)*LINE_Y+2*(1-tt)*tt*(LINE_Y-arcH)+tt*tt*LINE_Y;
+      i===0?sqCtx.moveTo(bx,by):sqCtx.lineTo(bx,by);
+    }
+    sqCtx.stroke(); sqCtx.setLineDash([]);
+
+    // Arrowhead at goal
+    sqCtx.fillStyle = '#7c3aed';
+    sqCtx.beginPath();
+    if (goRight) { sqCtx.moveTo(x2,LINE_Y); sqCtx.lineTo(x2-9,LINE_Y-6); sqCtx.lineTo(x2-9,LINE_Y+6); }
+    else         { sqCtx.moveTo(x2,LINE_Y); sqCtx.lineTo(x2+9,LINE_Y-6); sqCtx.lineTo(x2+9,LINE_Y+6); }
+    sqCtx.closePath(); sqCtx.fill();
+
+    // Start dot (green) + "Start" label
+    sqCtx.fillStyle = '#18a348';
+    sqCtx.beginPath(); sqCtx.arc(x1, LINE_Y, 6, 0, Math.PI*2); sqCtx.fill();
+    sqCtx.strokeStyle = '#fff'; sqCtx.lineWidth = 1.5; sqCtx.stroke();
+    sqCtx.font = 'bold 11px Sora'; sqCtx.fillStyle = '#18a348'; sqCtx.textAlign = 'center';
+    sqCtx.fillText('Start', x1, LINE_Y + TICK_H + 30);
+
+    // Goal dot (purple) + "Mål" label
+    sqCtx.fillStyle = '#7c3aed';
+    sqCtx.beginPath(); sqCtx.arc(x2, LINE_Y, 6, 0, Math.PI*2); sqCtx.fill();
+    sqCtx.strokeStyle = '#fff'; sqCtx.lineWidth = 1.5; sqCtx.stroke();
+    sqCtx.font = 'bold 11px Sora'; sqCtx.fillStyle = '#7c3aed'; sqCtx.textAlign = 'center';
+    sqCtx.fillText('Mål', x2, LINE_Y + TICK_H + 30);
+  }
+
+  // Robot (simplified)
+  if (robotPos !== null) {
+    const rx = sqWorldToX(robotPos,lo,hi);
+    sqCtx.save();
+    sqCtx.translate(rx, LINE_Y);
+    sqCtx.scale(facingRight ? 1 : -1, 1);
+    sqCtx.fillStyle = '#4a5568';
+    sqCtx.fillRect(-9,-36,18,24);
+    sqCtx.fillStyle = '#2d3748';
+    sqCtx.fillRect(-9,-58,18,22);
+    sqCtx.fillStyle = '#e8f4fd'; sqCtx.strokeStyle='#63b3ed'; sqCtx.lineWidth=1.5;
+    sqCtx.fillRect(-7,-55,14,16); sqCtx.strokeRect(-7,-55,14,16);
+    sqCtx.restore();
+    // number label always upright
+    sqCtx.fillStyle = '#1a365d'; sqCtx.font = 'bold 10px Sora';
+    sqCtx.textAlign = 'center';
+    sqCtx.fillText(String(Math.round(robotPos)), rx, LINE_Y-47);
+  }
+
+  return {lo, hi};
+}
+
+function sqAnimateAndShowAnswer(t1, op, t2, answer, onComplete) {
+  const facingRight = op === '+';
+  const kang = exprCrossesZero(t1, op, t2);
+
+  if (!kang) {
+    // Simple single-leg animation
+    let pos = t1;
+    const DUR = 1100; let startTs = null;
+    function step(ts) {
+      if (!startTs) startTs = ts;
+      const p = Math.min((ts-startTs)/DUR, 1);
+      const ease = p<0.5 ? 2*p*p : -1+(4-2*p)*p;
+      pos = t1 + (answer - t1) * ease;
+      sqDrawLine(t1, t2, answer, pos, facingRight, false);
+      if (p < 1) requestAnimationFrame(step);
+      else { sqDrawLine(t1, t2, answer, answer, facingRight, true); if (onComplete) onComplete(); }
+    }
+    requestAnimationFrame(step);
+    return;
+  }
+
+  // Kangaroo-hop: two-leg animation, t1→0 then 0→answer, with a brief pause at 0
+  const LEG1_DUR = 750, PAUSE = 350, LEG2_DUR = 750;
+  let startTs = null;
+  let phase = 'leg1';   // 'leg1' | 'pause' | 'leg2'
+  let pauseStart = null;
+
+  function step(ts) {
+    if (!startTs) startTs = ts;
+    if (phase === 'leg1') {
+      const p = Math.min((ts-startTs)/LEG1_DUR, 1);
+      const ease = p<0.5 ? 2*p*p : -1+(4-2*p)*p;
+      const pos = t1 + (0 - t1) * ease;
+      sqDrawLine(t1, t2, answer, pos, facingRight, false);
+      if (p < 1) { requestAnimationFrame(step); return; }
+      phase = 'pause'; pauseStart = ts;
+    }
+    if (phase === 'pause') {
+      sqDrawLine(t1, t2, answer, 0, facingRight, false);
+      if (ts - pauseStart < PAUSE) { requestAnimationFrame(step); return; }
+      phase = 'leg2'; startTs = ts;
+    }
+    if (phase === 'leg2') {
+      const p = Math.min((ts-startTs)/LEG2_DUR, 1);
+      const ease = p<0.5 ? 2*p*p : -1+(4-2*p)*p;
+      const pos = 0 + (answer - 0) * ease;
+      sqDrawLine(t1, t2, answer, pos, facingRight, false);
+      if (p < 1) { requestAnimationFrame(step); return; }
+      sqDrawLine(t1, t2, answer, answer, facingRight, true);
+      if (onComplete) onComplete();
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// ── Error explanation helpers ─────────────────────────────────────
+// Generates a short, specific text pointing at WHY an answer was wrong,
+// tied to the concept being tested at each stage.
+function explainStartError(t1) {
+  return `Roboten börjar alltid på den första termen i uttrycket — alltså ${fmtNum(t1)}.`;
+}
+function explainDirectionError(t1, op) {
+  const dirWord = op==='+' ? 'höger' : 'vänster';
+  const opWord  = op==='+' ? 'plus' : 'minus';
+  return `Uttrycket har ${opWord} (${op==='+'?'+':'−'}), så roboten ska titta åt ${dirWord}.`;
+}
+function explainStepDirError(t2) {
+  const word = t2>=0 ? 'framåt' : 'bakåt';
+  return `Andra termen är ${fmtNum(t2)}. Ett ${t2>=0?'positivt':'negativt'} tal betyder att roboten går ${word} i den riktning den tittar.`;
+}
+function explainAnswerError(t1, op, t2, answer, guess) {
+  const opChar = op==='+' ? '+' : '−';
+  let msg = `${fmtNum(t1)} ${opChar} ${fmtNum(t2)} = ${answer}, inte ${guess}.`;
+  if (exprCrossesZero(t1, op, t2)) {
+    msg += ` Kom ihåg känguruhoppet: roboten stannar vid 0 på vägen.`;
+  }
+  return msg;
+}
+
+// ── Mode A: step-by-step questions ──────────────────────────────────
+function startModeA() {
+  QZ.current = generateExpr(QZ.level);
+  QZ.stageA = 0;
+  sqDrawLine(QZ.current.t1, QZ.current.t2, QZ.current.answer, null, true);
+  askStageA();
+}
+
+function askStageA() {
+  const {t1, op, t2} = QZ.current;
+  sqFeedback.textContent = '\u00a0';
+  sqFeedback.className = 'sq-feedback';
+  sqNextBtn.style.display = 'none';
+  sqExprText.textContent = `${fmtNum(t1)} ${op==='+'?'+':'−'} ${fmtNum(t2)}`;
+
+  if (QZ.stageA === 0) {
+    sqQuestionText.textContent = 'Var börjar roboten? (Vilken är första termen?)';
+    const correct = t1;
+    const opts = shuffleOptions([correct, correct+randInt(1,4), correct-randInt(1,4), correct+randInt(5,8)]);
+    renderOptions(opts, (val, btn) => {
+      checkAnswer(val === correct, btn, () => {
+        QZ.stageA = 1; setTimeout(askStageA, 700);
+      }, explainStartError(t1));
+    }, v => String(v));
+  } else if (QZ.stageA === 1) {
+    sqQuestionText.textContent = `Roboten står på ${t1}. Vilket håll tittar den åt?`;
+    const correctRight = op === '+';
+    const opts = [
+      {label:'⬅ Vänster', val:false}, {label:'➡ Höger', val:true}
+    ];
+    renderOptions(opts.map(o=>o.val), (val, btn) => {
+      checkAnswer(val === correctRight, btn, () => {
+        QZ.stageA = 2; setTimeout(askStageA, 700);
+      }, explainDirectionError(t1, op));
+    }, v => v ? '➡ Höger' : '⬅ Vänster');
+  } else if (QZ.stageA === 2) {
+    sqQuestionText.textContent = `Går roboten framåt eller bakåt (${Math.abs(t2)} steg)?`;
+    const correctFwd = t2 >= 0;
+    renderOptions([true, false], (val, btn) => {
+      checkAnswer(val === correctFwd, btn, () => {
+        QZ.total++; QZ.correct++; updateScoreBar();
+        sqFeedback.textContent = 'Rätt! Så här ser det ut:';
+        sqFeedback.className = 'sq-feedback correct';
+        sqAnimateAndShowAnswer(t1, op, t2, QZ.current.answer);
+        sqOptions.innerHTML = '';
+        sqNextBtn.style.display = '';
+      }, explainStepDirError(t2));
+    }, v => v ? 'Framåt ✓' : 'Bakåt ↩');
+  }
+}
+
+// ── Mode B: predict the answer ──────────────────────────────────────
+function startModeB() {
+  QZ.current = generateExpr(QZ.level);
+  const {t1, op, t2, answer} = QZ.current;
+  sqDrawLine(t1, t2, answer, t1, op === '+');
+  sqExprText.textContent = `${fmtNum(t1)} ${op==='+'?'+':'−'} ${fmtNum(t2)}`;
+  sqQuestionText.textContent = 'Vad blir svaret?';
+  sqFeedback.textContent = '\u00a0';
+  sqFeedback.className = 'sq-feedback';
+  sqNextBtn.style.display = 'none';
+
+  const wrongs = new Set();
+  while (wrongs.size < 3) {
+    const w = answer + (Math.random()<0.5?1:-1) * randInt(1, 6);
+    if (w !== answer) wrongs.add(w);
+  }
+  const opts = shuffleOptions([answer, ...wrongs]);
+  renderOptions(opts, (val, btn) => {
+    checkAnswer(val === answer, btn, () => {
+      QZ.total++; if (val === answer) QZ.correct++; updateScoreBar();
+      sqAnimateAndShowAnswer(t1, op, t2, answer);
+      sqNextBtn.style.display = '';
+    }, explainAnswerError(t1, op, t2, answer, val));
+  }, v => String(v));
+}
+
+// ── Shared helpers ───────────────────────────────────────────────────
+function shuffleOptions(arr) {
+  const a = [...new Set(arr)];
+  for (let i = a.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function renderOptions(values, onPick, formatter) {
+  sqOptions.innerHTML = '';
+  values.forEach(val => {
+    const btn = document.createElement('button');
+    btn.className = 'sq-opt';
+    btn.textContent = formatter(val);
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sq-opt').forEach(b => b.disabled = true);
+      onPick(val, btn);
+    });
+    sqOptions.appendChild(btn);
+  });
+}
+
+function checkAnswer(isCorrect, btn, onDone, wrongExplanation) {
+  if (isCorrect) {
+    btn.classList.add('correct');
+    sqFeedback.textContent = 'Rätt!';
+    sqFeedback.className = 'sq-feedback correct';
+  } else {
+    btn.classList.add('wrong');
+    sqFeedback.textContent = wrongExplanation || 'Inte riktigt — kolla animationen!';
+    sqFeedback.className = 'sq-feedback wrong';
+  }
+  if (QZ.mode === 'A' && !isCorrect) {
+    // Mode A: low-friction — give a bit longer to read the explanation, then move forward
+    setTimeout(onDone, 1900);
+  } else {
+    onDone();
+  }
+}
+
+function nextQuestion() {
+  if (QZ.mode === 'A') startModeA();
+  else startModeB();
+}
+
+sqNextBtn.addEventListener('click', nextQuestion);
+
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  MODE C — MINITEST
+// ═══════════════════════════════════════════════════════════════════
+const MINITEST_COUNT = 10;
+let minitestExprs = [];
+
+const scrMinitest       = document.getElementById('scrMinitest');
+const scrMinitestResult = document.getElementById('scrMinitestResult');
+const minitestList      = document.getElementById('minitestList');
+const minitestResultList= document.getElementById('minitestResultList');
+const btnCheckMinitest  = document.getElementById('btnCheckMinitest');
+const btnMinitestAgain  = document.getElementById('btnMinitestAgain');
+const btnMinitestBack   = document.getElementById('btnMinitestBack');
+const cardModeC         = document.getElementById('cardModeC');
+
+function showScreenAll(name) {
+  scrModePicker.style.display      = name==='mode'    ? 'flex' : 'none';
+  scrLevelPicker.style.display     = name==='level'   ? 'flex' : 'none';
+  scrQuiz.style.display            = name==='quiz'    ? 'flex' : 'none';
+  scrSummary.style.display         = name==='summary' ? 'flex' : 'none';
+  scrMinitest.style.display        = name==='minitest'? 'flex' : 'none';
+  scrMinitestResult.style.display  = name==='result'  ? 'flex' : 'none';
+}
+
+function startMinitest() {
+  minitestExprs = [];
+  for (let i = 0; i < MINITEST_COUNT; i++) {
+    minitestExprs.push(generateExpr(QZ.level));
+  }
+
+  minitestList.innerHTML = '';
+  minitestExprs.forEach((expr, i) => {
+    const {t1, op, t2} = expr;
+    const opChar = op === '+' ? '+' : '−';
+    const row = document.createElement('div');
+    row.className = 'mt-row';
+    row.innerHTML = `
+      <span class="mt-expr">${fmtNum(t1)} ${opChar} ${fmtNum(t2)}</span>
+      <span class="mt-eq">=</span>
+      <input class="mt-input" id="mt-input-${i}" type="number" inputmode="numeric" placeholder="?">
+    `;
+    minitestList.appendChild(row);
+  });
+
+  // Focus first field
+  setTimeout(() => {
+    const first = document.getElementById('mt-input-0');
+    if (first) first.focus();
+  }, 100);
+
+  // Enter key moves to next field
+  for (let i = 0; i < MINITEST_COUNT; i++) {
+    const inp = document.getElementById(`mt-input-${i}`);
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const next = document.getElementById(`mt-input-${i+1}`);
+        if (next) next.focus();
+        else btnCheckMinitest.focus();
+      }
+    });
+  }
+
+  showScreenAll('minitest');
+}
+
+function checkMinitest() {
+  let correct = 0;
+  const rows = minitestList.querySelectorAll('.mt-row');
+
+  minitestResultList.innerHTML = '';
+
+  minitestExprs.forEach((expr, i) => {
+    const {t1, op, t2, answer} = expr;
+    const inp = document.getElementById(`mt-input-${i}`);
+    const guess = parseInt(inp.value, 10);
+    const isCorrect = !isNaN(guess) && guess === answer;
+    if (isCorrect) correct++;
+
+    const opChar = op === '+' ? '+' : '−';
+    const row = document.createElement('div');
+    row.className = 'mt-row';
+
+    let verdictHTML = '';
+    if (isNaN(guess)) {
+      verdictHTML = `<span class="mt-verdict wrong">Inget svar</span>`;
+    } else if (isCorrect) {
+      verdictHTML = `<span class="mt-verdict correct">✓ Rätt</span>`;
+    } else {
+      const explanation = explainAnswerError(t1, op, t2, answer, guess);
+      verdictHTML = `<span class="mt-verdict wrong">✗ Rätt svar: ${answer} — ${explanation}</span>`;
+    }
+
+    row.innerHTML = `
+      <span class="mt-expr">${fmtNum(t1)} ${opChar} ${fmtNum(t2)} = <b>${isNaN(guess)?'—':guess}</b></span>
+      ${verdictHTML}
+    `;
+    minitestResultList.appendChild(row);
+  });
+
+  // Score header
+  const emoji = correct >= 8 ? '🎉' : correct >= 5 ? '👍' : '💪';
+  const header = document.createElement('div');
+  header.style.cssText = 'text-align:center;font-family:Sora,sans-serif;font-size:1.1rem;font-weight:700;padding:8px 0;color:var(--accent);';
+  header.textContent = `${emoji} ${correct} av ${MINITEST_COUNT} rätt`;
+  minitestResultList.prepend(header);
+
+  QZ.correct += correct; QZ.total += MINITEST_COUNT; updateScoreBar();
+  showScreenAll('result');
+}
+
+btnCheckMinitest.addEventListener('click', checkMinitest);
+btnMinitestAgain.addEventListener('click', startMinitest);
+btnMinitestBack.addEventListener('click', () => showScreenAll('mode'));
+cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); });
+
+// ═══════════════════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS + HELP OVERLAY
+// ═══════════════════════════════════════════════════════════════════
+(function() {
+  const overlay = document.getElementById('kbOverlay');
+  const closeBtn = document.getElementById('kbClose');
+  const helpBtn  = document.getElementById('btnKeyHelp');
+
+  function open()  { overlay.style.display = 'flex'; }
+  function close() { overlay.style.display = 'none'; }
+
+  helpBtn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (overlay.style.display === 'flex') { if (e.key === 'Escape') close(); return; }
+    if (studentOverlay && studentOverlay.classList.contains('open')) return;
+    switch(e.key) {
+      case '?':         e.preventDefault(); open(); break;
+      case 'Escape':    if (studentOverlay) studentOverlay.classList.remove('open'); break;
+      case 'r': case 'R': e.preventDefault(); resetAll(); break;
+      case 'k': case 'K':
+        e.preventDefault();
+        S.kangMode = !S.kangMode; kangChk.checked = S.kangMode; render(1,0); break;
+      case 'l': case 'L':
+        e.preventDefault();
+        if (S.animating) break;
+        S.lockRange = !S.lockRange; updateLockButton();
+        if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
+        range = computeRange(S.t1, S.t2); render(1,0); break;
+      case '+': case '=':
+        e.preventDefault(); if (S.op !== '+') invertOperator(); break;
+      case '-': case '_':
+        e.preventDefault(); if (S.op !== '−') invertOperator(); break;
+      case 'u': case 'U':
+        e.preventDefault();
+        if (!S.showUtterance) { S.showUtterance=true; S.showFullUtterance=false; }
+        else if (!S.showFullUtterance) { S.showFullUtterance=true; }
+        else { S.showUtterance=false; S.showFullUtterance=false; }
+        updateUtteranceBtn(); render(1,0); break;
+      case 'e': case 'E': e.preventDefault(); toggleExpr(); break;
+      case 'v': case 'V': e.preventDefault(); btnRevl.click(); break;
+    }
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════
+loadFromURL();
+buildUserPearls();
+setExpr(5, '+', 3, false);
 </script>
 
 </body>
