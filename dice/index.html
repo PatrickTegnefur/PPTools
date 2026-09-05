@@ -22,7 +22,6 @@
       --ak7:       #66C7C2;
       --ak8:       #F4A261;
       --ak9:       #EC6095;
-      --accent3:#f8f6f7;
 
       --gradient:  linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
       --shadow:    rgba(48, 107, 240, 0.12);
@@ -39,11 +38,11 @@
       --text-dark:    #f2f0ff;
       --muted-dark:   #a39cc9;
 
-      --die1-ink:    var(--accent3);
+      --die1-ink:    var(--accent2);
       --die1-shadow: rgba(236, 96, 149, .28);
       --die1-glow:   rgba(236, 96, 149, .7);
 
-      --die2-ink:    var(--accent3);
+      --die2-ink:    var(--ak7);
       --die2-shadow: rgba(102, 199, 194, .3);
       --die2-glow:   rgba(102, 199, 194, .7);
 
@@ -57,10 +56,17 @@
     html[data-theme="dark"] .num-input { background: var(--surface-dark); border-color: var(--border-dark); color: var(--text-dark); }
     html[data-theme="dark"] .control-label,
     html[data-theme="dark"] .hist-label,
-    html[data-theme="dark"] .toggle-wrap { color: var(--muted-dark); }
-    html[data-theme="dark"] .hist-section { border-color: var(--border-dark); }
+    html[data-theme="dark"] .toggle-wrap,
+    html[data-theme="dark"] .freq-total,
+    html[data-theme="dark"] .freq-label,
+    html[data-theme="dark"] .freq-count { color: var(--muted-dark); }
+    html[data-theme="dark"] .hist-section,
+    html[data-theme="dark"] .freq-header { border-color: var(--border-dark); }
     html[data-theme="dark"] .toggle-track { background: var(--surface2-dark); border-color: var(--border-dark); }
-    html[data-theme="dark"] .hist-chip { background: var(--surface2-dark); border-color: var(--border-dark); }
+    html[data-theme="dark"] .hist-chip,
+    html[data-theme="dark"] .freq-track,
+    html[data-theme="dark"] .batch-btn,
+    html[data-theme="dark"] .freq-reset { background: var(--surface2-dark); border-color: var(--border-dark); color: var(--text-dark); }
 
     /* Tärningarnas sidor: ljust läge = fyllda kulörer + vit siffra (poppar mot ljus botten),
        mörkt läge = ljusa neutrala sidor + kulört bläck (poppar mot mörk botten). */
@@ -145,7 +151,7 @@
       max-width: 860px;
     }
 
-    /* Vertikal rad med tre diskreta ikonknappar: inställningar, kasta, historik.
+    /* Vertikal rad med diskreta ikonknappar: inställningar, kasta, historik, frekvens.
        Var och en har sin egen flytande popover (position: absolute) så att
        öppning/stängning aldrig trycker på tärningarnas layout. */
     .toolbar {
@@ -190,6 +196,7 @@
     }
     .hist-section { border-top: 1px solid var(--border); padding-top: .9rem; }
     #historyPanel .panel-body { width: 190px; }
+    #freqPanel .panel-body { width: 270px; }
 
     /* Den runda "kasta"-knappen — medvetet liten, tärningarna gör jobbet
        med att förklara sig själva, knappen är bara en snabb genväg. */
@@ -263,6 +270,44 @@
       animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
     }
     @keyframes popIn { from { transform:scale(0);opacity:0; } to { transform:scale(1);opacity:1; } }
+
+    /* ── Frekvenspanel ── */
+    .freq-header {
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border); padding-bottom: .8rem;
+    }
+    .freq-total { font-size: .78rem; font-weight: 700; color: var(--muted); }
+    .freq-reset {
+      font-family: 'Montserrat', sans-serif;
+      font-size: .72rem; font-weight: 700;
+      background: var(--surface2); color: var(--accent);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 5px 9px; cursor: pointer;
+    }
+    .batch-row { display: flex; gap: 6px; }
+    .batch-btn {
+      flex: 1;
+      font-family: 'Montserrat', sans-serif;
+      font-size: .8rem; font-weight: 700;
+      background: var(--surface2); color: var(--accent);
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      padding: 7px 0; cursor: pointer;
+      transition: border-color .15s;
+    }
+    .batch-btn:hover { border-color: var(--accent); }
+    .freq-chart {
+      display: flex; flex-direction: column; gap: 5px;
+      max-height: 220px; overflow-y: auto; padding-right: 2px;
+    }
+    .freq-row { display: flex; align-items: center; gap: 8px; }
+    .freq-label { width: 22px; font-size: .78rem; font-weight: 700; color: var(--muted); text-align: right; }
+    .freq-track {
+      flex: 1; height: 14px; border-radius: 7px;
+      background: var(--surface2); border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .freq-fill { height: 100%; background: var(--accent); border-radius: 7px; min-width: 2px; transition: width .3s; }
+    .freq-count { width: 62px; font-size: .72rem; color: var(--muted); }
 
     /* ─── Scen (bara tärningarna — inga siffror runtomkring) ─── */
     .stage {
@@ -359,7 +404,7 @@
         <div class="panel-body">
           <div class="control-group">
             <span class="control-label">Antal sidor</span>
-            <select id="sidesSelect" onchange="onSidesChange()">
+            <select id="sidesSelect" onchange="onSidesChange(); saveSettings();">
               <option value="4">4 sidor</option>
               <option value="6" selected>6 sidor</option>
               <option value="8">8 sidor</option>
@@ -368,7 +413,7 @@
               <option value="20">20 sidor</option>
               <option value="custom">Annat antal…</option>
             </select>
-            <input type="number" id="customSides" class="num-input hidden" min="2" max="100" value="7" oninput="clampCustomSides()">
+            <input type="number" id="customSides" class="num-input hidden" min="2" max="100" value="7" oninput="clampCustomSides(); onSidesChange(); saveSettings();">
           </div>
 
           <div class="control-group">
@@ -376,7 +421,7 @@
             <div class="toggle-wrap">
               <span id="labelOneDie" class="active">1</span>
               <label class="toggle">
-                <input type="checkbox" id="diceCountToggle" onchange="updateDiceCount()">
+                <input type="checkbox" id="diceCountToggle" onchange="updateDiceCount(); saveSettings();">
                 <div class="toggle-track"><div class="toggle-thumb"></div></div>
               </label>
               <span id="labelTwoDice">2</span>
@@ -388,10 +433,22 @@
             <div class="toggle-wrap">
               <span id="labelSnabb">Snabbt</span>
               <label class="toggle">
-                <input type="checkbox" id="suspenseToggle" checked onchange="updateSpeedLabel()">
+                <input type="checkbox" id="suspenseToggle" checked onchange="updateSpeedLabel(); saveSettings();">
                 <div class="toggle-track"><div class="toggle-thumb"></div></div>
               </label>
               <span id="labelSpanning" class="active">🎭 Spänning</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span class="control-label">Ljud</span>
+            <div class="toggle-wrap">
+              <span id="labelSoundOff" class="active">🔇</span>
+              <label class="toggle">
+                <input type="checkbox" id="soundToggle" onchange="updateSoundLabel(); saveSettings();">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+              </label>
+              <span id="labelSoundOn">🔊</span>
             </div>
           </div>
         </div>
@@ -406,6 +463,23 @@
             <span class="hist-label">Senaste kast</span>
             <div class="history" id="history"></div>
           </div>
+        </div>
+      </details>
+
+      <details class="panel" id="freqPanel">
+        <summary title="Frekvens" aria-label="Visa frekvenstabell">📊</summary>
+        <div class="panel-body">
+          <div class="freq-header">
+            <span class="freq-total" id="freqTotal">Totalt: 0 kast</span>
+            <button class="freq-reset" onclick="resetFrequencyManual()">Nollställ</button>
+          </div>
+          <div class="batch-row">
+            <button class="batch-btn" onclick="rollBatch(1)">1</button>
+            <button class="batch-btn" onclick="rollBatch(10)">10</button>
+            <button class="batch-btn" onclick="rollBatch(50)">50</button>
+            <button class="batch-btn" onclick="rollBatch(100)">100</button>
+          </div>
+          <div class="freq-chart" id="freqChart"></div>
         </div>
       </details>
     </div>
@@ -455,6 +529,8 @@ const dice = [
 dice.forEach(d => { d.faceEls = buildCube(d.cube); applyTransform(d.cube, 0, 0, 0); });
 
 const rollHistory = [];
+let freqCounts = [];
+let totalRolls = 0;
 
 function applyTransform(cubeEl, rx, ry, ms, easing) {
   cubeEl.style.transition = ms > 0
@@ -485,9 +561,12 @@ function clampCustomSides() {
 function onSidesChange() {
   const isCustom = document.getElementById('sidesSelect').value === 'custom';
   document.getElementById('customSides').classList.toggle('hidden', !isCustom);
+  resetFrequencyIfNeeded(getSides());
+  renderFrequencyChart();
 }
 function isDual() { return document.getElementById('diceCountToggle').checked; }
 function isSuspense() { return document.getElementById('suspenseToggle').checked; }
+function isSoundOn() { return document.getElementById('soundToggle').checked; }
 
 function updateDiceCount() {
   const dual = isDual();
@@ -503,16 +582,30 @@ function updateSpeedLabel() {
   document.getElementById('labelSnabb').classList.toggle('active', !on);
   document.getElementById('labelSpanning').classList.toggle('active', on);
 }
+function updateSoundLabel() {
+  const on = isSoundOn();
+  document.getElementById('labelSoundOff').classList.toggle('active', !on);
+  document.getElementById('labelSoundOn').classList.toggle('active', on);
+}
 function togglePresent() {
   const on = document.body.classList.toggle('present-mode');
   document.getElementById('presentBtn').textContent = on ? '🙈' : '👁️';
 }
-// Stäng en popover-panel om man klickar utanför den — håller verktygsraden diskret.
+// Stäng inställningspanelen om man klickar utanför den. Historik- och
+// frekvenspanelerna är riktiga toggles — de ligger kvar öppna även om man
+// klickar på tärningarna, och stängs bara via sin egen ikon.
 document.addEventListener('click', function (e) {
-  ['settingsPanel', 'historyPanel'].forEach(id => {
-    const panel = document.getElementById(id);
-    if (panel.open && !panel.contains(e.target)) panel.removeAttribute('open');
-  });
+  const panel = document.getElementById('settingsPanel');
+  if (panel.open && !panel.contains(e.target)) panel.removeAttribute('open');
+});
+
+// Mellanslag/Enter kastar tärningen/tärningarna när inget UI-element har fokus,
+// så man kan stå längre bort från datorn under en genomgång.
+document.addEventListener('keydown', function (e) {
+  if (e.code !== 'Space' && e.code !== 'Enter') return;
+  if (document.activeElement && document.activeElement !== document.body) return;
+  e.preventDefault();
+  rollAllActive();
 });
 
 function toggleTheme() {
@@ -520,6 +613,66 @@ function toggleTheme() {
   const dark = html.getAttribute('data-theme') === 'dark';
   html.setAttribute('data-theme', dark ? 'light' : 'dark');
   document.getElementById('themeBtn').textContent = dark ? '☀️' : '🌙';
+  saveSettings();
+}
+
+/* ── Ljud: en kort, självgenererad tärningsrassel-effekt via Web Audio API
+     (inga externa ljudfiler — filen är fortfarande helt självbärande). ── */
+function playSoundIfEnabled() {
+  if (!isSoundOn()) return;
+  try {
+    if (!window._diceAudioCtx) window._diceAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = window._diceAudioCtx;
+    const now = ctx.currentTime;
+    const clicks = 5;
+    for (let i = 0; i < clicks; i++) {
+      const t = now + i * 0.045 + Math.random() * 0.015;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = 650 + Math.random() * 500;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.16, t + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.06);
+    }
+  } catch (e) { /* tyst fallback om Web Audio saknas */ }
+}
+
+/* ── Frekvenstabell ── */
+function resetFrequencyIfNeeded(sides) {
+  if (freqCounts.length !== sides) {
+    freqCounts = new Array(sides).fill(0);
+    totalRolls = 0;
+  }
+}
+function recordFrequency(val, sides) {
+  resetFrequencyIfNeeded(sides);
+  freqCounts[val - 1]++;
+  totalRolls++;
+}
+function resetFrequencyManual() {
+  freqCounts = new Array(getSides()).fill(0);
+  totalRolls = 0;
+  renderFrequencyChart();
+}
+function renderFrequencyChart() {
+  const sides = getSides();
+  resetFrequencyIfNeeded(sides);
+  const max = Math.max(1, ...freqCounts);
+  document.getElementById('freqChart').innerHTML = freqCounts.map((c, idx) => {
+    const val = idx + 1;
+    const pct = totalRolls ? Math.round((c / totalRolls) * 100) : 0;
+    const widthPct = Math.round((c / max) * 100);
+    return `<div class="freq-row">
+      <span class="freq-label">${val}</span>
+      <div class="freq-track"><div class="freq-fill" style="width:${widthPct}%"></div></div>
+      <span class="freq-count">${c}${totalRolls ? ' (' + pct + '%)' : ''}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('freqTotal').textContent = 'Totalt: ' + totalRolls + ' kast';
 }
 
 function paintDie(die, sides, targetIndex, targetVal) {
@@ -531,8 +684,8 @@ function paintDie(die, sides, targetIndex, targetVal) {
   });
 }
 
-function spinDie(die, sides, suspense) {
-  const val = randInt(1, sides);
+function spinDie(die, sides, suspense, forcedVal) {
+  const val = (forcedVal !== undefined) ? forcedVal : randInt(1, sides);
   const targetIndex = randInt(0, 5);
   paintDie(die, sides, targetIndex, val);
   const target = FACES[targetIndex];
@@ -557,7 +710,10 @@ function rollDie(i) {
   const sides = getSides();
   const suspense = isSuspense();
   const duration = suspense ? 3500 : 900;
+  playSoundIfEnabled();
   const val = spinDie(die, sides, suspense);
+  recordFrequency(val, sides);
+  renderFrequencyChart();
 
   setTimeout(() => die.scene.classList.remove('suspense-rolling'), duration - 20);
   setTimeout(() => {
@@ -580,12 +736,15 @@ function rollAllActive() {
   const sides = getSides();
   const suspense = isSuspense();
   const duration = suspense ? 3500 : 900;
+  playSoundIfEnabled();
 
   const results = {};
   activeIdx.forEach(i => {
     dice[i].rolling = true;
     results[i] = spinDie(dice[i], sides, suspense);
+    recordFrequency(results[i], sides);
   });
+  renderFrequencyChart();
 
   setTimeout(() => activeIdx.forEach(i => dice[i].scene.classList.remove('suspense-rolling')), duration - 20);
   setTimeout(() => {
@@ -599,6 +758,45 @@ function rollAllActive() {
   }, duration + 30);
 }
 
+/* Snabba omgångskast (1/10/50/100) för att bygga upp frekvenstabellen fort.
+   Vid fler än 1 räknas alla omgångar direkt och bara den sista animeras
+   visuellt — annars skulle 100 kast ta för lång tid att titta på. */
+function rollBatch(n) {
+  if (n === 1) { rollAllActive(); return; }
+
+  const dual = isDual();
+  const activeIdx = dual ? [0, 1] : [0];
+  if (activeIdx.some(i => dice[i].rolling)) return;
+
+  const sides = getSides();
+  const suspense = isSuspense();
+  const duration = suspense ? 3500 : 900;
+
+  const finalVal = {};
+  for (let k = 0; k < n; k++) {
+    activeIdx.forEach(i => {
+      const val = randInt(1, sides);
+      recordFrequency(val, sides);
+      finalVal[i] = val;
+    });
+  }
+  renderFrequencyChart();
+  playSoundIfEnabled();
+
+  activeIdx.forEach(i => {
+    dice[i].rolling = true;
+    spinDie(dice[i], sides, suspense, finalVal[i]);
+  });
+
+  setTimeout(() => activeIdx.forEach(i => dice[i].scene.classList.remove('suspense-rolling')), duration - 20);
+  setTimeout(() => {
+    activeIdx.forEach(i => {
+      dice[i].rolling = false;
+      dice[i].scene.classList.remove('die-rolling');
+    });
+  }, duration + 30);
+}
+
 function trimAndRenderHistory() {
   if (rollHistory.length > 9) rollHistory.length = 9;
   document.getElementById('history').innerHTML = rollHistory.map(entry => {
@@ -609,6 +807,42 @@ function trimAndRenderHistory() {
     return `<div class="hist-chip" style="color:${color}">${entry.val}</div>`;
   }).join('');
 }
+
+/* ── Kom ihåg senaste val (localStorage) — filen körs fristående på
+     GitHub Pages, så webbläsarlagring fungerar utan problem här. ── */
+const SETTINGS_KEY = 'tarningInstallningar';
+function saveSettings() {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      sidesSelect: document.getElementById('sidesSelect').value,
+      customSides: document.getElementById('customSides').value,
+      dual: isDual(),
+      suspense: isSuspense(),
+      sound: isSoundOn(),
+      theme: document.documentElement.getAttribute('data-theme') || 'light'
+    }));
+  } catch (e) { /* localStorage kan vara blockerad, t.ex. i vissa iframes */ }
+}
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.sidesSelect) document.getElementById('sidesSelect').value = data.sidesSelect;
+    if (data.customSides) document.getElementById('customSides').value = data.customSides;
+    onSidesChange();
+    if (typeof data.dual === 'boolean') { document.getElementById('diceCountToggle').checked = data.dual; updateDiceCount(); }
+    if (typeof data.suspense === 'boolean') { document.getElementById('suspenseToggle').checked = data.suspense; updateSpeedLabel(); }
+    if (typeof data.sound === 'boolean') { document.getElementById('soundToggle').checked = data.sound; updateSoundLabel(); }
+    if (data.theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.getElementById('themeBtn').textContent = '🌙';
+    }
+  } catch (e) { /* ogiltig eller saknad data — kör bara med standardvärden */ }
+}
+
+loadSettings();
+renderFrequencyChart();
 </script>
 
 </body>
