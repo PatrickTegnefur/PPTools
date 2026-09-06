@@ -47,6 +47,7 @@
       --die2-glow:   rgba(102, 199, 194, .7);
 
       --die-size: 150px;
+      --coin-thickness: 15px;
     }
 
     html[data-theme="dark"] body { background: var(--bg-dark); color: var(--text-dark); }
@@ -68,8 +69,8 @@
     html[data-theme="dark"] .batch-btn,
     html[data-theme="dark"] .freq-reset { background: var(--surface2-dark); border-color: var(--border-dark); color: var(--text-dark); }
 
-    /* Tärningarnas sidor: ljust läge = fyllda kulörer + vit siffra (poppar mot ljus botten),
-       mörkt läge = ljusa neutrala sidor + kulört bläck (poppar mot mörk botten). */
+    /* Tärningarnas sidor: fyllda kulörer + vit siffra, oavsett tema —
+       samma tydliga kontrast i både ljust och mörkt läge. */
     #scene1 .face.front  { background: #f17ba6; }
     #scene1 .face.top    { background: #f492b7; }
     #scene1 .face.right  { background: #EC6095; }
@@ -86,27 +87,17 @@
 
     .face-value { color: #ffffff; }
 
-    html[data-theme="dark"] .face.front  { background: #ffffff; }
-    html[data-theme="dark"] .face.back   { background: #f5f3ff; }
-    html[data-theme="dark"] .face.top    { background: #fafafe; }
-    html[data-theme="dark"] .face.bottom { background: #eae6fc; }
-    html[data-theme="dark"] .face.right  { background: #f0eeff; }
-    html[data-theme="dark"] .face.left   { background: #ece8ff; }
-    html[data-theme="dark"] #scene1 .face-value { color: var(--die1-ink); }
-    html[data-theme="dark"] #scene2 .face-value { color: var(--die2-ink); }
-
-    /* ── Mynt: samma ljus/mörk-logik som tärningarna, återanvänder
-       front/back-kulörerna som "krona"/"klave"-sidor. ── */
+    /* ── Mynt: samma princip — fyllda kulörer + vit text i båda teman. ── */
     #coinScene1 .coin-face.heads { background: #f17ba6; }
     #coinScene1 .coin-face.tails { background: #c04a79; }
     #coinScene2 .coin-face.heads { background: #85d4cf; }
     #coinScene2 .coin-face.tails { background: #479c98; }
     .coin-label { color: #ffffff; }
 
-    html[data-theme="dark"] .coin-face.heads { background: #ffffff; }
-    html[data-theme="dark"] .coin-face.tails { background: #f5f3ff; }
-    html[data-theme="dark"] #coinScene1 .coin-label { color: var(--die1-ink); }
-    html[data-theme="dark"] #coinScene2 .coin-label { color: var(--die2-ink); }
+    /* Myntkanten (tjockleken) — mörkaste tonen av respektive myntfärg,
+       ger en tydlig "rand" runt myntet oavsett tema. */
+    #coinScene1 .coin-rim-seg { background: #a83f68; }
+    #coinScene2 .coin-rim-seg { background: #3a8884; }
 
     body {
       font-family: 'Montserrat', sans-serif;
@@ -154,12 +145,16 @@
     body.present-mode .hide-in-present { display: none !important; }
 
     /* ─── Layout: liten diskret verktygsrad + scen ─── */
-    .main { display: flex; justify-content: center; padding: 5.5rem 1.5rem 2.5rem; }
+    .main { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5.5rem 1.5rem 2.5rem; }
+    /* Grid med symmetriska sidokolumner (samma bredd som verktygsraden på
+       en osynlig spegel-kolumn till höger) — det gör att scenen hamnar
+       exakt i mitten av samma bredd som panelraden under, så tärningarnas
+       och panelernas mittpunkter alltid linjerar upp mot varandra. */
     .layout {
-      display: flex;
+      display: grid;
+      grid-template-columns: 38px 1fr 38px;
+      align-items: start;
       gap: 1.5rem;
-      align-items: flex-start;
-      justify-content: center;
       width: 100%;
       max-width: 860px;
     }
@@ -205,8 +200,62 @@
       transition: background .25s, border-color .25s;
     }
     .hist-section { border-top: 1px solid var(--border); padding-top: .9rem; }
-    #historyPanel .panel-body { width: 190px; }
-    #freqPanel .panel-body { width: 270px; }
+    /* Historik och frekvens är nu dockade paneler under scenen istället
+       för flytande popovers, så de aldrig krockar med varandra. */
+    .toggle-icon-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 1.05rem;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: border-color .2s, background .15s;
+    }
+    .toggle-icon-btn.active { border-color: var(--accent); }
+    html[data-theme="dark"] .toggle-icon-btn { background: var(--surface-dark); border-color: var(--border-dark); }
+
+    /* Historik/frekvens-raden glider in underifrån istället för att bara
+       poppa upp — och ligger på en egen rad under scenen (grid-rows-tricket
+       animerar höjden utan att vi behöver känna till innehållets storlek). */
+    .lower-panels-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      width: 100%;
+      transition: grid-template-rows .35s ease;
+    }
+    .lower-panels-wrap.visible { grid-template-rows: 1fr; }
+    .lower-panels-wrap > .lower-panels-inner { overflow: hidden; min-height: 0; }
+
+    .lower-panels {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      padding-top: 2rem;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .3s ease, transform .35s ease;
+    }
+    .lower-panels-wrap.visible .lower-panels { opacity: 1; transform: translateY(0); }
+    .lower-panel {
+      flex: 1 1 220px;
+      max-width: 320px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 28px var(--shadow);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      transition: background .25s, border-color .25s;
+    }
+    html[data-theme="dark"] .lower-panel { background: var(--surface-dark); border-color: var(--border-dark); }
 
     .roll-icon-btn {
       width: 38px; height: 38px;
@@ -223,6 +272,30 @@
     .roll-icon-btn:hover { background: #1f58d4; }
     .roll-icon-btn:active { transform: scale(.92); }
     .roll-icon-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* Snabbväxlare för antal föremål (1/2) — egen liten kontroll utanför
+       inställningarna, för att slippa öppna panelen varje gång. */
+    .segmented {
+      display: flex;
+      border: 1.5px solid var(--border);
+      border-radius: 19px;
+      background: var(--surface);
+      box-shadow: 0 2px 8px var(--shadow);
+      overflow: hidden;
+    }
+    .seg-btn {
+      width: 19px; height: 38px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Montserrat', sans-serif;
+      font-size: .78rem; font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .seg-btn.active { background: var(--accent); color: #fff; }
+    html[data-theme="dark"] .segmented { background: var(--surface-dark); border-color: var(--border-dark); }
+    html[data-theme="dark"] .seg-btn { color: var(--muted-dark); }
 
     .control-group { display: flex; flex-direction: column; gap: .45rem; }
     .control-label, .hist-label { font-size: .78rem; font-weight: 700; color: var(--muted); }
@@ -401,8 +474,19 @@
       -webkit-backface-visibility: hidden;
       box-shadow: inset 0 0 0 6px rgba(255,255,255,.15);
     }
-    .coin-face.heads { transform: translateZ(.5px); }
-    .coin-face.tails { transform: rotateY(180deg) translateZ(.5px); }
+    .coin-face.heads { transform: translateZ(calc(var(--coin-thickness) / 2)); }
+    .coin-face.tails { transform: rotateY(180deg) translateZ(calc(var(--coin-thickness) / 2)); }
+
+    /* Myntkant — en ring av smala segment runt Y-axeln som ger myntet
+       en verklig tjocklek, synlig särskilt när det vänder kant-mot-kameran. */
+    .coin-rim-seg {
+      position: absolute;
+      left: 50%; top: 50%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 -1px 0 rgba(0,0,0,.2);
+    }
+
     .coin-label {
       font-family: 'Montserrat', sans-serif;
       font-weight: 800;
@@ -470,18 +554,6 @@
           </div>
 
           <div class="control-group">
-            <span class="control-label" id="countLabel">Antal tärningar</span>
-            <div class="toggle-wrap">
-              <span id="labelOneDie" class="active">1</span>
-              <label class="toggle">
-                <input type="checkbox" id="diceCountToggle" onchange="updateDiceCount(); saveSettings();">
-                <div class="toggle-track"><div class="toggle-thumb"></div></div>
-              </label>
-              <span id="labelTwoDice">2</span>
-            </div>
-          </div>
-
-          <div class="control-group">
             <span class="control-label">Hastighet</span>
             <div class="toggle-wrap">
               <span id="labelSnabb">Snabbt</span>
@@ -509,32 +581,14 @@
 
       <button class="roll-icon-btn" id="rollBtn" onclick="rollAllActive()" title="Kasta tärningen" aria-label="Kasta tärningen">🎲</button>
 
-      <details class="panel" id="historyPanel">
-        <summary title="Senaste kast" aria-label="Visa senaste kast">🕓</summary>
-        <div class="panel-body">
-          <div class="hist-section" style="border-top:none; padding-top:0;">
-            <span class="hist-label">Senaste kast</span>
-            <div class="history" id="history"></div>
-          </div>
-        </div>
-      </details>
+      <div class="segmented" id="countSegment" title="Antal föremål" role="group" aria-label="Antal föremål">
+        <button class="seg-btn active" data-count="1" onclick="setCount(1)">1</button>
+        <button class="seg-btn" data-count="2" onclick="setCount(2)">2</button>
+      </div>
 
-      <details class="panel" id="freqPanel">
-        <summary title="Frekvens" aria-label="Visa frekvenstabell">📊</summary>
-        <div class="panel-body">
-          <div class="freq-header">
-            <span class="freq-total" id="freqTotal">Totalt: 0 kast</span>
-            <button class="freq-reset" onclick="resetFrequencyManual()">Nollställ</button>
-          </div>
-          <div class="batch-row">
-            <button class="batch-btn" onclick="rollBatch(1)">1</button>
-            <button class="batch-btn" onclick="rollBatch(10)">10</button>
-            <button class="batch-btn" onclick="rollBatch(50)">50</button>
-            <button class="batch-btn" onclick="rollBatch(100)">100</button>
-          </div>
-          <div class="freq-chart" id="freqChart"></div>
-        </div>
-      </details>
+      <button class="toggle-icon-btn" id="historyToggleBtn" onclick="toggleHistoryDock()" title="Senaste kast" aria-label="Visa/dölj senaste kast">🕓</button>
+
+      <button class="toggle-icon-btn" id="freqToggleBtn" onclick="toggleFreqDock()" title="Frekvens" aria-label="Visa/dölj frekvenstabell">📊</button>
     </div>
 
     <div class="stage">
@@ -554,6 +608,31 @@
           <div class="coin" id="coin2"></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="lower-panels-wrap hide-in-present" id="lowerPanelsWrap">
+    <div class="lower-panels-inner">
+    <div class="lower-panels" id="lowerPanels">
+    <div class="lower-panel" id="historyDock" style="display:none;">
+      <span class="hist-label">Senaste kast</span>
+      <div class="history" id="history"></div>
+    </div>
+
+    <div class="lower-panel" id="freqDock" style="display:none;">
+      <div class="freq-header">
+        <span class="freq-total" id="freqTotal">Totalt: 0 kast</span>
+        <button class="freq-reset" onclick="resetFrequencyManual()">Nollställ</button>
+      </div>
+      <div class="batch-row">
+        <button class="batch-btn" onclick="rollBatch(1)">1</button>
+        <button class="batch-btn" onclick="rollBatch(10)">10</button>
+        <button class="batch-btn" onclick="rollBatch(50)">50</button>
+        <button class="batch-btn" onclick="rollBatch(100)">100</button>
+      </div>
+      <div class="freq-chart" id="freqChart"></div>
+    </div>
+    </div>
     </div>
   </div>
 </main>
@@ -594,7 +673,30 @@ function buildCoin(coinEl) {
     coinEl.appendChild(face);
     faceEls[cls] = face;
   });
+  buildCoinRim(coinEl);
   return faceEls;
+}
+
+/* Bygger myntets kant av tunna segment rotarede runt Y-axeln — samma knep
+   som brukar användas för att simulera en cylinder i CSS 3D. */
+function buildCoinRim(coinEl) {
+  const root = getComputedStyle(document.documentElement);
+  const size = parseFloat(root.getPropertyValue('--die-size')) || 150;
+  const thickness = parseFloat(root.getPropertyValue('--coin-thickness')) || 15;
+  const radius = size / 2;
+  const segments = 18;
+  const angleStep = 360 / segments;
+  const chord = 2 * radius * Math.sin(Math.PI / segments) * 1.18; // lätt överlapp, undviker glipor
+  for (let i = 0; i < segments; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'coin-rim-seg';
+    seg.style.width = chord + 'px';
+    seg.style.height = thickness + 'px';
+    seg.style.marginLeft = (-chord / 2) + 'px';
+    seg.style.marginTop = (-thickness / 2) + 'px';
+    seg.style.transform = `rotateZ(${i * angleStep}deg) rotateX(90deg) translateZ(${radius}px)`;
+    coinEl.appendChild(seg);
+  }
 }
 
 const dice = [
@@ -646,7 +748,8 @@ function onSidesChange() {
   resetFrequencyIfNeeded();
   renderFrequencyChart();
 }
-function isDual() { return document.getElementById('diceCountToggle').checked; }
+let itemCount = 1;
+function isDual() { return itemCount === 2; }
 function isSuspense() { return document.getElementById('suspenseToggle').checked; }
 function isSoundOn() { return document.getElementById('soundToggle').checked; }
 function isCoinMode() { return document.getElementById('modeToggle').checked; }
@@ -665,7 +768,7 @@ function updateMode() {
   document.getElementById('diceGroup').style.display = coin ? 'none' : 'flex';
   document.getElementById('coinGroup').style.display = coin ? 'flex' : 'none';
   document.getElementById('sidesGroup').style.display = coin ? 'none' : 'flex';
-  document.getElementById('countLabel').textContent = coin ? 'Antal mynt' : 'Antal tärningar';
+  document.getElementById('countSegment').title = coin ? 'Antal mynt' : 'Antal tärningar';
   document.getElementById('labelModeDice').classList.toggle('active', !coin);
   document.getElementById('labelModeCoin').classList.toggle('active', coin);
   updateRollBtnState();
@@ -673,13 +776,17 @@ function updateMode() {
   renderFrequencyChart();
 }
 
-function updateDiceCount() {
-  const dual = isDual();
-  document.getElementById('labelOneDie').classList.toggle('active', !dual);
-  document.getElementById('labelTwoDice').classList.toggle('active', dual);
-  document.getElementById('scene2').classList.toggle('die-hidden', !dual);
-  document.getElementById('coinScene2').classList.toggle('die-hidden', !dual);
+/* Snabbväxlaren för 1/2 föremål — egen kontroll i verktygsraden istället
+   för att ligga gömd inne i inställningarna. */
+function setCount(n) {
+  itemCount = n;
+  document.querySelectorAll('#countSegment .seg-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.count, 10) === n);
+  });
+  document.getElementById('scene2').classList.toggle('die-hidden', n !== 2);
+  document.getElementById('coinScene2').classList.toggle('die-hidden', n !== 2);
   updateRollBtnState();
+  saveSettings();
 }
 function updateSpeedLabel() {
   const on = isSuspense();
@@ -695,9 +802,31 @@ function togglePresent() {
   const on = document.body.classList.toggle('present-mode');
   document.getElementById('presentBtn').textContent = on ? '🙈' : '👁️';
 }
-// Stäng inställningspanelen om man klickar utanför den. Historik- och
-// frekvenspanelerna är riktiga toggles — de ligger kvar öppna även om man
-// klickar på tärningarna/mynten, och stängs bara via sin egen ikon.
+
+/* Historik och frekvens dockas nu under scenen istället för att vara
+   flytande popovers — så de aldrig kan krocka med varandra, och delar
+   utrymmet i sidled när båda är öppna samtidigt. */
+function updateLowerPanelsVisibility() {
+  const historyOpen = document.getElementById('historyDock').style.display !== 'none';
+  const freqOpen = document.getElementById('freqDock').style.display !== 'none';
+  document.getElementById('lowerPanelsWrap').classList.toggle('visible', historyOpen || freqOpen);
+}
+function toggleHistoryDock() {
+  const dock = document.getElementById('historyDock');
+  const show = dock.style.display === 'none';
+  dock.style.display = show ? 'flex' : 'none';
+  document.getElementById('historyToggleBtn').classList.toggle('active', show);
+  updateLowerPanelsVisibility();
+}
+function toggleFreqDock() {
+  const dock = document.getElementById('freqDock');
+  const show = dock.style.display === 'none';
+  dock.style.display = show ? 'flex' : 'none';
+  document.getElementById('freqToggleBtn').classList.toggle('active', show);
+  updateLowerPanelsVisibility();
+}
+
+// Stäng inställningspanelen om man klickar utanför den.
 document.addEventListener('click', function (e) {
   const panel = document.getElementById('settingsPanel');
   if (panel.open && !panel.contains(e.target)) panel.removeAttribute('open');
@@ -1007,7 +1136,7 @@ function saveSettings() {
       mode: isCoinMode() ? 'coin' : 'dice',
       sidesSelect: document.getElementById('sidesSelect').value,
       customSides: document.getElementById('customSides').value,
-      dual: isDual(),
+      count: itemCount,
       suspense: isSuspense(),
       sound: isSoundOn(),
       theme: document.documentElement.getAttribute('data-theme') || 'light'
@@ -1022,7 +1151,7 @@ function loadSettings() {
     if (data.sidesSelect) document.getElementById('sidesSelect').value = data.sidesSelect;
     if (data.customSides) document.getElementById('customSides').value = data.customSides;
     onSidesChange();
-    if (typeof data.dual === 'boolean') { document.getElementById('diceCountToggle').checked = data.dual; updateDiceCount(); }
+    if (data.count === 1 || data.count === 2) { setCount(data.count); }
     if (typeof data.suspense === 'boolean') { document.getElementById('suspenseToggle').checked = data.suspense; updateSpeedLabel(); }
     if (typeof data.sound === 'boolean') { document.getElementById('soundToggle').checked = data.sound; updateSoundLabel(); }
     if (data.mode === 'coin') { document.getElementById('modeToggle').checked = true; updateMode(); }
