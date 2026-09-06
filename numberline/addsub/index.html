@@ -60,11 +60,37 @@
   .lt-btn.play-next{ background:#18a348; color:#fff; border-color:#18a348; }
   .lt-btn.play-reset{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
   .lt-btn.reveal-ready{ background:var(--accent2); color:#fff; border-color:var(--accent2); }
+  .lt-btn.reveal-full{ background:#8B5CF6; color:#fff; border-color:#8B5CF6; }
   .lt-btn.reveal-dim{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
   .lt-btn.kang-on{ background:#F4A261 !important; color:#fff !important; border-color:#F4A261 !important; }
   .lt-btn.kang-on:hover{ background:#e8954a !important; }
   .lt-btn.nav-preset{ background:#EAFBF8; border-color:#5EEAD4; color:#0D9488; }
   .lt-btn.nav-preset:hover{ background:#CFF5EF; border-color:#0D9488; color:#0D9488; }
+  .pearl-nav-btn{
+    position:absolute; width:28px; height:28px; border-radius:50%;
+    border:1.5px solid var(--border); background:rgba(255,255,255,.95); color:var(--muted);
+    font-size:.72rem; font-weight:700; cursor:pointer; z-index:20;
+    display:flex; align-items:center; justify-content:center;
+    transform:translate(-50%,-50%); transition:all .15s;
+    box-shadow:0 1px 5px rgba(16,14,40,.1); padding:0;
+  }
+  .pearl-nav-btn:hover{ background:#f0eefa; border-color:#b8b0e0; }
+  .pearl-nav-btn.nav-preset{ background:#EAFBF8dd; border-color:#5EEAD4; color:#0D9488; }
+  .pearl-nav-btn.nav-preset:hover{ background:#CFF5EF; border-color:#0D9488; }
+  .pearl-nav-btn.bridge-play{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .pearl-nav-btn.bridge-play:hover{ background:#255bd6; }
+  .pearl-nav-btn.bridge-reset{ background:var(--surface2); border-color:var(--border); color:var(--muted); }
+  .pearl-nav-btn.bridge-reset:hover{ background:#e5e1f5; }
+  .pearl-nav-btn.invert-right{ color:#66C7C2; border-color:#66C7C2; background:#fff; }
+  .pearl-nav-btn.invert-right:hover{ background:#66C7C2; color:#fff; }
+  .pearl-nav-btn.invert-left{ color:#EC6095; border-color:#EC6095; background:#fff; }
+  .pearl-nav-btn.invert-left:hover{ background:#EC6095; color:#fff; }
+  .pearl-nav-btn.expr-active{ background:var(--accent2); border-color:var(--accent2); color:#fff; }
+  .pearl-nav-btn.reveal-ready{ background:var(--accent2); border-color:var(--accent2); color:#fff; }
+  .pearl-nav-btn.reveal-full{ background:#8B5CF6; border-color:#8B5CF6; color:#fff; }
+  .pearl-nav-btn.utter-on{ background:#7c3aed; border-color:#7c3aed; color:#fff; }
+  .pearl-nav-btn.utter-full{ background:#EC6095; border-color:#EC6095; color:#fff; }
+  .pearl-nav-btn.utter-mini{ position:static; transform:none; }
   .lt-sep{ width:100%; height:1.5px; background:var(--border); margin:3px 0; }
   .lt-btn.invert-right{ color:#66C7C2; border-color:#66C7C2; }
   .lt-btn.invert-right:hover{ background:#66C7C2; color:#fff; }
@@ -443,10 +469,6 @@
 
     <!-- UTTRYCK: allt som rör att sätta/visa/spara/bläddra i uttrycket -->
     <div class="lt-group-label">Uttryck</div>
-    <button class="lt-btn active" id="ltBtnExpr"><span>𝑓</span><span class="lt-tip">Visa/dölj uttrycket</span></button>
-    <button class="lt-btn invert-right" id="ltBtnInvert"><span>+</span><span class="lt-tip">Växla + / −</span></button>
-    <button class="lt-btn nav-preset" id="ltBtnPrevPreset"><span>◀</span><span class="lt-tip">Föregående uttryck</span></button>
-    <button class="lt-btn nav-preset" id="ltBtnNextPreset"><span>▶</span><span class="lt-tip">Nästa uttryck</span></button>
     <button class="lt-btn" id="ltBtnRandom"><span>🎲</span><span class="lt-tip">Slumpa uttryck</span></button>
     <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
     <div class="lt-sep"></div>
@@ -454,8 +476,6 @@
     <!-- SVAR: köra animationen och presentera svaret -->
     <div class="lt-group-label">Svar</div>
     <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
-    <button class="lt-btn reveal-ready" id="ltBtnReveal"><span>👁</span><span class="lt-tip">Visa svar</span></button>
-    <button class="lt-btn" id="ltBtnUtter"><span>🗣</span><span class="lt-tip">Uttalat uttryck</span></button>
     <button class="lt-btn" id="ltBtnColorNumbers"><span>🎨</span><span class="lt-tip">Färgkoda tal (positiva/negativa)</span></button>
     <div class="lt-sep"></div>
 
@@ -464,13 +484,15 @@
     <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
     <button class="lt-btn" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
     <button class="lt-btn" id="ltBtnPlacement"><span>🙈</span><span class="lt-tip">Placeringsläge (dölj roboten)</span></button>
-    <button class="lt-btn" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Visa riktningspilen (annars bara huvud-triangeln)</span></button>
+    <button class="lt-btn" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Visa/dölj riktningspilen (döljs helt utanför placeringsläget — bra för diskussion)</span></button>
     <div class="lt-sep"></div>
 
     <!-- VERKTYG -->
     <div class="lt-group-label">Verktyg</div>
     <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
     <button class="lt-btn" id="ltBtnExport"><span>📷</span><span class="lt-tip">Exportera bild</span></button>
+    <button class="lt-btn" id="btnStudentMode"><span>🎓</span><span class="lt-tip">Elevläge</span></button>
+    <button class="lt-btn" id="btnKeyHelp"><span>?</span><span class="lt-tip">Tangentbordsgenvägar</span></button>
     <div class="lt-sep"></div>
 
     <!-- hidden refs for JS compat -->
@@ -511,10 +533,20 @@
       <button id="btnExplainSteps">💡</button>
       <input type="checkbox" id="slowToggle" style="display:none" checked>
     </span>
-    <div class="float-toolbar" id="floatToolbar">
-      <button class="icon-btn" id="btnStudentMode" title="Elevläge">🎓</button>
-      <button class="icon-btn" id="btnKeyHelp" title="Tangentbordsgenvägar (?)">?</button>
+    <div class="float-toolbar force-visible" id="floatToolbar" style="background:none;border:none;box-shadow:none;padding:0;gap:0;">
+      <button class="pearl-nav-btn utter-mini" id="canvasBtnUtter" title="Uttalat uttryck">🗣</button>
     </div>
+
+    <!-- kommandobrygga: bläddring + spela/återställ, till vänster om pärlbandet -->
+    <button class="pearl-nav-btn nav-preset" id="canvasBtnPrevPreset" title="Föregående uttryck">◀</button>
+    <button class="pearl-nav-btn nav-preset" id="canvasBtnNextPreset" title="Nästa uttryck">▶</button>
+    <button class="pearl-nav-btn bridge-play" id="canvasBtnPlay" title="Animera">▶</button>
+    <button class="pearl-nav-btn bridge-reset" id="canvasBtnReset" title="Återställ uttrycket">↺</button>
+
+    <!-- klunga vid uttrycksrutan: visa/dölj, växla tecken, visa lösning -->
+    <button class="pearl-nav-btn" id="canvasBtnExprToggle" title="Visa/dölj uttrycket">𝑓</button>
+    <button class="pearl-nav-btn invert-right" id="canvasBtnInvert" title="Växla + / −">+</button>
+    <button class="pearl-nav-btn" id="canvasBtnReveal" title="Visa lösning">👁</button>
   </div>
   </div>
 
@@ -810,7 +842,7 @@ const S = {
   placementMode:false,  // when true, the robot is hidden on every new expression until manually placed + given a direction
   needsPlacement:false, // true = robot hidden, waiting for a click on the number line to set its start position
   needsDirection:false, // true = robot placed but facing is neutral, waiting for a click to choose left/right
-  hideDirArrow:false,   // when true (placeringsläge only), the arrow above the head is skipped — only the head triangle shows facing
+  hideDirArrow:false,   // when true, the arrow above the head is skipped (usable in any mode, not just placeringsläge)
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -825,11 +857,11 @@ const floatToolbar  = document.getElementById('floatToolbar');
 const btnTotalToggle= document.getElementById('btnTotalToggle');
 const btnToggleExpr       = document.getElementById('btnToggleExpr');
 const btnToggleExprInline = document.getElementById('btnToggleExprInline');
-const ltBtnExpr   = document.getElementById('ltBtnExpr');
-const ltBtnInvert = document.getElementById('ltBtnInvert');
-const ltBtnUtter  = document.getElementById('ltBtnUtter');
+const ltBtnExpr   = document.getElementById('canvasBtnExprToggle');
+const ltBtnInvert = document.getElementById('canvasBtnInvert');
+const ltBtnUtter  = document.getElementById('canvasBtnUtter');
 const ltBtnPlay   = document.getElementById('ltBtnPlay');
-const ltBtnReveal = document.getElementById('ltBtnReveal');
+const ltBtnReveal = document.getElementById('canvasBtnReveal');
 const ltBtnSave   = document.getElementById('ltBtnSave');
 const ltBtnKang   = document.getElementById('ltBtnKang');
 const ltBtnLock   = document.getElementById('ltBtnLock');
@@ -951,7 +983,7 @@ function drawExprBox() {
   const opChar   = S.op==='+'?'+':'−';
   const mainExpr = `${fmtNum(S.t1)} ${opChar} ${fmtNum(S.t2)}`;
   const alt      = altForm(S.t1, S.op, S.t2);
-  const step     = S.revealStep || 0;
+  const mode     = S.revealStep || 0; // 0=dold, 1=bara svar, 2=svar med tolkning/minnesregel
 
   const FS  = 24;   // larger for classroom visibility
   const pad = 14;
@@ -962,8 +994,8 @@ function drawExprBox() {
   ctx.textAlign = 'left';
 
   let chain = mainExpr + '  =';
-  if (step >= 1 && alt) chain += `  ${alt.label}  =`;
-  if (step >= 2)        chain += `  ${S.answer}`;
+  if (mode === 2 && alt) chain += `  ${alt.label}  =`;
+  if (mode >= 1)         chain += `  ${S.answer}`;
 
   const chainW = ctx.measureText(chain).width;
   const boxW = chainW + pad*2;
@@ -992,11 +1024,11 @@ function drawExprBox() {
   }
   piece(mainExpr, '#100e28');
   piece('  =', '#585078');
-  if (step >= 1 && alt) {
+  if (mode === 2 && alt) {
     piece(`  ${alt.label}`, '#18a348');
     piece('  =', '#585078');
   }
-  if (step >= 2) piece(`  ${S.answer}`, '#306BF0');
+  if (mode >= 1) piece(`  ${S.answer}`, '#306BF0');
 
   ctx.textBaseline = 'alphabetic';
 }
@@ -1294,7 +1326,7 @@ function drawRobot(worldX, scaleX, walkPhase, neutral) {
   ctx.fillStyle='#EC6095'; ctx.beginPath(); ctx.arc(0,-101,4,0,Math.PI*2); ctx.fill();
 
   ctx.restore();
-  if (!(S.placementMode && S.hideDirArrow)) {
+  if (!S.hideDirArrow) {
     drawDirectionArrow(x, baseY-bob-118, neutral ? null : facingRight);
   }
 }
@@ -1511,6 +1543,7 @@ function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robot
   drawPearlBand();
   drawUserPearlBand();
   updateLeftToolbar();
+  positionPearlNavButtons();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1641,7 +1674,7 @@ function continueAnimation() {
 
 function finishAnimation() {
   S.animating=false; S.phase='done';
-  S.revealStep=2;   // svaret visas nu automatiskt så fort animationen är klar
+  if (S.revealStep < 1) S.revealStep = 1;   // minst svaret visas automatiskt när animationen är klar
   S.canvasHint='';
   btnAnim.disabled=false;
   btnRevl.style.display='';
@@ -2006,7 +2039,7 @@ ltBtnPlacement.addEventListener('click', () => {
 });
 
 ltBtnHideArrow.addEventListener('click', () => {
-  if (S.animating || !S.placementMode) return;
+  if (S.animating) return;
   S.hideDirArrow = !S.hideDirArrow;
   render(1, 0);
   saveSettings();
@@ -2278,13 +2311,13 @@ function updateLeftToolbar() {
   // Expr toggle
   const exprActive = S.showExpr;
   btnToggleExpr.classList.toggle('active', exprActive);
-  ltBtnExpr.classList.toggle('active', exprActive);
+  ltBtnExpr.classList.toggle('expr-active', exprActive);
 
   // Invert operator
   updateInvertButton();   // updates btnInvertOp in float toolbar
   const facingRight = S.op === '+';
-  ltBtnInvert.className = 'lt-btn ' + (facingRight ? 'invert-right' : 'invert-left');
-  ltBtnInvert.querySelector('span').textContent = facingRight ? '+' : '−';
+  ltBtnInvert.className = 'pearl-nav-btn ' + (facingRight ? 'invert-right' : 'invert-left');
+  ltBtnInvert.textContent = facingRight ? '+' : '−';
 
   // Kang
   ltBtnKang.className = 'lt-btn' + (S.kangMode ? ' kang-on' : '');
@@ -2292,19 +2325,26 @@ function updateLeftToolbar() {
   // Lås tallinje / Placeringsläge / Visa riktningspil / Färgkoda tal
   ltBtnLock.classList.toggle('active', S.lockRange);
   ltBtnPlacement.classList.toggle('active', S.placementMode);
-  ltBtnHideArrow.disabled = !S.placementMode;
-  ltBtnHideArrow.classList.toggle('active', S.placementMode && !S.hideDirArrow);
+  ltBtnHideArrow.disabled = false;
+  ltBtnHideArrow.classList.toggle('active', !S.hideDirArrow);
   ltBtnColorNumbers.classList.toggle('active', S.showColorNumbers);
 
   // Step arrows
   ltBtnArrows.className = 'lt-btn' + (S.showStepArrows ? ' active' : '');
 
-  // Utterance
-  ltBtnUtter.className = 'lt-btn';
-  if (S.showFullUtterance) ltBtnUtter.classList.add('utter-full');
-  else if (S.showUtterance) ltBtnUtter.classList.add('utter-on');
-  ltBtnUtter.querySelector('span').textContent =
-    !S.showUtterance ? '🗣' : !S.showFullUtterance ? '🗣+' : '🗣++';
+  // Utterance — samma princip som lösnings-knappen: ikonen är alltid 🗣,
+  // och det är bara färgen som visar vilket av de tre lägena som är aktivt.
+  ltBtnUtter.className = 'pearl-nav-btn utter-mini';
+  if (S.showFullUtterance) {
+    ltBtnUtter.classList.add('utter-full');
+    ltBtnUtter.title = 'Fullt uttal (klicka för av)';
+  } else if (S.showUtterance) {
+    ltBtnUtter.classList.add('utter-on');
+    ltBtnUtter.title = 'Standard uttal (klicka för fullt)';
+  } else {
+    ltBtnUtter.title = 'Uttalat uttryck (av)';
+  }
+  ltBtnUtter.textContent = '🗣';
 
   // Play / Next / Reset button
   ltBtnPlay.disabled = S.animating;
@@ -2325,6 +2365,8 @@ function updateLeftToolbar() {
 
   // Reveal button — alltid klickbar (går bra att visa svaret innan man animerar)
   ltBtnReveal.disabled = false;
+  ltBtnReveal.classList.toggle('reveal-ready', S.revealStep === 1);
+  ltBtnReveal.classList.toggle('reveal-full', S.revealStep === 2);
 }
 function toggleExpr() {
   S.showExpr = !S.showExpr;
@@ -2515,14 +2557,17 @@ btnAnim.addEventListener('click', handlePlayClick);
 btnReset.addEventListener('click', resetAll);
 btnRevl.addEventListener('click', () => {
   const alt = altForm(S.t1, S.op, S.t2);
-  if (S.revealStep === 0 && alt) {
-    S.revealStep = 1;
-    render(1,0);
-  } else {
-    S.revealStep = 2;
+  if (S.revealStep === 0) {
+    S.revealStep = 1;               // Läge 1: bara svaret
     setStrip(`Svaret är ${S.answer}.`);
-    render(1,0);
+  } else if (S.revealStep === 1 && alt) {
+    S.revealStep = 2;               // Läge 2: svar + tolkning/minnesregel
+    setStrip(`Svaret är ${S.answer}.`);
+  } else {
+    S.revealStep = 0;               // Av: dölj lösningen igen
+    setStrip('\u00a0');
   }
+  render(1,0);
 });
 
 
@@ -3075,6 +3120,40 @@ const ltBtnPrevPreset = document.getElementById('ltBtnPrevPreset');
 const ltBtnNextPreset = document.getElementById('ltBtnNextPreset');
 if (ltBtnPrevPreset) ltBtnPrevPreset.addEventListener('click', () => stepPreset(-1));
 if (ltBtnNextPreset) ltBtnNextPreset.addEventListener('click', () => stepPreset(1));
+
+// Pärlbandets egna bläddringsknappar (flankerar pärlorna i canvasen)
+const canvasBtnPrevPreset = document.getElementById('canvasBtnPrevPreset');
+const canvasBtnNextPreset = document.getElementById('canvasBtnNextPreset');
+const canvasBtnPlay       = document.getElementById('canvasBtnPlay');
+const canvasBtnReset      = document.getElementById('canvasBtnReset');
+canvasBtnPrevPreset.addEventListener('click', () => stepPreset(-1));
+canvasBtnNextPreset.addEventListener('click', () => stepPreset(1));
+canvasBtnPlay.addEventListener('click', () => handlePlayClick());
+canvasBtnReset.addEventListener('click', () => resetAll());
+
+function positionPearlNavButtons() {
+  const { sx, sy } = getCanvasScale();
+  const canvasOffsetLeft = 10;  // canvas-wrap padding-left
+  const canvasOffsetTop  = 18;  // canvas-wrap padding-top
+
+  // Kommandobrygga: bläddring + spela/återställ, till vänster om pärlbandet
+  const y = canvasOffsetTop + PEARL_Y * sy;
+  const xs = [24, 52, 92, 120];
+  [canvasBtnPrevPreset, canvasBtnNextPreset, canvasBtnPlay, canvasBtnReset].forEach((btn, i) => {
+    btn.style.left = (canvasOffsetLeft + xs[i] * sx) + 'px';
+    btn.style.top  = y + 'px';
+  });
+
+  // Klunga vid uttrycksrutan: visa/dölj, växla tecken, visa lösning — direkt under rutan
+  const ey  = canvasOffsetTop + (exprBoxRect.y + exprBoxRect.h + 18) * sy;
+  const exs = [exprBoxRect.x + 14, exprBoxRect.x + 46, exprBoxRect.x + 78];
+  [ltBtnExpr, ltBtnInvert, ltBtnReveal].forEach((btn, i) => {
+    btn.style.left = (canvasOffsetLeft + exs[i] * sx) + 'px';
+    btn.style.top  = ey + 'px';
+  });
+}
+window.addEventListener('resize', positionPearlNavButtons);
+positionPearlNavButtons();
 
 // Dynamic tooltip positioning for lt-btn
 document.querySelectorAll('.lt-btn').forEach(btn => {

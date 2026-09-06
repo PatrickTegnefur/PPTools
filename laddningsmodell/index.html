@@ -25,22 +25,21 @@ header{background:var(--gradient);height:52px;display:flex;align-items:center;
 .logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.95rem;
   color:#fff;letter-spacing:-0.2px;}
 .logo span{opacity:0.75;font-weight:600;}
-
-/* ── Help modal ── */
 .help-btn{margin-left:auto;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.4);
   border-radius:20px;color:#fff;font-family:'Sora',sans-serif;font-size:0.75rem;font-weight:600;
   padding:4px 12px;cursor:pointer;transition:background 0.15s;}
 .help-btn:hover{background:rgba(255,255,255,0.35);}
+
+/* ── Help modal ── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(16,14,40,0.45);
   z-index:200;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--sh-md);
-  padding:1.5rem;max-width:420px;width:90%;position:relative;}
-.modal h2{font-family:'Montserrat',sans-serif;font-size:1rem;margin-bottom:0.75rem;color:var(--text);}
-.modal p,.modal li{font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem;}
-.modal ul{padding-left:1.1rem;margin-bottom:0.5rem;}
-.modal code{background:var(--surface2);border-radius:4px;padding:1px 5px;
-  color:var(--accent);font-family:'Sora',sans-serif;}
+  padding:1.5rem;max-width:400px;width:90%;position:relative;}
+.modal h2{font-family:'Montserrat',sans-serif;font-size:1rem;margin-bottom:0.75rem;}
+.modal p,.modal li{font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.35rem;}
+.modal ul{padding-left:1.1rem;margin-bottom:0.4rem;}
+.modal code{background:var(--surface2);border-radius:4px;padding:1px 5px;color:var(--accent);}
 .modal-close{position:absolute;top:12px;right:14px;background:none;border:none;
   font-size:1.2rem;cursor:pointer;color:var(--muted);}
 
@@ -48,61 +47,57 @@ header{background:var(--gradient);height:52px;display:flex;align-items:center;
 main{flex:1;display:flex;flex-direction:column;align-items:center;
   padding:0.75rem 0.75rem 1.5rem;gap:0.5rem;}
 
-/* ── Single input row ── */
-.input-row{width:100%;max-width:560px;display:flex;gap:6px;align-items:center;}
-.expr-in{flex:1;font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:500;
-  border:1.5px solid var(--border);border-radius:var(--r-sm);padding:7px 12px;
-  background:var(--surface);color:var(--text);outline:none;
-  transition:border-color 0.15s,box-shadow 0.15s;min-width:0;}
+/* ── Control block ── */
+.control-block{display:flex;align-items:center;gap:6px;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r-md);box-shadow:var(--sh-sm);padding:8px 10px;}
+.expr-in{width:160px;font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:500;
+  border:1.5px solid var(--border);border-radius:var(--r-sm);
+  padding:8px 12px;background:var(--bg);color:var(--text);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;text-align:center;}
 .expr-in:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(48,107,240,0.1);}
-.expr-in::placeholder{color:var(--muted);font-size:0.83rem;}
-.feedback-line{width:100%;max-width:560px;font-size:0.72rem;font-weight:500;
-  min-height:1.1em;padding-left:2px;}
-.feedback-line.ok{color:var(--correct);} .feedback-line.err{color:var(--wrong);}
+.expr-in::placeholder{color:var(--muted);font-size:0.82rem;}
+.vsep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+.feedback-line{font-size:0.72rem;font-weight:500;min-height:1.1em;text-align:center;}
+.feedback-line.ok{color:var(--correct);}.feedback-line.err{color:var(--wrong);}
+
+/* ── Buttons ── */
+.btn-strip{display:flex;gap:6px;align-items:center;}
+.btn{font-family:'Sora',sans-serif;font-size:0.78rem;font-weight:600;
+  border-radius:var(--r-sm);border:none;cursor:pointer;padding:8px 12px;
+  transition:all 0.13s;min-height:36px;white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;}
+.btn-start{background:var(--accent);color:#fff;min-width:36px;}
+.btn-start:hover:not(:disabled){background:#2358d4;}
+.btn-start:disabled{background:#a8bff8;cursor:default;}
+.btn-next{background:var(--correct);color:#fff;min-width:110px;}
+.btn-next:hover:not(:disabled){background:#14853c;}
+.btn-next:disabled{background:#a8d5bb;cursor:default;}
+.btn-reset{background:transparent;color:var(--muted);border:1px solid var(--border);min-width:36px;}
+.btn-reset:hover{color:var(--text);border-color:var(--muted);}
 
 /* ── Canvas card ── */
 .canvas-area{width:100%;max-width:560px;
   background:var(--surface);border:1.5px solid var(--border);
   border-radius:var(--r-lg);box-shadow:var(--sh-md);
   display:flex;flex-direction:column;align-items:center;
-  padding:0.6rem 0.6rem 0.6rem;gap:0.4rem;}
-
-/* Expression + legend row */
-.top-row{width:100%;display:flex;align-items:center;
-  justify-content:space-between;gap:8px;}
+  padding:0.6rem;gap:0.4rem;}
+.top-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .expr-display{font-family:'Montserrat',sans-serif;font-size:1.45rem;font-weight:700;
   color:var(--text);letter-spacing:0.5px;min-height:1.8rem;line-height:1;}
-.legend{display:flex;gap:10px;font-size:0.68rem;color:var(--muted);align-items:center;}
+.legend{display:flex;gap:10px;font-size:0.68rem;color:var(--muted);align-items:center;flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:3px;}
 .ldot{width:10px;height:10px;border-radius:50%;border:2px solid;flex-shrink:0;}
-
-/* Canvas wrap */
 .canvas-wrap{position:relative;width:100%;display:flex;justify-content:center;
   background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--border);}
 canvas{display:block;width:100%;height:auto;}
-
-/* Narration */
 .narration-bar{width:100%;display:flex;align-items:center;gap:6px;min-height:28px;}
 .step-badge{flex-shrink:0;font-family:'Montserrat',sans-serif;font-size:0.65rem;font-weight:700;
   background:var(--surface2);color:var(--accent);border:1.5px solid var(--border);
   border-radius:5px;padding:1px 7px;white-space:nowrap;}
 .narration{font-size:0.78rem;color:var(--muted);line-height:1.45;transition:opacity 0.2s;flex:1;}
 
-/* Button strip — small and discreet */
-.btn-strip{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;}
-.btn{font-family:'Sora',sans-serif;font-size:0.78rem;font-weight:600;
-  border-radius:var(--r-sm);border:none;cursor:pointer;
-  padding:6px 14px;transition:all 0.13s;min-height:34px;white-space:nowrap;}
-.btn-start{background:var(--accent);color:#fff;}
-.btn-start:hover:not(:disabled){background:#2358d4;transform:translateY(-1px);}
-.btn-start:disabled{background:#a8bff8;cursor:default;transform:none;}
-.btn-next{background:var(--correct);color:#fff;min-width:130px;}
-.btn-next:hover:not(:disabled){background:#14853c;transform:translateY(-1px);}
-.btn-next:disabled{background:#a8d5bb;cursor:default;transform:none;}
-.btn-reset{background:transparent;color:var(--muted);border:1px solid var(--border);font-size:0.75rem;}
-.btn-reset:hover{color:var(--text);border-color:var(--muted);}
-
-/* Result */
+/* ── Result ── */
 @keyframes slideUp{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
 .result-row{display:none;align-items:center;justify-content:center;gap:8px;
   background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--r-sm);
@@ -112,445 +107,515 @@ canvas{display:block;width:100%;height:auto;}
 .result-val{font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:700;color:var(--correct);}
 .result-desc{font-size:0.7rem;color:var(--muted);}
 
-/* Concept card */
-@keyframes fadeSlide{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
-.concept-card{background:#fff8e6;border:1.5px solid #f4a261;border-radius:var(--r-sm);
-  padding:8px 12px;animation:fadeSlide 0.26s ease forwards;width:100%;}
-.concept-title{font-family:'Montserrat',sans-serif;font-size:0.65rem;font-weight:700;
-  color:#b5621a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
-.concept-body{font-size:0.76rem;color:#4a3010;line-height:1.5;}
+/* ── Bead necklace ── */
+.beads-section{width:100%;max-width:560px;}
+.beads-label{font-size:0.68rem;font-weight:600;color:var(--muted);
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;padding-left:2px;}
+.beads-track{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r-lg);box-shadow:var(--sh-sm);
+  padding:10px 14px;
+  display:flex;flex-direction:column;gap:8px;}
+.bead-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.bead-row-label{font-size:0.65rem;font-weight:600;width:10px;flex-shrink:0;}
+
+/* The string line */
+.bead-string{display:flex;align-items:center;gap:0;flex:1;flex-wrap:wrap;
+  position:relative;}
+.bead-string::before{
+  content:'';position:absolute;left:0;right:0;top:50%;height:2px;
+  background:var(--border);z-index:0;border-radius:1px;}
+.bead{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Sora',sans-serif;font-size:0.6rem;font-weight:600;
+  border:2px solid;cursor:pointer;
+  transition:transform 0.12s,box-shadow 0.12s,opacity 0.12s;
+  position:relative;z-index:1;flex-shrink:0;
+  user-select:none;}
+.bead:hover{transform:scale(1.18);box-shadow:0 2px 8px rgba(0,0,0,0.18);}
+.bead.active{transform:scale(1.22);box-shadow:0 0 0 3px white,0 0 0 5px currentColor;}
+.bead.used{opacity:0.35;}
 </style>
 </head>
 <body>
 
-<!-- Navbar -->
 <header>
   <div class="logo">Tegnefurs Matte <span>· Laddningsmodellen</span></div>
   <button class="help-btn" onclick="document.getElementById('helpModal').classList.add('open')">? Hjälp</button>
 </header>
 
-<!-- Help modal -->
 <div class="modal-overlay" id="helpModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('helpModal').classList.remove('open')">✕</button>
     <h2>🧪 Hur fungerar verktyget?</h2>
-    <p><strong>Skriv uttryck</strong> — skriv valfritt uttryck och tryck Enter eller Starta.</p>
+    <p>Skriv ett uttryck och tryck ▶, eller klicka på en pärla i pärlbandet nedan.</p>
     <ul>
-      <li>Negativa tal skrivs med minustecken: <code>-3</code> eller <code>(-3)</code></li>
-      <li>Exempel: <code>5 + -3</code> · <code>5 + (-3)</code> · <code>-4 - -2</code></li>
+      <li>Negativa tal: <code>-3</code> eller <code>(-3)</code></li>
+      <li>T.ex. <code>5 + -3</code> · <code>-4 - -2</code> · <code>(-5)+8</code></li>
       <li>Tal mellan −12 och 12</li>
     </ul>
-    <p><strong>Lärarexempel</strong> — slumpa fram ett pedagogiskt utvalt uttryck med förklaringstext.</p>
-    <p><strong>Steg för steg</strong> — klicka <em>Nästa steg</em> för att styra tempot själv. Perfekt under genomgångar.</p>
-    <p style="margin-top:0.5rem;"><strong>Kulorna:</strong> blå = positiv (+1), rosa = negativ (−1). Ett par tar ut varandra och ger 0.</p>
+    <p><strong>Steg för steg</strong> — klicka Nästa för att styra tempot. Perfekt under genomgångar.</p>
+    <p><strong>Kulor:</strong> Blå/lila = positiv (+1), Rosa/röd = negativ (−1).<br>
+    Ljusare nyans = ursprungliga kulor. Mörkare nyans = nollpar (läggs till för att möjliggöra subtraktion).</p>
+    <p><strong>Pärlbandet:</strong> färgerna är uppgiftskategorier.</p>
   </div>
 </div>
 
 <main>
 
-  <!-- Input row -->
-  <div class="input-row">
+  <div class="control-block">
     <input class="expr-in" id="exprIn" type="text" autocomplete="off" spellcheck="false"
-           placeholder="Skriv uttryck, t.ex. 5 + -3"
+           placeholder="t.ex. 5 + -3"
            oninput="onTextInput()" onkeydown="if(event.key==='Enter')tryStart()">
-    <button class="btn btn-start" id="playBtn" onclick="tryStart()">▶</button>
+    <div class="vsep"></div>
+    <div class="btn-strip">
+      <button class="btn btn-start" id="playBtn" onclick="tryStart()" title="Starta">▶</button>
+      <button class="btn btn-next"  id="nextBtn" onclick="clickNext()" style="display:none" disabled>Nästa →</button>
+      <button class="btn btn-reset"              onclick="doReset()" title="Återställ">↺</button>
+    </div>
   </div>
   <div class="feedback-line" id="feedback">&nbsp;</div>
 
-  <!-- Canvas card -->
   <div class="canvas-area">
-
     <div class="top-row">
       <div class="expr-display" id="exprDisplay">&nbsp;</div>
       <div class="legend">
-        <div class="legend-item"><div class="ldot" style="background:#dbeafe;border-color:#306BF0"></div>+1</div>
-        <div class="legend-item"><div class="ldot" style="background:#fce7f3;border-color:#EC6095"></div>−1</div>
+        <div class="legend-item"><div class="ldot" style="background:#c7dcff;border-color:#306BF0"></div>+1</div>
+        <div class="legend-item"><div class="ldot" style="background:#6e9ef5;border-color:#1a4bb8"></div>+1 (par)</div>
+        <div class="legend-item"><div class="ldot" style="background:#ffd6e8;border-color:#EC6095"></div>−1</div>
+        <div class="legend-item"><div class="ldot" style="background:#e0508a;border-color:#9c1a52"></div>−1 (par)</div>
       </div>
     </div>
-
     <div class="canvas-wrap">
-      <canvas id="c" width="520" height="310"></canvas>
+      <canvas id="c" width="520" height="300"></canvas>
     </div>
-
     <div class="narration-bar">
       <div class="step-badge" id="stepBadge">—</div>
-      <div class="narration"  id="narration">Skriv ett uttryck ovan och tryck ▶</div>
+      <div class="narration"  id="narration">Skriv ett uttryck ovan eller välj en uppgift nedan.</div>
     </div>
-
-    <div class="btn-strip">
-      <button class="btn btn-next"  id="nextBtn" onclick="clickNext()" style="display:none" disabled>Nästa steg →</button>
-      <button class="btn btn-reset"              onclick="doReset()">↺ Återställ</button>
-    </div>
-
     <div class="result-row" id="resultRow">
-      <span class="result-eq"   id="resultEq"></span>
-      <span class="result-val"  id="resultVal"></span>
+      <span class="result-eq"  id="resultEq"></span>
+      <span class="result-val" id="resultVal"></span>
       <span class="result-desc" id="resultDesc"></span>
     </div>
+  </div>
 
-    <div class="concept-card" id="conceptCard" style="display:none">
-      <div class="concept-title" id="conceptTitle"></div>
-      <div class="concept-body"  id="conceptBody"></div>
-    </div>
-
+  <!-- Bead necklace -->
+  <div class="beads-section">
+    <div class="beads-label">Uppgifter</div>
+    <div class="beads-track" id="beadsTrack"></div>
   </div>
 
 </main>
 
 <script>
 // ══════════════════════════════════════════
-// TEACHER EXAMPLES
+// PRESET CATEGORIES
 // ══════════════════════════════════════════
-const EXAMPLES=[
-  {a:1,b:-1,op:'add',
-   meta:'Grundläget — vad händer när vi adderar ett tals motpart?',
-   steps:['Vi lägger <strong>1 positiv</strong> kula i bägaren.',
-          'Nu lägger vi till <strong>1 negativ</strong> kula.',
-          'En positiv och en negativ tar alltid ut varandra — de bildar <strong>0</strong>. Det är nyckelregeln!'],
-   concept:{title:'Kompletterande tal — nollparet',
-    body:'Varje tal har ett "mottal" som gör summan till noll.\n+1 och −1 är varandras mottal. +5 och −5 är varandras mottal.\nDetta är grunden för hur negativa tal fungerar.'}},
-  {a:3,b:-2,op:'add',
-   meta:'Addition med negativt tal — kulorna tar delvis ut varandra.',
-   steps:['Vi lägger <strong>3 positiva</strong> kulor i bägaren.',
-          'Vi adderar <strong>2 negativa</strong> kulor.',
-          '<strong>2 par</strong> tar ut varandra. Kvar: 1 positiv kula.'],
-   concept:{title:'Addition med negativt tal',
-    body:'3 + (−2) = 1\nAtt addera ett negativt tal är detsamma som att subtrahera dess absolutbelopp.\nVarije nollpar försvinner — resten är svaret.'}},
-  {a:5,b:-5,op:'add',
-   meta:'Talen är exakt varandras mottal — vad händer?',
-   steps:['Vi lägger <strong>5 positiva</strong> kulor i bägaren.',
-          'Vi adderar <strong>5 negativa</strong> kulor.',
-          'Alla 5 par tar ut varandra! Bägaren är tom — resultatet är <strong>0</strong>.'],
-   concept:{title:'Mottal ger alltid 0',
-    body:'5 + (−5) = 0\nEtt tal plus sitt mottal = 0, alltid.\nDetta kallas additiv invers.'}},
-  {a:2,b:-5,op:'add',
-   meta:'Negativt tal med större absolutbelopp — resultatet byter tecken!',
-   steps:['Vi lägger <strong>2 positiva</strong> kulor i bägaren.',
-          'Vi adderar <strong>5 negativa</strong> kulor.',
-          '<strong>2 par</strong> tar ut varandra. Kvar: <strong>3 negativa</strong> kulor. Resultatet är negativt!'],
-   concept:{title:'När det negativa "vinner"',
-    body:'2 + (−5) = −3\nNär det negativa absolutbeloppet är större byter resultatet tecken.'}},
-  {a:5,b:-2,op:'sub',
-   meta:'Subtraktion av negativt tal — det klassiska förvirrande fallet.',
-   steps:['Vi lägger <strong>5 positiva</strong> kulor i bägaren.',
-          'Vi vill <em>ta bort</em> 2 negativa kulor — men bägaren har inga! Vi lägger in <strong>2 nollpar</strong> (+1 och −1 = 0).',
-          'Nu plockar vi ut de <strong>2 negativa</strong> kulorna. Kvar: 7 positiva!'],
-   concept:{title:'Varför 5 − (−2) = 7',
-    body:'Att subtrahera ett negativt tal ökar värdet.\nVi lånar nollor (0 = +1 + (−1)) för att ha negativa kulor att ta bort.\nNär de negativa försvinner är de positiva kvar — fler än vi startade med!'}},
-  {a:-3,b:-2,op:'sub',
-   meta:'Subtraktion av negativt från negativt tal.',
-   steps:['Vi lägger <strong>3 negativa</strong> kulor i bägaren.',
-          'Vi vill ta bort 2 negativa kulor — de finns redan! Vi plockar bort dem direkt.',
-          'Kvar: <strong>1 negativ</strong> kula.'],
-   concept:{title:'Subtraktion av negativt',
-    body:'(−3) − (−2) = −1\nAtt subtrahera ett negativt tal = addera absolutbeloppet.\nHär hade vi redan kulorna — ingen noll-trick behövdes.'}},
-  {a:-3,b:2,op:'add',
-   meta:'Negativ start, positiv addition.',
-   steps:['Vi lägger <strong>3 negativa</strong> kulor i bägaren.',
-          'Vi adderar <strong>2 positiva</strong> kulor.',
-          '<strong>2 par</strong> tar ut varandra. Kvar: <strong>1 negativ</strong> kula.'],
-   concept:{title:'Negativ start',
-    body:'(−3) + 2 = −1\nSamma logik men omvänt — de positiva äter upp negativa par för par.'}},
-  {a:0,b:-4,op:'add',
-   meta:'Vad är 0 + negativt tal?',
-   steps:['Bägaren är tom — <strong>0 kulor</strong>.',
-          'Vi adderar <strong>4 negativa</strong> kulor.',
-          'Inga par bildas. Kvar: <strong>4 negativa</strong> kulor.'],
-   concept:{title:'Noll plus negativt',
-    body:'0 + (−4) = −4\nNoll är neutralt — det förändrar ingenting.\nNegativa tal är riktiga storheter, inte bara abstraktioner.'}}
+const CATEGORIES = [
+  {
+    id:'green', label:'A',
+    color:'#22c55e', stroke:'#15803d', text:'#fff',
+    tasks:['4+3','3+4','6+3','2+7']
+  },
+  {
+    id:'blue', label:'B',
+    color:'#60a5fa', stroke:'#2563eb', text:'#fff',
+    tasks:['9-4','7-3','5-4']
+  },
+  {
+    id:'orange', label:'C',
+    color:'#fb923c', stroke:'#c2410c', text:'#fff',
+    tasks:['5-5','5-7','6-10','4-9']
+  },
+  {
+    id:'purple', label:'D',
+    color:'#a78bfa', stroke:'#6d28d9', text:'#fff',
+    tasks:['(-8)+3','(-8)+5','(-5)+4','(-5)+5','(-5)+8','(-4)+4','(-4)+9']
+  },
+  {
+    id:'pink', label:'E',
+    color:'#f472b6', stroke:'#be185d', text:'#fff',
+    tasks:['5+3','5+(-3)','5-3','5-(-3)','(-6)+4','(-6)+(-4)','(-6)-4','(-6)-(-4)']
+  }
 ];
 
-let currentExample=null;
-function pickExample(){
-  let idx;
-  do{idx=Math.floor(Math.random()*EXAMPLES.length);}
-  while(EXAMPLES.length>1&&currentExample===EXAMPLES[idx]);
-  currentExample=EXAMPLES[idx];
-  const ex=currentExample;
-  parsedA=ex.a;parsedB=ex.b;parsedOp=ex.op;parseValid=true;
-  const bD=ex.b<0?'('+ex.b+')':''+ex.b;
-  document.getElementById('examplePill').textContent=ex.a+' '+(ex.op==='add'?'+':'−')+' '+bD;
-  updateExprDisplay();doReset(false);
-  document.getElementById('narration').innerHTML='<em style="color:var(--muted)">'+ex.meta+'</em>';
+// Track which beads have been completed
+const usedBeads = new Set();
+let activeBead = null; // {catIdx, taskIdx}
+
+function buildBeads() {
+  const track = document.getElementById('beadsTrack');
+  track.innerHTML = '';
+  CATEGORIES.forEach((cat, ci) => {
+    const row = document.createElement('div');
+    row.className = 'bead-row';
+    // Category dot label
+    const lbl = document.createElement('div');
+    lbl.className = 'bead-row-label';
+    lbl.style.cssText = `width:8px;height:8px;border-radius:50%;
+      background:${cat.color};border:2px solid ${cat.stroke};flex-shrink:0;`;
+    row.appendChild(lbl);
+    // String + beads
+    const str = document.createElement('div');
+    str.className = 'bead-string';
+    cat.tasks.forEach((task, ti) => {
+      const key = ci+'-'+ti;
+      const b = document.createElement('div');
+      b.className = 'bead' + (usedBeads.has(key)?' used':'');
+      b.style.cssText = `background:${cat.color};border-color:${cat.stroke};color:${cat.text};`;
+      b.textContent = ti+1;
+      b.title = task;
+      b.onclick = () => loadBead(ci, ti, task, b);
+      str.appendChild(b);
+    });
+    row.appendChild(str);
+    track.appendChild(row);
+  });
+}
+
+function loadBead(ci, ti, task, el) {
+  // Set input field
+  document.getElementById('exprIn').value = task;
+  onTextInput();
+  // Mark active visually
+  document.querySelectorAll('.bead').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  activeBead = {ci, ti, key: ci+'-'+ti};
+  // Auto-start
+  setTimeout(() => tryStart(), 80);
 }
 
 // ══════════════════════════════════════════
-// STATE
+// PARSER
 // ══════════════════════════════════════════
-let parsedA=null,parsedB=null,parsedOp=null,parseValid=false;
-let simRunning=false;
-
-// ══════════════════════════════════════════
-// PARSER — forgiving, no parens required
-// ══════════════════════════════════════════
-function parseExpr(raw){
-  // Normalise: unicode minus, trim
-  let s=raw.replace(/\u2212/g,'-').replace(/\s+/g,' ').trim();
-  if(!s) return null;
-
-  // Remove ALL spaces so we work on compact string
-  const c=s.replace(/\s/g,'');
-
-  // Patterns tried in order:
-  // 1. A op (B)     e.g. 5+(-3)  5+-3  5--3
-  // 2. (A) op (B)   e.g. (-4)+(-2)
-  // 3. (A) op B
-  // 4. A op B       e.g. 5+3  -4-2
-
-  const pats=[
-    /^(-?\d+)([+\-])\((-?\d+)\)$/,   // 5+(-3)
-    /^(-?\d+)([+\-])(-\d+)$/,         // 5+-3  5--3  (B is negative)
-    /^\((-?\d+)\)([+\-])\((-?\d+)\)$/,// (-4)+(-2)
-    /^\((-?\d+)\)([+\-])(-?\d+)$/,    // (-4)+3
-    /^(-?\d+)([+\-])(\d+)$/,          // 5+3  -4+2
+function parseExpr(raw) {
+  let s = raw.replace(/\u2212/g,'-').replace(/\s+/g,' ').trim();
+  if (!s) return null;
+  const c = s.replace(/\s/g,'');
+  const pats = [
+    /^(-?\d+)([+\-])\((-?\d+)\)$/,
+    /^(-?\d+)([+\-])(-\d+)$/,
+    /^\((-?\d+)\)([+\-])\((-?\d+)\)$/,
+    /^\((-?\d+)\)([+\-])(-?\d+)$/,
+    /^(-?\d+)([+\-])(\d+)$/,
   ];
-
-  for(const re of pats){
-    const m=c.match(re);
-    if(m){
-      const a=parseInt(m[1]),b=parseInt(m[3]);
-      if(isNaN(a)||isNaN(b)) continue;
-      if(Math.abs(a)>12||Math.abs(b)>12) return {err:'Håll talen mellan −12 och 12.'};
-      return {a,b,op:m[2]==='+'?'add':'sub'};
+  for (const re of pats) {
+    const m = c.match(re);
+    if (m) {
+      const a = parseInt(m[1]), b = parseInt(m[3]);
+      if (isNaN(a)||isNaN(b)) continue;
+      if (Math.abs(a)>12||Math.abs(b)>12) return {err:'Tal mellan −12 och 12.'};
+      return {a, b, op: m[2]==='+'?'add':'sub'};
     }
   }
-  return {err:'Kunde inte tolka. Prova: 5 + -3  eller  5 + (-3)'};
+  return {err:'Prova: 5 + -3  eller  (-5)+8'};
 }
 
-function setFeedback(msg,type){
-  const el=document.getElementById('feedback');
-  el.className='feedback-line'+(type?' '+type:'');
-  el.textContent=msg||'\u00a0';
+function setFeedback(msg,type) {
+  const el = document.getElementById('feedback');
+  el.className = 'feedback-line'+(type?' '+type:'');
+  el.textContent = msg||'\u00a0';
 }
 
-function onTextInput(){
-  const raw=document.getElementById('exprIn').value;
-  const res=parseExpr(raw);
-  if(!raw.trim()){setFeedback('','');parseValid=false;
-    document.getElementById('exprDisplay').innerHTML='&nbsp;';return;}
-  if(!res||res.err){setFeedback(res?res.err:'Ogiltigt format.','err');parseValid=false;return;}
-  parsedA=res.a;parsedB=res.b;parsedOp=res.op;parseValid=true;
-  const bD=res.b<0?'('+res.b+')':''+res.b;
+let parsedA=null, parsedB=null, parsedOp=null, parseValid=false;
+
+function onTextInput() {
+  const raw = document.getElementById('exprIn').value;
+  const res = parseExpr(raw);
+  if (!raw.trim()) {
+    setFeedback('',''); parseValid=false;
+    document.getElementById('exprDisplay').innerHTML='&nbsp;'; return;
+  }
+  if (!res||res.err) {
+    setFeedback(res?res.err:'Ogiltigt format.','err'); parseValid=false; return;
+  }
+  parsedA=res.a; parsedB=res.b; parsedOp=res.op; parseValid=true;
+  const bD = res.b<0?'('+res.b+')':''+res.b;
   setFeedback('✓ '+res.a+' '+(res.op==='add'?'+':'−')+' '+bD,'ok');
   updateExprDisplay();
 }
 
-function updateExprDisplay(){
-  const el=document.getElementById('exprDisplay');
-  if(!parseValid){el.innerHTML='&nbsp;';return;}
-  const bD=parsedB<0?'('+parsedB+')':''+parsedB;
-  el.textContent=parsedA+' '+(parsedOp==='add'?'+':'−')+' '+bD;
+function updateExprDisplay() {
+  const el = document.getElementById('exprDisplay');
+  if (!parseValid) { el.innerHTML='&nbsp;'; return; }
+  const bD = parsedB<0?'('+parsedB+')':''+parsedB;
+  el.textContent = parsedA+' '+(parsedOp==='add'?'+':'−')+' '+bD;
 }
 
 // ══════════════════════════════════════════
-// CONCEPT CARD
+// CANVAS & PHYSICS
 // ══════════════════════════════════════════
-function showConceptCard(title,body){
-  document.getElementById('conceptTitle').textContent=title;
-  document.getElementById('conceptBody').innerHTML=body.replace(/\n/g,'<br>');
-  document.getElementById('conceptCard').style.display='block';
-}
-function hideConceptCard(){document.getElementById('conceptCard').style.display='none';}
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
 
-// ══════════════════════════════════════════
-// CANVAS
-// ══════════════════════════════════════════
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d');
-const W=canvas.width,H=canvas.height;
+const CL=68, CR=W-68, CW=CR-CL;
+const CUP_TOP=32, CUP_BOT=H-22;
+const BALL_R = 18;
+const GRAVITY = 0.55;
+const BOUNCE  = 0.32;
+const FRICTION = 0.88;
 
-// Cup — generous proportions so it dominates
-const CL=72,CR=W-72,CW=CR-CL;
-const CUP_TOP=32,CUP_BOT=H-20;
-const BALL_R=16;
-
-let balls=[],dropping=null;
-let flashMsg=null,flashAlpha=0,flashX=W/2,flashY=CUP_TOP+80;
-let queue=[],queueRunning=false,rafId=null;
+// Ball shape: {type, shade, x, y, vx, vy, alpha, _marked, _removing}
+let balls=[], dropping=null;
+let droppingTargetRow = 0; // pre-computed row for the dropping ball
+let flashAlpha=0;
+let queue=[], queueRunning=false, rafId=null;
 let waitClickResolve=null;
 
-function clickNext(){
-  document.getElementById('nextBtn').disabled=true;
-  if(waitClickResolve){const r=waitClickResolve;waitClickResolve=null;r();}
-}
-function showNextBtn(label){
-  const b=document.getElementById('nextBtn');
-  b.style.display='';b.textContent=label||'Nästa steg →';b.disabled=false;
-}
-function hideNextBtn(){
-  const b=document.getElementById('nextBtn');
-  b.style.display='none';b.disabled=true;waitClickResolve=null;
-}
-
-function startLoop(){if(!rafId)rafId=requestAnimationFrame(loop);}
-function stopLoop(){if(rafId){cancelAnimationFrame(rafId);rafId=null;}}
+// ── Physics loop ──
+function startLoop(){ if(!rafId) rafId=requestAnimationFrame(loop); }
+function stopLoop(){ if(rafId){cancelAnimationFrame(rafId);rafId=null;} }
 
 function loop(){
-  rafId=null;physicsStep();render();
-  if(dropping||flashAlpha>0)startLoop();
-}
-function physicsStep(){
-  if(!dropping)return;
-  dropping.vy+=0.7;dropping.y+=dropping.vy;
-  const rY=calcRestY();
-  if(dropping.y>=rY){
-    dropping.y=rY;dropping.vy=0;
-    balls.push({type:dropping.type,x:dropping.x,y:dropping.y,alpha:1});
-    dropping=null;render();advanceQueue();
+  rafId=null;
+  let needMore = false;
+  if(dropping){ physicsStep(); needMore=true; }
+  balls.forEach(b=>{ if(b.vy!==0||b.vx!==0) settleStep(b); });
+  if(balls.some(b=>Math.abs(b.vy)>0.05||Math.abs(b.vx)>0.05)) needMore=true;
+  // Animate lifting balls
+  if(liftingBalls.length>0){
+    liftingBalls.forEach(b=>{
+      b.t = (b.t||0)+1;
+      const t = b.t/b.duration;
+      // Arc upward: parabola, drift slightly sideways
+      b.x = b.startX + b.dx*t;
+      b.y = b.startY - b.height*Math.sin(Math.PI*t);
+      b.alpha = Math.max(0, 1 - t*t);
+    });
+    liftingBalls = liftingBalls.filter(b=>b.alpha>0);
+    needMore=true;
   }
-}
-function calcRestY(){
-  const innerW=(CR-BALL_R-4)-(CL+BALL_R+4);
-  const cols=Math.max(1,Math.floor(innerW/(BALL_R*2+5)));
-  const row=Math.floor(balls.length/cols);
-  return CUP_BOT-BALL_R-10-row*(BALL_R*2+5);
+  render();
+  if(needMore) startLoop();
 }
 
+function physicsStep(){
+  if(!dropping) return;
+  dropping.vy += GRAVITY;
+  dropping.vx *= FRICTION;
+  dropping.x  += dropping.vx;
+  dropping.y  += dropping.vy;
+  dropping.x = Math.max(CL+BALL_R+3, Math.min(CR-BALL_R-3, dropping.x));
+
+  const targetY = landingY(droppingTargetRow);
+  if (dropping.y >= targetY) {
+    dropping.y = targetY;
+    if (Math.abs(dropping.vy) > 1) {
+      dropping.vy = -dropping.vy * BOUNCE;
+      if (Math.abs(dropping.vy) < 0.8) finalizeDrop();
+    } else {
+      finalizeDrop();
+    }
+  }
+}
+
+function settleStep(b){
+  b.vy += GRAVITY * 0.1;
+  b.vx *= 0.85;
+  b.y  += b.vy * 0.3;
+  b.x  += b.vx * 0.3;
+  b.x = Math.max(CL+BALL_R+3, Math.min(CR-BALL_R-3, b.x));
+  const idx = balls.indexOf(b);
+  const ly  = landingY(idx >= 0 ? idx : balls.length);
+  if(b.y >= ly){ b.y=ly; b.vy=-b.vy*0.15; b.vx*=0.7; }
+  if(Math.abs(b.vy)<0.05&&Math.abs(b.vx)<0.05){ b.vy=0; b.vx=0; }
+}
+
+function finalizeDrop(){
+  const b = dropping;
+  dropping = null;
+  b.vy=0; b.vx=0;
+  balls.push(b);
+  render();
+  advanceQueue();
+}
+
+// Calculate y for a ball that will be the nth ball (0-indexed)
+function landingY(count){
+  const innerW = (CR-BALL_R-3)-(CL+BALL_R+3);
+  const cols   = Math.max(1, Math.floor(innerW/(BALL_R*2+4)));
+  const row    = Math.floor(count / cols);
+  return CUP_BOT - BALL_R - 8 - row*(BALL_R*2+4);
+}
+
+// x-centre for the nth ball
+function landingX(count){
+  const innerW = (CR-BALL_R-3)-(CL+BALL_R+3);
+  const cols   = Math.max(1, Math.floor(innerW/(BALL_R*2+4)));
+  const colW   = innerW/cols;
+  const col    = count % cols;
+  return CL+BALL_R+3 + col*colW + colW/2;
+}
+
+// ── Render ──
 function render(){
   ctx.clearRect(0,0,W,H);
-  const wW=11,rimH=7,botH=7;
-  // Straight walls — cylinder shape
-  const IL=CL, IR=CR; // inner left/right (same as outer since walls are beside, not inside)
+  const wW=10, rimH=6, botH=6;
 
   // Interior
-  ctx.save();
   ctx.fillStyle='#ede9ff';
-  ctx.fillRect(IL,CUP_TOP,IR-IL,CUP_BOT-CUP_TOP);
-  ctx.restore();
+  ctx.fillRect(CL,CUP_TOP,CW,CUP_BOT-CUP_TOP);
 
   // Left wall
-  ctx.save();
   ctx.fillStyle='#b8b0e8';
-  ctx.fillRect(IL-wW,CUP_TOP,wW,CUP_BOT-CUP_TOP+botH);
-  ctx.restore();
-
+  ctx.fillRect(CL-wW,CUP_TOP,wW,CUP_BOT-CUP_TOP+botH);
   // Right wall
-  ctx.save();
   ctx.fillStyle='#ccc5f0';
-  ctx.fillRect(IR,CUP_TOP,wW,CUP_BOT-CUP_TOP+botH);
-  ctx.restore();
-
-  // Bottom face
-  ctx.save();
+  ctx.fillRect(CR,CUP_TOP,wW,CUP_BOT-CUP_TOP+botH);
+  // Bottom
   ctx.fillStyle='#a9a0e0';
-  ctx.fillRect(IL-wW,CUP_BOT,IR-IL+wW*2,botH);
-  ctx.restore();
-
+  ctx.fillRect(CL-wW,CUP_BOT,CW+wW*2,botH);
   // Rim
-  ctx.save();
   ctx.fillStyle='#9d94d8';
-  ctx.fillRect(IL-wW,CUP_TOP-rimH,IR-IL+wW*2,rimH);
+  ctx.fillRect(CL-wW,CUP_TOP-rimH,CW+wW*2,rimH);
   ctx.beginPath();
-  ctx.moveTo(IL-wW+2,CUP_TOP-rimH+1.5);ctx.lineTo(IR+wW-2,CUP_TOP-rimH+1.5);
-  ctx.strokeStyle='rgba(255,255,255,0.38)';ctx.lineWidth=1;ctx.stroke();
-  ctx.restore();
+  ctx.moveTo(CL-wW+2,CUP_TOP-rimH+1.5); ctx.lineTo(CR+wW-2,CUP_TOP-rimH+1.5);
+  ctx.strokeStyle='rgba(255,255,255,0.38)'; ctx.lineWidth=1; ctx.stroke();
 
   // Balls
-  for(const b of balls)drawBall(b.x,b.y,b.type,b.alpha??1,b._marked);
-  if(dropping)drawBall(dropping.x,dropping.y,dropping.type,1,false);
-
-  // Flash
-  if(flashMsg&&flashAlpha>0){
-    ctx.save();ctx.globalAlpha=flashAlpha;
-    const pad=11,fs=13;
-    ctx.font=`600 ${fs}px 'Sora',sans-serif`;
-    const tw=ctx.measureText(flashMsg).width;
-    ctx.fillStyle='#fff8e6';
-    rRect(ctx,flashX-tw/2-pad,flashY-fs-pad/2,tw+pad*2,fs+pad,6);ctx.fill();
-    ctx.strokeStyle='#f4a261';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.fillStyle='#b5621a';ctx.textBaseline='middle';
-    ctx.fillText(flashMsg,flashX-tw/2,flashY-1);
-    ctx.restore();
-  }
+  for(const b of balls) drawBall(b);
+  if(dropping) drawBall(dropping);
+  for(const b of liftingBalls) drawBall(b);
 }
 
-function drawBall(x,y,type,alpha,marked){
-  ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);
-  if(marked){ctx.shadowColor=type==='pos'?'#306BF0':'#EC6095';ctx.shadowBlur=16;}
-  ctx.beginPath();ctx.arc(0,0,BALL_R,0,Math.PI*2);
-  ctx.fillStyle=type==='pos'?'#dbeafe':'#fce7f3';ctx.fill();
-  ctx.strokeStyle=type==='pos'?'#306BF0':'#EC6095';ctx.lineWidth=2.2;ctx.stroke();
+// Ball colour scheme:
+// pos/orig: light blue fill, blue stroke
+// pos/pair: medium blue fill, dark blue stroke  (darker = zero-pair)
+// neg/orig: light pink fill, pink stroke
+// neg/pair: dark pink fill, dark pink stroke
+const BALL_COLS = {
+  pos:{
+    orig:{ fill:'#c7dcff', stroke:'#306BF0', text:'#1a4bb8' },
+    pair:{ fill:'#6e9ef5', stroke:'#1a4bb8', text:'#fff' }
+  },
+  neg:{
+    orig:{ fill:'#ffd6e8', stroke:'#EC6095', text:'#9c1a52' },
+    pair:{ fill:'#e0508a', stroke:'#9c1a52', text:'#fff' }
+  }
+};
+
+// Lifting balls: animating upward out of the cup
+let liftingBalls = [];
+
+function drawBall(b){
+  const shade = b.shade||'orig';
+  const c = BALL_COLS[b.type][shade];
+  ctx.save();
+  ctx.globalAlpha = b.alpha??1;
+  ctx.translate(b.x, b.y);
+  if(b._marked){
+    ctx.shadowColor = b.type==='pos'?'#306BF0':'#EC6095';
+    ctx.shadowBlur  = 16;
+  }
+  ctx.beginPath(); ctx.arc(0,0,BALL_R,0,Math.PI*2);
+  ctx.fillStyle=c.fill; ctx.fill();
+  ctx.strokeStyle=c.stroke; ctx.lineWidth=2; ctx.stroke();
   ctx.shadowBlur=0;
-  ctx.fillStyle=type==='pos'?'#1d4ed8':'#9d174d';
-  ctx.font="600 10px 'Sora',sans-serif";
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(type==='pos'?'+1':'−1',0,0);
+  ctx.fillStyle=c.text;
+  ctx.font="700 11px 'Sora',sans-serif";
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(b.type==='pos'?'+1':'−1',0,0);
   ctx.restore();
 }
 
 function rRect(c,x,y,w,h,r){
-  c.beginPath();c.moveTo(x+r,y);
-  c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);
-  c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);
-  c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);
+  c.beginPath(); c.moveTo(x+r,y);
+  c.lineTo(x+w-r,y); c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y);
   c.closePath();
 }
 
 // ══════════════════════════════════════════
-// QUEUE — step-by-step in BOTH modes
+// QUEUE
 // ══════════════════════════════════════════
-function enqueue(a){queue.push(a);}
+let simRunning=false;
+
+function enqueue(a){ queue.push(a); }
 
 function advanceQueue(){
-  if(!queueRunning||queue.length===0)return;
-  const action=queue.shift();
+  if(!queueRunning||queue.length===0) return;
+  const action = queue.shift();
 
   if(action.type==='narrate'){
-    setNarration(action.html,action.step,action.total);
-    // Always pause on narrate — wait for click in both modes
-    const isLast=queue.length>0&&queue[0].type==='done';
-    showNextBtn(isLast?'Visa resultat →':'Nästa steg →');
-    waitClickResolve=()=>advanceQueue();
+    setNarration(action.html, action.step, action.total);
+    const isLast = queue.length>0 && queue[0].type==='done';
+    showNextBtn(isLast?'Resultat →':'Nästa →');
+    waitClickResolve = ()=>advanceQueue();
   }
   else if(action.type==='pause'){
-    setTimeout(advanceQueue,action.ms);
+    setTimeout(advanceQueue, action.ms);
   }
   else if(action.type==='drop'){
-    // Inner cup bounds: CL to CR, balls must stay BALL_R inside
-    const innerL=CL+BALL_R+4;
-    const innerR=CR-BALL_R-4;
-    const innerW=innerR-innerL;
-    const cols=Math.max(1,Math.floor(innerW/(BALL_R*2+5)));
-    const colW=innerW/cols;
-    const col=balls.length%cols;
-    const x=innerL+colW*col+colW/2+(Math.random()-0.5)*2;
-    dropping={type:action.ballType,x,y:CUP_TOP-BALL_R-10,vy:0};
+    // Use pre-computed index so B-term balls start on the correct row
+    const count  = action.ballIndex;
+    droppingTargetRow = count;
+    const tx     = landingX(count);
+    const jitter = (Math.random()-0.5)*5;
+    dropping = {
+      type:action.ballType, shade:action.shade||'orig',
+      x: tx + jitter,
+      y: CUP_TOP - BALL_R - 16,
+      vx: jitter*0.25, vy: 0,
+      alpha:1
+    };
     startLoop();
   }
   else if(action.type==='flash'){
-    const posEl=balls.find(b=>b.type==='pos'&&!b._marked);
-    const negEl=balls.find(b=>b.type==='neg'&&!b._marked);
-    if(!posEl||!negEl){advanceQueue();return;}
-    posEl._marked=true;negEl._marked=true;
-    flashMsg='+1 + (−1) = 0';flashAlpha=1;
-    flashX=(posEl.x+negEl.x)/2;
-    flashY=Math.min(posEl.y,negEl.y)-38;
+    // Glow both, then lift them out together
+    const posEl = balls.find(b=>b.type==='pos'&&!b._marked);
+    const negEl = balls.find(b=>b.type==='neg'&&!b._marked);
+    if(!posEl||!negEl){ advanceQueue(); return; }
+    posEl._marked=true; negEl._marked=true;
     startLoop();
     setTimeout(()=>{
-      let tick=0;
-      const fade=setInterval(()=>{
-        flashAlpha=Math.max(0,1-tick/10);tick++;
-        if(tick>10){
-          clearInterval(fade);flashMsg=null;flashAlpha=0;
-          balls=balls.filter(b=>!b._marked);
-          render();advanceQueue();
-        }else render();
-      },40);
-    },700);
+      // Remove from balls array and spawn two lifting ghosts
+      balls = balls.filter(b=>!b._marked);
+      [posEl, negEl].forEach((b, i)=>{
+        liftingBalls.push({
+          type:b.type, shade:b.shade||'orig',
+          startX:b.x, startY:b.y,
+          x:b.x, y:b.y,
+          dx: i===0 ? -30 : 30,
+          height: b.y - CUP_TOP + BALL_R*3 + 20,
+          duration:20, t:0, alpha:1,
+          vy:0, vx:0
+        });
+      });
+      startLoop();
+      setTimeout(()=>{ render(); advanceQueue(); }, 380);
+    }, 450);
   }
-  else if(action.type==='remove'){
-    const idx=balls.findIndex(b=>b.type===action.ballType&&!b._removing);
-    if(idx===-1){advanceQueue();return;}
-    balls[idx]._removing=true;balls[idx]._marked=true;
-    let a=1;
-    const fade=setInterval(()=>{
-      a-=0.09;balls[idx].alpha=Math.max(0,a);render();
-      if(a<=0){clearInterval(fade);balls.splice(idx,1);render();advanceQueue();}
-    },28);
+  else if(action.type==='lift'){
+    // Find the ball to lift and arc it upward out of the cup
+    const idx = balls.findIndex(b=>b.type===action.ballType&&!b._removing&&!b._lifting);
+    if(idx===-1){ advanceQueue(); return; }
+    const b = balls[idx];
+    b._removing=true; b._lifting=true;
+    // Remove from balls array immediately but spawn a lifting ghost
+    balls.splice(idx,1);
+    const ghost = {
+      type:b.type, shade:b.shade||'orig',
+      startX:b.x, startY:b.y,
+      x:b.x, y:b.y,
+      // Arc: drift toward cup edge, rise above rim
+      dx: (b.x < (CL+CR)/2 ? -40 : 40),
+      height: b.startY - CUP_TOP + BALL_R*4 + 30,
+      duration: 22,
+      t:0, alpha:1,
+      vy:0, vx:0
+    };
+    liftingBalls.push(ghost);
+    startLoop();
+    // Advance after animation completes
+    setTimeout(advanceQueue, ghost.duration*16 + 80);
   }
   else if(action.type==='done'){
-    queueRunning=false;onDone();
+    queueRunning=false; onDone();
   }
 }
 
@@ -558,38 +623,57 @@ function setNarration(html,step,total){
   document.getElementById('stepBadge').textContent=(step&&total)?step+'/'+total:(step||'—');
   const n=document.getElementById('narration');
   n.style.opacity='0';
-  setTimeout(()=>{n.innerHTML=html;n.style.opacity='1';},180);
+  setTimeout(()=>{ n.innerHTML=html; n.style.opacity='1'; },180);
+}
+
+function clickNext(){
+  document.getElementById('nextBtn').disabled=true;
+  if(waitClickResolve){ const r=waitClickResolve; waitClickResolve=null; r(); }
+}
+function showNextBtn(label){
+  const n=document.getElementById('nextBtn'), p=document.getElementById('playBtn');
+  n.style.display='flex'; n.textContent=label; n.disabled=false;
+  p.style.display='none';
+}
+function hideNextBtn(){
+  const n=document.getElementById('nextBtn'), p=document.getElementById('playBtn');
+  n.style.display='none'; n.disabled=true; waitClickResolve=null;
+  p.style.display='flex';
 }
 
 function onDone(){
-  hideNextBtn();render();
+  hideNextBtn(); render();
   document.getElementById('playBtn').disabled=false;
   simRunning=false;
-  const result=parsedOp==='add'?parsedA+parsedB:parsedA-parsedB;
-  const bD=parsedB<0?'('+parsedB+')':''+parsedB;
-  const opS=parsedOp==='add'?'+':'−';
-  document.getElementById('resultEq').textContent=parsedA+' '+opS+' '+bD+' =';
-  document.getElementById('resultVal').textContent=result;
-  document.getElementById('resultDesc').textContent=
+  const result = parsedOp==='add'?parsedA+parsedB:parsedA-parsedB;
+  const bD = parsedB<0?'('+parsedB+')':''+parsedB;
+  const opS = parsedOp==='add'?'+':'−';
+  document.getElementById('resultEq').textContent  = parsedA+' '+opS+' '+bD+' =';
+  document.getElementById('resultVal').textContent  = result;
+  document.getElementById('resultDesc').textContent =
     result===0?'noll':result>0?'positiva kulor':'negativa kulor';
   document.getElementById('resultRow').classList.add('show');
-  setNarration('Klart! <strong>'+balls.length+'</strong> kula'+(balls.length!==1?'r':'')+' kvar i bägaren.','✓','');
-  if(currentTab==='teacher'&&currentExample?.concept)
-    showConceptCard(currentExample.concept.title,currentExample.concept.body);
+  setNarration('Klart! <strong>'+balls.length+'</strong> kula'+(balls.length!==1?'r':'')+' kvar.','✓','');
+  // Mark bead as used
+  if(activeBead){
+    usedBeads.add(activeBead.key);
+    buildBeads();
+    activeBead=null;
+  }
 }
 
 // ══════════════════════════════════════════
 // START / RESET
 // ══════════════════════════════════════════
 function tryStart(){
-  if(simRunning)return;
-  const raw=document.getElementById('exprIn').value;
-  const res=parseExpr(raw);
+  if(simRunning) return;
+  const raw = document.getElementById('exprIn').value;
+  const res = parseExpr(raw);
   if(!res||res.err){
     setFeedback(res?res.err:'Skriv ett uttryck, t.ex. 5 + -3','err');
-    document.getElementById('exprIn').focus();return;
+    document.getElementById('exprIn').focus(); return;
   }
-  parsedA=res.a;parsedB=res.b;parsedOp=res.op;parseValid=true;
+  parsedA=res.a; parsedB=res.b; parsedOp=res.op; parseValid=true;
   const bD=res.b<0?'('+res.b+')':''+res.b;
   setFeedback('✓ '+res.a+' '+(res.op==='add'?'+':'−')+' '+bD,'ok');
   updateExprDisplay();
@@ -597,80 +681,120 @@ function tryStart(){
 }
 
 function startSim(){
-  simRunning=true;hideConceptCard();hideNextBtn();
+  simRunning=true; hideNextBtn();
   document.getElementById('playBtn').disabled=true;
   document.getElementById('resultRow').classList.remove('show');
-  balls=[];dropping=null;queue=[];flashMsg=null;flashAlpha=0;render();
+  balls=[]; dropping=null; queue=[]; flashMsg=null; flashAlpha=0; render();
 
-  const a=parsedA,b=parsedB,op=parsedOp;
-  const aAbs=Math.abs(a),bAbs=Math.abs(b);
+  const a=parsedA, b=parsedB, op=parsedOp;
+  const aAbs=Math.abs(a), bAbs=Math.abs(b);
   const aType=a>=0?'pos':'neg';
   const bType=b>=0?'pos':'neg';
   const hasBType=(aType===bType)?aAbs:0;
 
   let totalSteps=2;
-  if(op==='add'&&bAbs>0&&aType!==bType)totalSteps=3;
-  if(op==='sub'&&bAbs>hasBType)totalSteps=3;
+  if(op==='add'&&bAbs>0&&aType!==bType) totalSteps=3;
+  if(op==='sub'&&bAbs>hasBType)         totalSteps=3;
 
-  const s1='Lägg <strong>'+aAbs+' '+(a>=0?'positiva':'negativa')+'</strong> kulor i bägaren.';
-  enqueue({type:'narrate',html:s1,step:1,total:totalSteps});
-  for(let i=0;i<aAbs;i++){enqueue({type:'drop',ballType:aType});enqueue({type:'pause',ms:60});}
-  enqueue({type:'pause',ms:300});
+  // Step 1 — drop A balls (orig shade), indices 0..aAbs-1
+  enqueue({type:'narrate',
+    html:'Lägg <strong>'+aAbs+' '+(a>=0?'positiva':'negativa')+'</strong> kulor i bägaren.',
+    step:1,total:totalSteps});
+  for(let i=0;i<aAbs;i++){
+    enqueue({type:'drop',ballType:aType,shade:'orig',ballIndex:i});
+    enqueue({type:'pause',ms:65});
+  }
+  enqueue({type:'pause',ms:280});
 
   if(b===0){
-    enqueue({type:'narrate',html:'Vi '+(op==='add'?'adderar':'subtraherar')+' <strong>0</strong> — bägaren förblir oförändrad.',step:2,total:totalSteps});
+    enqueue({type:'narrate',
+      html:'Vi '+(op==='add'?'adderar':'subtraherar')+' <strong>0</strong> — bägaren förblir oförändrad.',
+      step:2,total:totalSteps});
+
   } else if(op==='add'){
-    const s2='Lägg till <strong>'+bAbs+' '+(b>=0?'positiva':'negativa')+'</strong> kulor.';
-    enqueue({type:'narrate',html:s2,step:2,total:totalSteps});
-    for(let i=0;i<bAbs;i++){enqueue({type:'drop',ballType:bType});enqueue({type:'pause',ms:60});}
-    enqueue({type:'pause',ms:300});
+    // Step 2 — drop B balls starting at index aAbs (next row)
+    enqueue({type:'narrate',
+      html:'Lägg till <strong>'+bAbs+' '+(b>=0?'positiva':'negativa')+'</strong> kulor.',
+      step:2,total:totalSteps});
+    for(let i=0;i<bAbs;i++){
+      enqueue({type:'drop',ballType:bType,shade:'orig',ballIndex:aAbs+i});
+      enqueue({type:'pause',ms:65});
+    }
+    enqueue({type:'pause',ms:280});
+
     if(aType!==bType){
       const cancel=Math.min(aAbs,bAbs);
-      const s3='<strong>'+cancel+' par</strong> (+1) och (−1) tar ut varandra — de försvinner!';
-      enqueue({type:'narrate',html:s3,step:3,total:totalSteps});
+      enqueue({type:'narrate',
+        html:'<strong>'+cancel+' par</strong> (+1) och (−1) tar ut varandra — de försvinner!',
+        step:3,total:totalSteps});
       enqueue({type:'pause',ms:200});
-      for(let i=0;i<cancel;i++){enqueue({type:'flash'});enqueue({type:'pause',ms:80});}
-    }
-  } else {
-    if(bAbs>hasBType){
-      const s2='Saknar '+(bType==='neg'?'negativa':'positiva')+' kulor — lägg in <strong>'+bAbs+' nollpar</strong> (+1 och −1 = 0).';
-      enqueue({type:'narrate',html:s2,step:2,total:totalSteps});
-      for(let i=0;i<bAbs;i++){
-        enqueue({type:'drop',ballType:'pos'});enqueue({type:'pause',ms:25});
-        enqueue({type:'drop',ballType:'neg'});enqueue({type:'pause',ms:85});
+      for(let i=0;i<cancel;i++){
+        enqueue({type:'flash'});
+        enqueue({type:'pause',ms:80});
       }
-      enqueue({type:'pause',ms:300});
-      const s3='Ta bort <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor.';
-      enqueue({type:'narrate',html:s3,step:3,total:totalSteps});
+    }
+
+  } else {
+    // SUBTRACTION
+    if(bAbs>hasBType){
+      // Step 2 — add zero-pairs starting at index aAbs
+      enqueue({type:'narrate',
+        html:'Saknar '+(bType==='neg'?'negativa':'positiva')+' kulor. Lägg in <strong>'+bAbs+' nollpar</strong> — varje par är +1 och −1 (= 0).',
+        step:2,total:totalSteps});
+      for(let i=0;i<bAbs;i++){
+        enqueue({type:'drop',ballType:'pos',shade:'pair',ballIndex:aAbs+i*2});
+        enqueue({type:'pause',ms:22});
+        enqueue({type:'drop',ballType:'neg',shade:'pair',ballIndex:aAbs+i*2+1});
+        enqueue({type:'pause',ms:80});
+      }
+      enqueue({type:'pause',ms:280});
+
+      enqueue({type:'narrate',
+        html:'Ta bort <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor. De mörkare kulorna lyfts ut.',
+        step:3,total:totalSteps});
       enqueue({type:'pause',ms:200});
-      for(let i=0;i<bAbs;i++){enqueue({type:'remove',ballType:bType});enqueue({type:'pause',ms:80});}
+      for(let i=0;i<bAbs;i++){
+        enqueue({type:'lift',ballType:bType});
+        enqueue({type:'pause',ms:90});
+      }
     } else {
-      const s2='Ta bort <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor direkt.';
-      enqueue({type:'narrate',html:s2,step:2,total:totalSteps});
-      enqueue({type:'pause',ms:300});
-      for(let i=0;i<bAbs;i++){enqueue({type:'remove',ballType:bType});enqueue({type:'pause',ms:90});}
+      enqueue({type:'narrate',
+        html:'Ta bort <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor — de lyfts ut ur bägaren.',
+        step:2,total:totalSteps});
+      enqueue({type:'pause',ms:280});
+      for(let i=0;i<bAbs;i++){
+        enqueue({type:'lift',ballType:bType});
+        enqueue({type:'pause',ms:100});
+      }
     }
   }
+
   enqueue({type:'done'});
-  queueRunning=true;advanceQueue();
+  queueRunning=true;
+  advanceQueue();
 }
 
 function doReset(){
   stopLoop();
-  balls=[];dropping=null;queue=[];queueRunning=false;simRunning=false;
-  flashMsg=null;flashAlpha=0;waitClickResolve=null;
+  balls=[]; liftingBalls=[]; dropping=null; queue=[]; queueRunning=false; simRunning=false;
+  flashAlpha=0; waitClickResolve=null;
   hideNextBtn();
   document.getElementById('playBtn').disabled=false;
   document.getElementById('resultRow').classList.remove('show');
-  hideConceptCard();
-  document.getElementById('narration').innerHTML='Skriv ett uttryck ovan och tryck ▶';
+  document.getElementById('narration').innerHTML='Skriv ett uttryck ovan eller välj en uppgift nedan.';
   document.getElementById('stepBadge').textContent='—';
   document.getElementById('exprDisplay').innerHTML='&nbsp;';
   document.getElementById('exprIn').value='';
-  setFeedback('','');parseValid=false;
+  setFeedback('',''); parseValid=false;
+  document.querySelectorAll('.bead').forEach(b=>b.classList.remove('active'));
+  activeBead=null;
   render();
 }
 
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+buildBeads();
 render();
 </script>
 </body>
