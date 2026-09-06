@@ -182,7 +182,7 @@
     cursor:pointer; display:flex; align-items:center; justify-content:center;
     transition:all .12s; position:relative; flex-shrink:0;
   }
-  .user-pearl-btn.active{ background:#e8a020; color:#fff; }
+  .user-pearl-btn.active{ color:#fff; }
   .user-pearl-btn:hover{ transform:scale(1.15); }
   .user-pearl-add{
     width:28px; height:28px; border-radius:50%; border:2px dashed #e8a020;
@@ -199,6 +199,29 @@
   .user-pearl-hint{
     font-size:.72rem; color:var(--muted); font-style:italic;
   }
+  .user-pearl-builder{
+    display:flex; flex-wrap:wrap; align-items:center; gap:7px;
+    padding:9px 10px 11px; border-top:1px dashed var(--border);
+  }
+  .upb-label{ font-size:.68rem; color:var(--muted); font-weight:700; width:100%; text-transform:uppercase; letter-spacing:.04em; }
+  .upb-colors{ display:flex; gap:5px; margin-right:4px; }
+  .upb-swatch{
+    width:18px; height:18px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;
+  }
+  .upb-swatch.selected{ border-color:var(--text); transform:scale(1.15); }
+  .upb-num{
+    width:50px; padding:5px 6px; border:1.5px solid var(--border); border-radius:6px;
+    font-family:'Sora',sans-serif; font-size:.82rem;
+  }
+  .upb-op{
+    width:28px; height:28px; border-radius:7px; border:1.5px solid var(--border); background:#fff;
+    font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; color:var(--text);
+  }
+  .upb-add{
+    border:1.5px solid var(--accent); background:var(--accent); color:#fff; border-radius:7px;
+    padding:6px 12px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; font-size:.78rem;
+  }
+  .upb-add:hover{ opacity:.88; }
 
   /* history + task */
   .hist-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;
@@ -322,6 +345,44 @@
   .toggle-label:last-child{border-bottom:none}
   .toggle-label input{width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
   .toggle-label .ic{ width:20px; text-align:center }
+
+  /* ═══════════ ARBETSBLAD (utskriftsvänligt) ═══════════ */
+  .worksheet-overlay{
+    display:none; position:fixed; inset:0; z-index:700;
+    background:#fff; overflow-y:auto;
+  }
+  .worksheet-overlay.open{ display:block; }
+  .worksheet-controls{
+    position:sticky; top:0; background:var(--surface); border-bottom:1.5px solid var(--border);
+    padding:12px 22px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; z-index:2;
+    font-family:'Sora',sans-serif;
+  }
+  .worksheet-controls h2{ margin:0 auto 0 0; font-size:1.1rem; color:var(--text); }
+  .worksheet-controls label{ font-size:.85rem; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:6px; }
+  .worksheet-controls input[type=number]{ width:56px; padding:4px 6px; border:1.5px solid var(--border); border-radius:6px; font-family:'Sora',sans-serif; }
+  .worksheet-controls input[type=checkbox]{ width:16px; height:16px; accent-color:var(--accent); }
+  .worksheet-controls button{
+    border:1.5px solid var(--accent); background:var(--accent); color:#fff; border-radius:8px;
+    padding:8px 16px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; font-size:.85rem;
+  }
+  .worksheet-controls button:hover{ opacity:.88; }
+  .worksheet-controls .ws-close-btn{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
+  .worksheet-page{ max-width:820px; margin:0 auto; padding:38px 34px 60px; font-family:'Sora',sans-serif; color:#100e28; }
+  .worksheet-title-bar{ height:8px; border-radius:5px; margin-bottom:20px; background:var(--grad); }
+  .worksheet-page h1{ font-size:1.5rem; margin:0 0 8px; }
+  .worksheet-meta{ font-size:.95rem; color:#585078; margin-bottom:28px; }
+  .worksheet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px 34px; }
+  .worksheet-problem{ display:flex; align-items:baseline; gap:8px; font-size:1.15rem; font-weight:600; border-bottom:1.5px dotted #ccc5f0; padding-bottom:11px; }
+  .worksheet-problem .wnum{ font-weight:700; color:#585078; min-width:24px; }
+  .worksheet-problem .wanswer-line{ flex:1; border-bottom:1.5px solid #100e28; min-width:46px; align-self:stretch; }
+  .worksheet-answerkey{ page-break-before:always; }
+  .worksheet-answer-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:11px 22px; font-size:.92rem; color:#100e28; }
+  @media print{
+    body > *:not(.worksheet-overlay){ display:none !important; }
+    .no-print{ display:none !important; }
+    .worksheet-overlay{ position:static; overflow:visible; }
+    .worksheet-page{ padding:14px 6px 30px; max-width:100%; }
+  }
 
   /* ═══════════ STUDENT MODE OVERLAY ═══════════ */
   .student-overlay{
@@ -491,6 +552,7 @@
     <div class="lt-group-label">Verktyg</div>
     <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
     <button class="lt-btn" id="ltBtnExport"><span>📷</span><span class="lt-tip">Exportera bild</span></button>
+    <button class="lt-btn" id="ltBtnWorksheet"><span>📝</span><span class="lt-tip">Skapa arbetsblad</span></button>
     <button class="lt-btn" id="btnStudentMode"><span>🎓</span><span class="lt-tip">Elevläge</span></button>
     <button class="lt-btn" id="btnKeyHelp"><span>?</span><span class="lt-tip">Tangentbordsgenvägar</span></button>
     <div class="lt-sep"></div>
@@ -573,6 +635,7 @@
     <div class="sp-tabs" style="flex-wrap:wrap;">
       <button class="sp-tab active" id="spTabNumpad">🔢 Knappsats</button>
       <button class="sp-tab" id="spTabPreset">📋 Uttryck</button>
+      <button class="sp-tab" id="spTabMyPearls">⭐ Mina pärlor</button>
       <button class="sp-tab" id="spTabHistory">🕐 Historik</button>
       <button class="sp-tab" id="spTabTasks">🎯 Uppgifter</button>
     </div>
@@ -599,13 +662,26 @@
           <button class="np-btn go" data-action="go">OK ▶</button>
         </div>
       </div>
-      <!-- User saved row -->
-      <div class="user-pearl-wrap" id="userPearlWrap">
-        <span class="user-pearl-hint" id="userPearlHint">Klicka ★ för att spara aktuellt uttryck</span>
-      </div>
       <!-- Preset tab -->
       <div id="spPresetContent" style="display:none">
         <div id="presetCatContainer"></div>
+      </div>
+      <!-- Mina pärlor tab -->
+      <div id="spMyPearlsContent" style="display:none">
+        <div class="upb-label" style="margin-bottom:6px;">Dina sparade uttryck (klicka för att öppna, högerklicka för att ta bort)</div>
+        <div class="user-pearl-wrap" id="userPearlWrap">
+          <span class="user-pearl-hint" id="userPearlHint">Klicka ★ för att spara aktuellt uttryck</span>
+        </div>
+        <!-- Bygg egen pärla: färg + fält, utan att behöva skriva fritext -->
+        <div class="user-pearl-builder">
+          <span class="upb-label">Lägg till egen pärla</span>
+          <div class="upb-colors" id="upbColors"></div>
+          <input type="number" id="upbT1" placeholder="t.ex. 5" class="upb-num" inputmode="numeric">
+          <button type="button" id="upbOp" class="upb-op">+</button>
+          <input type="number" id="upbT2" placeholder="t.ex. 3" class="upb-num" inputmode="numeric">
+          <button type="button" id="upbAdd" class="upb-add">Lägg till</button>
+        </div>
+        <div class="upb-label" style="margin-top:10px;opacity:.75;">💾 Sparas automatiskt i den här webbläsaren, till nästa lektion också.</div>
       </div>
       <!-- History tab -->
       <div id="spHistoryContent" style="display:none">
@@ -663,6 +739,35 @@
   </div>
 
 </main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ARBETSBLAD — utskriftsvänlig, blandad ("interleaved") träning
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="worksheet-overlay" id="worksheetOverlay">
+  <div class="worksheet-controls no-print">
+    <h2>📝 Arbetsblad</h2>
+    <label>Antal: <input type="number" id="wsCount" min="4" max="60" value="20"></label>
+    <label><input type="checkbox" id="wsAdvanced"> Avancerad (3–4 termer)</label>
+    <label><input type="checkbox" id="wsAnswerKey" checked> Facit (ny sida)</label>
+    <button id="wsRegenerate">🔄 Nytt arbetsblad</button>
+    <button id="wsPrint">🖨️ Skriv ut</button>
+    <button id="wsClose" class="ws-close-btn">✕ Stäng</button>
+  </div>
+
+  <div class="worksheet-page">
+    <h1>Blandad träning — positiva och negativa tal</h1>
+    <div class="worksheet-title-bar"></div>
+    <div class="worksheet-meta">Namn: ________________________________&nbsp;&nbsp;&nbsp;&nbsp;Datum: ______________</div>
+    <div class="worksheet-grid" id="worksheetGrid"></div>
+  </div>
+
+  <div class="worksheet-page worksheet-answerkey" id="worksheetAnswerPage">
+    <h1>Facit</h1>
+    <div class="worksheet-title-bar"></div>
+    <div class="worksheet-answer-grid" id="worksheetAnswerGrid"></div>
+  </div>
+</div>
+
 
   <!-- ═══════════ STUDENT MODE OVERLAY ═══════════ -->
   <div class="student-overlay" id="studentOverlay">
@@ -2576,25 +2681,30 @@ btnRevl.addEventListener('click', () => {
 //  USER SAVED EXPRESSIONS — persisted in URL hash
 // ═══════════════════════════════════════════════════════════════════
 function encodeSaved(arr) {
-  return arr.map(p => `${p.t1}${p.op==='+'?'+':'-'}${p.t2}`).join(',');
+  return arr.map(p => `${p.t1}${p.op==='+'?'+':'-'}${p.t2}:${(p.color||'#e8a020').replace('#','')}`).join(',');
 }
 function decodeSaved(str) {
   if (!str) return [];
   return str.split(',').map(s => {
-    const m = s.match(/^(-?\d+)([+\-])(-?\d+)$/);
+    const m = s.match(/^(-?\d+)([+\-])(-?\d+)(?::([0-9a-fA-F]{6}))?$/);
     if (!m) return null;
-    return {t1:parseInt(m[1]), op:m[2]==='-'?'−':'+', t2:parseInt(m[3])};
+    return {
+      t1: parseInt(m[1]),
+      op: m[2]==='-' ? '−' : '+',
+      t2: parseInt(m[3]),
+      color: m[4] ? '#'+m[4] : '#e8a020',
+    };
   }).filter(Boolean);
 }
 function saveToURL() {
   const val = S.savedExprs.length ? encodeSaved(S.savedExprs) : '';
   try { history.replaceState(null, '', window.location.pathname + (val ? '#saved=' + val : '')); } catch(e) {}
-  try { sessionStorage.setItem('tallinje_saved', val); } catch(e) {}
+  try { localStorage.setItem('tallinje_saved', val); } catch(e) {}
 }
 function loadFromURL() {
   const m = window.location.hash.match(/saved=([^&]*)/);
   if (m) { S.savedExprs = decodeSaved(decodeURIComponent(m[1])); return; }
-  try { const v = sessionStorage.getItem('tallinje_saved'); if (v) S.savedExprs = decodeSaved(v); } catch(e) {}
+  try { const v = localStorage.getItem('tallinje_saved'); if (v) S.savedExprs = decodeSaved(v); } catch(e) {}
 }
 
 function buildUserPearls() {
@@ -2611,7 +2721,10 @@ function buildUserPearls() {
     S.savedExprs.forEach((p, i) => {
       const btn = document.createElement('button');
       const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
+      const col = p.color || '#e8a020';
       btn.className = 'user-pearl-btn' + (isActive ? ' active' : '');
+      btn.style.borderColor = col;
+      btn.style.background = isActive ? col : col + '33';
       btn.title = exprLabel(p);
       btn.textContent = isActive ? '★' : '☆';
       btn.addEventListener('click', () => {
@@ -2642,12 +2755,57 @@ function buildUserPearls() {
 function saveCurrentExpr() {
   const already = S.savedExprs.some(p => p.t1===S.t1 && p.op===S.op && p.t2===S.t2);
   if (!already) {
-    S.savedExprs.push({t1:S.t1, op:S.op, t2:S.t2});
+    S.savedExprs.push({t1:S.t1, op:S.op, t2:S.t2, color:'#e8a020'});
     saveToURL();
     buildUserPearls();
     render(1,0);
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════
+//  BYGG EGEN PÄRLA — färgval + strukturerade fält (inget fritextuttryck
+//  att tolka, för att undvika krångel med minustecken/decimaltecken)
+// ═══════════════════════════════════════════════════════════════════
+const PEARL_BUILDER_COLORS = ['#e8a020','#18a348','#306BF0','#F4A261','#7c3aed','#EC6095'];
+let upbSelectedColor = PEARL_BUILDER_COLORS[0];
+const upbColorsEl = document.getElementById('upbColors');
+PEARL_BUILDER_COLORS.forEach((c, i) => {
+  const sw = document.createElement('button');
+  sw.type = 'button';
+  sw.className = 'upb-swatch' + (i === 0 ? ' selected' : '');
+  sw.style.background = c;
+  sw.title = 'Välj färg';
+  sw.addEventListener('click', () => {
+    upbSelectedColor = c;
+    upbColorsEl.querySelectorAll('.upb-swatch').forEach(s => s.classList.remove('selected'));
+    sw.classList.add('selected');
+  });
+  upbColorsEl.appendChild(sw);
+});
+
+const upbT1 = document.getElementById('upbT1');
+const upbT2 = document.getElementById('upbT2');
+const upbOpBtn = document.getElementById('upbOp');
+let upbOpVal = '+';
+upbOpBtn.addEventListener('click', () => {
+  upbOpVal = (upbOpVal === '+') ? '−' : '+';
+  upbOpBtn.textContent = upbOpVal;
+});
+document.getElementById('upbAdd').addEventListener('click', () => {
+  const t1 = parseInt(upbT1.value, 10);
+  const t2 = parseInt(upbT2.value, 10);
+  if (!Number.isFinite(t1) || !Number.isFinite(t2)) return;
+  const already = S.savedExprs.some(p => p.t1===t1 && p.op===upbOpVal && p.t2===t2);
+  if (!already) {
+    S.savedExprs.push({t1, op:upbOpVal, t2, color:upbSelectedColor});
+    saveToURL();
+    buildUserPearls();
+    render(1,0);
+  }
+  upbT1.value = '';
+  upbT2.value = '';
+  upbT1.focus();
+});
 
 // Draw user saved pearls below the preset pearl band
 const USER_PEARL_Y = CH - 28;
@@ -2659,9 +2817,9 @@ function drawUserPearlBand() {
   const PR = 7, GAP = 6;
   const totalW = S.savedExprs.length * (PR*2+GAP) - GAP;
   let x = CW/2 - totalW/2;
-  const col = '#e8a020';
   S.savedExprs.forEach((p, i) => {
     const isActive = p.t1===S.t1 && p.op===S.op && p.t2===S.t2;
+    const col = p.color || '#e8a020';
     ctx.beginPath();
     ctx.arc(x, USER_PEARL_Y, isActive ? PR+2 : PR, 0, Math.PI*2);
     ctx.fillStyle = isActive ? col : col+'55';
@@ -2744,8 +2902,10 @@ const sidePanel   = document.getElementById('sidePanel');
 const ltBtnPanel  = document.getElementById('ltBtnPanel');
 const spTabPreset = document.getElementById('spTabPreset');
 const spTabNumpad = document.getElementById('spTabNumpad');
+const spTabMyPearls = document.getElementById('spTabMyPearls');
 const spPresetContent = document.getElementById('spPresetContent');
 const spNumpadContent = document.getElementById('spNumpadContent');
+const spMyPearlsContent = document.getElementById('spMyPearlsContent');
 
 ltBtnPanel.addEventListener('click', () => {
   const willOpen = !sidePanel.classList.contains('open');
@@ -2770,14 +2930,25 @@ document.addEventListener('click', e => {
 });
 
 spTabPreset.addEventListener('click', () => {
-  spTabPreset.classList.add('active');   spTabNumpad.classList.remove('active');
-  spPresetContent.style.display = '';   spNumpadContent.style.display = 'none';
+  [spTabNumpad,spTabPreset,spTabMyPearls,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
+  [spNumpadContent,spPresetContent,spMyPearlsContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
+  spTabPreset.classList.add('active');
+  spPresetContent.style.display = '';
   buildPresetCats();
 });
 spTabNumpad.addEventListener('click', () => {
-  spTabNumpad.classList.add('active');   spTabPreset.classList.remove('active');
-  spNumpadContent.style.display = '';   spPresetContent.style.display = 'none';
+  [spTabNumpad,spTabPreset,spTabMyPearls,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
+  [spNumpadContent,spPresetContent,spMyPearlsContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
+  spTabNumpad.classList.add('active');
+  spNumpadContent.style.display = '';
   resetNp(); updateNumpadDisplay();
+});
+spTabMyPearls.addEventListener('click', () => {
+  [spTabNumpad,spTabPreset,spTabMyPearls,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
+  [spNumpadContent,spPresetContent,spMyPearlsContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
+  spTabMyPearls.classList.add('active');
+  spMyPearlsContent.style.display = '';
+  buildUserPearls();
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -3034,6 +3205,69 @@ function exportCanvasImage() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+//  ARBETSBLAD — blandad ("interleaved") träning, utskriftsvänligt
+//  Genererar fristående uttryck (helt oberoende av tallinje-animationen)
+//  så "avancerad" (3–4 termer) kan användas utan att röra robot-motorn.
+// ═══════════════════════════════════════════════════════════════════
+function wsRandInt(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
+function wsRandNonZero(lo, hi) {
+  let n;
+  do { n = wsRandInt(lo, hi); } while (n === 0);
+  return n;
+}
+
+function genWorksheetProblem(advanced) {
+  const t1 = wsRandNonZero(-10, 10);   // aldrig 0 — undviker triviala uppgifter som "0 + (-3)"
+  let total = t1;
+  const parts = [fmtNum(t1)];
+  const termCount = advanced ? wsRandInt(3, 4) : 2; // totalt antal termer, inkl. t1
+  for (let i = 1; i < termCount; i++) {
+    const op = Math.random() < 0.5 ? '+' : '−';
+    let t = wsRandNonZero(1, 9) * (Math.random() < 0.5 ? -1 : 1);
+    total += (op === '+') ? t : -t;
+    parts.push(op, fmtNum(t));
+  }
+  return { text: parts.join(' '), answer: total };
+}
+
+const worksheetOverlay    = document.getElementById('worksheetOverlay');
+const worksheetGrid       = document.getElementById('worksheetGrid');
+const worksheetAnswerGrid = document.getElementById('worksheetAnswerGrid');
+const worksheetAnswerPage = document.getElementById('worksheetAnswerPage');
+const wsCount     = document.getElementById('wsCount');
+const wsAdvanced  = document.getElementById('wsAdvanced');
+const wsAnswerKey = document.getElementById('wsAnswerKey');
+
+function renderWorksheet() {
+  const n = Math.max(4, Math.min(60, parseInt(wsCount.value, 10) || 20));
+  const advanced = wsAdvanced.checked;
+  const problems = Array.from({length: n}, () => genWorksheetProblem(advanced));
+  worksheetGrid.innerHTML = problems.map((p, i) => `
+    <div class="worksheet-problem">
+      <span class="wnum">${i + 1}.</span>
+      <span>${p.text}&nbsp;=</span>
+      <span class="wanswer-line"></span>
+    </div>`).join('');
+  worksheetAnswerGrid.innerHTML = problems.map((p, i) =>
+    `<div><b>${i + 1}.</b> ${p.answer}</div>`).join('');
+  worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
+}
+
+const ltBtnWorksheet = document.getElementById('ltBtnWorksheet');
+ltBtnWorksheet.addEventListener('click', () => {
+  worksheetOverlay.classList.add('open');
+  renderWorksheet();
+});
+document.getElementById('wsClose').addEventListener('click', () => {
+  worksheetOverlay.classList.remove('open');
+});
+document.getElementById('wsRegenerate').addEventListener('click', renderWorksheet);
+document.getElementById('wsPrint').addEventListener('click', () => window.print());
+wsAnswerKey.addEventListener('change', () => {
+  worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
+});
+
+// ═══════════════════════════════════════════════════════════════════
 //  KEYBOARD SHORTCUTS
 // ═══════════════════════════════════════════════════════════════════
 document.addEventListener('keydown', (e) => {
@@ -3082,15 +3316,15 @@ const spHistoryContent = document.getElementById('spHistoryContent');
 const spTasksContent   = document.getElementById('spTasksContent');
 
 spTabHistory.addEventListener('click', () => {
-  [spTabNumpad,spTabPreset,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
-  [spNumpadContent,spPresetContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
+  [spTabNumpad,spTabPreset,spTabMyPearls,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
+  [spNumpadContent,spPresetContent,spMyPearlsContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
   spTabHistory.classList.add('active');
   spHistoryContent.style.display = '';
   buildHistoryList();
 });
 spTabTasks.addEventListener('click', () => {
-  [spTabNumpad,spTabPreset,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
-  [spNumpadContent,spPresetContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
+  [spTabNumpad,spTabPreset,spTabMyPearls,spTabHistory,spTabTasks].forEach(t => t.classList.remove('active'));
+  [spNumpadContent,spPresetContent,spMyPearlsContent,spHistoryContent,spTasksContent].forEach(d => d.style.display='none');
   spTabTasks.classList.add('active');
   spTasksContent.style.display = '';
   buildTaskContent();
