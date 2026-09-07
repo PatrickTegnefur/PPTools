@@ -395,6 +395,12 @@
   .worksheet-problem.ws-correct .ws-feedback{ color:#18a348; }
   .worksheet-problem.ws-wrong{ border-bottom-color:#EC6095; }
   .worksheet-problem.ws-wrong .ws-feedback{ color:#EC6095; }
+  .ws-frac{
+    display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle;
+    margin:0 5px; font-size:.9em; line-height:1.2;
+  }
+  .ws-frac-num{ padding:0 5px 2px; border-bottom:1.8px solid #100e28; }
+  .ws-frac-den{ padding:2px 5px 0; }
   @media print{
     body > *:not(.worksheet-overlay){ display:none !important; }
     .no-print{ display:none !important; }
@@ -767,11 +773,20 @@
   <div class="worksheet-controls no-print">
     <h2>📝 Arbetsblad</h2>
     <div class="ws-mode-toggle">
+      <button type="button" id="wsTopicAddSub" class="ws-mode-btn active">➕➖ Pos/neg tal</button>
+      <button type="button" id="wsTopicMulDiv" class="ws-mode-btn">✖️➗ Mult/Div</button>
+    </div>
+    <div class="ws-mode-toggle">
       <button type="button" id="wsModePrint" class="ws-mode-btn active">🖨️ Skriv ut</button>
       <button type="button" id="wsModeInteractive" class="ws-mode-btn">💻 Interaktivt</button>
     </div>
     <label>Antal: <input type="number" id="wsCount" min="4" max="60" value="20"></label>
-    <label><input type="checkbox" id="wsAdvanced"> Avancerad (3–4 termer)</label>
+    <label id="wsAdvancedLabel"><input type="checkbox" id="wsAdvanced"> Avancerad (3–4 termer)</label>
+    <div class="ws-mode-toggle" id="wsLevelToggle" style="display:none;">
+      <button type="button" class="ws-mode-btn ws-level-btn active" data-level="1">Nivå 1</button>
+      <button type="button" class="ws-mode-btn ws-level-btn" data-level="2">Nivå 2</button>
+      <button type="button" class="ws-mode-btn ws-level-btn" data-level="3">Nivå 3</button>
+    </div>
     <label id="wsAnswerKeyLabel"><input type="checkbox" id="wsAnswerKey" checked> Facit (ny sida)</label>
     <button id="wsRegenerate">🔄 Nytt arbetsblad</button>
     <button id="wsPrint">🖨️ Skriv ut</button>
@@ -781,7 +796,7 @@
   </div>
 
   <div class="worksheet-page">
-    <h1>Blandad träning — positiva och negativa tal</h1>
+    <h1 id="wsTitle">Blandad träning — positiva och negativa tal</h1>
     <div class="worksheet-title-bar"></div>
     <div class="worksheet-meta">Namn: ________________________________&nbsp;&nbsp;&nbsp;&nbsp;Datum: ______________</div>
     <div class="worksheet-grid" id="worksheetGrid"></div>
@@ -3253,37 +3268,132 @@ function genWorksheetProblem(advanced) {
     total += (op === '+') ? t : -t;
     parts.push(op, fmtNum(t));
   }
-  return { text: parts.join(' '), answer: total };
+  return { text: parts.join(' '), answer: total, isFraction: false };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  MULTIPLIKATION & DIVISION — tre nivåer, allt med garanterat jämna
+//  (heltals-) svar. "isFraction" avgör om uttrycket ritas som ett
+//  bråk (täljare/nämnare) eller som vanlig text.
+// ═══════════════════════════════════════════════════════════════════
+
+// Nivå 1: två faktorer → produkt, ELLER täljare/nämnare → kvot
+function genMulDivLevel1() {
+  if (Math.random() < 0.5) {
+    const a = wsRandNonZero(-9, 9), b = wsRandNonZero(-9, 9);
+    return { text: `${fmtNum(a)} × ${fmtNum(b)}`, answer: a * b, isFraction: false };
+  }
+  const d = wsRandNonZero(-9, 9);
+  const q = wsRandNonZero(-9, 9);
+  const n = d * q;
+  return { num: fmtNum(n), den: fmtNum(d), answer: q, isFraction: true };
+}
+
+// Nivå 2: fler faktorer — antingen en multiplikationskedja, eller en
+// kvot där både täljare och nämnare själva är produkter av två faktorer.
+function genMulDivLevel2() {
+  if (Math.random() < 0.5) {
+    const a = wsRandNonZero(-6, 6), b = wsRandNonZero(-6, 6), c = wsRandNonZero(-6, 6);
+    return { text: `${fmtNum(a)} × ${fmtNum(b)} × ${fmtNum(c)}`, answer: a * b * c, isFraction: false };
+  }
+  for (let i = 0; i < 60; i++) {
+    const a = wsRandNonZero(-6, 6), b = wsRandNonZero(-6, 6);
+    const c = wsRandNonZero(-5, 5), d = wsRandNonZero(-5, 5);
+    const N = a * b, D = c * d;
+    if (D !== 0 && N % D === 0) {
+      return { num: `${fmtNum(a)} × ${fmtNum(b)}`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: N / D, isFraction: true };
+    }
+  }
+  // Garanterat jämnt fallback om slumpen inte gav en delbar kombination
+  const c = wsRandNonZero(-5, 5), d = wsRandNonZero(-5, 5);
+  const q = wsRandNonZero(-6, 6);
+  const D = c * d;
+  return { num: `${fmtNum(D * q)} × 1`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: q, isFraction: true };
+}
+
+// Nivå 3: blandat — täljare och/eller nämnare är en summa/differens som
+// måste räknas ut innan själva divisionen utförs.
+function genMulDivLevel3() {
+  for (let i = 0; i < 100; i++) {
+    const n1 = wsRandNonZero(-9, 9), n2 = wsRandNonZero(-9, 9);
+    const nOp = Math.random() < 0.5 ? '+' : '−';
+    const N = (nOp === '+') ? n1 + n2 : n1 - n2;
+
+    let denText, D;
+    if (Math.random() < 0.5) {
+      const d1 = wsRandNonZero(-6, 6), d2 = wsRandNonZero(-6, 6);
+      const dOp = Math.random() < 0.5 ? '+' : '−';
+      D = (dOp === '+') ? d1 + d2 : d1 - d2;
+      denText = `${fmtNum(d1)} ${dOp} ${fmtNum(d2)}`;
+    } else {
+      D = wsRandNonZero(-6, 6);
+      denText = fmtNum(D);
+    }
+    if (D !== 0 && N !== 0 && N % D === 0) {
+      return { num: `${fmtNum(n1)} ${nOp} ${fmtNum(n2)}`, den: denText, answer: N / D, isFraction: true };
+    }
+  }
+  // Garanterat jämnt fallback
+  const d = wsRandNonZero(2, 6);
+  const q = wsRandNonZero(-6, 6);
+  const n1 = wsRandNonZero(1, 5);
+  const n2 = d * q - n1;
+  return { num: `${fmtNum(n1)} + ${fmtNum(n2)}`, den: fmtNum(d), answer: q, isFraction: true };
+}
+
+function genMulDivProblem(level) {
+  if (level === 1) return genMulDivLevel1();
+  if (level === 2) return genMulDivLevel2();
+  return genMulDivLevel3();
 }
 
 const worksheetOverlay    = document.getElementById('worksheetOverlay');
 const worksheetGrid       = document.getElementById('worksheetGrid');
 const worksheetAnswerGrid = document.getElementById('worksheetAnswerGrid');
 const worksheetAnswerPage = document.getElementById('worksheetAnswerPage');
+const wsTitle     = document.getElementById('wsTitle');
 const wsCount     = document.getElementById('wsCount');
 const wsAdvanced  = document.getElementById('wsAdvanced');
+const wsAdvancedLabel  = document.getElementById('wsAdvancedLabel');
 const wsAnswerKey = document.getElementById('wsAnswerKey');
 const wsAnswerKeyLabel = document.getElementById('wsAnswerKeyLabel');
 const wsModePrint       = document.getElementById('wsModePrint');
 const wsModeInteractive = document.getElementById('wsModeInteractive');
+const wsTopicAddSub = document.getElementById('wsTopicAddSub');
+const wsTopicMulDiv = document.getElementById('wsTopicMulDiv');
+const wsLevelToggle = document.getElementById('wsLevelToggle');
+const wsLevelBtns   = Array.from(document.querySelectorAll('.ws-level-btn'));
 const wsPrintBtn = document.getElementById('wsPrint');
 const wsCheckBtn = document.getElementById('wsCheck');
 const wsScoreEl  = document.getElementById('wsScore');
 
-let wsMode = 'print'; // 'print' | 'interactive'
+let wsMode  = 'print';  // 'print' | 'interactive'
+let wsTopic = 'addsub'; // 'addsub' | 'muldiv'
+let wsLevel = 1;        // 1 | 2 | 3 — endast relevant för 'muldiv'
 let wsProblems = [];
+
+// Rendera ett uttryck: antingen som vanlig text eller som ett bråk (täljare/nämnare)
+function wsProblemHTML(p) {
+  if (p.isFraction) {
+    return `<span class="ws-frac"><span class="ws-frac-num">${p.num}</span><span class="ws-frac-den">${p.den}</span></span>`;
+  }
+  return `<span>${p.text}</span>`;
+}
+
+function genOneProblem() {
+  return (wsTopic === 'addsub') ? genWorksheetProblem(wsAdvanced.checked) : genMulDivProblem(wsLevel);
+}
 
 function renderWorksheet() {
   const n = Math.max(4, Math.min(60, parseInt(wsCount.value, 10) || 20));
-  const advanced = wsAdvanced.checked;
-  wsProblems = Array.from({length: n}, () => genWorksheetProblem(advanced));
+  wsProblems = Array.from({length: n}, genOneProblem);
   wsScoreEl.textContent = '';
   if (wsMode === 'interactive') {
     worksheetAnswerPage.style.display = 'none'; // facit ska inte synas direkt i interaktivt läge
     worksheetGrid.innerHTML = wsProblems.map((p, i) => `
       <div class="worksheet-problem" data-idx="${i}">
         <span class="wnum">${i + 1}.</span>
-        <span>${p.text}&nbsp;=</span>
+        ${wsProblemHTML(p)}<span>&nbsp;=</span>
         <input type="number" class="ws-answer-input no-print" id="wsAns${i}">
         <span class="ws-feedback no-print" id="wsFeedback${i}"></span>
       </div>`).join('');
@@ -3291,7 +3401,7 @@ function renderWorksheet() {
     worksheetGrid.innerHTML = wsProblems.map((p, i) => `
       <div class="worksheet-problem">
         <span class="wnum">${i + 1}.</span>
-        <span>${p.text}&nbsp;=</span>
+        ${wsProblemHTML(p)}<span>&nbsp;=</span>
         <span class="wanswer-line"></span>
       </div>`).join('');
     worksheetAnswerGrid.innerHTML = wsProblems.map((p, i) =>
@@ -3328,6 +3438,18 @@ function setWorksheetMode(mode) {
   renderWorksheet();
 }
 
+function setWorksheetTopic(topic) {
+  wsTopic = topic;
+  wsTopicAddSub.classList.toggle('active', topic === 'addsub');
+  wsTopicMulDiv.classList.toggle('active', topic === 'muldiv');
+  wsAdvancedLabel.style.display = (topic === 'addsub') ? '' : 'none';
+  wsLevelToggle.style.display   = (topic === 'muldiv') ? '' : 'none';
+  wsTitle.textContent = (topic === 'addsub')
+    ? 'Blandad träning — positiva och negativa tal'
+    : 'Blandad träning — multiplikation och division';
+  renderWorksheet();
+}
+
 const ltBtnWorksheet = document.getElementById('ltBtnWorksheet');
 ltBtnWorksheet.addEventListener('click', () => {
   worksheetOverlay.classList.add('open');
@@ -3344,6 +3466,15 @@ wsAnswerKey.addEventListener('change', () => {
 });
 wsModePrint.addEventListener('click', () => setWorksheetMode('print'));
 wsModeInteractive.addEventListener('click', () => setWorksheetMode('interactive'));
+wsTopicAddSub.addEventListener('click', () => setWorksheetTopic('addsub'));
+wsTopicMulDiv.addEventListener('click', () => setWorksheetTopic('muldiv'));
+wsLevelBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsLevel = parseInt(btn.dataset.level, 10);
+    wsLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
 
 // ═══════════════════════════════════════════════════════════════════
 //  KEYBOARD SHORTCUTS
