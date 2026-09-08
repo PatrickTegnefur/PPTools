@@ -1248,6 +1248,9 @@ function drawArcSegment(from, to, frac, color, noLabel) {
 //  DRAW — total arc
 // ═══════════════════════════════════════════════════════════════════
 function drawTotalArc() {
+  // Styrs av den vanliga "Totalt hopp"-togglen och visas först när hela
+  // vägen är klar (done/paused/leg2) — inte medan man fortfarande hoppar,
+  // oavsett om man går i stora svep eller små kliv.
   if (!S.showTotal) return;
   if (S.phase!=='done' && S.phase!=='paused' && S.phase!=='leg2') return;
   if (S.t1===S.answer) return;
@@ -1288,7 +1291,8 @@ function drawTotalArc() {
     const d2=Math.abs(S.answer);
     label=`${d1} gjorda + ${d2} kvar = ${d1+d2} steg`;
   } else {
-    label=`${Math.abs(S.answer-S.t1)} steg`;
+    const dirWord = isForward(S.t1, S.answer) ? 'framåt' : 'bakåt';
+    label=`${Math.abs(S.answer-S.t1)} steg ${dirWord}`;
   }
   ctx.font='bold 12px Sora';
   const tw=ctx.measureText(label).width;
