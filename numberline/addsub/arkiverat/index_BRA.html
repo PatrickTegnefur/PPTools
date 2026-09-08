@@ -368,10 +368,7 @@
   .worksheet-controls button:hover{ opacity:.88; }
   .worksheet-controls .ws-close-btn{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
   .worksheet-page{ max-width:820px; margin:0 auto; padding:38px 34px 60px; font-family:'Sora',sans-serif; color:#100e28; }
-  .worksheet-title-bar{
-    height:8px; border-radius:5px; margin-bottom:20px; background:var(--grad);
-    -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact;
-  }
+  .worksheet-title-bar{ height:8px; border-radius:5px; margin-bottom:20px; background:var(--grad); }
   .worksheet-page h1{ font-size:1.5rem; margin:0 0 8px; }
   .worksheet-meta{ font-size:.95rem; color:#585078; margin-bottom:28px; }
   .worksheet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px 34px; }
@@ -380,34 +377,11 @@
   .worksheet-problem .wanswer-line{ flex:1; border-bottom:1.5px solid #100e28; min-width:46px; align-self:stretch; }
   .worksheet-answerkey{ page-break-before:always; }
   .worksheet-answer-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:11px 22px; font-size:.92rem; color:#100e28; }
-  .ws-mode-toggle{ display:flex; border:1.5px solid var(--border); border-radius:8px; overflow:hidden; }
-  .ws-mode-btn{
-    border:none; background:#fff; color:var(--muted); padding:8px 13px; font-weight:700;
-    cursor:pointer; font-family:'Sora',sans-serif; font-size:.82rem;
-  }
-  .ws-mode-btn.active{ background:var(--accent); color:#fff; }
-  .ws-answer-input{
-    width:64px; padding:5px 7px; border:1.5px solid var(--border); border-radius:6px;
-    font-family:'Sora',sans-serif; font-size:1rem; font-weight:700; color:#100e28;
-  }
-  .ws-feedback{ font-weight:700; font-size:.82rem; min-width:100px; }
-  .worksheet-problem.ws-correct{ border-bottom-color:#18a348; }
-  .worksheet-problem.ws-correct .ws-feedback{ color:#18a348; }
-  .worksheet-problem.ws-wrong{ border-bottom-color:#EC6095; }
-  .worksheet-problem.ws-wrong .ws-feedback{ color:#EC6095; }
-  .ws-frac{
-    display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle;
-    margin:0 5px; font-size:.9em; line-height:1.2;
-  }
-  .ws-frac-num{ padding:0 5px 2px; border-bottom:1.8px solid #100e28; }
-  .ws-frac-den{ padding:2px 5px 0; }
   @media print{
     body > *:not(.worksheet-overlay){ display:none !important; }
     .no-print{ display:none !important; }
     .worksheet-overlay{ position:static; overflow:visible; }
     .worksheet-page{ padding:14px 6px 30px; max-width:100%; }
-    .worksheet-title-bar{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
 
   /* ═══════════ STUDENT MODE OVERLAY ═══════════ */
@@ -569,7 +543,6 @@
     <!-- LÄGEN: undervisningslägen som styr hur tallinjen beter sig/visas -->
     <div class="lt-group-label">Lägen</div>
     <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
-    <button class="lt-btn" id="ltBtnSmallSteps"><span>🐾</span><span class="lt-tip">Små kliv (istället för ett stort svep)</span></button>
     <button class="lt-btn" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
     <button class="lt-btn" id="ltBtnPlacement"><span>🙈</span><span class="lt-tip">Placeringsläge (dölj roboten)</span></button>
     <button class="lt-btn" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Visa/dölj riktningspilen (döljs helt utanför placeringsläget — bra för diskussion)</span></button>
@@ -755,7 +728,6 @@
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">R</kbd><span style="font-size:.82rem;color:var(--muted);">Återställ</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">K</kbd><span style="font-size:.82rem;color:var(--muted);">Växla känguruhopp</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">L</kbd><span style="font-size:.82rem;color:var(--muted);">Lås tallinje (−12 till 12)</span>
-        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">S</kbd><span style="font-size:.82rem;color:var(--muted);">Små/stora kliv</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">+ / −</kbd><span style="font-size:.82rem;color:var(--muted);">Växla operator</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">U</kbd><span style="font-size:.82rem;color:var(--muted);">Uttalat uttryck</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">E</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj uttrycket</span>
@@ -774,31 +746,16 @@
 <div class="worksheet-overlay" id="worksheetOverlay">
   <div class="worksheet-controls no-print">
     <h2>📝 Arbetsblad</h2>
-    <div class="ws-mode-toggle">
-      <button type="button" id="wsTopicAddSub" class="ws-mode-btn active">➕➖ Pos/neg tal</button>
-      <button type="button" id="wsTopicMulDiv" class="ws-mode-btn">✖️➗ Mult/Div</button>
-    </div>
-    <div class="ws-mode-toggle">
-      <button type="button" id="wsModePrint" class="ws-mode-btn active">🖨️ Skriv ut</button>
-      <button type="button" id="wsModeInteractive" class="ws-mode-btn">💻 Interaktivt</button>
-    </div>
     <label>Antal: <input type="number" id="wsCount" min="4" max="60" value="20"></label>
-    <label id="wsAdvancedLabel"><input type="checkbox" id="wsAdvanced"> Avancerad (3–4 termer)</label>
-    <div class="ws-mode-toggle" id="wsLevelToggle" style="display:none;">
-      <button type="button" class="ws-mode-btn ws-level-btn active" data-level="1">Nivå 1</button>
-      <button type="button" class="ws-mode-btn ws-level-btn" data-level="2">Nivå 2</button>
-      <button type="button" class="ws-mode-btn ws-level-btn" data-level="3">Nivå 3</button>
-    </div>
-    <label id="wsAnswerKeyLabel"><input type="checkbox" id="wsAnswerKey" checked> Facit (ny sida)</label>
+    <label><input type="checkbox" id="wsAdvanced"> Avancerad (3–4 termer)</label>
+    <label><input type="checkbox" id="wsAnswerKey" checked> Facit (ny sida)</label>
     <button id="wsRegenerate">🔄 Nytt arbetsblad</button>
     <button id="wsPrint">🖨️ Skriv ut</button>
-    <button id="wsCheck" style="display:none;">✅ Rätta</button>
-    <span id="wsScore" style="display:none;font-weight:700;color:var(--text);"></span>
     <button id="wsClose" class="ws-close-btn">✕ Stäng</button>
   </div>
 
   <div class="worksheet-page">
-    <h1 id="wsTitle">Blandad träning — positiva och negativa tal</h1>
+    <h1>Blandad träning — positiva och negativa tal</h1>
     <div class="worksheet-title-bar"></div>
     <div class="worksheet-meta">Namn: ________________________________&nbsp;&nbsp;&nbsp;&nbsp;Datum: ______________</div>
     <div class="worksheet-grid" id="worksheetGrid"></div>
@@ -991,8 +948,6 @@ const S = {
   needsPlacement:false, // true = robot hidden, waiting for a click on the number line to set its start position
   needsDirection:false, // true = robot placed but facing is neutral, waiting for a click to choose left/right
   hideDirArrow:false,   // when true, the arrow above the head is skipped (usable in any mode, not just placeringsläge)
-  smallSteps:false,     // when true, each hop is split into unit-sized steps ("små kliv") instead of one big sweep
-  smallStepArcs:[],     // the little unit-arcs drawn when smallSteps is on (completedArcs stays per-leg for the total-label)
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1014,7 +969,6 @@ const ltBtnPlay   = document.getElementById('ltBtnPlay');
 const ltBtnReveal = document.getElementById('canvasBtnReveal');
 const ltBtnSave   = document.getElementById('ltBtnSave');
 const ltBtnKang   = document.getElementById('ltBtnKang');
-const ltBtnSmallSteps = document.getElementById('ltBtnSmallSteps');
 const ltBtnLock   = document.getElementById('ltBtnLock');
 const ltBtnPlacement = document.getElementById('ltBtnPlacement');
 const ltBtnColorNumbers = document.getElementById('ltBtnColorNumbers');
@@ -1211,23 +1165,16 @@ function drawArcSegment(from, to, frac, color, noLabel) {
     const absSteps = Math.abs(to - from);
     const signedSteps = fwd ? absSteps : -absSteps;
     const sign = signedSteps >= 0 ? '+' : '−';
-    // I "små kliv"-läget är varje båge bara ett steg — en kort "+1"/"−1"
-    // räcker då och håller etiketterna från att klumpa ihop sig.
-    const label = S.smallSteps
-      ? `${sign}${Math.abs(signedSteps)}`
-      : `${sign}${Math.abs(signedSteps)} steg`;
-    const fontSize = S.smallSteps ? 11 : 14;
-    const padX = S.smallSteps ? 6 : 8;
-    const boxH = S.smallSteps ? 17 : 22;
+    const label = `${sign}${Math.abs(signedSteps)} steg`;
     const lt=0.5*frac;
     const lx=(1-lt)*(1-lt)*x1+2*(1-lt)*lt*xMid+lt*lt*x2;
     const ly=(1-lt)*(1-lt)*LINE_Y+2*(1-lt)*lt*(LINE_Y-arcH)+lt*lt*LINE_Y-6;
-    ctx.font=`bold ${fontSize}px Sora`;
+    ctx.font='bold 14px Sora';
     const tw=ctx.measureText(label).width;
     ctx.fillStyle=color;
-    roundRect(ctx,lx-tw/2-padX,ly-boxH,tw+padX*2,boxH,5); ctx.fill();
+    roundRect(ctx,lx-tw/2-8,ly-22,tw+16,22,5); ctx.fill();
     ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(label,lx,ly-boxH/2); ctx.textBaseline='alphabetic';
+    ctx.fillText(label,lx,ly-11); ctx.textBaseline='alphabetic';
   }
 
   if (frac>=0.98) {
@@ -1682,8 +1629,13 @@ function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robot
   ctx.clearRect(0,0,CW,CH);
   drawLine();
   drawEndpointDots();
-  // Roboten ritas längst bak av det som rör sig på/ovanför tallinjen, så att
-  // stegbågarna (särskilt i "små kliv"-läget, tätt intill roboten) alltid syns.
+  for (const a of S.completedArcs) drawArcSegment(a.from,a.to,1,a.color);
+  if (activeFrom!==undefined && arcProgress>0)
+    drawArcSegment(activeFrom,activeTo,arcProgress,activeColor);
+  drawTotalArc();
+  drawPositionBoxes();
+  drawStepArrows();
+  drawCanvasHint();
   if (S.placementMode && S.needsPlacement) {
     // Robot is completely hidden — waiting for a click on the number line
   } else {
@@ -1691,17 +1643,6 @@ function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robot
       : (S.facingRight===null ? 1 : (S.facingRight?1:-1));
     drawRobot(S.robotPos,sx,walkPhase||0,S.needsDirection);
   }
-  if (S.smallSteps) {
-    for (const a of S.smallStepArcs) drawArcSegment(a.from,a.to,1,a.color);
-  } else {
-    for (const a of S.completedArcs) drawArcSegment(a.from,a.to,1,a.color);
-  }
-  if (activeFrom!==undefined && arcProgress>0)
-    drawArcSegment(activeFrom,activeTo,arcProgress,activeColor);
-  drawTotalArc();
-  drawPositionBoxes();
-  drawStepArrows();
-  drawCanvasHint();
   drawExprBox();
   drawUtterance();
   drawPearlBand();
@@ -1740,10 +1681,10 @@ function animateFlip(fromRight, toRight, onDone) {
 //  ANIMATION ENGINE
 // ═══════════════════════════════════════════════════════════════════
 let animRAF=null;
-function animateLeg(from, to, color, onDone, minDur) {
+function animateLeg(from, to, color, onDone) {
   const distPx=Math.abs(worldToX(to)-worldToX(from));
   const spd = typeof speedSlider !== 'undefined' ? SPEED_MULT[parseInt(speedSlider.value)-1] : (S.slowMode ? 7.5 : 3.0);
-  const DUR=Math.max(minDur||800, distPx*spd); let startTime=null;
+  const DUR=Math.max(800, distPx*spd); let startTime=null;
   function step(ts) {
     if (!startTime) startTime=ts;
     const raw=Math.min((ts-startTime)/DUR,1);
@@ -1757,34 +1698,6 @@ function animateLeg(from, to, color, onDone, minDur) {
     else { S.robotPos=to; render(1,0,from,to,color); onDone(); }
   }
   animRAF=requestAnimationFrame(step);
-}
-
-// "Små kliv" — samma sträcka som animateLeg, men i separata steg om 1 åt
-// gången (en liten båge per steg) istället för ett enda stort svep.
-// completedArcs (används för totalsumme-etiketten) rörs inte här — den
-// fylls fortfarande på per HEL etapp av anroparen, precis som förut.
-function animateLegSmallSteps(from, to, color, onDone) {
-  const dir = to > from ? 1 : -1;
-  const total = Math.abs(to - from);
-  let i = 0;
-  function nextUnit() {
-    if (i >= total) { onDone(); return; }
-    const uFrom = from + i*dir;
-    const uTo   = uFrom + dir;
-    i++;
-    animateLeg(uFrom, uTo, color, () => {
-      S.smallStepArcs.push({from:uFrom, to:uTo, color});
-      nextUnit();
-    }, 350);
-  }
-  nextUnit();
-}
-
-// Väljer rätt animationsfunktion beroende på S.smallSteps, utan att
-// anroparen (startAnimation/continueAnimation) behöver bry sig om vilket.
-function runLeg(from, to, color, onDone) {
-  if (S.smallSteps) animateLegSmallSteps(from, to, color, onDone);
-  else animateLeg(from, to, color, onDone);
 }
 
 function kangApplies() {
@@ -1804,7 +1717,7 @@ function startAnimation() {
   if (S.phase==='idle') return;
   range=computeRange(S.t1,S.t2);
   S.robotPos=S.t1; S.animating=true;
-  S.completedArcs=[]; S.smallStepArcs=[]; S.revealedPositions=[];
+  S.completedArcs=[]; S.revealedPositions=[];
   btnAnim.disabled=true;
   btnRevl.style.display='none';
   S.revealStep=0;
@@ -1821,7 +1734,7 @@ function startAnimation() {
     const leg1Fwd = isForward(S.t1, 0);
     const leg1StepsSigned = leg1Fwd ? Math.abs(S.t1) : -Math.abs(S.t1);
     setStrip(S.showHints ? stepHint(leg1StepsSigned) : `Hopp 1: ${Math.abs(S.t1)} steg mot nollan…`);
-    runLeg(S.t1,0,c1,()=>{
+    animateLeg(S.t1,0,c1,()=>{
       S.completedArcs.push({from:S.t1,to:0,color:c1});
       addPos(0); S.phase='paused'; S.animating=false;
       btnAnim.disabled=false;
@@ -1840,7 +1753,7 @@ function startAnimation() {
     S.phase='leg1';
     const c=hopColor(S.t1,S.answer);
     setStrip(S.showHints ? stepHint(steps) : '\u00a0');
-    runLeg(S.t1,S.answer,c,()=>{
+    animateLeg(S.t1,S.answer,c,()=>{
       S.completedArcs.push({from:S.t1,to:S.answer,color:c});
       addPos(S.answer); finishAnimation();
     });
@@ -1858,7 +1771,7 @@ function continueAnimation() {
   const leg2Fwd = isForward(0, S.answer);
   const leg2StepsSigned = leg2Fwd ? Math.abs(S.answer) : -Math.abs(S.answer);
   setStrip(S.showHints ? stepHint(leg2StepsSigned) : `Hopp 2: ${Math.abs(S.answer)} steg mot svaret…`);
-  runLeg(0,S.answer,c2,()=>{
+  animateLeg(0,S.answer,c2,()=>{
     S.completedArcs.push({from:0,to:S.answer,color:c2});
     addPos(S.answer); finishAnimation();
   });
@@ -2066,7 +1979,6 @@ function setExpr(t1, op, t2, triggerFlip) {
   S.robotPos = S.t1;
   S.phase = 'ready';
   S.completedArcs = [];
-  S.smallStepArcs = [];
   S.revealedPositions = [S.t1];
   S.revealStep = 0;
   setStrip('\u00a0');
@@ -2317,7 +2229,6 @@ function commitStepBubble() {
     range = computeRange(S.t1, S.t2);
     S.revealedPositions = [S.t1];
     S.completedArcs = [];
-    S.smallStepArcs = [];
     S.phase = 'ready';
     setStrip('\u00a0');
     btnRevl.style.display = 'none';
@@ -2515,8 +2426,6 @@ function updateLeftToolbar() {
 
   // Kang
   ltBtnKang.className = 'lt-btn' + (S.kangMode ? ' kang-on' : '');
-  ltBtnSmallSteps.classList.toggle('active', S.smallSteps);
-  ltBtnSmallSteps.disabled = S.animating;
 
   // Lås tallinje / Placeringsläge / Visa riktningspil / Färgkoda tal
   ltBtnLock.classList.toggle('active', S.lockRange);
@@ -2582,12 +2491,6 @@ ltBtnArrows.addEventListener('click', () => {
 ltBtnKang.addEventListener('click', () => {
   S.kangMode = !S.kangMode;
   kangChk.checked = S.kangMode;
-  render(1, 0);
-  saveSettings();
-});
-ltBtnSmallSteps.addEventListener('click', () => {
-  if (S.animating) return;
-  S.smallSteps = !S.smallSteps;
   render(1, 0);
   saveSettings();
 });
@@ -3324,186 +3227,30 @@ function genWorksheetProblem(advanced) {
     total += (op === '+') ? t : -t;
     parts.push(op, fmtNum(t));
   }
-  return { text: parts.join(' '), answer: total, isFraction: false };
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  MULTIPLIKATION & DIVISION — tre nivåer, allt med garanterat jämna
-//  (heltals-) svar. "isFraction" avgör om uttrycket ritas som ett
-//  bråk (täljare/nämnare) eller som vanlig text.
-// ═══════════════════════════════════════════════════════════════════
-
-// Nivå 1: två faktorer → produkt, ELLER täljare/nämnare → kvot
-function genMulDivLevel1() {
-  if (Math.random() < 0.5) {
-    const a = wsRandNonZero(-9, 9), b = wsRandNonZero(-9, 9);
-    return { text: `${fmtNum(a)} × ${fmtNum(b)}`, answer: a * b, isFraction: false };
-  }
-  const d = wsRandNonZero(-9, 9);
-  const q = wsRandNonZero(-9, 9);
-  const n = d * q;
-  return { num: fmtNum(n), den: fmtNum(d), answer: q, isFraction: true };
-}
-
-// Nivå 2: fler faktorer — antingen en multiplikationskedja, eller en
-// kvot där både täljare och nämnare själva är produkter av två faktorer.
-function genMulDivLevel2() {
-  if (Math.random() < 0.5) {
-    const a = wsRandNonZero(-6, 6), b = wsRandNonZero(-6, 6), c = wsRandNonZero(-6, 6);
-    return { text: `${fmtNum(a)} × ${fmtNum(b)} × ${fmtNum(c)}`, answer: a * b * c, isFraction: false };
-  }
-  for (let i = 0; i < 60; i++) {
-    const a = wsRandNonZero(-6, 6), b = wsRandNonZero(-6, 6);
-    const c = wsRandNonZero(-5, 5), d = wsRandNonZero(-5, 5);
-    const N = a * b, D = c * d;
-    if (D !== 0 && N % D === 0) {
-      return { num: `${fmtNum(a)} × ${fmtNum(b)}`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: N / D, isFraction: true };
-    }
-  }
-  // Garanterat jämnt fallback om slumpen inte gav en delbar kombination
-  const c = wsRandNonZero(-5, 5), d = wsRandNonZero(-5, 5);
-  const q = wsRandNonZero(-6, 6);
-  const D = c * d;
-  return { num: `${fmtNum(D * q)} × 1`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: q, isFraction: true };
-}
-
-// Nivå 3: blandat — täljare och/eller nämnare är en summa/differens som
-// måste räknas ut innan själva divisionen utförs.
-function genMulDivLevel3() {
-  for (let i = 0; i < 100; i++) {
-    const n1 = wsRandNonZero(-9, 9), n2 = wsRandNonZero(-9, 9);
-    const nOp = Math.random() < 0.5 ? '+' : '−';
-    const N = (nOp === '+') ? n1 + n2 : n1 - n2;
-
-    let denText, D;
-    if (Math.random() < 0.5) {
-      const d1 = wsRandNonZero(-6, 6), d2 = wsRandNonZero(-6, 6);
-      const dOp = Math.random() < 0.5 ? '+' : '−';
-      D = (dOp === '+') ? d1 + d2 : d1 - d2;
-      denText = `${fmtNum(d1)} ${dOp} ${fmtNum(d2)}`;
-    } else {
-      D = wsRandNonZero(-6, 6);
-      denText = fmtNum(D);
-    }
-    if (D !== 0 && N !== 0 && N % D === 0) {
-      return { num: `${fmtNum(n1)} ${nOp} ${fmtNum(n2)}`, den: denText, answer: N / D, isFraction: true };
-    }
-  }
-  // Garanterat jämnt fallback
-  const d = wsRandNonZero(2, 6);
-  const q = wsRandNonZero(-6, 6);
-  const n1 = wsRandNonZero(1, 5);
-  const n2 = d * q - n1;
-  return { num: `${fmtNum(n1)} + ${fmtNum(n2)}`, den: fmtNum(d), answer: q, isFraction: true };
-}
-
-function genMulDivProblem(level) {
-  if (level === 1) return genMulDivLevel1();
-  if (level === 2) return genMulDivLevel2();
-  return genMulDivLevel3();
+  return { text: parts.join(' '), answer: total };
 }
 
 const worksheetOverlay    = document.getElementById('worksheetOverlay');
 const worksheetGrid       = document.getElementById('worksheetGrid');
 const worksheetAnswerGrid = document.getElementById('worksheetAnswerGrid');
 const worksheetAnswerPage = document.getElementById('worksheetAnswerPage');
-const wsTitle     = document.getElementById('wsTitle');
 const wsCount     = document.getElementById('wsCount');
 const wsAdvanced  = document.getElementById('wsAdvanced');
-const wsAdvancedLabel  = document.getElementById('wsAdvancedLabel');
 const wsAnswerKey = document.getElementById('wsAnswerKey');
-const wsAnswerKeyLabel = document.getElementById('wsAnswerKeyLabel');
-const wsModePrint       = document.getElementById('wsModePrint');
-const wsModeInteractive = document.getElementById('wsModeInteractive');
-const wsTopicAddSub = document.getElementById('wsTopicAddSub');
-const wsTopicMulDiv = document.getElementById('wsTopicMulDiv');
-const wsLevelToggle = document.getElementById('wsLevelToggle');
-const wsLevelBtns   = Array.from(document.querySelectorAll('.ws-level-btn'));
-const wsPrintBtn = document.getElementById('wsPrint');
-const wsCheckBtn = document.getElementById('wsCheck');
-const wsScoreEl  = document.getElementById('wsScore');
-
-let wsMode  = 'print';  // 'print' | 'interactive'
-let wsTopic = 'addsub'; // 'addsub' | 'muldiv'
-let wsLevel = 1;        // 1 | 2 | 3 — endast relevant för 'muldiv'
-let wsProblems = [];
-
-// Rendera ett uttryck: antingen som vanlig text eller som ett bråk (täljare/nämnare)
-function wsProblemHTML(p) {
-  if (p.isFraction) {
-    return `<span class="ws-frac"><span class="ws-frac-num">${p.num}</span><span class="ws-frac-den">${p.den}</span></span>`;
-  }
-  return `<span>${p.text}</span>`;
-}
-
-function genOneProblem() {
-  return (wsTopic === 'addsub') ? genWorksheetProblem(wsAdvanced.checked) : genMulDivProblem(wsLevel);
-}
 
 function renderWorksheet() {
   const n = Math.max(4, Math.min(60, parseInt(wsCount.value, 10) || 20));
-  wsProblems = Array.from({length: n}, genOneProblem);
-  wsScoreEl.textContent = '';
-  if (wsMode === 'interactive') {
-    worksheetAnswerPage.style.display = 'none'; // facit ska inte synas direkt i interaktivt läge
-    worksheetGrid.innerHTML = wsProblems.map((p, i) => `
-      <div class="worksheet-problem" data-idx="${i}">
-        <span class="wnum">${i + 1}.</span>
-        ${wsProblemHTML(p)}<span>&nbsp;=</span>
-        <input type="number" class="ws-answer-input no-print" id="wsAns${i}">
-        <span class="ws-feedback no-print" id="wsFeedback${i}"></span>
-      </div>`).join('');
-  } else {
-    worksheetGrid.innerHTML = wsProblems.map((p, i) => `
-      <div class="worksheet-problem">
-        <span class="wnum">${i + 1}.</span>
-        ${wsProblemHTML(p)}<span>&nbsp;=</span>
-        <span class="wanswer-line"></span>
-      </div>`).join('');
-    worksheetAnswerGrid.innerHTML = wsProblems.map((p, i) =>
-      `<div><b>${i + 1}.</b> ${p.answer}</div>`).join('');
-    worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
-  }
-}
-
-function checkWorksheetAnswers() {
-  let correct = 0, answered = 0;
-  wsProblems.forEach((p, i) => {
-    const input = document.getElementById('wsAns' + i);
-    const fb    = document.getElementById('wsFeedback' + i);
-    const row   = input.closest('.worksheet-problem');
-    if (input.value === '') { row.classList.remove('ws-correct','ws-wrong'); fb.textContent=''; return; }
-    answered++;
-    const isCorrect = parseInt(input.value, 10) === p.answer;
-    if (isCorrect) correct++;
-    row.classList.toggle('ws-correct', isCorrect);
-    row.classList.toggle('ws-wrong', !isCorrect);
-    fb.textContent = isCorrect ? '✓ Rätt' : `✗ Rätt svar: ${p.answer}`;
-  });
-  wsScoreEl.textContent = `${correct} av ${answered} besvarade rätt (${wsProblems.length} totalt)`;
-}
-
-function setWorksheetMode(mode) {
-  wsMode = mode;
-  wsModePrint.classList.toggle('active', mode === 'print');
-  wsModeInteractive.classList.toggle('active', mode === 'interactive');
-  wsAnswerKeyLabel.style.display = (mode === 'print') ? '' : 'none';
-  wsPrintBtn.style.display       = (mode === 'print') ? '' : 'none';
-  wsCheckBtn.style.display       = (mode === 'interactive') ? '' : 'none';
-  wsScoreEl.style.display        = (mode === 'interactive') ? '' : 'none';
-  renderWorksheet();
-}
-
-function setWorksheetTopic(topic) {
-  wsTopic = topic;
-  wsTopicAddSub.classList.toggle('active', topic === 'addsub');
-  wsTopicMulDiv.classList.toggle('active', topic === 'muldiv');
-  wsAdvancedLabel.style.display = (topic === 'addsub') ? '' : 'none';
-  wsLevelToggle.style.display   = (topic === 'muldiv') ? '' : 'none';
-  wsTitle.textContent = (topic === 'addsub')
-    ? 'Blandad träning — positiva och negativa tal'
-    : 'Blandad träning — multiplikation och division';
-  renderWorksheet();
+  const advanced = wsAdvanced.checked;
+  const problems = Array.from({length: n}, () => genWorksheetProblem(advanced));
+  worksheetGrid.innerHTML = problems.map((p, i) => `
+    <div class="worksheet-problem">
+      <span class="wnum">${i + 1}.</span>
+      <span>${p.text}&nbsp;=</span>
+      <span class="wanswer-line"></span>
+    </div>`).join('');
+  worksheetAnswerGrid.innerHTML = problems.map((p, i) =>
+    `<div><b>${i + 1}.</b> ${p.answer}</div>`).join('');
+  worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
 }
 
 const ltBtnWorksheet = document.getElementById('ltBtnWorksheet');
@@ -3515,21 +3262,9 @@ document.getElementById('wsClose').addEventListener('click', () => {
   worksheetOverlay.classList.remove('open');
 });
 document.getElementById('wsRegenerate').addEventListener('click', renderWorksheet);
-wsPrintBtn.addEventListener('click', () => window.print());
-wsCheckBtn.addEventListener('click', checkWorksheetAnswers);
+document.getElementById('wsPrint').addEventListener('click', () => window.print());
 wsAnswerKey.addEventListener('change', () => {
   worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
-});
-wsModePrint.addEventListener('click', () => setWorksheetMode('print'));
-wsModeInteractive.addEventListener('click', () => setWorksheetMode('interactive'));
-wsTopicAddSub.addEventListener('click', () => setWorksheetTopic('addsub'));
-wsTopicMulDiv.addEventListener('click', () => setWorksheetTopic('muldiv'));
-wsLevelBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    wsLevel = parseInt(btn.dataset.level, 10);
-    wsLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
-    renderWorksheet();
-  });
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -4261,10 +3996,6 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
         S.lockRange = !S.lockRange; updateLockButton();
         if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
         range = computeRange(S.t1, S.t2); render(1,0); saveSettings(); break;
-      case 's': case 'S':
-        e.preventDefault();
-        if (S.animating) break;
-        S.smallSteps = !S.smallSteps; render(1,0); saveSettings(); break;
       case '+': case '=':
         e.preventDefault(); if (S.op !== '+') invertOperator(); break;
       case '-': case '_':
@@ -4288,7 +4019,7 @@ const SETTINGS_KEY = 'tallinjeNegSettings_v1';
 const SETTINGS_BOOL_KEYS = [
   'kangMode','lockRange','placementMode','hideDirArrow','showExpr',
   'showColorNumbers','showHints','showStepChain','showTotal',
-  'showStepArrows','showUtterance','showFullUtterance','smallSteps',
+  'showStepArrows','showUtterance','showFullUtterance',
 ];
 
 function saveSettings() {
