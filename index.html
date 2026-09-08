@@ -30,8 +30,8 @@
       /* Verktygskategorier — återanvänder gradientens tre kulörer,
          men här betyder de typ av verktyg istället för årskurs */
       --cat-klassrum:  #3aada8;   /* teal  — allmänna klassrumsverktyg */
-      --cat-genomgang: #d4813a;   /* orange — visuellt stöd vid genomgångar */
-      --cat-traning:   #c43d75;   /* rosa  — mängdträning */
+      --cat-larare: #d4813a;   /* orange — visuellt stöd vid genomgångar */
+      --cat-elev:   #c43d75;   /* rosa  — mängdträning */
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -347,18 +347,18 @@
       <button class="filter-pill" data-filter="klassrum" style="--pill-color: var(--cat-klassrum);" aria-pressed="false">
         <span class="dot"></span>Klassrum
       </button>
-      <button class="filter-pill" data-filter="genomgang" style="--pill-color: var(--cat-genomgang);" aria-pressed="false">
-        <span class="dot"></span>Genomgång
+      <button class="filter-pill" data-filter="larare" style="--pill-color: var(--cat-larare);" aria-pressed="false">
+        <span class="dot"></span>För läraren
       </button>
-      <button class="filter-pill" data-filter="traning" style="--pill-color: var(--cat-traning);" aria-pressed="false">
-        <span class="dot"></span>Mängdträning
+      <button class="filter-pill" data-filter="elev" style="--pill-color: var(--cat-elev);" aria-pressed="false">
+        <span class="dot"></span>För eleven
       </button>
     </div>
 
     <!--
       APP-GRID
       Varje kort:
-        - data-category: klassrum | genomgang | traning  (styr filtreringen)
+        - data-category: klassrum | larare | elev  (styr filtreringen)
         - --tile-color: sätts inline och styr topstripe + kategori-chip
         - .cat-chip-textinnehållet skrivs ut i klartext nedan (byt själv vid behov)
       Kopiera ett helt <a class="app-tile">-block för att lägga till ett nytt verktyg.
@@ -372,7 +372,7 @@
           <span class="cat-chip">Klassrum</span>
         </div>
         <div class="app-name">Miniräknare</div>
-        <div class="app-desc">Kompakt miniräknare som kan låsas överst i aktivt bildspel.</div>
+        <div class="app-desc">Alltid-överst-räknare för snabba uträkningar under lektionen.</div>
       </a>
 
       <!-- Tärning — Klassrum -->
@@ -382,7 +382,7 @@
           <span class="cat-chip">Klassrum</span>
         </div>
         <div class="app-name">Tärning</div>
-        <div class="app-desc">Slumpmässig tärning och myntkast för klassrummet.</div>
+        <div class="app-desc">3D-tärning med spänningsfyllt kast för slumpmoment i klassrummet.</div>
       </a>
 
       <!-- Timetimer — Klassrum -->
@@ -392,66 +392,66 @@
           <span class="cat-chip">Klassrum</span>
         </div>
         <div class="app-name">Timetimer</div>
-        <div class="app-desc">Tidsräknare i olika utföranden och stil.</div>
+        <div class="app-desc">Visuell nedräkning som visar hur mycket tid som återstår på en uppgift.</div>
       </a>
 
-      <!-- Negativa tal (tallinje) — Genomgång -->
-      <a class="app-tile" data-category="genomgang" href="numberline/addsub/index.html" style="--tile-color: var(--cat-genomgang);">
+      <!-- Negativa tal (tallinje) — För läraren -->
+      <a class="app-tile" data-category="larare" href="numberline/addsub/index.html" style="--tile-color: var(--cat-larare);">
         <div class="tile-top">
           <div class="app-icon">🌡️</div>
-          <span class="cat-chip">Genomgång</span>
+          <span class="cat-chip">För läraren</span>
         </div>
         <div class="app-name">Negativa tal — tallinjen</div>
-        <div class="app-desc">Addition och subtraktion av negativa tal på tallinjen. Även elevläge för självträning.</div>
+        <div class="app-desc">Gubbe och hopp visualiserar addition och subtraktion av negativa tal. Har även elevläge för självträning.</div>
       </a>
 
-      <!-- Laddningsmodellen — Genomgång -->
-      <a class="app-tile" data-category="genomgang" href="laddningsmodell/index.html" style="--tile-color: var(--cat-genomgang);">
+      <!-- Laddningsmodellen — För läraren -->
+      <a class="app-tile" data-category="larare" href="laddningsmodell/index.html" style="--tile-color: var(--cat-larare);">
         <div class="tile-top">
           <div class="app-icon">⚡</div>
-          <span class="cat-chip">Genomgång</span>
+          <span class="cat-chip">För läraren</span>
         </div>
         <div class="app-name">Laddningsmodellen</div>
         <div class="app-desc">Positiva och negativa laddningar tar ut varandra — ett andra sätt att förstå negativa tal.</div>
       </a>
 
-      <!-- Trippmätare — Genomgång -->
-      <a class="app-tile" data-category="genomgang" href="odometer/index.html" style="--tile-color: var(--cat-genomgang);">
+      <!-- Trippmätare — För läraren -->
+      <a class="app-tile" data-category="larare" href="odometer/index.html" style="--tile-color: var(--cat-larare);">
         <div class="tile-top">
           <div class="app-icon">🚗</div>
-          <span class="cat-chip">Genomgång</span>
+          <span class="cat-chip">För läraren</span>
         </div>
         <div class="app-name">Trippmätare</div>
         <div class="app-desc">Digital vägmätare med rullande siffror som visar positionssystem och växling.</div>
       </a>
 
-      <!-- Multiplikationsruta — Mängdträning -->
-      <a class="app-tile" data-category="traning" href="multiply/index.html" style="--tile-color: var(--cat-traning);">
+      <!-- Multiplikationsruta — För eleven -->
+      <a class="app-tile" data-category="elev" href="multiply/index.html" style="--tile-color: var(--cat-elev);">
         <div class="tile-top">
           <div class="app-icon">✍️</div>
-          <span class="cat-chip">Mängdträning</span>
+          <span class="cat-chip">För eleven</span>
         </div>
         <div class="app-name">Multiplikationsruta</div>
         <div class="app-desc">Interaktiv multiplikationstabell för att träna tabellerna.</div>
       </a>
 
-      <!-- Procentruta — Mängdträning -->
-      <a class="app-tile" data-category="traning" href="procentruta/index.html" style="--tile-color: var(--cat-traning);">
+      <!-- Procentruta — För eleven -->
+      <a class="app-tile" data-category="elev" href="procentruta/index.html" style="--tile-color: var(--cat-elev);">
         <div class="tile-top">
           <div class="app-icon">💯</div>
-          <span class="cat-chip">Mängdträning</span>
+          <span class="cat-chip">För eleven</span>
         </div>
         <div class="app-name">Procentruta</div>
         <div class="app-desc">Räkna ut delen med flera metoder — bråkform, 10%-, 1%- och decimalmetoden.</div>
       </a>
 
-      <!-- DAH-ruta — Mängdträning -->
-      <a class="app-tile" data-category="traning" href="dah/index.html" style="--tile-color: var(--cat-traning);">
+      <!-- DAH-ruta — För eleven -->
+      <a class="app-tile" data-category="elev" href="dah/index.html" style="--tile-color: var(--cat-elev);">
         <div class="tile-top">
           <div class="app-icon">⚖️</div>
-          <span class="cat-chip">Mängdträning</span>
+          <span class="cat-chip">För eleven</span>
         </div>
-        <div class="app-name">Delen-Andelen-Hela (DAH)</div>
+        <div class="app-name">DAH-ruta</div>
         <div class="app-desc">Tränar sambandet mellan Andelen, Delen och Det hela i procentuppgifter.</div>
       </a>
 
