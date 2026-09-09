@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Namnplockare — PT Verktyg</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Sora:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #f6f4ff;
+      --surface:   #ffffff;
+      --surface2:  #eae6ff;
+      --border:    #ccc5f0;
+      --text:      #100e28;
+      --muted:     #585078;
+      --accent:    #306BF0;
+      --accent2:   #EC6095;
+      --gradient:  linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+      --correct:   #18a348;
+      --wrong:     #e02020;
+      --shadow:    rgba(48, 107, 240, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      /* Klassrum-kategorins färg, se index.html / brand.md */
+      --cat: #3aada8;
+      --cat-dark: #2a827e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .ambient span { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.32; }
+    .ambient span:nth-child(1) { width: 420px; height: 420px; background: #66C7C2; top: -120px; left: -100px; }
+    .ambient span:nth-child(2) { width: 380px; height: 380px; background: #F4A261; top: 40%; right: -140px; }
+    .ambient span:nth-child(3) { width: 420px; height: 420px; background: #EC6095; bottom: -160px; left: 15%; }
+
+    header {
+      background: var(--gradient);
+      min-height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+    }
+    .back-link { color: #ffffff; text-decoration: none; font-size: 0.85rem; font-weight: 600; opacity: 0.9; }
+    .back-link:hover { opacity: 1; }
+    .nav-divider { width: 1.5px; height: 24px; background: rgba(255,255,255,0.35); border-radius: 2px; }
+    .nav-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: #ffffff; }
+    .nav-title span { font-size: 1.3rem; margin-right: 4px; }
+
+    main {
+      flex: 1;
+      padding: 32px 20px 56px;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    button { font-family: 'Sora', sans-serif; cursor: pointer; border: none; }
+    .btn { border-radius: var(--radius-sm); padding: 10px 18px; font-size: 0.85rem; font-weight: 600; transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--cat); color: #fff; }
+    .btn-secondary { background: rgba(255,255,255,0.7); color: var(--text); border: 1.5px solid var(--border); }
+    .btn-ghost { background: transparent; color: var(--muted); padding: 8px 12px; font-size: 0.8rem; }
+    .btn-ghost:hover { color: var(--text); }
+
+    /* ── Topbar: klassindikator + inställningar (all administration bor bakom denna) ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+    }
+    .class-indicator { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+    .class-indicator .eyebrow { font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+    .class-indicator .name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #settingsBtn { flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+
+    /* ── Huvudpanel: glasspinnjar (verktygets fokus) ── */
+    .jar-panel {
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 10px 32px var(--shadow);
+      padding: 28px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .jar-wrap {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding-top: 128px; /* plats för spinnarna som sticker upp + segervisningen */
+    }
+
+    .jar {
+      position: relative;
+      width: 230px;
+      height: 108px;
+      border-radius: 16px 16px 60px 60px / 16px 16px 90px 90px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.55));
+      border: 2px solid rgba(255,255,255,0.85);
+      box-shadow: inset 0 10px 22px rgba(16,14,40,0.07), 0 12px 28px var(--shadow);
+      overflow: visible;
+    }
+    .jar.shaking { animation: jar-shake 0.45s ease-in-out; }
+    @keyframes jar-shake {
+      0%, 100% { transform: rotate(0deg); }
+      20% { transform: rotate(-4deg); }
+      40% { transform: rotate(3deg); }
+      60% { transform: rotate(-3deg); }
+      80% { transform: rotate(2deg); }
+    }
+
+    .stick {
+      position: absolute;
+      bottom: 4px;
+      width: 11px;
+      border-radius: 6px 6px 3px 3px;
+      opacity: 0.92;
+      transition: opacity 0.3s;
+    }
+
+    .jar-empty-msg {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 14px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .jar-empty-msg.show { display: flex; }
+
+    /* Segervisning — "glasspinnen" som lyfts upp ur burken med elevens namn */
+    .stick-winner {
+      position: absolute;
+      left: 50%;
+      bottom: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: translate(-50%, 20px) scale(0.4) rotate(-8deg);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .stick-winner.landed { animation: stick-rise 0.6s cubic-bezier(.34,1.56,.64,1) forwards; }
+    @keyframes stick-rise {
+      0%   { transform: translate(-50%, 20px) scale(0.4) rotate(-8deg); opacity: 0; }
+      60%  { transform: translate(-50%, -76px) scale(1.08) rotate(2deg); opacity: 1; }
+      100% { transform: translate(-50%, -64px) scale(1) rotate(0deg); opacity: 1; }
+    }
+    .winner-tag {
+      background: #fff;
+      border: 2px solid var(--cat);
+      border-radius: 12px;
+      padding: 10px 18px;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.35rem;
+      white-space: nowrap;
+      box-shadow: 0 10px 26px rgba(16,14,40,0.18);
+      margin-bottom: -6px;
+      position: relative;
+      z-index: 2;
+    }
+    .winner-stick { width: 14px; height: 78px; border-radius: 7px; background: var(--cat); }
+
+    .jar-idle-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 100%;
+      transform: translate(-50%, -14px);
+      font-size: 0.8rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .pick-btn {
+      width: 100%;
+      font-size: 1.05rem;
+      padding: 16px;
+      background: var(--cat);
+      color: #fff;
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 24px rgba(58,173,168,0.35);
+      font-weight: 700;
+    }
+    .pick-btn:hover { box-shadow: 0 10px 30px rgba(58,173,168,0.5); }
+    .pick-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+    /* ── Återläggningsväljare ── */
+    .toggle-row {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.85rem; color: var(--muted); width: 100%;
+    }
+    .switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 999px; transition: background 0.2s; }
+    .slider::before { content: ''; position: absolute; height: 16px; width: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+    input:checked + .slider { background: var(--cat); }
+    input:checked + .slider::before { transform: translateX(18px); }
+    .toggle-row .toggle-text b { color: var(--text); }
+
+    .round-footer { display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 8px; }
+    .round-progress { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── Historik, ihopfällbar (sekundär info) ── */
+    details.history-details {
+      background: rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+    }
+    details.history-details summary {
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      list-style: none;
+    }
+    details.history-details summary::-webkit-details-marker { display: none; }
+    details.history-details summary::before { content: '▸ '; }
+    details.history-details[open] summary::before { content: '▾ '; }
+    .history { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .history-item {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.7);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      font-size: 0.85rem;
+    }
+    .history-item .num { font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--cat-dark); font-size: 0.75rem; width: 18px; }
+
+    /* ── Inställningsdrawer (administrationen bor här) ── */
+    .drawer-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(16, 14, 40, 0.32);
+      z-index: 180;
+    }
+    .drawer-backdrop.open { display: block; }
+
+    .drawer {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: min(360px, 88vw);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      box-shadow: -12px 0 40px rgba(16,14,40,0.2);
+      z-index: 190;
+      padding: 22px;
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 0.28s ease;
+    }
+    .drawer-backdrop.open .drawer { transform: translateX(0); }
+
+    .drawer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .drawer-header h2 { font-family: 'Montserrat', sans-serif; font-size: 1.05rem; }
+    .drawer-close { background: transparent; font-size: 1.1rem; color: var(--muted); padding: 4px 8px; }
+
+    .panel-title { font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; color: var(--muted); margin: 18px 0 8px; }
+    .panel-title:first-of-type { margin-top: 0; }
+
+    select {
+      width: 100%;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      background: rgba(255,255,255,0.9);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    .student-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip {
+      font-size: 0.82rem; font-weight: 600; padding: 7px 14px; border-radius: 999px;
+      background: rgba(255,255,255,0.8); border: 1.5px solid var(--border); color: var(--text);
+      cursor: pointer; user-select: none; transition: opacity 0.15s, border-color 0.15s;
+    }
+    .chip:hover { border-color: var(--cat); }
+    .chip.absent { opacity: 0.45; text-decoration: line-through; background: transparent; }
+    .chip-hint { font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
+    .empty-hint { color: var(--muted); font-size: 0.85rem; }
+
+    /* ── Modal: hantera klasser ── */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(16, 14, 40, 0.35); backdrop-filter: blur(4px);
+      z-index: 200; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+      border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.9);
+      padding: 26px; width: 100%; max-width: 420px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(16,14,40,0.25);
+    }
+    .modal h2 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; margin-bottom: 4px; }
+    .modal p.hint { color: var(--muted); font-size: 0.8rem; margin-bottom: 16px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .field input[type="text"], .field textarea {
+      width: 100%; font-family: 'Sora', sans-serif; font-size: 0.9rem; padding: 10px 12px;
+      border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: #fff; color: var(--text);
+    }
+    .field textarea { min-height: 130px; resize: vertical; line-height: 1.5; }
+    .saved-list { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .saved-list-title { font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+    .saved-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: var(--radius-sm); font-size: 0.85rem; }
+    .saved-item:hover { background: var(--surface2); }
+    .saved-item-actions { display: flex; gap: 4px; }
+    .icon-btn { background: transparent; font-size: 0.9rem; padding: 4px 7px; border-radius: 6px; }
+    .icon-btn:hover { background: rgba(0,0,0,0.06); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+    footer { text-align: center; padding: 22px; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .jar.shaking, .stick-winner.landed { animation: none; }
+      .stick-winner.landed { opacity: 1; transform: translate(-50%, -64px) scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient"><span></span><span></span><span></span></div>
+
+  <header>
+    <a class="back-link" href="../index.html">← Verktygsbanken</a>
+    <div class="nav-divider"></div>
+    <div class="nav-title"><span>🙋</span>Namnplockare</div>
+  </header>
+
+  <main>
+    <!-- Topbar: enda ingången till administration -->
+    <div class="topbar">
+      <div class="class-indicator">
+        <span class="eyebrow">Klass</span>
+        <span class="name" id="classIndicatorName">Ingen vald</span>
+      </div>
+      <button class="btn btn-secondary" id="settingsBtn">⚙️ Klass &amp; elever</button>
+    </div>
+
+    <!-- Huvudverktyget: glasspinnjarren -->
+    <div class="jar-panel">
+      <div class="jar-wrap">
+        <div class="jar" id="jar">
+          <div class="jar-empty-msg" id="jarEmptyMsg"></div>
+        </div>
+        <div class="jar-idle-hint" id="jarIdleHint">Dra en glasspinne för att välja elev</div>
+        <div class="stick-winner" id="stickWinner">
+          <div class="winner-tag" id="winnerTag"></div>
+          <div class="winner-stick" id="winnerStickBar"></div>
+        </div>
+      </div>
+
+      <button class="btn pick-btn" id="pickBtn">🎯 Dra elev</button>
+
+      <div class="toggle-row">
+        <label class="switch">
+          <input type="checkbox" id="repeatToggle" />
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-text">Med återläggning — <b>samma elev kan dras igen direkt</b></span>
+      </div>
+
+      <div class="round-footer">
+        <span class="round-progress" id="roundProgress"></span>
+        <button class="btn btn-ghost" id="resetRoundBtn">Nollställ omgången</button>
+      </div>
+    </div>
+
+    <details class="history-details">
+      <summary>Historik</summary>
+      <div class="history" id="history"></div>
+    </details>
+  </main>
+
+  <footer>Patrick Tegnefur · PT Verktyg</footer>
+
+  <!-- ── Inställningsdrawer: klassval, frånvaro, klasshantering ── -->
+  <div class="drawer-backdrop" id="drawerBackdrop">
+    <div class="drawer" id="drawer" role="dialog" aria-label="Klass och elever">
+      <div class="drawer-header">
+        <h2>Klass &amp; elever</h2>
+        <button class="drawer-close" id="drawerClose">✕</button>
+      </div>
+
+      <div class="panel-title">AKTIV KLASS</div>
+      <select id="classSelect"></select>
+      <button class="btn btn-secondary" id="manageBtn" style="margin-top: 10px; width: 100%;">Hantera klasser</button>
+
+      <div class="panel-title">NÄRVARO IDAG</div>
+      <div id="studentSection">
+        <div class="student-chips" id="studentChips"></div>
+        <p class="chip-hint" id="chipHint" style="display:none;">Klicka på en elev för att markera som frånvarande idag.</p>
+      </div>
+      <p class="empty-hint" id="noClassHint">Ingen klass vald ännu. Klicka på "Hantera klasser" för att lägga till en.</p>
+    </div>
+  </div>
+
+  <!-- ── Modal: hantera klasser (samma localStorage-format som Gruppslumparen) ── -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <h2 id="modalHeading">Ny klass</h2>
+      <p class="hint">Ett namn per rad i listan nedan.</p>
+
+      <div class="field">
+        <label for="classNameInput">Klassnamn</label>
+        <input type="text" id="classNameInput" placeholder="t.ex. 7A" />
+      </div>
+      <div class="field">
+        <label for="classStudentsInput">Elever</label>
+        <textarea id="classStudentsInput" placeholder="Anna&#10;Erik&#10;Fatima&#10;..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="cancelEditBtn">Avbryt</button>
+        <button class="btn btn-primary" id="saveClassBtn">Spara klass</button>
+      </div>
+
+      <div class="saved-list">
+        <div class="saved-list-title">SPARADE KLASSER</div>
+        <div id="savedClassesList"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="closeModalBtn">Klar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* Samma localStorage-format som Gruppslumparen: [{id, namn, elever:[{id,namn}]}] */
+    const STORAGE_KEY = 'pt-klasslistor';
+    const ACTIVE_KEY = 'pt-aktiv-klass-id';
+
+    function loadKlasser() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch (e) { return []; }
+    }
+    function saveKlasser(k) { localStorage.setItem(STORAGE_KEY, JSON.stringify(k)); }
+    function nyttId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+    // Färgpalett för glasspinnarna — en elev får samma färg genom hela sessionen
+    // (stabil hash på elevens id), rent kosmetiskt men ger igenkänning.
+    const STICK_COLORS = ['#306BF0', '#EC6095', '#3aada8', '#F4A261', '#8b5cf6', '#18a348'];
+    function stickColor(id) {
+      let sum = 0;
+      for (let i = 0; i < id.length; i++) sum += id.charCodeAt(i);
+      return STICK_COLORS[sum % STICK_COLORS.length];
+    }
+
+    let klasser = loadKlasser();
+    let aktivKlassId = localStorage.getItem(ACTIVE_KEY) || (klasser[0] && klasser[0].id) || null;
+    let franvarande = new Set();   // frånvarande idag (session, sparas ej)
+    let redanValda = [];           // id:n dragna denna omgång, i dragordning
+    let redigerarKlassId = null;
+    let dragarPagar = false;
+
+    const classIndicatorName = document.getElementById('classIndicatorName');
+    const classSelect = document.getElementById('classSelect');
+    const studentChips = document.getElementById('studentChips');
+    const chipHint = document.getElementById('chipHint');
+    const noClassHint = document.getElementById('noClassHint');
+    const jar = document.getElementById('jar');
+    const jarEmptyMsg = document.getElementById('jarEmptyMsg');
+    const jarIdleHint = document.getElementById('jarIdleHint');
+    const stickWinner = document.getElementById('stickWinner');
+    const winnerTag = document.getElementById('winnerTag');
+    const winnerStickBar = document.getElementById('winnerStickBar');
+    const pickBtn = document.getElementById('pickBtn');
+    const roundProgress = document.getElementById('roundProgress');
+    const history = document.getElementById('history');
+    const repeatToggle = document.getElementById('repeatToggle');
+
+    function aktivKlass() { return klasser.find(k => k.id === aktivKlassId) || null; }
+    function narvarandeElever() {
+      const klass = aktivKlass();
+      if (!klass) return [];
+      return klass.elever.filter(e => !franvarande.has(e.id));
+    }
+    function pool() {
+      const narv = narvarandeElever();
+      return repeatToggle.checked ? narv : narv.filter(e => !redanValda.includes(e.id));
+    }
+
+    function renderClassIndicator() {
+      const klass = aktivKlass();
+      classIndicatorName.textContent = klass ? klass.namn : 'Ingen vald';
+    }
+
+    function renderClassSelect() {
+      classSelect.innerHTML = '';
+      if (klasser.length === 0) {
+        const opt = document.createElement('option');
+        opt.textContent = 'Inga klasser sparade';
+        classSelect.appendChild(opt);
+        classSelect.disabled = true;
+        return;
+      }
+      classSelect.disabled = false;
+      klasser.forEach(k => {
+        const opt = document.createElement('option');
+        opt.value = k.id;
+        opt.textContent = `${k.namn} (${k.elever.length} elever)`;
+        if (k.id === aktivKlassId) opt.selected = true;
+        classSelect.appendChild(opt);
+      });
+    }
+
+    function renderStudentChips() {
+      const klass = aktivKlass();
+      studentChips.innerHTML = '';
+      if (!klass || klass.elever.length === 0) {
+        noClassHint.style.display = 'block';
+        noClassHint.textContent = klass
+          ? 'Den här klassen har inga elever ännu. Öppna "Hantera klasser" för att lägga till några.'
+          : 'Ingen klass vald ännu. Klicka på "Hantera klasser" för att lägga till en.';
+        chipHint.style.display = 'none';
+        return;
+      }
+      noClassHint.style.display = 'none';
+      chipHint.style.display = 'block';
+      klass.elever.forEach(elev => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip' + (franvarande.has(elev.id) ? ' absent' : '');
+        chip.textContent = elev.namn;
+        chip.addEventListener('click', () => {
+          if (franvarande.has(elev.id)) franvarande.delete(elev.id);
+          else franvarande.add(elev.id);
+          renderStudentChips();
+          renderJar();
+          renderRoundProgress();
+        });
+        studentChips.appendChild(chip);
+      });
+    }
+
+    function renderJar() {
+      jar.innerHTML = '';
+      jar.appendChild(jarEmptyMsg);
+      const p = pool();
+
+      if (!aktivKlass()) {
+        jarEmptyMsg.textContent = 'Ingen klass vald — öppna ⚙️ Klass & elever';
+        jarEmptyMsg.classList.add('show');
+      } else if (p.length === 0) {
+        jarEmptyMsg.textContent = narvarandeElever().length === 0
+          ? 'Alla elever är markerade som frånvarande'
+          : 'Alla har dragits denna omgång 🎉';
+        jarEmptyMsg.classList.add('show');
+      } else {
+        jarEmptyMsg.classList.remove('show');
+        p.forEach(elev => {
+          const stick = document.createElement('div');
+          stick.className = 'stick';
+          stick.dataset.id = elev.id;
+          stick.title = elev.namn;
+          const leftPct = 10 + Math.random() * 80;
+          const rotate = (Math.random() * 26) - 13;
+          const height = 78 + Math.random() * 38;
+          stick.style.left = leftPct + '%';
+          stick.style.transform = `translateX(-50%) rotate(${rotate}deg)`;
+          stick.style.height = height + 'px';
+          stick.style.background = stickColor(elev.id);
+          stick.style.zIndex = Math.round(Math.random() * 10);
+          jar.appendChild(stick);
+        });
+      }
+    }
+
+    function renderRoundProgress() {
+      const narv = narvarandeElever();
+      roundProgress.textContent = narv.length
+        ? `${redanValda.length} av ${narv.length} dragna denna omgång`
+        : '';
+      pickBtn.disabled = pool().length === 0;
+    }
+
+    function resetRound() {
+      redanValda = [];
+      history.innerHTML = '';
+      stickWinner.classList.remove('landed');
+      stickWinner.style.opacity = '0';
+      jarIdleHint.style.display = 'block';
+      renderJar();
+      renderRoundProgress();
+    }
+
+    function addHistoryItem(namn) {
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      const num = document.createElement('span');
+      num.className = 'num';
+      num.textContent = redanValda.length + '.';
+      const namnSpan = document.createElement('span');
+      namnSpan.textContent = namn;
+      item.appendChild(num);
+      item.appendChild(namnSpan);
+      history.insertBefore(item, history.firstChild);
+    }
+
+    /* ── Dragning ── */
+    pickBtn.addEventListener('click', () => {
+      if (dragarPagar) return;
+      const p = pool();
+      if (p.length === 0) return;
+
+      dragarPagar = true;
+      pickBtn.disabled = true;
+      jarIdleHint.style.display = 'none';
+      stickWinner.classList.remove('landed');
+      stickWinner.style.opacity = '0';
+
+      const vinnare = p[Math.floor(Math.random() * p.length)];
+      jar.classList.add('shaking');
+
+      setTimeout(() => {
+        jar.classList.remove('shaking');
+
+        const farg = stickColor(vinnare.id);
+        winnerTag.textContent = vinnare.namn;
+        winnerTag.style.borderColor = farg;
+        winnerStickBar.style.background = farg;
+        stickWinner.style.opacity = '';
+        stickWinner.classList.add('landed');
+
+        redanValda.push(vinnare.id);
+        addHistoryItem(vinnare.namn);
+
+        setTimeout(() => {
+          dragarPagar = false;
+          renderJar();
+          renderRoundProgress();
+        }, 550);
+      }, 450);
+    });
+
+    document.getElementById('resetRoundBtn').addEventListener('click', resetRound);
+    repeatToggle.addEventListener('change', () => { renderJar(); renderRoundProgress(); });
+
+    classSelect.addEventListener('change', () => {
+      aktivKlassId = classSelect.value;
+      localStorage.setItem(ACTIVE_KEY, aktivKlassId);
+      franvarande.clear();
+      renderClassIndicator();
+      renderStudentChips();
+      resetRound();
+    });
+
+    /* ── Inställningsdrawer ── */
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    document.getElementById('settingsBtn').addEventListener('click', () => drawerBackdrop.classList.add('open'));
+    document.getElementById('drawerClose').addEventListener('click', () => drawerBackdrop.classList.remove('open'));
+    drawerBackdrop.addEventListener('click', (e) => { if (e.target === drawerBackdrop) drawerBackdrop.classList.remove('open'); });
+
+    /* ── Modal: hantera klasser ── */
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalHeading = document.getElementById('modalHeading');
+    const classNameInput = document.getElementById('classNameInput');
+    const classStudentsInput = document.getElementById('classStudentsInput');
+    const savedClassesList = document.getElementById('savedClassesList');
+
+    function openModal() {
+      redigerarKlassId = null;
+      modalHeading.textContent = 'Ny klass';
+      classNameInput.value = '';
+      classStudentsInput.value = '';
+      renderSavedList();
+      modalBackdrop.classList.add('open');
+    }
+    function closeModal() { modalBackdrop.classList.remove('open'); }
+
+    document.getElementById('manageBtn').addEventListener('click', openModal);
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    document.getElementById('cancelEditBtn').addEventListener('click', () => {
+      redigerarKlassId = null;
+      classNameInput.value = '';
+      classStudentsInput.value = '';
+      modalHeading.textContent = 'Ny klass';
+    });
+    modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeModal(); });
+
+    function renderSavedList() {
+      savedClassesList.innerHTML = '';
+      if (klasser.length === 0) {
+        savedClassesList.innerHTML = '<p class="empty-hint">Inga klasser sparade ännu.</p>';
+        return;
+      }
+      klasser.forEach(k => {
+        const row = document.createElement('div');
+        row.className = 'saved-item';
+        const label = document.createElement('span');
+        label.textContent = `${k.namn} (${k.elever.length})`;
+        const actions = document.createElement('div');
+        actions.className = 'saved-item-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'icon-btn';
+        editBtn.title = 'Redigera';
+        editBtn.textContent = '✏️';
+        editBtn.addEventListener('click', () => {
+          redigerarKlassId = k.id;
+          modalHeading.textContent = `Redigera ${k.namn}`;
+          classNameInput.value = k.namn;
+          classStudentsInput.value = k.elever.map(e => e.namn).join('\n');
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'icon-btn';
+        delBtn.title = 'Ta bort';
+        delBtn.textContent = '🗑️';
+        delBtn.addEventListener('click', () => {
+          if (!confirm(`Ta bort klassen "${k.namn}"? Det går inte att ångra.`)) return;
+          klasser = klasser.filter(kk => kk.id !== k.id);
+          saveKlasser(klasser);
+          if (aktivKlassId === k.id) {
+            aktivKlassId = klasser[0] ? klasser[0].id : null;
+            localStorage.setItem(ACTIVE_KEY, aktivKlassId || '');
+            franvarande.clear();
+          }
+          renderSavedList();
+          renderClassSelect();
+          renderClassIndicator();
+          renderStudentChips();
+          resetRound();
+        });
+
+        actions.appendChild(editBtn);
+        actions.appendChild(delBtn);
+        row.appendChild(label);
+        row.appendChild(actions);
+        savedClassesList.appendChild(row);
+      });
+    }
+
+    document.getElementById('saveClassBtn').addEventListener('click', () => {
+      const namn = classNameInput.value.trim();
+      const rader = classStudentsInput.value.split('\n').map(s => s.trim()).filter(Boolean);
+
+      if (!namn) { alert('Ge klassen ett namn.'); return; }
+      if (rader.length === 0) { alert('Lägg till minst en elev.'); return; }
+
+      if (redigerarKlassId) {
+        const k = klasser.find(kk => kk.id === redigerarKlassId);
+        const gamla = new Map(k.elever.map(e => [e.namn, e.id]));
+        k.namn = namn;
+        k.elever = rader.map(n => ({ id: gamla.get(n) || nyttId(), namn: n }));
+      } else {
+        const nyKlass = { id: nyttId(), namn, elever: rader.map(n => ({ id: nyttId(), namn: n })) };
+        klasser.push(nyKlass);
+        aktivKlassId = nyKlass.id;
+        localStorage.setItem(ACTIVE_KEY, aktivKlassId);
+      }
+
+      saveKlasser(klasser);
+      redigerarKlassId = null;
+      classNameInput.value = '';
+      classStudentsInput.value = '';
+      modalHeading.textContent = 'Ny klass';
+      renderSavedList();
+      renderClassSelect();
+      renderClassIndicator();
+      franvarande.clear();
+      renderStudentChips();
+      resetRound();
+    });
+
+    /* ── Init ── */
+    renderClassIndicator();
+    renderClassSelect();
+    renderStudentChips();
+    renderJar();
+    renderRoundProgress();
+  </script>
+</body>
+</html>
