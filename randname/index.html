@@ -28,6 +28,9 @@
       /* Klassrum-kategorins färg, se index.html / brand.md */
       --cat: #3aada8;
       --cat-dark: #2a827e;
+      /* Burkens höjd — delas mellan .jar och ankringen för segervisning/idle-hint
+         nedan, så de alltid möts exakt vid burkens överkant oavsett storlek. */
+      --jar-height: 108px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -124,13 +127,13 @@
       width: 100%;
       display: flex;
       justify-content: center;
-      padding-top: 128px; /* plats för spinnarna som sticker upp + segervisningen */
+      padding-top: 190px; /* plats för spinnarna som sticker upp + segervisningen */
     }
 
     .jar {
       position: relative;
       width: 230px;
-      height: 108px;
+      height: var(--jar-height);
       border-radius: 16px 16px 60px 60px / 16px 16px 90px 90px;
       background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.55));
       border: 2px solid rgba(255,255,255,0.85);
@@ -173,7 +176,10 @@
     .stick-winner {
       position: absolute;
       left: 50%;
-      bottom: 100%;
+      /* Ankras mot burkens (.jar) höjd, INTE mot .jar-wrap — de två råkar bara
+         vara olika höga (jar-wrap har padding-top ovanför burken också), så
+         "bottom: 100%" hamnade fel. Detta ankrar exakt vid burkens överkant. */
+      bottom: var(--jar-height);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -184,8 +190,8 @@
     .stick-winner.landed { animation: stick-rise 0.6s cubic-bezier(.34,1.56,.64,1) forwards; }
     @keyframes stick-rise {
       0%   { transform: translate(-50%, 20px) scale(0.4) rotate(-8deg); opacity: 0; }
-      60%  { transform: translate(-50%, -76px) scale(1.08) rotate(2deg); opacity: 1; }
-      100% { transform: translate(-50%, -64px) scale(1) rotate(0deg); opacity: 1; }
+      60%  { transform: translate(-50%, -48px) scale(1.08) rotate(2deg); opacity: 1; }
+      100% { transform: translate(-50%, -36px) scale(1) rotate(0deg); opacity: 1; }
     }
     .winner-tag {
       background: #fff;
@@ -206,7 +212,7 @@
     .jar-idle-hint {
       position: absolute;
       left: 50%;
-      bottom: 100%;
+      bottom: var(--jar-height);
       transform: translate(-50%, -14px);
       font-size: 0.8rem;
       color: var(--muted);
@@ -359,7 +365,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       .jar.shaking, .stick-winner.landed { animation: none; }
-      .stick-winner.landed { opacity: 1; transform: translate(-50%, -64px) scale(1); }
+      .stick-winner.landed { opacity: 1; transform: translate(-50%, -36px) scale(1); }
     }
   </style>
 </head>
