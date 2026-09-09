@@ -22,8 +22,7 @@
   header{width:100%;background:var(--grad);padding:8px 24px}
   main{width:100%;max-width:1400px;padding:14px 32px 30px;display:flex;flex-direction:column;gap:10px}
 
-  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:visible;padding:18px 10px 10px;position:relative}
-  .canvas-column{display:flex;flex-direction:column;flex:1;min-width:0;}
+  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:visible;padding:18px 10px 10px;position:relative;flex:1;min-width:0}
   canvas{display:block;width:100%;height:auto;cursor:default}
 
   /* HTML overlay edit input for the expression box (positioned via JS) */
@@ -92,19 +91,6 @@
   .pearl-nav-btn.utter-on{ background:#7c3aed; border-color:#7c3aed; color:#fff; }
   .pearl-nav-btn.utter-full{ background:#EC6095; border-color:#EC6095; color:#fff; }
   .pearl-nav-btn.utter-mini{ position:static; transform:none; }
-  .below-panel-bar{
-    display:flex; gap:10px; justify-content:center; align-items:center;
-    margin-top:12px;
-  }
-  .bpb-btn{
-    display:flex; align-items:center; gap:6px;
-    border:1.5px dashed var(--border); background:transparent;
-    color:var(--muted); border-radius:20px; padding:6px 14px;
-    font-family:'Sora',sans-serif; font-size:.78rem; font-weight:700; cursor:pointer;
-    transition:all .15s; opacity:.85;
-  }
-  .bpb-btn:hover{ background:rgba(255,255,255,.7); color:var(--text); border-color:#b8b0e0; opacity:1; }
-  .bpb-btn .bpb-icon{ font-size:1.05rem; }
   .lt-sep{ width:100%; height:1.5px; background:var(--border); margin:3px 0; }
   .lt-btn.invert-right{ color:#66C7C2; border-color:#66C7C2; }
   .lt-btn.invert-right:hover{ background:#66C7C2; color:#fff; }
@@ -583,17 +569,17 @@
     <!-- LÄGEN: undervisningslägen som styr hur tallinjen beter sig/visas -->
     <div class="lt-group-label">Lägen</div>
     <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
-    <button class="lt-btn" id="ltBtnSmallSteps"><span>🐾</span><span class="lt-tip">Små kliv (istället för ett stort svep)</span></button>
     <button class="lt-btn" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
     <button class="lt-btn" id="ltBtnPlacement"><span>🙈</span><span class="lt-tip">Placeringsläge (dölj roboten)</span></button>
     <button class="lt-btn" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Visa/dölj riktningspilen (döljs helt utanför placeringsläget — bra för diskussion)</span></button>
-    <button class="lt-btn" id="ltBtnBeak"><span>👃</span><span class="lt-tip">Visa/dölj näbben på huvudet (extra riktningsförstärkning, oberoende av pilen)</span></button>
     <div class="lt-sep"></div>
 
     <!-- VERKTYG -->
     <div class="lt-group-label">Verktyg</div>
     <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
     <button class="lt-btn" id="ltBtnExport"><span>📷</span><span class="lt-tip">Exportera bild</span></button>
+    <button class="lt-btn" id="ltBtnWorksheet"><span>📝</span><span class="lt-tip">Skapa arbetsblad</span></button>
+    <button class="lt-btn" id="btnStudentMode"><span>🎓</span><span class="lt-tip">Elevläge</span></button>
     <button class="lt-btn" id="btnKeyHelp"><span>?</span><span class="lt-tip">Tangentbordsgenvägar</span></button>
     <div class="lt-sep"></div>
 
@@ -604,7 +590,6 @@
       <button id="ltBtnArrows"></button>
     </span>
   </div>
-  <div class="canvas-column">
   <div class="canvas-wrap" id="canvasWrap">
     <canvas id="tl" width="960" height="360"></canvas>
     <input type="text" id="exprEditInput" autocomplete="off" spellcheck="false">
@@ -650,13 +635,6 @@
     <button class="pearl-nav-btn" id="canvasBtnExprToggle" title="Visa/dölj uttrycket">𝑓</button>
     <button class="pearl-nav-btn invert-right" id="canvasBtnInvert" title="Växla + / −">+</button>
     <button class="pearl-nav-btn" id="canvasBtnReveal" title="Visa lösning">👁</button>
-  </div>
-
-  <!-- utanför själva panelen — inte direkt kopplade till animationen/tallinjen -->
-  <div class="below-panel-bar">
-    <button class="bpb-btn" id="btnStudentMode"><span class="bpb-icon">🎓</span>Elevläge</button>
-    <button class="bpb-btn" id="ltBtnWorksheet"><span class="bpb-icon">📝</span>Arbetsblad</button>
-  </div>
   </div>
   </div>
 
@@ -776,8 +754,6 @@
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">R</kbd><span style="font-size:.82rem;color:var(--muted);">Återställ</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">K</kbd><span style="font-size:.82rem;color:var(--muted);">Växla känguruhopp</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">L</kbd><span style="font-size:.82rem;color:var(--muted);">Lås tallinje (−12 till 12)</span>
-        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">S</kbd><span style="font-size:.82rem;color:var(--muted);">Små/stora kliv</span>
-        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">N</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj näbben</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">+ / −</kbd><span style="font-size:.82rem;color:var(--muted);">Växla operator</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">U</kbd><span style="font-size:.82rem;color:var(--muted);">Uttalat uttryck</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">E</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj uttrycket</span>
@@ -988,7 +964,7 @@ const S = {
   t1:5, op:'−', t2:7, answer:-2,
   robotPos:5,
   animating:false,
-  kangMode:false,
+  kangMode:true,
   showTotal:false,
   showExpr:true,         // toggle for the expression box top-left of canvas
   showStepChain:true,   // "steg för steg" = show per-leg arcs/labels (default on)
@@ -1009,13 +985,10 @@ const S = {
   facingRight:false,
   isDragging:false,     // true while the robot is being dragged
   lockRange:false,      // when true, number line is fixed at LOCKED_RANGE (-12..12), no pan/zoom animation
-  placementMode:true,   // when true, the robot is hidden on every new expression until manually placed + given a direction
+  placementMode:false,  // when true, the robot is hidden on every new expression until manually placed + given a direction
   needsPlacement:false, // true = robot hidden, waiting for a click on the number line to set its start position
   needsDirection:false, // true = robot placed but facing is neutral, waiting for a click to choose left/right
-  hideDirArrow:true,    // when true, the arrow above the head is skipped (usable in any mode, not just placeringsläge)
-  showBeak:true,        // when true, the head-nose/beak triangle reinforces facing direction (independent of the arrow)
-  smallSteps:true,      // when true, each hop is split into unit-sized steps ("små kliv") instead of one big sweep
-  smallStepArcs:[],     // the little unit-arcs drawn when smallSteps is on (completedArcs stays per-leg for the total-label)
+  hideDirArrow:false,   // when true, the arrow above the head is skipped (usable in any mode, not just placeringsläge)
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1037,12 +1010,10 @@ const ltBtnPlay   = document.getElementById('ltBtnPlay');
 const ltBtnReveal = document.getElementById('canvasBtnReveal');
 const ltBtnSave   = document.getElementById('ltBtnSave');
 const ltBtnKang   = document.getElementById('ltBtnKang');
-const ltBtnSmallSteps = document.getElementById('ltBtnSmallSteps');
 const ltBtnLock   = document.getElementById('ltBtnLock');
 const ltBtnPlacement = document.getElementById('ltBtnPlacement');
 const ltBtnColorNumbers = document.getElementById('ltBtnColorNumbers');
 const ltBtnHideArrow = document.getElementById('ltBtnHideArrow');
-const ltBtnBeak = document.getElementById('ltBtnBeak');
 const ltBtnArrows = document.getElementById('ltBtnArrows');
 const ltBtnTotal  = document.getElementById('ltBtnTotal');
 const ltBtnStep   = document.getElementById('ltBtnStep');
@@ -1235,23 +1206,16 @@ function drawArcSegment(from, to, frac, color, noLabel) {
     const absSteps = Math.abs(to - from);
     const signedSteps = fwd ? absSteps : -absSteps;
     const sign = signedSteps >= 0 ? '+' : '−';
-    // I "små kliv"-läget är varje båge bara ett steg — en kort "+1"/"−1"
-    // räcker då och håller etiketterna från att klumpa ihop sig.
-    const label = S.smallSteps
-      ? `${sign}${Math.abs(signedSteps)}`
-      : `${sign}${Math.abs(signedSteps)} steg`;
-    const fontSize = S.smallSteps ? 11 : 14;
-    const padX = S.smallSteps ? 6 : 8;
-    const boxH = S.smallSteps ? 17 : 22;
+    const label = `${sign}${Math.abs(signedSteps)} steg`;
     const lt=0.5*frac;
     const lx=(1-lt)*(1-lt)*x1+2*(1-lt)*lt*xMid+lt*lt*x2;
     const ly=(1-lt)*(1-lt)*LINE_Y+2*(1-lt)*lt*(LINE_Y-arcH)+lt*lt*LINE_Y-6;
-    ctx.font=`bold ${fontSize}px Sora`;
+    ctx.font='bold 14px Sora';
     const tw=ctx.measureText(label).width;
     ctx.fillStyle=color;
-    roundRect(ctx,lx-tw/2-padX,ly-boxH,tw+padX*2,boxH,5); ctx.fill();
+    roundRect(ctx,lx-tw/2-8,ly-22,tw+16,22,5); ctx.fill();
     ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(label,lx,ly-boxH/2); ctx.textBaseline='alphabetic';
+    ctx.fillText(label,lx,ly-11); ctx.textBaseline='alphabetic';
   }
 
   if (frac>=0.98) {
@@ -1272,9 +1236,6 @@ function drawArcSegment(from, to, frac, color, noLabel) {
 //  DRAW — total arc
 // ═══════════════════════════════════════════════════════════════════
 function drawTotalArc() {
-  // Styrs av den vanliga "Totalt hopp"-togglen och visas först när hela
-  // vägen är klar (done/paused/leg2) — inte medan man fortfarande hoppar,
-  // oavsett om man går i stora svep eller små kliv.
   if (!S.showTotal) return;
   if (S.phase!=='done' && S.phase!=='paused' && S.phase!=='leg2') return;
   if (S.t1===S.answer) return;
@@ -1315,8 +1276,7 @@ function drawTotalArc() {
     const d2=Math.abs(S.answer);
     label=`${d1} gjorda + ${d2} kvar = ${d1+d2} steg`;
   } else {
-    const dirWord = isForward(S.t1, S.answer) ? 'framåt' : 'bakåt';
-    label=`${Math.abs(S.answer-S.t1)} steg ${dirWord}`;
+    label=`${Math.abs(S.answer-S.t1)} steg`;
   }
   ctx.font='bold 12px Sora';
   const tw=ctx.measureText(label).width;
@@ -1484,10 +1444,9 @@ function drawRobot(worldX, scaleX, walkPhase, neutral) {
   ctx.fillStyle='#e8f4fd'; ctx.strokeStyle='#63b3ed'; ctx.lineWidth=2;
   roundRect(ctx,-13,-87,26,25,4); ctx.fill(); ctx.stroke();
 
-  // "Näs"-triangel/näbb på huvudet — en extra tydlig, oberoende indikation
-  // på vilket håll roboten tittar. Egen toggle (S.showBeak), fristående
-  // från riktningspilen, så man kan välja pil, näbb, eller båda.
-  if (S.showBeak && !neutral) {
+  // "Näs"-triangel på huvudet — en extra tydlig indikation på vilket håll
+  // roboten tittar, ritad i placeringsläget så fort riktningen är vald.
+  if (S.placementMode && !neutral) {
     ctx.save();
     ctx.fillStyle = facingRight ? '#66C7C2' : '#EC6095';
     ctx.strokeStyle = '#1a365d';
@@ -1711,8 +1670,13 @@ function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robot
   ctx.clearRect(0,0,CW,CH);
   drawLine();
   drawEndpointDots();
-  // Roboten ritas längst bak av det som rör sig på/ovanför tallinjen, så att
-  // stegbågarna (särskilt i "små kliv"-läget, tätt intill roboten) alltid syns.
+  for (const a of S.completedArcs) drawArcSegment(a.from,a.to,1,a.color);
+  if (activeFrom!==undefined && arcProgress>0)
+    drawArcSegment(activeFrom,activeTo,arcProgress,activeColor);
+  drawTotalArc();
+  drawPositionBoxes();
+  drawStepArrows();
+  drawCanvasHint();
   if (S.placementMode && S.needsPlacement) {
     // Robot is completely hidden — waiting for a click on the number line
   } else {
@@ -1720,17 +1684,6 @@ function render(arcProgress, walkPhase, activeFrom, activeTo, activeColor, robot
       : (S.facingRight===null ? 1 : (S.facingRight?1:-1));
     drawRobot(S.robotPos,sx,walkPhase||0,S.needsDirection);
   }
-  if (S.smallSteps) {
-    for (const a of S.smallStepArcs) drawArcSegment(a.from,a.to,1,a.color);
-  } else {
-    for (const a of S.completedArcs) drawArcSegment(a.from,a.to,1,a.color);
-  }
-  if (activeFrom!==undefined && arcProgress>0)
-    drawArcSegment(activeFrom,activeTo,arcProgress,activeColor);
-  drawTotalArc();
-  drawPositionBoxes();
-  drawStepArrows();
-  drawCanvasHint();
   drawExprBox();
   drawUtterance();
   drawPearlBand();
@@ -1769,10 +1722,10 @@ function animateFlip(fromRight, toRight, onDone) {
 //  ANIMATION ENGINE
 // ═══════════════════════════════════════════════════════════════════
 let animRAF=null;
-function animateLeg(from, to, color, onDone, minDur) {
+function animateLeg(from, to, color, onDone) {
   const distPx=Math.abs(worldToX(to)-worldToX(from));
   const spd = typeof speedSlider !== 'undefined' ? SPEED_MULT[parseInt(speedSlider.value)-1] : (S.slowMode ? 7.5 : 3.0);
-  const DUR=Math.max(minDur||800, distPx*spd); let startTime=null;
+  const DUR=Math.max(800, distPx*spd); let startTime=null;
   function step(ts) {
     if (!startTime) startTime=ts;
     const raw=Math.min((ts-startTime)/DUR,1);
@@ -1786,34 +1739,6 @@ function animateLeg(from, to, color, onDone, minDur) {
     else { S.robotPos=to; render(1,0,from,to,color); onDone(); }
   }
   animRAF=requestAnimationFrame(step);
-}
-
-// "Små kliv" — samma sträcka som animateLeg, men i separata steg om 1 åt
-// gången (en liten båge per steg) istället för ett enda stort svep.
-// completedArcs (används för totalsumme-etiketten) rörs inte här — den
-// fylls fortfarande på per HEL etapp av anroparen, precis som förut.
-function animateLegSmallSteps(from, to, color, onDone) {
-  const dir = to > from ? 1 : -1;
-  const total = Math.abs(to - from);
-  let i = 0;
-  function nextUnit() {
-    if (i >= total) { onDone(); return; }
-    const uFrom = from + i*dir;
-    const uTo   = uFrom + dir;
-    i++;
-    animateLeg(uFrom, uTo, color, () => {
-      S.smallStepArcs.push({from:uFrom, to:uTo, color});
-      nextUnit();
-    }, 350);
-  }
-  nextUnit();
-}
-
-// Väljer rätt animationsfunktion beroende på S.smallSteps, utan att
-// anroparen (startAnimation/continueAnimation) behöver bry sig om vilket.
-function runLeg(from, to, color, onDone) {
-  if (S.smallSteps) animateLegSmallSteps(from, to, color, onDone);
-  else animateLeg(from, to, color, onDone);
 }
 
 function kangApplies() {
@@ -1833,7 +1758,7 @@ function startAnimation() {
   if (S.phase==='idle') return;
   range=computeRange(S.t1,S.t2);
   S.robotPos=S.t1; S.animating=true;
-  S.completedArcs=[]; S.smallStepArcs=[]; S.revealedPositions=[];
+  S.completedArcs=[]; S.revealedPositions=[];
   btnAnim.disabled=true;
   btnRevl.style.display='none';
   S.revealStep=0;
@@ -1850,7 +1775,7 @@ function startAnimation() {
     const leg1Fwd = isForward(S.t1, 0);
     const leg1StepsSigned = leg1Fwd ? Math.abs(S.t1) : -Math.abs(S.t1);
     setStrip(S.showHints ? stepHint(leg1StepsSigned) : `Hopp 1: ${Math.abs(S.t1)} steg mot nollan…`);
-    runLeg(S.t1,0,c1,()=>{
+    animateLeg(S.t1,0,c1,()=>{
       S.completedArcs.push({from:S.t1,to:0,color:c1});
       addPos(0); S.phase='paused'; S.animating=false;
       btnAnim.disabled=false;
@@ -1869,7 +1794,7 @@ function startAnimation() {
     S.phase='leg1';
     const c=hopColor(S.t1,S.answer);
     setStrip(S.showHints ? stepHint(steps) : '\u00a0');
-    runLeg(S.t1,S.answer,c,()=>{
+    animateLeg(S.t1,S.answer,c,()=>{
       S.completedArcs.push({from:S.t1,to:S.answer,color:c});
       addPos(S.answer); finishAnimation();
     });
@@ -1887,7 +1812,7 @@ function continueAnimation() {
   const leg2Fwd = isForward(0, S.answer);
   const leg2StepsSigned = leg2Fwd ? Math.abs(S.answer) : -Math.abs(S.answer);
   setStrip(S.showHints ? stepHint(leg2StepsSigned) : `Hopp 2: ${Math.abs(S.answer)} steg mot svaret…`);
-  runLeg(0,S.answer,c2,()=>{
+  animateLeg(0,S.answer,c2,()=>{
     S.completedArcs.push({from:0,to:S.answer,color:c2});
     addPos(S.answer); finishAnimation();
   });
@@ -2095,7 +2020,6 @@ function setExpr(t1, op, t2, triggerFlip) {
   S.robotPos = S.t1;
   S.phase = 'ready';
   S.completedArcs = [];
-  S.smallStepArcs = [];
   S.revealedPositions = [S.t1];
   S.revealStep = 0;
   setStrip('\u00a0');
@@ -2266,12 +2190,6 @@ ltBtnHideArrow.addEventListener('click', () => {
   render(1, 0);
   saveSettings();
 });
-ltBtnBeak.addEventListener('click', () => {
-  if (S.animating) return;
-  S.showBeak = !S.showBeak;
-  render(1, 0);
-  saveSettings();
-});
 
 // Update the invert button's icon (+/−) and colour to match the robot's current facing
 function updateInvertButton() {
@@ -2352,7 +2270,6 @@ function commitStepBubble() {
     range = computeRange(S.t1, S.t2);
     S.revealedPositions = [S.t1];
     S.completedArcs = [];
-    S.smallStepArcs = [];
     S.phase = 'ready';
     setStrip('\u00a0');
     btnRevl.style.display = 'none';
@@ -2550,15 +2467,12 @@ function updateLeftToolbar() {
 
   // Kang
   ltBtnKang.className = 'lt-btn' + (S.kangMode ? ' kang-on' : '');
-  ltBtnSmallSteps.classList.toggle('active', S.smallSteps);
-  ltBtnSmallSteps.disabled = S.animating;
 
   // Lås tallinje / Placeringsläge / Visa riktningspil / Färgkoda tal
   ltBtnLock.classList.toggle('active', S.lockRange);
   ltBtnPlacement.classList.toggle('active', S.placementMode);
   ltBtnHideArrow.disabled = false;
   ltBtnHideArrow.classList.toggle('active', !S.hideDirArrow);
-  ltBtnBeak.classList.toggle('active', S.showBeak);
   ltBtnColorNumbers.classList.toggle('active', S.showColorNumbers);
 
   // Step arrows
@@ -2618,12 +2532,6 @@ ltBtnArrows.addEventListener('click', () => {
 ltBtnKang.addEventListener('click', () => {
   S.kangMode = !S.kangMode;
   kangChk.checked = S.kangMode;
-  render(1, 0);
-  saveSettings();
-});
-ltBtnSmallSteps.addEventListener('click', () => {
-  if (S.animating) return;
-  S.smallSteps = !S.smallSteps;
   render(1, 0);
   saveSettings();
 });
@@ -4297,14 +4205,6 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
         S.lockRange = !S.lockRange; updateLockButton();
         if (panRAF) { cancelAnimationFrame(panRAF); panRAF = null; }
         range = computeRange(S.t1, S.t2); render(1,0); saveSettings(); break;
-      case 's': case 'S':
-        e.preventDefault();
-        if (S.animating) break;
-        S.smallSteps = !S.smallSteps; render(1,0); saveSettings(); break;
-      case 'n': case 'N':
-        e.preventDefault();
-        if (S.animating) break;
-        S.showBeak = !S.showBeak; render(1,0); saveSettings(); break;
       case '+': case '=':
         e.preventDefault(); if (S.op !== '+') invertOperator(); break;
       case '-': case '_':
@@ -4324,11 +4224,11 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
 // ═══════════════════════════════════════════════════════════════════
 //  INSTÄLLNINGAR — sparas i localStorage så de finns kvar mellan sessioner
 // ═══════════════════════════════════════════════════════════════════
-const SETTINGS_KEY = 'tallinjeNegSettings_v2'; // v2: nya standardvärden (2026) — se INIT-kommentar
+const SETTINGS_KEY = 'tallinjeNegSettings_v1';
 const SETTINGS_BOOL_KEYS = [
   'kangMode','lockRange','placementMode','hideDirArrow','showExpr',
   'showColorNumbers','showHints','showStepChain','showTotal',
-  'showStepArrows','showUtterance','showFullUtterance','smallSteps','showBeak',
+  'showStepArrows','showUtterance','showFullUtterance',
 ];
 
 function saveSettings() {
@@ -4376,7 +4276,7 @@ loadSettings();
 syncSettingsUI();
 loadFromURL();
 buildUserPearls();
-setExpr(3, '+', 5, false);  // matchar första pärlan i pärlbandet (kategori 1, uttryck 1)
+setExpr(5, '+', 3, false);
 </script>
 
 </body>
