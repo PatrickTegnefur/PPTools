@@ -374,7 +374,7 @@
   .worksheet-overlay.open{ display:block; }
   .worksheet-controls{
     position:sticky; top:0; background:var(--surface); border-bottom:1.5px solid var(--border);
-    padding:12px 22px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; z-index:2;
+    padding:14px 22px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; z-index:2;
     font-family:'Sora',sans-serif;
   }
   .worksheet-controls h2{ margin:0 14px 0 0; font-size:1.1rem; color:var(--text); }
@@ -387,7 +387,7 @@
   }
   .worksheet-controls button:hover{ opacity:.88; }
   .worksheet-controls .ws-close-btn{ background:var(--surface2); color:var(--muted); border-color:var(--border); margin-left:auto; }
-  .ws-divider{ width:1.5px; align-self:stretch; background:var(--border); margin:0 2px; }
+  .ws-divider{ width:1.5px; align-self:stretch; background:var(--border); margin:0 4px; }
   .worksheet-page{ max-width:900px; margin:0 auto; padding:38px 34px 60px; font-family:'Sora',sans-serif; color:#100e28; }
   .worksheet-title-bar{
     height:8px; border-radius:5px; margin-bottom:20px; background:var(--grad);
@@ -408,12 +408,17 @@
   .ws-numline{ width:100%; max-width:640px; height:auto; display:block; margin-top:6px; }
   .worksheet-answerkey{ page-break-before:always; }
   .worksheet-answer-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:11px 22px; font-size:.92rem; color:#100e28; }
-  .ws-mode-toggle{ display:flex; border:1.5px solid var(--border); border-radius:8px; overflow:hidden; }
-  .ws-mode-btn{
-    border:none; background:#fff; color:var(--muted); padding:8px 13px; font-weight:700;
-    cursor:pointer; font-family:'Sora',sans-serif; font-size:.82rem;
+  .ws-mode-toggle{
+    display:flex; gap:3px; background:var(--surface2); border-radius:10px; padding:3px;
   }
-  .ws-mode-btn.active{ background:var(--accent); color:#fff; }
+  .ws-mode-btn{
+    border:1.5px solid transparent; background:transparent; color:var(--muted); padding:7px 14px;
+    font-weight:700; border-radius:7px; cursor:pointer; font-family:'Sora',sans-serif; font-size:.82rem;
+    white-space:nowrap; transition:all .15s;
+  }
+  .ws-mode-btn:hover{ background:rgba(255,255,255,.6); }
+  .ws-mode-btn.active{ background:#fff; border-color:var(--accent); color:var(--accent); box-shadow:0 1px 3px rgba(48,107,240,.18); }
+  .ws-mode-btn.ws-topic-btn{ font-size:1rem; padding:7px 16px; }
   .ws-answer-input{
     width:64px; padding:5px 7px; border:1.5px solid var(--border); border-radius:6px;
     font-family:'Sora',sans-serif; font-size:1rem; font-weight:700; color:#100e28;
@@ -821,8 +826,8 @@
   <div class="worksheet-controls no-print">
     <h2>📝 Arbetsblad</h2>
     <div class="ws-mode-toggle">
-      <button type="button" id="wsTopicAddSub" class="ws-mode-btn active">➕➖ Pos/neg tal</button>
-      <button type="button" id="wsTopicMulDiv" class="ws-mode-btn">✖️➗ Mult/Div</button>
+      <button type="button" id="wsTopicAddSub" class="ws-mode-btn ws-topic-btn active" title="Addition &amp; subtraktion">➕➖</button>
+      <button type="button" id="wsTopicMulDiv" class="ws-mode-btn ws-topic-btn" title="Multiplikation &amp; division">✖️➗</button>
     </div>
     <div class="ws-divider"></div>
     <div class="ws-mode-toggle">
