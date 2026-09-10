@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PT Verktyg — Matematikportalen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Sora:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── PT Ljus tokens ── */
+    :root {
+      --bg:        #f6f4ff;
+      --surface:   #ffffff;
+      --surface2:  #eae6ff;
+      --border:    #ccc5f0;
+      --text:      #100e28;
+      --muted:     #585078;
+      --accent:    #306BF0;
+      --accent2:   #EC6095;
+      --gradient:  linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+      --correct:   #18a348;
+      --wrong:     #e02020;
+      --shadow:    rgba(48, 107, 240, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+
+      /* Verktygskategorier — återanvänder gradientens tre kulörer,
+         men här betyder de typ av verktyg istället för årskurs */
+      --cat-klassrum:  #3aada8;   /* teal  — allmänna klassrumsverktyg */
+      --cat-larare: #d4813a;   /* orange — visuellt stöd vid genomgångar */
+      --cat-elev:   #c43d75;   /* rosa  — mängdträning */
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── Ambient bakgrundsljus (det glaset ska ha något att brytas mot) ── */
+    .ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .ambient span {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.35;
+    }
+    .ambient span:nth-child(1) { width: 420px; height: 420px; background: #66C7C2; top: -120px; left: -100px; }
+    .ambient span:nth-child(2) { width: 380px; height: 380px; background: #F4A261; top: 30%; right: -140px; }
+    .ambient span:nth-child(3) { width: 460px; height: 460px; background: #EC6095; bottom: -180px; left: 20%; }
+
+    /* ── Navbar ── */
+    header {
+      background: var(--gradient);
+      min-height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-logo span { font-style: italic; opacity: 0.85; }
+
+    .nav-divider {
+      width: 1.5px;
+      height: 24px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 2px;
+    }
+
+    .nav-subtitle {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      padding: 40px 24px 64px;
+      max-width: 920px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page-header { margin-bottom: 28px; }
+
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .page-header p { font-size: 0.95rem; color: var(--muted); font-weight: 400; }
+
+    /* ── Filterpanel (glas) ── */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px;
+      margin-bottom: 36px;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+
+    .filter-pill {
+      appearance: none;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.18s, color 0.18s, transform 0.12s;
+    }
+
+    .filter-pill:hover { background: rgba(255,255,255,0.7); transform: translateY(-1px); }
+
+    .filter-pill .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--pill-color, var(--muted));
+      flex-shrink: 0;
+    }
+
+    .filter-pill[aria-pressed="true"] {
+      background: var(--pill-color, var(--accent));
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.16);
+    }
+    .filter-pill[aria-pressed="true"] .dot { background: #ffffff; }
+
+    /* ── App grid ── */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+
+    /* ── App tile (glas) ── */
+    .app-tile {
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius-lg);
+      padding: 22px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app-tile:hover {
+      box-shadow: 0 14px 38px var(--shadow);
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.95);
+    }
+    .app-tile:active { transform: translateY(-1px); }
+
+    /* Färgad topstripe efter kategori */
+    .app-tile::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--tile-color, var(--accent));
+      opacity: 0.9;
+    }
+
+    .tile-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+
+    .app-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .cat-chip {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: #ffffff;
+      background: var(--tile-color, var(--accent));
+      white-space: nowrap;
+    }
+
+    .app-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .app-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Add-new tile ── */
+    .app-tile.add-new {
+      border-style: dashed;
+      border-color: rgba(88, 80, 120, 0.35);
+      background: rgba(255,255,255,0.25);
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+      cursor: default;
+    }
+    .app-tile.add-new::before { display: none; }
+    .app-tile.add-new:hover { transform: none; box-shadow: none; }
+
+    .add-new-icon {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 2px dashed var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .add-new-label { font-size: 0.8rem; color: var(--muted); }
+
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      main { padding: 28px 16px 48px; }
+      .page-header h1 { font-size: 1.6rem; }
+      .app-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .app-tile { padding: 16px 14px 14px; }
+      .app-icon { width: 44px; height: 44px; font-size: 1.25rem; }
+      .app-desc { display: none; }
+      .cat-chip { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .app-tile, .filter-pill { transition: none; }
+    }
+
+    a.app-tile:focus-visible, button.filter-pill:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient"><span></span><span></span><span></span></div>
+
+  <!-- Navbar -->
+  <header>
+    <a class="nav-logo" href="#">PT <span>Verktyg</span></a>
+    <div class="nav-divider"></div>
+    <span class="nav-subtitle">Lärarverktyg</span>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h1>Verktygsbank</h1>
+      <p>Välj ett verktyg, eller filtrera på hur du tänker använda det.</p>
+    </div>
+
+    <!--
+      FILTERPANEL
+      Varje verktygskort har ett data-category-attribut (klassrum / genomgang / traning).
+      Lägg till fler pills här om du inför fler kategorier — koppla dem till samma
+      data-category-värde som korten nedan använder.
+    -->
+    <div class="filter-bar" role="group" aria-label="Filtrera verktyg">
+      <button class="filter-pill" data-filter="alla" aria-pressed="true">
+        <span class="dot"></span>Alla
+      </button>
+      <button class="filter-pill" data-filter="klassrum" style="--pill-color: var(--cat-klassrum);" aria-pressed="false">
+        <span class="dot"></span>Klassrum
+      </button>
+      <button class="filter-pill" data-filter="larare" style="--pill-color: var(--cat-larare);" aria-pressed="false">
+        <span class="dot"></span>För läraren
+      </button>
+      <button class="filter-pill" data-filter="elev" style="--pill-color: var(--cat-elev);" aria-pressed="false">
+        <span class="dot"></span>För eleven
+      </button>
+    </div>
+
+    <!--
+      APP-GRID
+      Varje kort:
+        - data-category: klassrum | larare | elev  (styr filtreringen)
+        - --tile-color: sätts inline och styr topstripe + kategori-chip
+        - .cat-chip-textinnehållet skrivs ut i klartext nedan (byt själv vid behov)
+      Kopiera ett helt <a class="app-tile">-block för att lägga till ett nytt verktyg.
+    -->
+    <div class="app-grid" id="appGrid">
+
+      <!-- Miniräknare — Klassrum -->
+      <a class="app-tile" data-category="klassrum" href="calculator/index.html" style="--tile-color: var(--cat-klassrum);">
+        <div class="tile-top">
+          <div class="app-icon">🧮</div>
+          <span class="cat-chip">Klassrum</span>
+        </div>
+        <div class="app-name">Miniräknare</div>
+        <div class="app-desc">Alltid-överst-räknare för snabba uträkningar under lektionen.</div>
+      </a>
+
+      <!-- Tärning — Klassrum -->
+      <a class="app-tile" data-category="klassrum" href="dice/index.html" style="--tile-color: var(--cat-klassrum);">
+        <div class="tile-top">
+          <div class="app-icon">🎲</div>
+          <span class="cat-chip">Klassrum</span>
+        </div>
+        <div class="app-name">Tärning</div>
+        <div class="app-desc">3D-tärning med spänningsfyllt kast för slumpmoment i klassrummet.</div>
+      </a>
+
+      <!-- Timetimer — Klassrum -->
+      <a class="app-tile" data-category="klassrum" href="timetimer/index.html" style="--tile-color: var(--cat-klassrum);">
+        <div class="tile-top">
+          <div class="app-icon">⏱️</div>
+          <span class="cat-chip">Klassrum</span>
+        </div>
+        <div class="app-name">Timetimer</div>
+        <div class="app-desc">Visuell nedräkning som visar hur mycket tid som återstår på en uppgift.</div>
+      </a>
+
+      <!-- Namnplockare — Klassrum -->
+      <a class="app-tile" data-category="klassrum" href="randname/index.html" style="--tile-color: var(--cat-klassrum);">
+        <div class="tile-top">
+          <div class="app-icon">🍜</div>
+          <span class="cat-chip">Klassrum</span>
+        </div>
+        <div class="app-name">Namnplockare</div>
+        <div class="app-desc">Plocka namn slumpmässigt från en grupplista.</div>
+      </a>
+
+      <!-- Negativa tal (tallinje) — För läraren -->
+      <a class="app-tile" data-category="larare" href="numberline/addsub/index.html" style="--tile-color: var(--cat-larare);">
+        <div class="tile-top">
+          <div class="app-icon">🌡️</div>
+          <span class="cat-chip">För läraren</span>
+        </div>
+        <div class="app-name">Negativa tal — tallinjen</div>
+        <div class="app-desc">Gubbe och hopp visualiserar addition och subtraktion av negativa tal. Har även elevläge för självträning.</div>
+      </a>
+
+      <!-- Laddningsmodellen — För läraren -->
+      <a class="app-tile" data-category="larare" href="laddningsmodell/index.html" style="--tile-color: var(--cat-larare);">
+        <div class="tile-top">
+          <div class="app-icon">⚡</div>
+          <span class="cat-chip">För läraren</span>
+        </div>
+        <div class="app-name">Laddningsmodellen</div>
+        <div class="app-desc">Positiva och negativa laddningar tar ut varandra — ett andra sätt att förstå negativa tal.</div>
+      </a>
+
+      <!-- Trippmätare — För läraren -->
+      <a class="app-tile" data-category="larare" href="odometer/index.html" style="--tile-color: var(--cat-larare);">
+        <div class="tile-top">
+          <div class="app-icon">🚗</div>
+          <span class="cat-chip">För läraren</span>
+        </div>
+        <div class="app-name">Trippmätare</div>
+        <div class="app-desc">Digital vägmätare med rullande siffror som visar positionssystem och växling.</div>
+      </a>
+
+      <!-- Multiplikationsruta — För eleven -->
+      <a class="app-tile" data-category="elev" href="multiply/index.html" style="--tile-color: var(--cat-elev);">
+        <div class="tile-top">
+          <div class="app-icon">✍️</div>
+          <span class="cat-chip">För eleven</span>
+        </div>
+        <div class="app-name">Multiplikationsruta</div>
+        <div class="app-desc">Interaktiv multiplikationstabell för att träna tabellerna.</div>
+      </a>
+
+      <!-- Procentruta — För eleven -->
+      <a class="app-tile" data-category="elev" href="procentruta/index.html" style="--tile-color: var(--cat-elev);">
+        <div class="tile-top">
+          <div class="app-icon">💯</div>
+          <span class="cat-chip">För eleven</span>
+        </div>
+        <div class="app-name">Procentruta</div>
+        <div class="app-desc">Räkna ut delen med flera metoder — bråkform, 10%-, 1%- och decimalmetoden.</div>
+      </a>
+
+      <!-- DAH-ruta — För eleven -->
+      <a class="app-tile" data-category="elev" href="dah/index.html" style="--tile-color: var(--cat-elev);">
+        <div class="tile-top">
+          <div class="app-icon">⚖️</div>
+          <span class="cat-chip">För eleven</span>
+        </div>
+        <div class="app-name">DAH-ruta</div>
+        <div class="app-desc">Tränar sambandet mellan Andelen, Delen och Det hela i procentuppgifter.</div>
+      </a>
+
+      <!-- Lägg till ny -->
+      <div class="app-tile add-new" data-category="alla">
+        <div class="add-new-icon">+</div>
+        <div class="add-new-label">Nytt verktyg</div>
+      </div>
+
+    </div>
+
+    <p class="empty-state" id="emptyState">Inga verktyg i den här kategorin ännu.</p>
+  </main>
+
+  <footer>
+    Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan
+  </footer>
+
+  <script>
+    // Enkel filtrering: döljer/visar kort baserat på data-category.
+    // "Nytt verktyg"-kortet visas bara i vyn "Alla".
+    const pills = document.querySelectorAll('.filter-pill');
+    const tiles = document.querySelectorAll('#appGrid .app-tile');
+    const emptyState = document.getElementById('emptyState');
+
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.setAttribute('aria-pressed', 'false'));
+        pill.setAttribute('aria-pressed', 'true');
+
+        const filter = pill.dataset.filter;
+        let visibleCount = 0;
+
+        tiles.forEach(tile => {
+          const category = tile.dataset.category;
+          const isAddNew = tile.classList.contains('add-new');
+          const show = filter === 'alla'
+            ? true
+            : (isAddNew ? false : category === filter);
+
+          tile.style.display = show ? '' : 'none';
+          if (show && !isAddNew) visibleCount++;
+        });
+
+        emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+      });
+    });
+  </script>
+
+</body>
+</html>
