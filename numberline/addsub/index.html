@@ -374,10 +374,10 @@
   .worksheet-overlay.open{ display:block; }
   .worksheet-controls{
     position:sticky; top:0; background:var(--surface); border-bottom:1.5px solid var(--border);
-    padding:12px 22px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; z-index:2;
+    padding:12px 22px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; z-index:2;
     font-family:'Sora',sans-serif;
   }
-  .worksheet-controls h2{ margin:0 auto 0 0; font-size:1.1rem; color:var(--text); }
+  .worksheet-controls h2{ margin:0 14px 0 0; font-size:1.1rem; color:var(--text); }
   .worksheet-controls label{ font-size:.85rem; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:6px; }
   .worksheet-controls input[type=number]{ width:56px; padding:4px 6px; border:1.5px solid var(--border); border-radius:6px; font-family:'Sora',sans-serif; }
   .worksheet-controls input[type=checkbox]{ width:16px; height:16px; accent-color:var(--accent); }
@@ -386,18 +386,26 @@
     padding:8px 16px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; font-size:.85rem;
   }
   .worksheet-controls button:hover{ opacity:.88; }
-  .worksheet-controls .ws-close-btn{ background:var(--surface2); color:var(--muted); border-color:var(--border); }
-  .worksheet-page{ max-width:820px; margin:0 auto; padding:38px 34px 60px; font-family:'Sora',sans-serif; color:#100e28; }
+  .worksheet-controls .ws-close-btn{ background:var(--surface2); color:var(--muted); border-color:var(--border); margin-left:auto; }
+  .ws-divider{ width:1.5px; align-self:stretch; background:var(--border); margin:0 2px; }
+  .worksheet-page{ max-width:900px; margin:0 auto; padding:38px 34px 60px; font-family:'Sora',sans-serif; color:#100e28; }
   .worksheet-title-bar{
     height:8px; border-radius:5px; margin-bottom:20px; background:var(--grad);
     -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact;
   }
   .worksheet-page h1{ font-size:1.5rem; margin:0 0 8px; }
   .worksheet-meta{ font-size:.95rem; color:#585078; margin-bottom:28px; }
-  .worksheet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px 34px; }
-  .worksheet-problem{ display:flex; align-items:baseline; gap:8px; font-size:1.15rem; font-weight:600; border-bottom:1.5px dotted #ccc5f0; padding-bottom:11px; }
-  .worksheet-problem .wnum{ font-weight:700; color:#585078; min-width:24px; }
-  .worksheet-problem .wanswer-line{ flex:1; border-bottom:1.5px solid #100e28; min-width:46px; align-self:stretch; }
+  .worksheet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px 48px; }
+  .worksheet-grid.ws-grid-single{ grid-template-columns:1fr; max-width:700px; margin:0 auto; }
+  .worksheet-problem{
+    display:flex; align-items:baseline; gap:8px; font-size:1.15rem; font-weight:600;
+    border-bottom:1.5px dotted #ccc5f0; padding-bottom:11px; flex-wrap:nowrap; min-width:0;
+  }
+  .worksheet-problem .wnum{ font-weight:700; color:#585078; min-width:22px; flex-shrink:0; }
+  .worksheet-problem .wexpr{ white-space:nowrap; flex-shrink:0; }
+  .worksheet-problem .wanswer-line{ flex:1 1 auto; border-bottom:1.5px solid #100e28; min-width:16px; align-self:stretch; }
+  .ws-numline-row{ flex-direction:column; align-items:stretch; gap:2px; padding-bottom:22px; margin-bottom:6px; }
+  .ws-numline{ width:100%; max-width:640px; height:auto; display:block; margin-top:6px; }
   .worksheet-answerkey{ page-break-before:always; }
   .worksheet-answer-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:11px 22px; font-size:.92rem; color:#100e28; }
   .ws-mode-toggle{ display:flex; border:1.5px solid var(--border); border-radius:8px; overflow:hidden; }
@@ -424,10 +432,19 @@
   @media print{
     body > *:not(.worksheet-overlay){ display:none !important; }
     .no-print{ display:none !important; }
-    .worksheet-overlay{ position:static; overflow:visible; }
-    .worksheet-page{ padding:14px 6px 30px; max-width:100%; }
-    .worksheet-title-bar{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    html, body{
+      background:#fff !important; display:block !important; min-height:0 !important;
+      margin:0 !important; padding:0 !important;
+    }
+    .worksheet-overlay{
+      position:static !important; overflow:visible !important; width:100% !important;
+    }
+    .worksheet-page{ padding:8px 4px 24px; max-width:100%; margin:0; }
+    .worksheet-grid{ gap:20px 60px; }
+    .worksheet-title-bar,
+    .worksheet-problem.ws-correct, .worksheet-problem.ws-wrong{
+      -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;
+    }
   }
 
   /* ═══════════ STUDENT MODE OVERLAY ═══════════ */
@@ -662,6 +679,7 @@
   <div class="below-panel-bar">
     <button class="bpb-btn" id="btnStudentMode"><span class="bpb-icon">🎓</span>Elevläge</button>
     <button class="bpb-btn" id="ltBtnWorksheet"><span class="bpb-icon">📝</span>Arbetsblad</button>
+    <button class="bpb-btn" id="ltBtnWorksheetPractice"><span class="bpb-icon">💻</span>Öva direkt</button>
   </div>
   </div>
   </div>
@@ -806,11 +824,14 @@
       <button type="button" id="wsTopicAddSub" class="ws-mode-btn active">➕➖ Pos/neg tal</button>
       <button type="button" id="wsTopicMulDiv" class="ws-mode-btn">✖️➗ Mult/Div</button>
     </div>
+    <div class="ws-divider"></div>
     <div class="ws-mode-toggle">
-      <button type="button" id="wsModePrint" class="ws-mode-btn active">🖨️ Skriv ut</button>
-      <button type="button" id="wsModeInteractive" class="ws-mode-btn">💻 Interaktivt</button>
+      <button type="button" id="wsModePrint" class="ws-mode-btn active">📄 Skrivbar</button>
+      <button type="button" id="wsModeInteractive" class="ws-mode-btn">💻 Interaktiv</button>
+      <button type="button" id="wsModeNumline" class="ws-mode-btn">📏 Tallinjeblad</button>
     </div>
-    <label>Antal: <input type="number" id="wsCount" min="4" max="60" value="20"></label>
+    <div class="ws-divider"></div>
+    <label>Antal: <input type="number" id="wsCount" min="4" max="60" value="30"></label>
     <label id="wsAdvancedLabel"><input type="checkbox" id="wsAdvanced"> Avancerad (3–4 termer)</label>
     <div class="ws-mode-toggle" id="wsLevelToggle" style="display:none;">
       <button type="button" class="ws-mode-btn ws-level-btn active" data-level="1">Nivå 1</button>
@@ -818,6 +839,7 @@
       <button type="button" class="ws-mode-btn ws-level-btn" data-level="3">Nivå 3</button>
     </div>
     <label id="wsAnswerKeyLabel"><input type="checkbox" id="wsAnswerKey" checked> Facit (ny sida)</label>
+    <div class="ws-divider"></div>
     <button id="wsRegenerate">🔄 Nytt arbetsblad</button>
     <button id="wsPrint">🖨️ Skriv ut</button>
     <button id="wsCheck" style="display:none;">✅ Rätta</button>
@@ -3457,6 +3479,7 @@ const wsAnswerKey = document.getElementById('wsAnswerKey');
 const wsAnswerKeyLabel = document.getElementById('wsAnswerKeyLabel');
 const wsModePrint       = document.getElementById('wsModePrint');
 const wsModeInteractive = document.getElementById('wsModeInteractive');
+const wsModeNumline     = document.getElementById('wsModeNumline');
 const wsTopicAddSub = document.getElementById('wsTopicAddSub');
 const wsTopicMulDiv = document.getElementById('wsTopicMulDiv');
 const wsLevelToggle = document.getElementById('wsLevelToggle');
@@ -3465,7 +3488,7 @@ const wsPrintBtn = document.getElementById('wsPrint');
 const wsCheckBtn = document.getElementById('wsCheck');
 const wsScoreEl  = document.getElementById('wsScore');
 
-let wsMode  = 'print';  // 'print' | 'interactive'
+let wsMode  = 'print';  // 'print' | 'interactive' | 'numline'
 let wsTopic = 'addsub'; // 'addsub' | 'muldiv'
 let wsLevel = 1;        // 1 | 2 | 3 — endast relevant för 'muldiv'
 let wsProblems = [];
@@ -3473,19 +3496,44 @@ let wsProblems = [];
 // Rendera ett uttryck: antingen som vanlig text eller som ett bråk (täljare/nämnare)
 function wsProblemHTML(p) {
   if (p.isFraction) {
-    return `<span class="ws-frac"><span class="ws-frac-num">${p.num}</span><span class="ws-frac-den">${p.den}</span></span>`;
+    return `<span class="ws-frac wexpr"><span class="ws-frac-num">${p.num}</span><span class="ws-frac-den">${p.den}</span></span>`;
   }
-  return `<span>${p.text}</span>`;
+  return `<span class="wexpr">${p.text}</span>`;
 }
 
 function genOneProblem() {
   return (wsTopic === 'addsub') ? genWorksheetProblem(wsAdvanced.checked) : genMulDivProblem(wsLevel);
 }
 
+// En blank tallinje med bara 0:an markerad — eleven får själv peka ut var
+// starttalet ligger, rita pilar för riktning och skriva ut antal steg.
+function wsBlankNumberLineSVG() {
+  const W = 640, H = 46, marginX = 16, N = 31; // 31 omärkta streck: -15..15, bara 0 får en siffra
+  const usableW = W - marginX * 2;
+  let ticks = '';
+  for (let i = 0; i < N; i++) {
+    const val = i - 15;
+    const x = marginX + (usableW * i / (N - 1));
+    const isZero = val === 0;
+    const tickH = isZero ? 13 : 7;
+    ticks += `<line x1="${x.toFixed(1)}" y1="${H/2-tickH}" x2="${x.toFixed(1)}" y2="${H/2+tickH}" stroke="#100e28" stroke-width="${isZero?2.2:1.1}"/>`;
+    if (isZero) {
+      ticks += `<text x="${x.toFixed(1)}" y="${H/2+24}" font-family="Sora" font-size="12" font-weight="700" text-anchor="middle" fill="#100e28">0</text>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${W} ${H+16}" class="ws-numline" preserveAspectRatio="none">
+    <line x1="${marginX}" y1="${H/2}" x2="${W-marginX}" y2="${H/2}" stroke="#100e28" stroke-width="1.5"/>
+    ${ticks}
+  </svg>`;
+}
+
 function renderWorksheet() {
-  const n = Math.max(4, Math.min(60, parseInt(wsCount.value, 10) || 20));
+  const maxCount = (wsMode === 'numline') ? 20 : 60;
+  const n = Math.max(4, Math.min(maxCount, parseInt(wsCount.value, 10) || 30));
   wsProblems = Array.from({length: n}, genOneProblem);
   wsScoreEl.textContent = '';
+  worksheetGrid.classList.toggle('ws-grid-single', wsMode === 'numline');
+
   if (wsMode === 'interactive') {
     worksheetAnswerPage.style.display = 'none'; // facit ska inte synas direkt i interaktivt läge
     worksheetGrid.innerHTML = wsProblems.map((p, i) => `
@@ -3495,6 +3543,15 @@ function renderWorksheet() {
         <input type="number" class="ws-answer-input no-print" id="wsAns${i}">
         <span class="ws-feedback no-print" id="wsFeedback${i}"></span>
       </div>`).join('');
+  } else if (wsMode === 'numline') {
+    worksheetGrid.innerHTML = wsProblems.map((p, i) => `
+      <div class="worksheet-problem ws-numline-row">
+        <div><span class="wnum">${i + 1}.</span> ${wsProblemHTML(p)}<span>&nbsp;=&nbsp;______</span></div>
+        ${wsBlankNumberLineSVG()}
+      </div>`).join('');
+    worksheetAnswerGrid.innerHTML = wsProblems.map((p, i) =>
+      `<div><b>${i + 1}.</b> ${p.answer}</div>`).join('');
+    worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
   } else {
     worksheetGrid.innerHTML = wsProblems.map((p, i) => `
       <div class="worksheet-problem">
@@ -3529,8 +3586,9 @@ function setWorksheetMode(mode) {
   wsMode = mode;
   wsModePrint.classList.toggle('active', mode === 'print');
   wsModeInteractive.classList.toggle('active', mode === 'interactive');
-  wsAnswerKeyLabel.style.display = (mode === 'print') ? '' : 'none';
-  wsPrintBtn.style.display       = (mode === 'print') ? '' : 'none';
+  wsModeNumline.classList.toggle('active', mode === 'numline');
+  wsAnswerKeyLabel.style.display = (mode === 'interactive') ? 'none' : '';
+  wsPrintBtn.style.display       = (mode === 'interactive') ? 'none' : '';
   wsCheckBtn.style.display       = (mode === 'interactive') ? '' : 'none';
   wsScoreEl.style.display        = (mode === 'interactive') ? '' : 'none';
   renderWorksheet();
@@ -3551,7 +3609,12 @@ function setWorksheetTopic(topic) {
 const ltBtnWorksheet = document.getElementById('ltBtnWorksheet');
 ltBtnWorksheet.addEventListener('click', () => {
   worksheetOverlay.classList.add('open');
-  renderWorksheet();
+  setWorksheetMode('print');
+});
+const ltBtnWorksheetPractice = document.getElementById('ltBtnWorksheetPractice');
+ltBtnWorksheetPractice.addEventListener('click', () => {
+  worksheetOverlay.classList.add('open');
+  setWorksheetMode('interactive');
 });
 document.getElementById('wsClose').addEventListener('click', () => {
   worksheetOverlay.classList.remove('open');
@@ -3564,6 +3627,7 @@ wsAnswerKey.addEventListener('change', () => {
 });
 wsModePrint.addEventListener('click', () => setWorksheetMode('print'));
 wsModeInteractive.addEventListener('click', () => setWorksheetMode('interactive'));
+wsModeNumline.addEventListener('click', () => setWorksheetMode('numline'));
 wsTopicAddSub.addEventListener('click', () => setWorksheetTopic('addsub'));
 wsTopicMulDiv.addEventListener('click', () => setWorksheetTopic('muldiv'));
 wsLevelBtns.forEach(btn => {
