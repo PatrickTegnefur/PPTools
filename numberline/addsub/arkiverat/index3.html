@@ -452,35 +452,6 @@
     }
   }
 
-  /* ═══════════ OM VERKTYGET (instruktionspopup) ═══════════ */
-  .tool-help-overlay{
-    display:none; position:fixed; inset:0; z-index:800;
-    background:rgba(16,14,40,.5); align-items:center; justify-content:center; padding:24px;
-  }
-  .tool-help-overlay.open{ display:flex; }
-  .tool-help-card{
-    position:relative; background:var(--surface); border-radius:18px; max-width:640px; width:100%;
-    max-height:86vh; overflow-y:auto; padding:32px 34px 30px; box-shadow:0 12px 40px rgba(16,14,40,.3);
-    font-family:'Sora',sans-serif; color:var(--text);
-  }
-  .tool-help-titlebar{ height:8px; border-radius:5px; margin-bottom:18px; background:var(--grad); }
-  .tool-help-close{
-    position:absolute; top:18px; right:18px; width:32px; height:32px; border-radius:50%;
-    border:1.5px solid var(--border); background:var(--surface2); color:var(--muted);
-    font-size:1rem; cursor:pointer;
-  }
-  .tool-help-close:hover{ background:var(--border); color:var(--text); }
-  .tool-help-card h1{ font-size:1.4rem; margin:0 0 6px; }
-  .tool-help-lead{ color:var(--muted); font-size:.95rem; margin:0 0 22px; line-height:1.45; }
-  .tool-help-section{ margin-bottom:20px; }
-  .tool-help-section h2{ font-size:1rem; margin:0 0 8px; }
-  .tool-help-section p{ font-size:.9rem; line-height:1.55; margin:0; color:var(--text); }
-  .tool-help-grid{
-    display:grid; grid-template-columns:1fr 1fr; gap:10px 18px;
-    font-size:.85rem; line-height:1.45; color:var(--text);
-  }
-  .tool-help-footnote{ font-size:.82rem !important; color:var(--muted) !important; font-style:italic; }
-
   /* ═══════════ STUDENT MODE OVERLAY ═══════════ */
   .student-overlay{
     display:none; position:fixed; inset:0; z-index:500;
@@ -714,7 +685,6 @@
     <button class="bpb-btn" id="btnStudentMode"><span class="bpb-icon">🎓</span>Elevläge</button>
     <button class="bpb-btn" id="ltBtnWorksheet"><span class="bpb-icon">📝</span>Arbetsblad</button>
     <button class="bpb-btn" id="ltBtnWorksheetPractice"><span class="bpb-icon">💻</span>Öva direkt</button>
-    <button class="bpb-btn" id="btnToolHelp"><span class="bpb-icon">❓</span>Om verktyget</button>
   </div>
   </div>
   </div>
@@ -896,53 +866,8 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     OM VERKTYGET — instruktionspopup
-     ═══════════════════════════════════════════════════════════════ -->
-<div class="tool-help-overlay" id="toolHelpOverlay">
-  <div class="tool-help-card">
-    <div class="tool-help-titlebar"></div>
-    <button class="tool-help-close" id="toolHelpClose">✕</button>
-    <h1>Om verktyget</h1>
-    <p class="tool-help-lead">
-      En interaktiv tallinje som visar hur positiva och negativa tal fungerar
-      — och en samling färdighetsträning som byggts runt den.
-    </p>
 
-    <div class="tool-help-section">
-      <h2>🚀 Kom igång</h2>
-      <p>Klicka på en pärla i pärlbandet, eller skriv ett eget uttryck genom att klicka på uttrycksrutan. Tryck sedan ▶ Animera för att se roboten hoppa fram till svaret.</p>
-    </div>
-
-    <div class="tool-help-section">
-      <h2>🎛️ Lägen att utforska</h2>
-      <div class="tool-help-grid">
-        <div><b>🙈 Placeringsläge</b> — roboten döljs tills ni klickat fram var den börjar och vilket håll den tittar.</div>
-        <div><b>👃 Näbb / 👣 Pil</b> — två oberoende sätt att visa riktning, eller stäng av båda för diskussion.</div>
-        <div><b>🐾 Små kliv</b> — ett hopp i taget istället för ett stort svep.</div>
-        <div><b>🦘 Känguruhopp</b> — mellanlandar vid 0 när man passerar den.</div>
-        <div><b>🔒 Lås tallinje</b> — håller vyn fast mellan −12 och 12.</div>
-        <div><b>🎨 Färgkoda tal</b> — positiva och negativa tal får egna färger.</div>
-      </div>
-    </div>
-
-    <div class="tool-help-section">
-      <h2>💪 Färdighetsträning</h2>
-      <p>📝 <b>Arbetsblad</b> genererar blandade uppgifter (addition/subtraktion eller multiplikation/division, med flera svårighetsnivåer) i tre versioner: skrivbart för utskrift, interaktivt för direkt självrättning i webbläsaren, eller ett tallinjeblad där eleven själv ritar ut sin lösning för hand. 🎓 <b>Elevläge</b> ger ett eget, förenklat gränssnitt för eleverna.</p>
-    </div>
-
-    <div class="tool-help-section">
-      <h2>⭐ Bygg din egen samling</h2>
-      <p>Under "Mina pärlor" i knappsatspanelen kan du spara favorituttryck (med egen färg) som följer med mellan lektioner.</p>
-    </div>
-
-    <div class="tool-help-section">
-      <p class="tool-help-footnote">Fler tips finns bakom <b>❓</b>-knappen i verktygsmenyn, som visar alla tangentbordsgenvägar.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ STUDENT MODE OVERLAY ═══════════ -->
+  <!-- ═══════════ STUDENT MODE OVERLAY ═══════════ -->
   <div class="student-overlay" id="studentOverlay">
     <div class="student-header">
       <h2>🎓 Elevläge — Tallinjen</h2>
@@ -3696,16 +3621,6 @@ ltBtnWorksheetPractice.addEventListener('click', () => {
   worksheetOverlay.classList.add('open');
   setWorksheetMode('interactive');
 });
-const toolHelpOverlay = document.getElementById('toolHelpOverlay');
-document.getElementById('btnToolHelp').addEventListener('click', () => {
-  toolHelpOverlay.classList.add('open');
-});
-document.getElementById('toolHelpClose').addEventListener('click', () => {
-  toolHelpOverlay.classList.remove('open');
-});
-toolHelpOverlay.addEventListener('click', (e) => {
-  if (e.target === toolHelpOverlay) toolHelpOverlay.classList.remove('open'); // klick utanför kortet stänger
-});
 document.getElementById('wsClose').addEventListener('click', () => {
   worksheetOverlay.classList.remove('open');
 });
@@ -4446,7 +4361,7 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
     if (studentOverlay && studentOverlay.classList.contains('open')) return;
     switch(e.key) {
       case '?':         e.preventDefault(); open(); break;
-      case 'Escape':    if (studentOverlay) studentOverlay.classList.remove('open'); if (toolHelpOverlay) toolHelpOverlay.classList.remove('open'); break;
+      case 'Escape':    if (studentOverlay) studentOverlay.classList.remove('open'); break;
       case 'r': case 'R': e.preventDefault(); resetAll(); break;
       case 'k': case 'K':
         e.preventDefault();

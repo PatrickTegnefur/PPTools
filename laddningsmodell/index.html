@@ -48,33 +48,41 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;
   padding:0.75rem 0.75rem 1.5rem;gap:0.5rem;}
 
 /* ── Control block ── */
-.control-block{display:flex;align-items:center;gap:6px;
+.control-block{
+  display:flex;align-items:center;gap:0;
   background:var(--surface);border:1.5px solid var(--border);
-  border-radius:var(--r-md);box-shadow:var(--sh-sm);padding:8px 10px;}
-.expr-in{width:160px;font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:500;
-  border:1.5px solid var(--border);border-radius:var(--r-sm);
-  padding:8px 12px;background:var(--bg);color:var(--text);outline:none;
-  transition:border-color 0.15s,box-shadow 0.15s;text-align:center;}
-.expr-in:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(48,107,240,0.1);}
+  border-radius:var(--r-md);box-shadow:var(--sh-sm);
+  overflow:hidden;}
+.expr-in{
+  width:170px;font-family:'Sora',sans-serif;font-size:1rem;font-weight:500;
+  border:none;border-right:1.5px solid var(--border);
+  padding:10px 14px;background:transparent;color:var(--text);outline:none;
+  text-align:center;transition:background 0.15s;}
+.expr-in:focus{background:var(--surface2);}
 .expr-in::placeholder{color:var(--muted);font-size:0.82rem;}
-.vsep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+.btn-strip{display:flex;align-items:center;}
+.btn{
+  font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:600;
+  border:none;border-right:1.5px solid var(--border);
+  cursor:pointer;padding:0 16px;height:44px;
+  transition:background 0.13s;white-space:nowrap;
+  display:flex;align-items:center;gap:6px;}
+.btn:last-child{border-right:none;}
+.btn-start{background:var(--accent);color:#fff;}
+.btn-start:hover:not(:disabled){background:#2358d4;}
+.btn-start:disabled{background:#a8bff8;color:#fff;cursor:default;}
+.btn-next{background:var(--correct);color:#fff;min-width:120px;}
+.btn-next:hover:not(:disabled){background:#14853c;}
+.btn-next:disabled{background:#a8d5bb;color:#fff;cursor:default;}
+.btn-reset{background:transparent;color:var(--muted);}
+.btn-reset:hover{background:var(--surface2);color:var(--text);}
+.kbd{
+  font-size:0.6rem;opacity:0.65;background:rgba(255,255,255,0.2);
+  border-radius:3px;padding:1px 4px;letter-spacing:0;font-family:'Sora',sans-serif;
+  border:1px solid rgba(255,255,255,0.3);}
+.btn-reset .kbd{background:var(--surface2);border-color:var(--border);color:var(--muted);}
 .feedback-line{font-size:0.72rem;font-weight:500;min-height:1.1em;text-align:center;}
 .feedback-line.ok{color:var(--correct);}.feedback-line.err{color:var(--wrong);}
-
-/* ── Buttons ── */
-.btn-strip{display:flex;gap:6px;align-items:center;}
-.btn{font-family:'Sora',sans-serif;font-size:0.78rem;font-weight:600;
-  border-radius:var(--r-sm);border:none;cursor:pointer;padding:8px 12px;
-  transition:all 0.13s;min-height:36px;white-space:nowrap;
-  display:flex;align-items:center;justify-content:center;}
-.btn-start{background:var(--accent);color:#fff;min-width:36px;}
-.btn-start:hover:not(:disabled){background:#2358d4;}
-.btn-start:disabled{background:#a8bff8;cursor:default;}
-.btn-next{background:var(--correct);color:#fff;min-width:110px;}
-.btn-next:hover:not(:disabled){background:#14853c;}
-.btn-next:disabled{background:#a8d5bb;cursor:default;}
-.btn-reset{background:transparent;color:var(--muted);border:1px solid var(--border);min-width:36px;}
-.btn-reset:hover{color:var(--text);border-color:var(--muted);}
 
 /* ── Canvas card ── */
 .canvas-area{width:100%;max-width:560px;
@@ -84,7 +92,8 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;
   padding:0.6rem;gap:0.4rem;}
 .top-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .expr-display{font-family:'Montserrat',sans-serif;font-size:1.45rem;font-weight:700;
-  color:var(--text);letter-spacing:0.5px;min-height:1.8rem;line-height:1;}
+  color:var(--text);letter-spacing:0.5px;min-height:1.8rem;line-height:1;
+  flex:1;text-align:center;}
 .legend{display:flex;gap:10px;font-size:0.68rem;color:var(--muted);align-items:center;flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:3px;}
 .ldot{width:10px;height:10px;border-radius:50%;border:2px solid;flex-shrink:0;}
@@ -156,6 +165,7 @@ canvas{display:block;width:100%;height:auto;}
       <li>Tal mellan −12 och 12</li>
     </ul>
     <p><strong>Steg för steg</strong> — klicka Nästa för att styra tempot. Perfekt under genomgångar.</p>
+    <p><strong>Tangentbord:</strong> <code>Enter</code> = Starta / Nästa &nbsp;·&nbsp; <code>Space</code> = Nästa &nbsp;·&nbsp; <code>Esc</code> = Återställ</p>
     <p><strong>Kulor:</strong> Blå/lila = positiv (+1), Rosa/röd = negativ (−1).<br>
     Ljusare nyans = ursprungliga kulor. Mörkare nyans = nollpar (läggs till för att möjliggöra subtraktion).</p>
     <p><strong>Pärlbandet:</strong> färgerna är uppgiftskategorier.</p>
@@ -168,11 +178,16 @@ canvas{display:block;width:100%;height:auto;}
     <input class="expr-in" id="exprIn" type="text" autocomplete="off" spellcheck="false"
            placeholder="t.ex. 5 + -3"
            oninput="onTextInput()" onkeydown="if(event.key==='Enter')tryStart()">
-    <div class="vsep"></div>
     <div class="btn-strip">
-      <button class="btn btn-start" id="playBtn" onclick="tryStart()" title="Starta">▶</button>
-      <button class="btn btn-next"  id="nextBtn" onclick="clickNext()" style="display:none" disabled>Nästa →</button>
-      <button class="btn btn-reset"              onclick="doReset()" title="Återställ">↺</button>
+      <button class="btn btn-start" id="playBtn" onclick="tryStart()" title="Starta (Enter)">
+        ▶ Starta <span class="kbd">↵</span>
+      </button>
+      <button class="btn btn-next" id="nextBtn" onclick="clickNext()" style="display:none" disabled>
+        Nästa → <span class="kbd">Space</span>
+      </button>
+      <button class="btn btn-reset" onclick="doReset()" title="Återställ (Escape)">
+        ↺ <span class="kbd">Esc</span>
+      </button>
     </div>
   </div>
   <div class="feedback-line" id="feedback">&nbsp;</div>
@@ -358,12 +373,31 @@ const GRAVITY = 0.55;
 const BOUNCE  = 0.32;
 const FRICTION = 0.88;
 
-// Ball shape: {type, shade, x, y, vx, vy, alpha, _marked, _removing}
-let balls=[], dropping=null;
-let droppingTargetRow = 0; // pre-computed row for the dropping ball
+let balls=[], liftingBalls=[], dropping=null, droppingTwo=null;
 let flashAlpha=0;
 let queue=[], queueRunning=false, rafId=null;
 let waitClickResolve=null;
+
+function getCols(){
+  const innerW=(CR-BALL_R-3)-(CL+BALL_R+3);
+  return Math.max(1,Math.floor(innerW/(BALL_R*2+4)));
+}
+function landingY(count){
+  const row=Math.floor(count/getCols());
+  return CUP_BOT-BALL_R-8-row*(BALL_R*2+4);
+}
+function landingX(count){
+  const cols=getCols();
+  const innerW=(CR-BALL_R-3)-(CL+BALL_R+3);
+  const colW=innerW/cols;
+  const col=count%cols;
+  return CL+BALL_R+3+col*colW+colW/2;
+}
+// First index on a fresh row after n balls
+function rowStart(n){
+  const cols=getCols();
+  return Math.ceil(n/cols)*cols;
+}
 
 // ── Physics loop ──
 function startLoop(){ if(!rafId) rafId=requestAnimationFrame(loop); }
@@ -373,14 +407,15 @@ function loop(){
   rafId=null;
   let needMore = false;
   if(dropping){ physicsStep(); needMore=true; }
-  balls.forEach(b=>{ if(b.vy!==0||b.vx!==0) settleStep(b); });
+  if(droppingTwo){ physicsTwoStep(); needMore=true; }
+  // Settle existing balls (skip pads)
+  balls.forEach(b=>{ if(!b._pad&&(b.vy!==0||b.vx!==0)) settleStep(b); });
   if(balls.some(b=>Math.abs(b.vy)>0.05||Math.abs(b.vx)>0.05)) needMore=true;
   // Animate lifting balls
   if(liftingBalls.length>0){
     liftingBalls.forEach(b=>{
       b.t = (b.t||0)+1;
       const t = b.t/b.duration;
-      // Arc upward: parabola, drift slightly sideways
       b.x = b.startX + b.dx*t;
       b.y = b.startY - b.height*Math.sin(Math.PI*t);
       b.alpha = Math.max(0, 1 - t*t);
@@ -392,6 +427,35 @@ function loop(){
   if(needMore) startLoop();
 }
 
+function physicsTwoStep(){
+  if(!droppingTwo) return;
+  let allLanded = true;
+  droppingTwo.forEach(b=>{
+    if(b._landed) return;
+    allLanded = false;
+    b.vy += GRAVITY;
+    b.vx *= FRICTION;
+    b.x  += b.vx;
+    b.y  += b.vy;
+    b.x = Math.max(CL+BALL_R+3, Math.min(CR-BALL_R-3, b.x));
+    if(b.y >= b._targetY){
+      b.y = b._targetY;
+      if(Math.abs(b.vy) > 1){
+        b.vy = -b.vy * BOUNCE;
+        if(Math.abs(b.vy) < 0.8){ b.vy=0; b.vx=0; b._landed=true; }
+      } else {
+        b.vy=0; b.vx=0; b._landed=true;
+      }
+    }
+  });
+  if(droppingTwo.every(b=>b._landed)){
+    droppingTwo.forEach(b=>{ delete b._targetY; delete b._landed; balls.push(b); });
+    droppingTwo=null;
+    render();
+    advanceQueue();
+  }
+}
+
 function physicsStep(){
   if(!dropping) return;
   dropping.vy += GRAVITY;
@@ -400,7 +464,8 @@ function physicsStep(){
   dropping.y  += dropping.vy;
   dropping.x = Math.max(CL+BALL_R+3, Math.min(CR-BALL_R-3, dropping.x));
 
-  const targetY = landingY(droppingTargetRow);
+  // Target y is always where this ball will land = slot balls.length
+  const targetY = landingY(balls.length);
   if (dropping.y >= targetY) {
     dropping.y = targetY;
     if (Math.abs(dropping.vy) > 1) {
@@ -413,15 +478,28 @@ function physicsStep(){
 }
 
 function settleStep(b){
-  b.vy += GRAVITY * 0.1;
-  b.vx *= 0.85;
-  b.y  += b.vy * 0.3;
-  b.x  += b.vx * 0.3;
-  b.x = Math.max(CL+BALL_R+3, Math.min(CR-BALL_R-3, b.x));
-  const idx = balls.indexOf(b);
-  const ly  = landingY(idx >= 0 ? idx : balls.length);
-  if(b.y >= ly){ b.y=ly; b.vy=-b.vy*0.15; b.vx*=0.7; }
+  // Only damp residual velocity from bounce — don't recompute target row
+  b.vy *= 0.6;
+  b.vx *= 0.6;
   if(Math.abs(b.vy)<0.05&&Math.abs(b.vx)<0.05){ b.vy=0; b.vx=0; }
+}
+
+function compactBalls(){
+  // After balls are removed, re-settle all remaining non-pad balls
+  // to their correct grid positions with a drop animation
+  const real = balls.filter(b=>!b._pad);
+  const pads  = balls.filter(b=>b._pad);
+  // Rebuild: assign each real ball its correct slot
+  real.forEach((b,i)=>{
+    const tx = landingX(i);
+    const ty = landingY(i);
+    if(Math.abs(b.y - ty) > 2 || Math.abs(b.x - tx) > 2){
+      b.x = tx;
+      b.y = ty;
+    }
+  });
+  balls = [...real, ...pads];
+  render();
 }
 
 function finalizeDrop(){
@@ -475,9 +553,10 @@ function render(){
   ctx.moveTo(CL-wW+2,CUP_TOP-rimH+1.5); ctx.lineTo(CR+wW-2,CUP_TOP-rimH+1.5);
   ctx.strokeStyle='rgba(255,255,255,0.38)'; ctx.lineWidth=1; ctx.stroke();
 
-  // Balls
-  for(const b of balls) drawBall(b);
+  // Balls (skip invisible pad placeholders)
+  for(const b of balls){ if(!b._pad) drawBall(b); }
   if(dropping) drawBall(dropping);
+  if(droppingTwo) droppingTwo.forEach(b=>drawBall(b));
   for(const b of liftingBalls) drawBall(b);
 }
 
@@ -497,10 +576,8 @@ const BALL_COLS = {
   }
 };
 
-// Lifting balls: animating upward out of the cup
-let liftingBalls = [];
-
 function drawBall(b){
+  if(b._pad || !BALL_COLS[b.type]) return; // skip pad placeholders and unknown types
   const shade = b.shade||'orig';
   const c = BALL_COLS[b.type][shade];
   ctx.save();
@@ -551,19 +628,55 @@ function advanceQueue(){
     setTimeout(advanceQueue, action.ms);
   }
   else if(action.type==='drop'){
-    // Use pre-computed index so B-term balls start on the correct row
-    const count  = action.ballIndex;
-    droppingTargetRow = count;
+    const count  = balls.length; // live — always correct
     const tx     = landingX(count);
     const jitter = (Math.random()-0.5)*5;
     dropping = {
       type:action.ballType, shade:action.shade||'orig',
-      x: tx + jitter,
-      y: CUP_TOP - BALL_R - 16,
-      vx: jitter*0.25, vy: 0,
-      alpha:1
+      x: tx+jitter, y: CUP_TOP-BALL_R-16,
+      vx: jitter*0.25, vy:0, alpha:1
     };
     startLoop();
+  }
+  else if(action.type==='pad'){
+    // Fill remainder of current row with invisible placeholders so next
+    // drop starts on a fresh row. Placeholders are never drawn.
+    const cols  = getCols();
+    const rem   = (cols - (balls.length % cols)) % cols;
+    for(let i=0;i<rem;i++){
+      balls.push({type:'pad',shade:'orig',x:0,y:0,vx:0,vy:0,alpha:0,_pad:true});
+    }
+    advanceQueue();
+  }
+  else if(action.type==='dropPair'){
+    // Ensure the two slots land on the same row
+    const cols    = getCols();
+    const posIdx  = balls.length;
+    const negIdx  = balls.length + 1;
+    const posRow  = Math.floor(posIdx / cols);
+    const negRow  = Math.floor(negIdx / cols);
+
+    // If they'd split rows, pad to push both to next row
+    if(posRow !== negRow){
+      const rem = cols - (posIdx % cols);
+      for(let i=0;i<rem;i++)
+        balls.push({type:'pad',shade:'orig',x:0,y:0,vx:0,vy:0,alpha:0,_pad:true});
+    }
+
+    // Now both on same row — compute final positions
+    const pi = balls.length, ni = balls.length+1;
+    const px = landingX(pi), nx = landingX(ni);
+    const py = landingY(pi), ny = landingY(ni);
+
+    // Drop pos from above left, neg from above right — converge to their spots
+    const j = (Math.random()-0.5)*4;
+    const posBall = {type:'pos',shade:'pair',x:px+j,y:CUP_TOP-BALL_R-10,vx:j*0.15,vy:0,alpha:1,_targetY:py};
+    const negBall = {type:'neg',shade:'pair',x:nx-j,y:CUP_TOP-BALL_R-22,vx:-j*0.15,vy:-0.5,alpha:1,_targetY:ny};
+
+    // Use droppingTwo to animate both simultaneously
+    droppingTwo = [posBall, negBall];
+    startLoop();
+    // advanceQueue is called when both have landed (handled in physicsTwoStep)
   }
   else if(action.type==='flash'){
     // Glow both, then lift them out together
@@ -573,21 +686,18 @@ function advanceQueue(){
     posEl._marked=true; negEl._marked=true;
     startLoop();
     setTimeout(()=>{
-      // Remove from balls array and spawn two lifting ghosts
       balls = balls.filter(b=>!b._marked);
-      [posEl, negEl].forEach((b, i)=>{
+      [posEl, negEl].forEach((b,i)=>{
+        const riseHeight = b.y - CUP_TOP + BALL_R*2 + 20;
         liftingBalls.push({
           type:b.type, shade:b.shade||'orig',
-          startX:b.x, startY:b.y,
-          x:b.x, y:b.y,
-          dx: i===0 ? -30 : 30,
-          height: b.y - CUP_TOP + BALL_R*3 + 20,
-          duration:20, t:0, alpha:1,
-          vy:0, vx:0
+          startX:b.x, startY:b.y, x:b.x, y:b.y,
+          dx: i===0 ? -22 : 22,
+          height:riseHeight, duration:20, t:0, alpha:1, vy:0, vx:0
         });
       });
       startLoop();
-      setTimeout(()=>{ render(); advanceQueue(); }, 380);
+      setTimeout(()=>{ compactBalls(); render(); advanceQueue(); }, 380);
     }, 450);
   }
   else if(action.type==='lift'){
@@ -596,23 +706,21 @@ function advanceQueue(){
     if(idx===-1){ advanceQueue(); return; }
     const b = balls[idx];
     b._removing=true; b._lifting=true;
-    // Remove from balls array immediately but spawn a lifting ghost
     balls.splice(idx,1);
+    const riseHeight = b.y - CUP_TOP + BALL_R*2 + 20; // how far to rise above rim
     const ghost = {
       type:b.type, shade:b.shade||'orig',
       startX:b.x, startY:b.y,
       x:b.x, y:b.y,
-      // Arc: drift toward cup edge, rise above rim
-      dx: (b.x < (CL+CR)/2 ? -40 : 40),
-      height: b.startY - CUP_TOP + BALL_R*4 + 30,
-      duration: 22,
+      dx: 0,              // straight up, no sideways drift
+      height: riseHeight,
+      duration: 24,
       t:0, alpha:1,
       vy:0, vx:0
     };
     liftingBalls.push(ghost);
     startLoop();
-    // Advance after animation completes
-    setTimeout(advanceQueue, ghost.duration*16 + 80);
+    setTimeout(()=>{ compactBalls(); advanceQueue(); }, ghost.duration*16 + 60);
   }
   else if(action.type==='done'){
     queueRunning=false; onDone();
@@ -632,7 +740,9 @@ function clickNext(){
 }
 function showNextBtn(label){
   const n=document.getElementById('nextBtn'), p=document.getElementById('playBtn');
-  n.style.display='flex'; n.textContent=label; n.disabled=false;
+  n.style.display='flex';
+  n.innerHTML=label+' <span class="kbd">Space</span>';
+  n.disabled=false;
   p.style.display='none';
 }
 function hideNextBtn(){
@@ -677,31 +787,40 @@ function tryStart(){
   const bD=res.b<0?'('+res.b+')':''+res.b;
   setFeedback('✓ '+res.a+' '+(res.op==='add'?'+':'−')+' '+bD,'ok');
   updateExprDisplay();
+  document.getElementById('exprIn').blur();
   startSim();
+}
+
+// First index on the row after n balls — always starts a fresh row
+function rowStart(n){
+  const innerW = (CR-BALL_R-3)-(CL+BALL_R+3);
+  const cols   = Math.max(1, Math.floor(innerW/(BALL_R*2+4)));
+  return Math.ceil(n/cols)*cols;
 }
 
 function startSim(){
   simRunning=true; hideNextBtn();
   document.getElementById('playBtn').disabled=true;
   document.getElementById('resultRow').classList.remove('show');
-  balls=[]; dropping=null; queue=[]; flashMsg=null; flashAlpha=0; render();
+  balls=[]; liftingBalls=[]; dropping=null; droppingTwo=null; queue=[]; flashAlpha=0; render();
 
   const a=parsedA, b=parsedB, op=parsedOp;
   const aAbs=Math.abs(a), bAbs=Math.abs(b);
   const aType=a>=0?'pos':'neg';
   const bType=b>=0?'pos':'neg';
   const hasBType=(aType===bType)?aAbs:0;
+  const pairsNeeded = (op==='sub') ? Math.max(0, bAbs-hasBType) : 0;
 
   let totalSteps=2;
   if(op==='add'&&bAbs>0&&aType!==bType) totalSteps=3;
-  if(op==='sub'&&bAbs>hasBType)         totalSteps=3;
+  if(op==='sub'&&pairsNeeded>0)         totalSteps=3;
 
-  // Step 1 — drop A balls (orig shade), indices 0..aAbs-1
+  // Step 1 — drop A balls
   enqueue({type:'narrate',
     html:'Lägg <strong>'+aAbs+' '+(a>=0?'positiva':'negativa')+'</strong> kulor i bägaren.',
     step:1,total:totalSteps});
   for(let i=0;i<aAbs;i++){
-    enqueue({type:'drop',ballType:aType,shade:'orig',ballIndex:i});
+    enqueue({type:'drop',ballType:aType,shade:'orig'});
     enqueue({type:'pause',ms:65});
   }
   enqueue({type:'pause',ms:280});
@@ -712,12 +831,12 @@ function startSim(){
       step:2,total:totalSteps});
 
   } else if(op==='add'){
-    // Step 2 — drop B balls starting at index aAbs (next row)
     enqueue({type:'narrate',
       html:'Lägg till <strong>'+bAbs+' '+(b>=0?'positiva':'negativa')+'</strong> kulor.',
       step:2,total:totalSteps});
+    enqueue({type:'pad'}); // ensure B starts on fresh row
     for(let i=0;i<bAbs;i++){
-      enqueue({type:'drop',ballType:bType,shade:'orig',ballIndex:aAbs+i});
+      enqueue({type:'drop',ballType:bType,shade:'orig'});
       enqueue({type:'pause',ms:65});
     }
     enqueue({type:'pause',ms:280});
@@ -735,22 +854,24 @@ function startSim(){
     }
 
   } else {
-    // SUBTRACTION
-    if(bAbs>hasBType){
-      // Step 2 — add zero-pairs starting at index aAbs
+    // SUBTRACTION: we need bAbs balls of bType to lift out
+    // We already have hasBType of them — only need pairsNeeded more, via zero-pairs
+
+    if(pairsNeeded > 0){
       enqueue({type:'narrate',
-        html:'Saknar '+(bType==='neg'?'negativa':'positiva')+' kulor. Lägg in <strong>'+bAbs+' nollpar</strong> — varje par är +1 och −1 (= 0).',
+        html:'Vi har <strong>'+hasBType+'</strong> '+(bType==='neg'?'negativa':'positiva')+
+          ' kulor men behöver <strong>'+bAbs+'</strong>. '+
+          'Lägg in <strong>'+pairsNeeded+' nollpar</strong> (+1 och −1 = 0).',
         step:2,total:totalSteps});
-      for(let i=0;i<bAbs;i++){
-        enqueue({type:'drop',ballType:'pos',shade:'pair',ballIndex:aAbs+i*2});
-        enqueue({type:'pause',ms:22});
-        enqueue({type:'drop',ballType:'neg',shade:'pair',ballIndex:aAbs+i*2+1});
-        enqueue({type:'pause',ms:80});
+      enqueue({type:'pad'});
+      for(let i=0;i<pairsNeeded;i++){
+        enqueue({type:'dropPair'});
+        enqueue({type:'pause',ms:120});
       }
       enqueue({type:'pause',ms:280});
 
       enqueue({type:'narrate',
-        html:'Ta bort <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor. De mörkare kulorna lyfts ut.',
+        html:'Nu lyfter vi ut <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor.',
         step:3,total:totalSteps});
       enqueue({type:'pause',ms:200});
       for(let i=0;i<bAbs;i++){
@@ -758,8 +879,9 @@ function startSim(){
         enqueue({type:'pause',ms:90});
       }
     } else {
+      // Have enough — lift directly
       enqueue({type:'narrate',
-        html:'Ta bort <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor — de lyfts ut ur bägaren.',
+        html:'Vi har <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor att lyfta ut direkt.',
         step:2,total:totalSteps});
       enqueue({type:'pause',ms:280});
       for(let i=0;i<bAbs;i++){
@@ -776,7 +898,7 @@ function startSim(){
 
 function doReset(){
   stopLoop();
-  balls=[]; liftingBalls=[]; dropping=null; queue=[]; queueRunning=false; simRunning=false;
+  balls=[]; liftingBalls=[]; dropping=null; droppingTwo=null; queue=[]; queueRunning=false; simRunning=false;
   flashAlpha=0; waitClickResolve=null;
   hideNextBtn();
   document.getElementById('playBtn').disabled=false;
@@ -790,6 +912,25 @@ function doReset(){
   activeBead=null;
   render();
 }
+
+// ══════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════
+document.addEventListener('keydown', e=>{
+  // Don't fire when typing in the input field
+  if(document.activeElement === document.getElementById('exprIn')) return;
+  if(e.key === ' ' || e.key === 'Spacebar'){
+    e.preventDefault();
+    const next = document.getElementById('nextBtn');
+    if(next.style.display !== 'none' && !next.disabled) clickNext();
+  }
+  if(e.key === 'Escape') doReset();
+  if(e.key === 'Enter'){
+    const next = document.getElementById('nextBtn');
+    if(next.style.display !== 'none' && !next.disabled) clickNext();
+    else tryStart();
+  }
+});
 
 // ══════════════════════════════════════════
 // INIT
