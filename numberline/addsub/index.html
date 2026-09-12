@@ -14,7 +14,22 @@
     --grad:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
     --total-arc:#7c3aed;
   }
-  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;transition:background .3s,color .3s}
+  body{
+    font-family:'Sora',sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    transition:background .3s,color .3s; position:relative;
+  }
+  /* Ambient bakgrund — mjuka, suddiga färgklickar bakom allt innehåll,
+     samma känsla som återkommer i era andra glasmorfism-byggen. */
+  body::before{
+    content:''; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(620px circle at 8% 12%,  rgba(102,199,194,.32), transparent 60%),
+      radial-gradient(560px circle at 92% 18%, rgba(244,162,97,.28),  transparent 60%),
+      radial-gradient(640px circle at 22% 88%, rgba(236,96,149,.26),  transparent 60%),
+      radial-gradient(520px circle at 88% 82%, rgba(48,107,240,.20),  transparent 60%);
+    filter:blur(50px);
+  }
   body.dark{
     --bg:#12111f;--surface:#1e1c30;--surface2:#252340;--border:#3a3660;
     --text:#f0eeff;--muted:#9b96c0;--shadow:rgba(0,0,0,.4);
@@ -22,7 +37,12 @@
   header{width:100%;background:var(--grad);padding:8px 24px}
   main{width:100%;max-width:1400px;padding:14px 32px 30px;display:flex;flex-direction:column;gap:10px}
 
-  .canvas-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 2px 12px var(--shadow);overflow:visible;padding:18px 10px 10px;position:relative}
+  .canvas-wrap{
+    background:rgba(255,255,255,.6); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1.5px solid rgba(255,255,255,.55); border-radius:14px;
+    box-shadow:0 8px 32px var(--shadow); overflow:visible; padding:18px 10px 10px; position:relative;
+    z-index:1;
+  }
   .canvas-column{display:flex;flex-direction:column;flex:1;min-width:0;}
   canvas{display:block;width:100%;height:auto;cursor:default}
 
@@ -43,7 +63,12 @@
   .toolbar-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 1px; }
 
   /* vertical left toolbar — sits beside canvas-wrap in a flex row */
-  .left-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex-shrink:0;align-content:start;}
+  .left-toolbar{
+    display:grid; grid-template-columns:1fr 1fr; gap:5px; flex-shrink:0; align-content:start;
+    background:rgba(255,255,255,.38); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1.5px solid rgba(255,255,255,.45); border-radius:14px; padding:8px;
+    position:relative; z-index:3;
+  }
   .lt-full{grid-column:1/-1;}
   .lt-sep{grid-column:1/-1;width:100%;height:1.5px;background:var(--border);margin:1px 0;}
   .canvas-and-toolbar{display:flex;flex-direction:row;gap:8px;align-items:flex-start;}
@@ -52,7 +77,8 @@
     border:1.5px solid var(--border); background:rgba(255,255,255,.94);
     color:var(--muted); font-size:.86rem; font-weight:700; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
-    transition:all .15s; backdrop-filter:blur(2px); position:relative;
+    transition:all .15s; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); position:relative;
+    box-shadow:0 1px 3px rgba(16,14,40,.06);
   }
   .lt-btn:hover{ border-color:var(--accent); color:var(--accent); }
   .lt-btn:disabled{ opacity:.4; cursor:not-allowed; }
@@ -105,6 +131,13 @@
   }
   .bpb-btn:hover{ background:rgba(255,255,255,.7); color:var(--text); border-color:#b8b0e0; opacity:1; }
   .bpb-btn .bpb-icon{ font-size:1.05rem; }
+  .bpb-sep{ width:1.5px; align-self:stretch; background:var(--border); margin:2px 2px; opacity:.7; }
+  .bpb-icon-btn{
+    width:30px; height:30px; border-radius:50%; border:1.5px dashed var(--border);
+    background:transparent; color:var(--muted); font-size:.9rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; opacity:.85; transition:all .15s;
+  }
+  .bpb-icon-btn:hover{ background:rgba(255,255,255,.7); color:var(--text); border-color:#b8b0e0; opacity:1; }
   .pearl-nav-btn.pearl-nav-btn-lg{
     width:38px; height:38px; font-size:1.05rem; border-width:2px;
     box-shadow:0 2px 7px rgba(16,14,40,.16);
@@ -128,6 +161,36 @@
     border-style:dashed; margin-left:14px; width:calc(100% - 14px);
   }
   .lt-btn.lt-sub:disabled{ opacity:.32; }
+
+  /* Lägen: switch-lista istället för ikonknappar i rutnät */
+  .lt-cluster{
+    grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:5px;
+    background:rgba(255,255,255,.4); border:1.5px solid rgba(255,255,255,.55);
+    border-radius:12px; padding:6px;
+  }
+  .lt-switches{ grid-column:1/-1; display:flex; flex-direction:column; gap:5px; }
+  .lt-switch-row{
+    display:flex; align-items:center; justify-content:space-between; width:100%;
+    border:1.5px solid var(--border); background:rgba(255,255,255,.94);
+    border-radius:10px; padding:7px 10px; cursor:pointer; font-family:'Sora',sans-serif;
+    transition:all .15s;
+  }
+  .lt-switch-row:hover{ border-color:#b8b0e0; }
+  .lt-switch-row:disabled{ opacity:.45; cursor:not-allowed; }
+  .lt-switch-text{ display:flex; align-items:center; gap:7px; font-size:.76rem; font-weight:700; color:var(--muted); }
+  .lt-switch-ic{ font-size:.95rem; }
+  .lt-switch-row.active .lt-switch-text{ color:var(--text); }
+  .lt-switch-pill{
+    width:34px; height:19px; border-radius:10px; background:var(--surface2);
+    border:1.5px solid var(--border); position:relative; flex-shrink:0; transition:background .15s,border-color .15s;
+  }
+  .lt-switch-knob{
+    position:absolute; top:1px; left:1px; width:14px; height:14px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .15s;
+  }
+  .lt-switch-row.active .lt-switch-pill{ background:var(--accent); border-color:var(--accent); }
+  .lt-switch-row.active .lt-switch-knob{ left:16px; }
+  .lt-switch-row.kang-on .lt-switch-pill{ background:#F4A261; border-color:#F4A261; }
 
   /* input popup — fixed, opens next to the 🔢 button */
   .input-popup{
@@ -258,14 +321,6 @@
   .task-pill:hover{background:var(--accent);color:#fff;}
   .task-random{margin-top:8px;padding:8px 0;text-align:center;font-size:.8rem;
     color:var(--accent2);cursor:pointer;font-weight:700;border-top:1px dashed var(--border);}
-
-  .lt-btn .lt-tip{
-    position:absolute; left:50px; top:50%; transform:translateY(-50%);
-    background:var(--text); color:#fff; font-size:.68rem; font-weight:600;
-    padding:4px 8px; border-radius:6px; white-space:nowrap; opacity:0;
-    pointer-events:none; transition:opacity .15s; z-index:50;
-  }
-  .lt-btn:hover .lt-tip{ opacity:1; }
 
   /* floating step-input bubble — appears above the robot, inside .canvas-wrap */
   .step-bubble{
@@ -621,36 +676,52 @@
   <div class="canvas-and-toolbar">
   <div class="left-toolbar">
     <!-- Utility row: knappsats + inställningar -->
-    <button class="lt-btn" id="ltBtnPanel"><span>🔢</span><span class="lt-tip">Knappsats &amp; uttryck</span></button>
-    <button class="lt-btn" id="ltBtnSettings"><span>⚙️</span><span class="lt-tip">Inställningar</span></button>
+    <button class="lt-btn" id="ltBtnPanel" title="Knappsats &amp; uttryck"><span>🔢</span></button>
+    <button class="lt-btn" id="ltBtnSettings" title="Inställningar"><span>⚙️</span></button>
     <div class="lt-sep"></div>
 
-    <!-- UTTRYCK: allt som rör att sätta/visa/spara/bläddra i uttrycket -->
+    <!-- UTTRYCK: sätta/visa/spara/bläddra i uttrycket, och köra animationen —
+         hopbundna i ett gemensamt kort så de känns som en enhet -->
     <div class="lt-group-label">Uttryck</div>
-    <button class="lt-btn" id="ltBtnRandom"><span>🎲</span><span class="lt-tip">Slumpa uttryck</span></button>
-    <button class="lt-btn" id="ltBtnSave"><span>★</span><span class="lt-tip">Spara uttryck</span></button>
-    <div class="lt-sep"></div>
-
-    <!-- SVAR: köra animationen och presentera svaret -->
-    <div class="lt-group-label">Svar</div>
-    <button class="lt-btn play" id="ltBtnPlay"><span>▶</span><span class="lt-tip">Animera</span></button>
-    <button class="lt-btn" id="ltBtnColorNumbers"><span>🎨</span><span class="lt-tip">Färgkoda tal (positiva/negativa)</span></button>
+    <div class="lt-cluster">
+      <button class="lt-btn play lt-full" id="ltBtnPlay" title="Animera"><span>▶</span></button>
+      <button class="lt-btn" id="ltBtnRandom" title="Slumpa uttryck"><span>🎲</span></button>
+      <button class="lt-btn" id="ltBtnSave" title="Spara uttryck"><span>★</span></button>
+    </div>
     <div class="lt-sep"></div>
 
     <!-- LÄGEN: undervisningslägen som styr hur tallinjen beter sig/visas -->
     <div class="lt-group-label">Lägen</div>
-    <button class="lt-btn" id="ltBtnKang"><span>🦘</span><span class="lt-tip">Känguruhopp</span></button>
-    <button class="lt-btn" id="ltBtnSmallSteps"><span>🐾</span><span class="lt-tip">Små kliv (istället för ett stort svep)</span></button>
-    <button class="lt-btn" id="ltBtnLock"><span>🔒</span><span class="lt-tip">Lås tallinje (−12 till 12)</span></button>
-    <button class="lt-btn" id="ltBtnPlacement"><span>🙈</span><span class="lt-tip">Placeringsläge (dölj roboten)</span></button>
-    <button class="lt-btn" id="ltBtnHideArrow"><span>👣</span><span class="lt-tip">Visa/dölj riktningspilen (döljs helt utanför placeringsläget — bra för diskussion)</span></button>
-    <div class="lt-sep"></div>
-
-    <!-- VERKTYG -->
-    <div class="lt-group-label">Verktyg</div>
-    <button class="lt-btn" id="ltBtnExplain"><span>💡</span><span class="lt-tip">Förklaring steg för steg</span></button>
-    <button class="lt-btn" id="ltBtnExport"><span>📷</span><span class="lt-tip">Exportera bild</span></button>
-    <button class="lt-btn" id="btnKeyHelp"><span>?</span><span class="lt-tip">Tangentbordsgenvägar</span></button>
+    <div class="lt-switches">
+      <button class="lt-switch-row" id="ltBtnKang" title="Känguruhopp">
+        <span class="lt-switch-ic">🦘</span>
+        <span class="lt-switch-pill"><span class="lt-switch-knob"></span></span>
+      </button>
+      <button class="lt-switch-row" id="ltBtnSmallSteps" title="Små kliv">
+        <span class="lt-switch-ic">🐾</span>
+        <span class="lt-switch-pill"><span class="lt-switch-knob"></span></span>
+      </button>
+      <button class="lt-switch-row" id="ltBtnLock" title="Lås tallinje (−12 till 12)">
+        <span class="lt-switch-ic">🔒</span>
+        <span class="lt-switch-pill"><span class="lt-switch-knob"></span></span>
+      </button>
+      <button class="lt-switch-row" id="ltBtnPlacement" title="Placeringsläge (dölj roboten)">
+        <span class="lt-switch-ic">🙈</span>
+        <span class="lt-switch-pill"><span class="lt-switch-knob"></span></span>
+      </button>
+      <button class="lt-switch-row" id="ltBtnHideArrow" title="Visa riktningspil">
+        <span class="lt-switch-ic">👣</span>
+        <span class="lt-switch-pill"><span class="lt-switch-knob"></span></span>
+      </button>
+      <button class="lt-switch-row" id="ltBtnColorNumbers" title="Färgkoda tal">
+        <span class="lt-switch-ic">🎨</span>
+        <span class="lt-switch-pill"><span class="lt-switch-knob"></span></span>
+      </button>
+      <button class="lt-switch-row" id="ltBtnExplain" title="Förklaring steg för steg">
+        <span class="lt-switch-ic">💡</span>
+        <span class="lt-switch-pill"><span class="lt-switch-knob"></span></span>
+      </button>
+    </div>
     <div class="lt-sep"></div>
 
     <!-- hidden refs for JS compat -->
@@ -715,6 +786,9 @@
     <button class="bpb-btn" id="ltBtnWorksheet"><span class="bpb-icon">📝</span>Arbetsblad</button>
     <button class="bpb-btn" id="ltBtnWorksheetPractice"><span class="bpb-icon">💻</span>Öva direkt</button>
     <button class="bpb-btn" id="btnToolHelp"><span class="bpb-icon">❓</span>Om verktyget</button>
+    <span class="bpb-sep"></span>
+    <button class="bpb-icon-btn" id="ltBtnExport" title="Exportera bild">📷</button>
+    <button class="bpb-icon-btn" id="btnKeyHelp" title="Tangentbordsgenvägar">⌨️</button>
   </div>
   </div>
   </div>
@@ -2182,6 +2256,7 @@ function toggleExplainPopup() {
     explainPopup.style.top  = (r.bottom + 8) + 'px';
   }
   explainPopup.classList.toggle('open', willOpen);
+  ltBtnExplain.classList.toggle('active', willOpen);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -2657,7 +2732,7 @@ function updateLeftToolbar() {
   ltBtnInvert.textContent = facingRight ? '+' : '−';
 
   // Kang
-  ltBtnKang.className = 'lt-btn' + (S.kangMode ? ' kang-on' : '');
+  ltBtnKang.className = 'lt-switch-row' + (S.kangMode ? ' active kang-on' : '');
   ltBtnSmallSteps.classList.toggle('active', S.smallSteps);
   ltBtnSmallSteps.disabled = S.animating;
 
@@ -2688,19 +2763,19 @@ function updateLeftToolbar() {
 
   // Play / Next / Reset button
   ltBtnPlay.disabled = S.animating;
-  ltBtnPlay.className = 'lt-btn';
+  ltBtnPlay.className = 'lt-btn lt-full';
   if (S.phase === 'paused') {
     ltBtnPlay.classList.add('play-next');
     ltBtnPlay.querySelector('span').textContent = '⏭';
-    ltBtnPlay.querySelector('.lt-tip').textContent = 'Nästa hopp';
+    ltBtnPlay.title = 'Nästa hopp';
   } else if (S.phase === 'done') {
     ltBtnPlay.classList.add('play-reset');
     ltBtnPlay.querySelector('span').textContent = '↺';
-    ltBtnPlay.querySelector('.lt-tip').textContent = 'Återställ';
+    ltBtnPlay.title = 'Återställ';
   } else {
     ltBtnPlay.classList.add('play');
     ltBtnPlay.querySelector('span').textContent = '▶';
-    ltBtnPlay.querySelector('.lt-tip').textContent = 'Animera';
+    ltBtnPlay.title = 'Animera';
   }
 
   // Reveal button — alltid klickbar (går bra att visa svaret innan man animerar)
@@ -2894,6 +2969,7 @@ document.addEventListener('click', (e) => {
   if (!explainPopup.classList.contains('open')) return;
   if (explainPopup.contains(e.target) || e.target === btnExplainSteps) return;
   explainPopup.classList.remove('open');
+  ltBtnExplain.classList.remove('active');
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -3849,23 +3925,6 @@ function positionPearlNavButtons() {
 }
 window.addEventListener('resize', positionPearlNavButtons);
 positionPearlNavButtons();
-
-// Dynamic tooltip positioning for lt-btn
-document.querySelectorAll('.lt-btn').forEach(btn => {
-  const tip = btn.querySelector('.lt-tip');
-  if (!tip) return;
-  btn.addEventListener('mouseenter', () => {
-    const r = btn.getBoundingClientRect();
-    tip.style.top  = (r.top + r.height/2 - 14) + 'px';
-    tip.style.left = (r.right + 8) + 'px';
-    // If tooltip would go off-screen right, show on left instead
-    const tipW = tip.offsetWidth || 120;
-    if (r.right + 8 + tipW > window.innerWidth - 10) {
-      tip.style.left = (r.left - tipW - 8) + 'px';
-    }
-  });
-});
-
 
 // ═══════════════════════════════════════════════════════════════════
 //  STUDENT MODE — self-contained quiz engine
