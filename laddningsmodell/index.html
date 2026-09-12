@@ -18,6 +18,17 @@
 body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);
   min-height:100vh;display:flex;flex-direction:column;}
 
+/* ── Ambient background ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(ellipse 420px 320px at 15% 20%, rgba(102,199,194,0.28) 0%, transparent 50%),
+    radial-gradient(ellipse 380px 300px at 85% 75%, rgba(236,96,149,0.22) 0%, transparent 50%),
+    radial-gradient(ellipse 350px 280px at 55% 50%, rgba(244,162,97,0.18) 0%, transparent 50%);
+  pointer-events:none;
+}
+
 /* ── Navbar ── */
 header{background:var(--gradient);height:52px;display:flex;align-items:center;
   padding:0 1.25rem;box-shadow:0 4px 24px rgba(0,0,0,0.14);
@@ -34,7 +45,11 @@ header{background:var(--gradient);height:52px;display:flex;align-items:center;
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(16,14,40,0.45);
   z-index:200;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--sh-md);
+.modal{background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.9);
+  border-radius:var(--r-lg);box-shadow:0 16px 48px rgba(16,14,40,0.18);
   padding:1.5rem;max-width:400px;width:90%;position:relative;}
 .modal h2{font-family:'Montserrat',sans-serif;font-size:1rem;margin-bottom:0.75rem;}
 .modal p,.modal li{font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.35rem;}
@@ -45,13 +60,17 @@ header{background:var(--gradient);height:52px;display:flex;align-items:center;
 
 /* ── Layout ── */
 main{flex:1;display:flex;flex-direction:column;align-items:center;
-  padding:0.75rem 0.75rem 1.5rem;gap:0.5rem;}
+  padding:0.75rem 0.75rem 1.5rem;gap:0.25rem;}
 
 /* ── Control block ── */
 .control-block{
   display:flex;align-items:center;gap:0;
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:var(--r-md);box-shadow:var(--sh-sm);
+  background:rgba(255,255,255,0.72);
+  backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.9);
+  border-radius:var(--r-md);
+  box-shadow:0 8px 24px rgba(48,107,240,0.10), 0 2px 6px rgba(16,14,40,0.06);
   overflow:hidden;}
 .expr-in{
   width:170px;font-family:'Sora',sans-serif;font-size:1rem;font-weight:500;
@@ -81,13 +100,17 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;
   border-radius:3px;padding:1px 4px;letter-spacing:0;font-family:'Sora',sans-serif;
   border:1px solid rgba(255,255,255,0.3);}
 .btn-reset .kbd{background:var(--surface2);border-color:var(--border);color:var(--muted);}
-.feedback-line{font-size:0.72rem;font-weight:500;min-height:1.1em;text-align:center;}
-.feedback-line.ok{color:var(--correct);}.feedback-line.err{color:var(--wrong);}
+.feedback-line{font-size:0.72rem;font-weight:500;min-height:0;text-align:center;display:none;}
+.feedback-line.err{color:var(--wrong);display:block;}
 
 /* ── Canvas card ── */
 .canvas-area{width:100%;max-width:560px;
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:var(--r-lg);box-shadow:var(--sh-md);
+  background:rgba(255,255,255,0.88);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  border:1px solid rgba(255,255,255,0.95);
+  border-radius:var(--r-lg);
+  box-shadow:0 10px 32px rgba(48,107,240,0.12),0 2px 8px rgba(16,14,40,0.06);
   display:flex;flex-direction:column;align-items:center;
   padding:0.6rem;gap:0.4rem;}
 .top-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -121,8 +144,12 @@ canvas{display:block;width:100%;height:auto;}
 .beads-label{font-size:0.68rem;font-weight:600;color:var(--muted);
   letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;padding-left:2px;}
 .beads-track{
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:var(--r-lg);box-shadow:var(--sh-sm);
+  background:rgba(255,255,255,0.68);
+  backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  border:1px solid rgba(255,255,255,0.85);
+  border-radius:var(--r-lg);
+  box-shadow:0 6px 20px rgba(48,107,240,0.09),0 2px 6px rgba(16,14,40,0.05);
   padding:10px 14px;
   display:flex;flex-direction:column;gap:8px;}
 .bead-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
@@ -291,14 +318,12 @@ function buildBeads() {
 }
 
 function loadBead(ci, ti, task, el) {
-  // Set input field
+  doReset(false);
   document.getElementById('exprIn').value = task;
   onTextInput();
-  // Mark active visually
   document.querySelectorAll('.bead').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   activeBead = {ci, ti, key: ci+'-'+ti};
-  // Auto-start
   setTimeout(() => tryStart(), 80);
 }
 
@@ -346,17 +371,22 @@ function onTextInput() {
   if (!res||res.err) {
     setFeedback(res?res.err:'Ogiltigt format.','err'); parseValid=false; return;
   }
+  // Reset canvas if a simulation is in progress or completed
+  if(simRunning || balls.length>0 || liftingBalls.length>0) doReset(false);
   parsedA=res.a; parsedB=res.b; parsedOp=res.op; parseValid=true;
+  const aD = res.a<0?'('+res.a+')':''+res.a;
   const bD = res.b<0?'('+res.b+')':''+res.b;
-  setFeedback('✓ '+res.a+' '+(res.op==='add'?'+':'−')+' '+bD,'ok');
+  setFeedback('✓ '+aD+' '+(res.op==='add'?'+':'−')+' '+bD,'ok');
   updateExprDisplay();
 }
 
 function updateExprDisplay() {
   const el = document.getElementById('exprDisplay');
   if (!parseValid) { el.innerHTML='&nbsp;'; return; }
+  // Always wrap negative terms in parens
+  const aD = parsedA<0?'('+parsedA+')':''+parsedA;
   const bD = parsedB<0?'('+parsedB+')':''+parsedB;
-  el.textContent = parsedA+' '+(parsedOp==='add'?'+':'−')+' '+bD;
+  el.textContent = aD+' '+(parsedOp==='add'?'+':'−')+' '+bD;
 }
 
 // ══════════════════════════════════════════
@@ -405,110 +435,94 @@ function stopLoop(){ if(rafId){cancelAnimationFrame(rafId);rafId=null;} }
 
 function loop(){
   rafId=null;
-  let needMore = false;
+  let needMore=false;
   if(dropping){ physicsStep(); needMore=true; }
   if(droppingTwo){ physicsTwoStep(); needMore=true; }
-  // Settle existing balls (skip pads)
-  balls.forEach(b=>{ if(!b._pad&&(b.vy!==0||b.vx!==0)) settleStep(b); });
-  if(balls.some(b=>Math.abs(b.vy)>0.05||Math.abs(b.vx)>0.05)) needMore=true;
-  // Animate lifting balls
   if(liftingBalls.length>0){
     liftingBalls.forEach(b=>{
-      b.t = (b.t||0)+1;
-      const t = b.t/b.duration;
-      b.x = b.startX + b.dx*t;
-      b.y = b.startY - b.height*Math.sin(Math.PI*t);
-      b.alpha = Math.max(0, 1 - t*t);
+      b.t=(b.t||0)+1;
+      const t=b.t/b.duration;
+      b.x=b.startX+b.dx*t;
+      b.y=b.startY-b.height*Math.sin(Math.PI*t);
+      b.alpha=Math.max(0,1-t*t);
     });
-    liftingBalls = liftingBalls.filter(b=>b.alpha>0);
+    liftingBalls=liftingBalls.filter(b=>b.alpha>0);
     needMore=true;
   }
   render();
   if(needMore) startLoop();
 }
 
-function physicsTwoStep(){
-  if(!droppingTwo) return;
-  let allLanded = true;
-  droppingTwo.forEach(b=>{
-    if(b._landed) return;
-    allLanded = false;
-    b.vy += GRAVITY;
-    b.vx *= FRICTION;
-    b.x  += b.vx;
-    b.y  += b.vy;
-    b.x = Math.max(CL+BALL_R+3, Math.min(CR-BALL_R-3, b.x));
-    if(b.y >= b._targetY){
-      b.y = b._targetY;
-      if(Math.abs(b.vy) > 1){
-        b.vy = -b.vy * BOUNCE;
-        if(Math.abs(b.vy) < 0.8){ b.vy=0; b.vx=0; b._landed=true; }
-      } else {
-        b.vy=0; b.vx=0; b._landed=true;
-      }
-    }
-  });
-  if(droppingTwo.every(b=>b._landed)){
-    droppingTwo.forEach(b=>{ delete b._targetY; delete b._landed; balls.push(b); });
-    droppingTwo=null;
-    render();
-    advanceQueue();
-  }
-}
-
 function physicsStep(){
   if(!dropping) return;
-  dropping.vy += GRAVITY;
-  dropping.vx *= FRICTION;
-  dropping.x  += dropping.vx;
-  dropping.y  += dropping.vy;
-  dropping.x = Math.max(CL+BALL_R+3, Math.min(CR-BALL_R-3, dropping.x));
-
-  // Target y is always where this ball will land = slot balls.length
-  const targetY = landingY(balls.length);
-  if (dropping.y >= targetY) {
-    dropping.y = targetY;
-    if (Math.abs(dropping.vy) > 1) {
-      dropping.vy = -dropping.vy * BOUNCE;
-      if (Math.abs(dropping.vy) < 0.8) finalizeDrop();
+  dropping.vy+=GRAVITY;
+  dropping.vx*=FRICTION;
+  dropping.x+=dropping.vx;
+  dropping.y+=dropping.vy;
+  dropping.x=Math.max(CL+BALL_R+3,Math.min(CR-BALL_R-3,dropping.x));
+  const targetY=landingY(balls.length);
+  if(dropping.y>=targetY){
+    dropping.y=targetY;
+    if(Math.abs(dropping.vy)>1){
+      dropping.vy=-dropping.vy*BOUNCE;
+      if(Math.abs(dropping.vy)<0.8) finalizeDrop();
     } else {
       finalizeDrop();
     }
   }
 }
 
-function settleStep(b){
-  // Only damp residual velocity from bounce — don't recompute target row
-  b.vy *= 0.6;
-  b.vx *= 0.6;
-  if(Math.abs(b.vy)<0.05&&Math.abs(b.vx)<0.05){ b.vy=0; b.vx=0; }
-}
-
-function compactBalls(){
-  // After balls are removed, re-settle all remaining non-pad balls
-  // to their correct grid positions with a drop animation
-  const real = balls.filter(b=>!b._pad);
-  const pads  = balls.filter(b=>b._pad);
-  // Rebuild: assign each real ball its correct slot
-  real.forEach((b,i)=>{
-    const tx = landingX(i);
-    const ty = landingY(i);
-    if(Math.abs(b.y - ty) > 2 || Math.abs(b.x - tx) > 2){
-      b.x = tx;
-      b.y = ty;
+function physicsTwoStep(){
+  if(!droppingTwo) return;
+  droppingTwo.forEach(b=>{
+    if(b._landed) return;
+    b.vy+=GRAVITY;
+    b.vx*=FRICTION;
+    b.x+=b.vx;
+    b.y+=b.vy;
+    b.x=Math.max(CL+BALL_R+3,Math.min(CR-BALL_R-3,b.x));
+    if(b.y>=b._targetY){
+      b.y=b._targetY;
+      if(Math.abs(b.vy)>1){
+        b.vy=-b.vy*BOUNCE;
+        if(Math.abs(b.vy)<0.8){b.vy=0;b.vx=0;b._landed=true;}
+      } else {
+        b.vy=0;b.vx=0;b._landed=true;
+      }
     }
   });
-  balls = [...real, ...pads];
-  render();
+  if(droppingTwo.every(b=>b._landed)){
+    droppingTwo.forEach(b=>{
+      delete b._landed; delete b._targetY;
+      b.vy=0; b.vx=0;
+      balls.push(b);
+    });
+    droppingTwo=null;
+    render();
+    advanceQueue();
+  }
 }
 
 function finalizeDrop(){
-  const b = dropping;
-  dropping = null;
+  const b=dropping;
+  dropping=null;
   b.vy=0; b.vx=0;
   balls.push(b);
   render();
   advanceQueue();
+}
+
+// After removal, snap all real balls to correct grid positions immediately
+function compactBalls(){
+  const real=balls.filter(b=>!b._pad);
+  const pads=balls.filter(b=>b._pad);
+  real.forEach((b,i)=>{
+    b.x=landingX(i);
+    b.y=landingY(i);
+    b.vx=0; b.vy=0;
+  });
+  balls=[...real,...pads];
+  render();
 }
 
 // Calculate y for a ball that will be the nth ball (0-indexed)
@@ -558,6 +572,71 @@ function render(){
   if(dropping) drawBall(dropping);
   if(droppingTwo) droppingTwo.forEach(b=>drawBall(b));
   for(const b of liftingBalls) drawBall(b);
+
+  // ── Ball counter HUD (top-right inside cup) ──
+  const realBalls = balls.filter(b=>!b._pad&&!b._marked);
+  const posCount  = realBalls.filter(b=>b.type==='pos').length
+    + (dropping&&dropping.type==='pos'?1:0)
+    + (droppingTwo?droppingTwo.filter(b=>b.type==='pos'&&!b._landed).length:0);
+  const negCount  = realBalls.filter(b=>b.type==='neg').length
+    + (dropping&&dropping.type==='neg'?1:0)
+    + (droppingTwo?droppingTwo.filter(b=>b.type==='neg'&&!b._landed).length:0);
+
+  if(posCount > 0 || negCount > 0){
+    const hudX = CR - 8;
+    const hudY = CUP_TOP + 10;
+    const lineH = 18;
+    const pad   = 7;
+    const rows  = (posCount>0&&negCount>0) ? 2 : 1;
+    const boxH  = rows * lineH + pad*2 - 2;
+    const boxW  = 62;
+
+    // Frosted box
+    ctx.save();
+    ctx.globalAlpha = 0.82;
+    ctx.fillStyle = 'rgba(255,255,255,0.78)';
+    rRect(ctx, hudX-boxW, hudY, boxW, boxH, 7);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(200,196,240,0.8)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.font = "600 11px 'Sora',sans-serif";
+    ctx.textBaseline = 'middle';
+
+    let row = 0;
+    if(posCount > 0){
+      const ty = hudY + pad + row*lineH + lineH/2 - 1;
+      // Dot
+      ctx.beginPath();
+      ctx.arc(hudX-boxW+14, ty, 5, 0, Math.PI*2);
+      ctx.fillStyle = '#c7dcff';
+      ctx.fill();
+      ctx.strokeStyle = '#306BF0';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // Count
+      ctx.fillStyle = '#1a4bb8';
+      ctx.textAlign = 'left';
+      ctx.fillText('+1  ×  '+posCount, hudX-boxW+23, ty+0.5);
+      row++;
+    }
+    if(negCount > 0){
+      const ty = hudY + pad + row*lineH + lineH/2 - 1;
+      ctx.beginPath();
+      ctx.arc(hudX-boxW+14, ty, 5, 0, Math.PI*2);
+      ctx.fillStyle = '#ffd6e8';
+      ctx.fill();
+      ctx.strokeStyle = '#EC6095';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#9c1a52';
+      ctx.textAlign = 'left';
+      ctx.fillText('−1  ×  '+negCount, hudX-boxW+23, ty+0.5);
+    }
+    ctx.restore();
+  }
 }
 
 // Ball colour scheme:
@@ -638,45 +717,32 @@ function advanceQueue(){
     };
     startLoop();
   }
-  else if(action.type==='pad'){
-    // Fill remainder of current row with invisible placeholders so next
-    // drop starts on a fresh row. Placeholders are never drawn.
-    const cols  = getCols();
-    const rem   = (cols - (balls.length % cols)) % cols;
-    for(let i=0;i<rem;i++){
-      balls.push({type:'pad',shade:'orig',x:0,y:0,vx:0,vy:0,alpha:0,_pad:true});
-    }
-    advanceQueue();
-  }
   else if(action.type==='dropPair'){
-    // Ensure the two slots land on the same row
-    const cols    = getCols();
-    const posIdx  = balls.length;
-    const negIdx  = balls.length + 1;
-    const posRow  = Math.floor(posIdx / cols);
-    const negRow  = Math.floor(negIdx / cols);
+    // Place pos and neg in the next two natural slots — no padding
+    const cols = getCols();
+    let posIdx = balls.length;
+    let negIdx = balls.length + 1;
 
-    // If they'd split rows, pad to push both to next row
-    if(posRow !== negRow){
-      const rem = cols - (posIdx % cols);
-      for(let i=0;i<rem;i++)
+    // If the pair would split rows, push both to start of next row
+    if(Math.floor(posIdx/cols) !== Math.floor(negIdx/cols)){
+      // Skip to next row start
+      posIdx = Math.ceil((posIdx)/cols)*cols;
+      negIdx = posIdx + 1;
+      // Fill the gap with pads so balls.length matches posIdx
+      while(balls.length < posIdx){
         balls.push({type:'pad',shade:'orig',x:0,y:0,vx:0,vy:0,alpha:0,_pad:true});
+      }
     }
 
-    // Now both on same row — compute final positions
-    const pi = balls.length, ni = balls.length+1;
-    const px = landingX(pi), nx = landingX(ni);
-    const py = landingY(pi), ny = landingY(ni);
+    const px=landingX(posIdx), py=landingY(posIdx);
+    const nx=landingX(negIdx), ny=landingY(negIdx);
+    const j=(Math.random()-0.5)*4;
 
-    // Drop pos from above left, neg from above right — converge to their spots
-    const j = (Math.random()-0.5)*4;
-    const posBall = {type:'pos',shade:'pair',x:px+j,y:CUP_TOP-BALL_R-10,vx:j*0.15,vy:0,alpha:1,_targetY:py};
-    const negBall = {type:'neg',shade:'pair',x:nx-j,y:CUP_TOP-BALL_R-22,vx:-j*0.15,vy:-0.5,alpha:1,_targetY:ny};
-
-    // Use droppingTwo to animate both simultaneously
-    droppingTwo = [posBall, negBall];
+    droppingTwo=[
+      {type:'pos',shade:'pair',x:px+j,  y:CUP_TOP-BALL_R-10,vx:j*0.15, vy:0,   alpha:1,_targetY:py},
+      {type:'neg',shade:'pair',x:nx-j,  y:CUP_TOP-BALL_R-22,vx:-j*0.15,vy:-0.5,alpha:1,_targetY:ny}
+    ];
     startLoop();
-    // advanceQueue is called when both have landed (handled in physicsTwoStep)
   }
   else if(action.type==='flash'){
     // Glow both, then lift them out together
@@ -697,7 +763,7 @@ function advanceQueue(){
         });
       });
       startLoop();
-      setTimeout(()=>{ compactBalls(); render(); advanceQueue(); }, 380);
+      setTimeout(()=>{ render(); advanceQueue(); }, 380);
     }, 450);
   }
   else if(action.type==='lift'){
@@ -720,7 +786,7 @@ function advanceQueue(){
     };
     liftingBalls.push(ghost);
     startLoop();
-    setTimeout(()=>{ compactBalls(); advanceQueue(); }, ghost.duration*16 + 60);
+    setTimeout(()=>{ advanceQueue(); }, ghost.duration*16 + 60);
   }
   else if(action.type==='done'){
     queueRunning=false; onDone();
@@ -784,8 +850,9 @@ function tryStart(){
     document.getElementById('exprIn').focus(); return;
   }
   parsedA=res.a; parsedB=res.b; parsedOp=res.op; parseValid=true;
-  const bD=res.b<0?'('+res.b+')':''+res.b;
-  setFeedback('✓ '+res.a+' '+(res.op==='add'?'+':'−')+' '+bD,'ok');
+  const aD2=res.a<0?'('+res.a+')':''+res.a;
+  const bD2=res.b<0?'('+res.b+')':''+res.b;
+  setFeedback('✓ '+aD2+' '+(res.op==='add'?'+':'−')+' '+bD2,'ok');
   updateExprDisplay();
   document.getElementById('exprIn').blur();
   startSim();
@@ -834,7 +901,6 @@ function startSim(){
     enqueue({type:'narrate',
       html:'Lägg till <strong>'+bAbs+' '+(b>=0?'positiva':'negativa')+'</strong> kulor.',
       step:2,total:totalSteps});
-    enqueue({type:'pad'}); // ensure B starts on fresh row
     for(let i=0;i<bAbs;i++){
       enqueue({type:'drop',ballType:bType,shade:'orig'});
       enqueue({type:'pause',ms:65});
@@ -854,16 +920,12 @@ function startSim(){
     }
 
   } else {
-    // SUBTRACTION: we need bAbs balls of bType to lift out
-    // We already have hasBType of them — only need pairsNeeded more, via zero-pairs
-
     if(pairsNeeded > 0){
       enqueue({type:'narrate',
         html:'Vi har <strong>'+hasBType+'</strong> '+(bType==='neg'?'negativa':'positiva')+
           ' kulor men behöver <strong>'+bAbs+'</strong>. '+
           'Lägg in <strong>'+pairsNeeded+' nollpar</strong> (+1 och −1 = 0).',
         step:2,total:totalSteps});
-      enqueue({type:'pad'});
       for(let i=0;i<pairsNeeded;i++){
         enqueue({type:'dropPair'});
         enqueue({type:'pause',ms:120});
