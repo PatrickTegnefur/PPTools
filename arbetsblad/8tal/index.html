@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Räkneträning — Arbetsblad</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f6f4ff;--surface:#fff;--surface2:#eae6ff;--border:#ccc5f0;
+    --text:#100e28;--muted:#585078;--accent:#306BF0;--accent2:#EC6095;
+    --shadow:rgba(48,107,240,.12);
+    --grad:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+    --ak7:#66C7C2;--ak8:#F4A261;--ak9:#EC6095;
+    --glass-bg:rgba(255,255,255,.72);--glass-border:rgba(255,255,255,.9);
+  }
+  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  /* ═══════════ "Modern vy" — glasmorfism, bara på skärm, aldrig i utskrift ═══════════ */
+  .ws-ambient{ position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; opacity:0; transition:opacity .3s; }
+  body.glass-mode .ws-ambient{ opacity:1; }
+  .ws-ambient span{ position:absolute; width:420px; height:420px; border-radius:50%; filter:blur(80px); opacity:.35; }
+  .ws-ambient span:nth-child(1){ background:var(--ak7); top:-120px; left:-100px; }
+  .ws-ambient span:nth-child(2){ background:var(--ak8); top:30%; right:-140px; }
+  .ws-ambient span:nth-child(3){ background:var(--ak9); bottom:-160px; left:20%; }
+  body.glass-mode{ background:linear-gradient(160deg,#f6f4ff 0%,#eef0ff 100%); }
+  body.glass-mode .ws-mode-strip,
+  body.glass-mode .ws-panel{
+    background:var(--glass-bg); backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
+    border:1px solid var(--glass-border); box-shadow:0 10px 30px rgba(16,14,40,.08);
+  }
+  body.glass-mode.ws-mode-interactive .worksheet-problem{
+    background:var(--glass-bg); backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
+    border:1px solid var(--glass-border); border-bottom:1px solid var(--glass-border);
+    border-radius:16px; padding:16px 18px; box-shadow:0 8px 22px rgba(16,14,40,.07);
+    transition:box-shadow .18s, transform .18s;
+  }
+  body.glass-mode.ws-mode-interactive .worksheet-problem:hover{ box-shadow:0 12px 30px rgba(16,14,40,.11); transform:translateY(-2px); }
+  body.glass-mode.ws-mode-interactive .worksheet-problem.ws-correct{
+    box-shadow:0 8px 22px rgba(24,163,72,.18); background:linear-gradient(120deg,rgba(24,163,72,.12),var(--glass-bg) 65%);
+  }
+  body.glass-mode.ws-mode-interactive .worksheet-problem.ws-wrong{
+    box-shadow:0 8px 22px rgba(236,96,149,.2); background:linear-gradient(120deg,rgba(236,96,149,.13),var(--glass-bg) 65%);
+  }
+  body.glass-mode .ws-settings-group{ background:rgba(255,255,255,.55); border-color:var(--glass-border); }
+
+  /* ═══════════ ARBETSBLAD (utskriftsvänligt) ═══════════ */
+  .worksheet-page-wrap{ min-height:100vh; background:#fff; position:relative; z-index:1; }
+  .pt-header{
+    background:var(--grad); color:#fff; padding:13px 22px; display:flex; align-items:center; gap:10px;
+    font-family:'Sora',sans-serif; font-weight:800; font-size:1.05rem; position:sticky; top:0; z-index:6;
+    box-shadow:0 2px 10px rgba(16,14,40,.15);
+  }
+  .pt-header-icon{ font-size:1.2rem; }
+  .pt-header-theme-btn{
+    border:1.5px solid rgba(255,255,255,.6); background:rgba(255,255,255,.14); color:#fff; border-radius:20px;
+    padding:6px 14px; font-weight:700; font-size:.82rem; cursor:pointer; font-family:'Sora',sans-serif;
+  }
+  .pt-header-theme-btn:hover{ background:rgba(255,255,255,.26); }
+  .pt-header-theme-btn.active{ background:#fff; color:var(--accent); border-color:#fff; }
+
+  /* Lägesväljaren (Skrivbar/Interaktiv) hör ihop och sitter för sig, direkt under bannern */
+  .ws-mode-strip{
+    position:sticky; top:47px; z-index:4; display:flex; flex-wrap:wrap; align-items:center; gap:12px;
+    background:var(--surface); border-bottom:1.5px solid var(--border); padding:10px 22px;
+    font-family:'Sora',sans-serif; transition:background .2s, border-color .2s;
+  }
+  .ws-mode-strip label{ font-size:.85rem; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:6px; }
+
+  /* Allt som rör arbetsbladets INNEHÅLL (kategorier, antal, facit, svårighetsgrad, åtgärder)
+     samlat i EN panel, med tunna avdelare mellan sektionerna istället för separata block. */
+  .ws-panel{
+    position:sticky; top:93px; z-index:3; background:var(--surface); border-bottom:1.5px solid var(--border);
+    font-family:'Sora',sans-serif; transition:background .2s, border-color .2s;
+  }
+  .ws-panel-section{
+    display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:12px 22px;
+    border-top:1.5px solid var(--border);
+  }
+  .ws-panel-section:first-child{ border-top:none; }
+  body.glass-mode .ws-panel-section{ border-top-color:var(--glass-border); }
+  .ws-panel label{ font-size:.85rem; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:6px; }
+  .ws-panel input[type=number]{ width:56px; padding:4px 6px; border:1.5px solid var(--border); border-radius:6px; font-family:'Sora',sans-serif; }
+  .ws-panel input[type=checkbox]{ width:16px; height:16px; accent-color:var(--accent); }
+  .ws-panel-actions button{
+    border:1.5px solid var(--accent); background:var(--accent); color:#fff; border-radius:8px;
+    padding:8px 16px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; font-size:.85rem;
+  }
+  .ws-panel-actions button:hover{ opacity:.88; }
+  .wc-spacer{ flex:1 1 auto; min-width:8px; }
+  .wc-pill-btn{
+    border:1.5px solid var(--border); background:var(--surface2); color:var(--text);
+    border-radius:20px; padding:8px 15px; font-size:.82rem; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif;
+  }
+  .wc-pill-btn.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .ws-settings-drawer{ display:flex; flex-wrap:wrap; gap:10px; align-items:stretch; }
+  .ws-settings-group{
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:8px 12px;
+    background:var(--surface2); border:1.5px solid var(--border); border-radius:10px;
+  }
+  .ws-settings-group-label{ font-size:.76rem; color:var(--muted); font-weight:800; margin-right:2px; white-space:nowrap; }
+  .ws-cat-item{ display:flex; align-items:center; gap:5px; }
+  .ws-cat-count{ width:42px !important; text-align:center; font-weight:700; }
+  .ws-divider{ width:1.5px; align-self:stretch; background:var(--border); margin:0 4px; }
+  .worksheet-page{ max-width:900px; margin:0 auto; padding:38px 34px 60px; font-family:'Sora',sans-serif; color:#100e28; }
+  .worksheet-title-bar{
+    height:8px; border-radius:5px; margin-bottom:20px; background:var(--grad);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact;
+  }
+  .worksheet-page h1{ font-size:1.5rem; margin:0 0 8px; }
+  .worksheet-meta{ font-size:.95rem; color:#585078; margin-bottom:28px; }
+  .worksheet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px 48px; }
+  .worksheet-grid.ws-grid-single{ grid-template-columns:1fr; max-width:700px; margin:0 auto; }
+  .worksheet-problem{
+    display:flex; align-items:baseline; gap:8px; font-size:1.15rem; font-weight:600;
+    border-bottom:1.5px dotted #ccc5f0; padding-bottom:11px; flex-wrap:nowrap; min-width:0;
+  }
+  .worksheet-problem .wnum{ font-weight:700; color:#585078; min-width:22px; flex-shrink:0; }
+  .worksheet-problem .wexpr{ white-space:nowrap; flex-shrink:0; }
+  .worksheet-problem .wanswer-line{ flex:1 1 auto; border-bottom:1.5px solid #100e28; min-width:16px; align-self:stretch; }
+  .ws-numline-row{ flex-direction:column; align-items:stretch; gap:2px; padding-bottom:22px; margin-bottom:6px; }
+  .ws-numline{ width:100%; max-width:640px; height:auto; display:block; margin-top:6px; }
+  .worksheet-answerkey{ page-break-before:always; }
+  .worksheet-answer-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:11px 22px; font-size:.92rem; color:#100e28; }
+  .ws-mode-toggle{
+    display:flex; gap:3px; background:var(--surface2); border-radius:10px; padding:3px;
+  }
+  .ws-mode-btn{
+    border:1.5px solid transparent; background:transparent; color:var(--muted); padding:7px 14px;
+    font-weight:700; border-radius:7px; cursor:pointer; font-family:'Sora',sans-serif; font-size:.82rem;
+    white-space:nowrap; transition:all .15s;
+  }
+  .ws-mode-btn:hover{ background:rgba(255,255,255,.6); }
+  .ws-mode-btn.active{ background:#fff; border-color:var(--accent); color:var(--accent); box-shadow:0 1px 3px rgba(48,107,240,.18); }
+  .ws-mode-btn.ws-topic-btn{ font-size:1rem; padding:7px 16px; }
+  .ws-answer-input{
+    width:64px; padding:5px 7px; border:1.5px solid var(--border); border-radius:6px;
+    font-family:'Sora',sans-serif; font-size:1rem; font-weight:700; color:#100e28;
+  }
+  /* Inga stegnings-pilar på svarsfälten — för lätta att råka klicka i, stör vidare inmatning */
+  .ws-answer-input::-webkit-inner-spin-button, .ws-answer-input::-webkit-outer-spin-button,
+  .ws-frac-input input::-webkit-inner-spin-button, .ws-frac-input input::-webkit-outer-spin-button{
+    -webkit-appearance:none; margin:0;
+  }
+  .ws-answer-input[type=number], .ws-frac-input input[type=number]{ -moz-appearance:textfield; }
+  .ws-feedback{ font-weight:700; font-size:.82rem; min-width:100px; display:inline-flex; align-items:center; gap:5px; }
+  .worksheet-problem.ws-correct{
+    border-bottom-color:#18a348; background:linear-gradient(90deg,rgba(24,163,72,.08),transparent 60%);
+  }
+  .worksheet-problem.ws-correct .ws-feedback{ color:#0f8038; }
+  .worksheet-problem.ws-wrong{
+    border-bottom-color:#EC6095; background:linear-gradient(90deg,rgba(236,96,149,.09),transparent 60%);
+  }
+  .worksheet-problem.ws-wrong .ws-feedback{ color:#d1367a; }
+  .ws-feedback-badge{
+    display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px;
+    border-radius:50%; font-size:.72rem; color:#fff; flex:none;
+  }
+  .worksheet-problem.ws-correct .ws-feedback-badge{ background:#18a348; }
+  .worksheet-problem.ws-wrong .ws-feedback-badge{ background:#EC6095; }
+  .ws-frac{
+    display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle;
+    margin:0 5px; font-size:.9em; line-height:1.2;
+  }
+  .ws-frac-num{ padding:0 5px 2px; border-bottom:1.8px solid #100e28; }
+  .ws-frac-den{ padding:2px 5px 0; }
+  .ws-mixed{ display:inline-flex; align-items:center; gap:3px; vertical-align:middle; }
+  .ws-mixed-whole{ font-weight:700; }
+  .ws-bigfrac{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; margin:0 8px; }
+  .ws-bigfrac-top{ padding:0 7px 5px; border-bottom:2.2px solid #100e28; }
+  .ws-bigfrac-bottom{ padding:5px 7px 0; }
+
+  /* ═══ Kategori-panel (flerval: talform × räknesätt) ═══ */
+  .ws-cat-panel{
+    display:flex; flex-wrap:wrap; align-items:center; gap:16px;
+    padding:0 22px 14px; font-family:'Sora',sans-serif;
+  }
+  .ws-cat-group{ display:flex; align-items:center; gap:6px; }
+  .ws-cat-group-label{ font-size:.78rem; color:var(--muted); font-weight:700; margin-right:2px; }
+  .ws-cat-btn{
+    border:1.5px solid var(--border); background:#fff; color:var(--muted); padding:6px 13px;
+    font-weight:700; border-radius:7px; cursor:pointer; font-family:'Sora',sans-serif; font-size:.85rem;
+    transition:all .15s;
+  }
+  .ws-cat-btn:hover{ border-color:var(--accent); }
+  .ws-cat-btn.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  /* ═══ Bråksvar: täljare/nämnare-rutor i interaktivt läge ═══ */
+  .ws-frac-input{ display:inline-flex; flex-direction:column; align-items:center; gap:3px; }
+  .ws-frac-input input{ width:52px; text-align:center; }
+  .ws-frac-input-bar{ width:52px; height:1.8px; background:#100e28; }
+  body.glass-mode .worksheet-page-wrap{ background:transparent; }
+  body.glass-mode .worksheet-page{
+    background:#fff; border-radius:20px; box-shadow:0 20px 50px rgba(16,14,40,.10); margin:24px auto;
+  }
+  @media print{
+    .no-print{ display:none !important; }
+    html, body{ background:#fff !important; margin:0 !important; padding:0 !important; }
+    .worksheet-page{ padding:8px 4px 24px; max-width:100%; margin:0; }
+    .worksheet-grid{ gap:20px 60px; }
+    .worksheet-title-bar,
+    .worksheet-problem.ws-correct, .worksheet-problem.ws-wrong{
+      -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;
+    }
+    /* "Modern vy" är enbart för skärmen — nolla den helt om utskrift ändå triggas medan den är på */
+    .ws-ambient{ display:none !important; }
+    body.glass-mode .worksheet-page-wrap,
+    body.glass-mode .worksheet-page{
+      background:#fff !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+      box-shadow:none !important; border-radius:0 !important; margin:0 !important;
+    }
+    body.glass-mode.ws-mode-interactive .worksheet-problem{
+      background:#fff !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+      box-shadow:none !important; border-radius:0 !important; padding-bottom:11px !important;
+      border-left:none !important; border-right:none !important; border-top:none !important;
+      border-bottom:1.5px dotted #ccc5f0 !important;
+    }
+  }
+</style>
+</head>
+<body class="glass-mode">
+
+<header class="pt-header no-print">
+  <span class="pt-header-icon">📝</span><span>Arbetsblad — Matematikportalen</span>
+  <div class="wc-spacer"></div>
+  <button type="button" id="wsGlassToggle" class="pt-header-theme-btn" title="Byt mellan modern och klassisk vy — påverkar aldrig utskriften">🌓 Tema</button>
+</header>
+<div class="ws-ambient"><span></span><span></span><span></span></div>
+<div class="worksheet-page-wrap">
+  <div class="ws-mode-strip no-print">
+    <div class="ws-mode-toggle">
+      <button type="button" id="wsModePrint" class="ws-mode-btn active">📄 Skrivbar</button>
+      <button type="button" id="wsModeInteractive" class="ws-mode-btn">💻 Interaktiv</button>
+    </div>
+    <label id="wsNumlineLabel" style="display:none;"><input type="checkbox" id="wsNumlineToggle"> 📏 Som tallinjeblad</label>
+  </div>
+
+  <div class="ws-panel no-print">
+    <div class="ws-panel-section ws-cat-panel">
+      <div class="ws-cat-group">
+        <span class="ws-cat-group-label">Heltal</span>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn active" data-cat="intAddSub">+/−</button><input type="number" class="ws-cat-count" data-cat="intAddSub" min="0" max="60" value="15" style="display:none;"></div>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="intMulDiv">×/÷</button><input type="number" class="ws-cat-count" data-cat="intMulDiv" min="0" max="60" value="15" style="display:none;"></div>
+      </div>
+      <div class="ws-cat-group">
+        <span class="ws-cat-group-label">Bråk</span>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="fracAddSub">+/−</button><input type="number" class="ws-cat-count" data-cat="fracAddSub" min="0" max="60" value="10" style="display:none;"></div>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="fracMul">×</button><input type="number" class="ws-cat-count" data-cat="fracMul" min="0" max="60" value="10" style="display:none;"></div>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="fracDiv">÷</button><input type="number" class="ws-cat-count" data-cat="fracDiv" min="0" max="60" value="10" style="display:none;"></div>
+      </div>
+      <div class="ws-cat-group">
+        <span class="ws-cat-group-label">Decimal</span>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="decMul">×</button><input type="number" class="ws-cat-count" data-cat="decMul" min="0" max="60" value="10" style="display:none;"></div>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="decDiv">÷</button><input type="number" class="ws-cat-count" data-cat="decDiv" min="0" max="60" value="10" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="ws-panel-section ws-panel-countrow">
+      <label id="wsCountLabel">Antal uppgifter: <input type="number" id="wsCount" min="4" max="60" value="30"></label>
+      <label><input type="checkbox" id="wsPerTypeMode"> Anpassa antal per typ</label>
+      <label id="wsAnswerKeyLabel"><input type="checkbox" id="wsAnswerKey" checked> Facit</label>
+      <div class="wc-spacer"></div>
+      <button type="button" id="wsSettingsToggle" class="wc-pill-btn">⚙️ Svårighetsgrad</button>
+    </div>
+
+    <div class="ws-panel-section ws-settings-drawer" id="wsSettingsDrawer" style="display:none;">
+    <div class="ws-settings-group" id="wsIntNegGroup" style="display:none;">
+      <span class="ws-settings-group-label">Heltal</span>
+      <label><input type="checkbox" id="wsIntNegative" checked> Negativa tal</label>
+    </div>
+    <div class="ws-settings-group" id="wsIntAddSubGroup" style="display:none;">
+      <span class="ws-settings-group-label">Heltal +/−</span>
+      <label><input type="checkbox" id="wsAdvanced"> Avancerad (3–4 termer)</label>
+      <div class="ws-mode-toggle" id="wsIntAddSubLevelToggle">
+        <button type="button" class="ws-mode-btn ws-int-addsub-level-btn active" data-level="1" title="Tal ca 1–10">Nivå 1</button>
+        <button type="button" class="ws-mode-btn ws-int-addsub-level-btn" data-level="2" title="Tal ca 1–100">Nivå 2</button>
+      </div>
+    </div>
+    <div class="ws-settings-group" id="wsIntMulDivGroup" style="display:none;">
+      <span class="ws-settings-group-label">Heltal ×/÷</span>
+      <div class="ws-mode-toggle" id="wsLevelToggle">
+        <button type="button" class="ws-mode-btn ws-level-btn active" data-level="1">Nivå 1</button>
+        <button type="button" class="ws-mode-btn ws-level-btn" data-level="2">Nivå 2</button>
+        <button type="button" class="ws-mode-btn ws-level-btn" data-level="3">Nivå 3</button>
+      </div>
+      <div class="ws-mode-toggle" id="wsIntMethodToggle">
+        <button type="button" class="ws-mode-btn ws-int-method-btn active" data-method="kort" title="Klassisk kortdivision">Kortdivision</button>
+        <button type="button" class="ws-mode-btn ws-int-method-btn" data-method="delar" title="T.ex. 91 ÷ 7 = 70 ÷ 7 + 21 ÷ 7">Uppdelning i delar</button>
+        <button type="button" class="ws-mode-btn ws-int-method-btn" data-method="stort" title="3–4 siffror i täljaren, ibland med kvot i decimalform">Stort tal</button>
+      </div>
+    </div>
+    <div class="ws-settings-group" id="wsFracAddSubGroup" style="display:none;">
+      <span class="ws-settings-group-label">Bråk +/−</span>
+      <div class="ws-mode-toggle" id="wsFracRelToggle">
+        <button type="button" class="ws-mode-btn ws-frac-rel-btn active" data-level="1" title="T.ex. 3/8 + 2/8">Samma nämnare</button>
+        <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="2" title="T.ex. 1/2 + 1/4">Multipel</button>
+        <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="3" title="T.ex. 1/7 + 1/3">Relativt prima</button>
+      </div>
+    </div>
+    <div class="ws-settings-group" id="wsFracMulGroup" style="display:none;">
+      <span class="ws-settings-group-label">Bråk ×</span>
+      <div class="ws-mode-toggle" id="wsFracMagToggle">
+        <button type="button" class="ws-mode-btn ws-frac-mag-btn active" data-level="1">Nivå 1</button>
+        <button type="button" class="ws-mode-btn ws-frac-mag-btn" data-level="2">Nivå 2</button>
+      </div>
+      <label title="T.ex. 7/25 × 5/49 → 1/5 × 1/7"><input type="checkbox" id="wsFracMulCancel"> Förkortningsbara faktorer</label>
+    </div>
+    <div class="ws-settings-group" id="wsFracDivGroup" style="display:none;">
+      <span class="ws-settings-group-label">Bråk ÷</span>
+      <label title="Täljaren är en multiplikation av två bråk som ska räknas ut först"><input type="checkbox" id="wsFracDivNested"> Nästlad täljare</label>
+    </div>
+    <div class="ws-settings-group" id="wsFracNegGroup" style="display:none;">
+      <span class="ws-settings-group-label">Bråk</span>
+      <label><input type="checkbox" id="wsFracNegative" checked> Negativa bråk</label>
+    </div>
+    <div class="ws-settings-group" id="wsDecGroup" style="display:none;">
+      <span class="ws-settings-group-label">Decimal</span>
+      <div class="ws-mode-toggle" id="wsDecLevelToggle">
+        <button type="button" class="ws-mode-btn ws-dec-level-btn active" data-level="1" title="En decimalfaktor + ett runt heltal / nämnare kräver ingen förkortning">Nivå 1</button>
+        <button type="button" class="ws-mode-btn ws-dec-level-btn" data-level="2" title="Decimaler i båda faktorerna / nämnaren kräver förkortning">Nivå 2</button>
+      </div>
+      <label><input type="checkbox" id="wsDecNegative" checked> Negativa decimaltal</label>
+    </div>
+    <div class="ws-settings-group" id="wsNumlineTypeGroup" style="display:none;">
+      <span class="ws-settings-group-label">Tallinje</span>
+      <div class="ws-mode-toggle" id="wsNumlineTypeToggle">
+        <button type="button" class="ws-mode-btn ws-numline-type-btn active" data-type="graderad" title="Nuvarande stil: omärkta streck, bara 0:an utsatt">Graderad</button>
+        <button type="button" class="ws-mode-btn ws-numline-type-btn" data-type="oppen" title="Helt tom linje med pilar i båda ändar — eleven placerar själv sina markeringar">Öppen</button>
+      </div>
+    </div>
+
+    <div class="ws-panel-section ws-panel-actions">
+      <button id="wsRegenerate">🔄 Nytt arbetsblad</button>
+      <button id="wsPrint">🖨️ Skriv ut</button>
+      <button id="wsCheck" style="display:none;">✅ Rätta</button>
+      <span id="wsScore" style="display:none;font-weight:700;color:var(--text);"></span>
+    </div>
+  </div>
+
+  <div class="worksheet-page">
+    <h1 id="wsTitle">Blandad träning — positiva och negativa tal</h1>
+    <div class="worksheet-title-bar"></div>
+    <div class="worksheet-meta">Namn: ________________________________&nbsp;&nbsp;&nbsp;&nbsp;Datum: ______________</div>
+    <div class="worksheet-grid" id="worksheetGrid"></div>
+  </div>
+
+  <div class="worksheet-page worksheet-answerkey" id="worksheetAnswerPage">
+    <h1>Facit</h1>
+    <div class="worksheet-title-bar"></div>
+    <div class="worksheet-answer-grid" id="worksheetAnswerGrid"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  ARBETSBLAD — blandad ("interleaved") träning, utskriftsvänligt
+//
+//  Utlyft ur "Tallinje"-verktyget som en fristående grund. Byggd kring
+//  ett KATEGORIREGISTER (se CATEGORIES nedan): varje kategori är en
+//  kombination av talform × räknesätt (t.ex. "Heltal +/−", "Bråk ×")
+//  och registrerar bara en label, grupp och en gen()-funktion.
+//
+//  wsActiveCategories (ett Set) håller reda på vilka kategorier som
+//  är ikryssade just nu. Ett RENT arbetsblad = en kategori ikryssad.
+//  Ett BLANDAT arbetsblad = flera. Det finns ingen separat "mix-logik"
+//  — genOneProblem() slumpar bara vilken av de aktiva kategorierna
+//  som ska generera nästa uppgift. Det gör att mixning kommer gratis
+//  så fort en ny kategori registreras korrekt.
+//
+//  Varje gen()-funktion returnerar { parts, answerKind, answer }:
+//  - parts: en lista av uttrycks-"tokens" som wsProblemHTML() ritar
+//    upp i tur och ordning — {t:'txt', text} för vanlig text/operatorer,
+//    {t:'frac', num, den} för ett stapelbråk. Detta ersätter det gamla
+//    {text}/{num,den,isFraction}-kontraktet (adaptLegacy() nedan gör
+//    integer-generatorerna bakåtkompatibla utan att de behöver skrivas om).
+//  - answerKind: 'integer' eller 'fraction' — styr både hur facit
+//    formateras (wsAnswerHTML) och hur inmatningen ser ut i interaktivt
+//    läge (en sifferruta, respektive täljare/nämnare-rutor).
+//  - answer: ett tal (integer) eller {num, den} (fraction, alltid
+//    förkortat, nämnare > 0).
+//
+//  TÄNKT VIDAREUTVECKLING:
+//  - Decimaltal blir en egen grupp i CATEGORIES ("Decimal +/−" osv.)
+//    med en egen fmtDecimal() (komma, samma parentesregel som fmtNum).
+//  - "Blandad form" (decimal + bråk) blir sin egen kategori vars
+//    gen() väljer vilken form svaret ska anges i.
+//  - simplifyFrac()/toMixed() nedan är redan generella nog att
+//    återanvändas av alla framtida bråk-/blandad-form-kategorier.
+// ═══════════════════════════════════════════════════════════════════
+
+function fmtNum(n) { return n < 0 ? `(${n})` : String(n); }
+
+// ═══════════════════════════════════════════════════════════════════
+//  BRÅK — hjälpfunktioner delade av alla bråkkategorier (och senare
+//  även "blandad form"). Konventionen: en förkortad bråk har alltid
+//  nämnare > 0 (tecknet flyttas till täljaren av simplifyFrac).
+// ═══════════════════════════════════════════════════════════════════
+function wsGcd(a, b) {
+  a = Math.abs(a); b = Math.abs(b);
+  while (b) { [a, b] = [b, a % b]; }
+  return a || 1;
+}
+function simplifyFrac(num, den) {
+  if (den < 0) { num = -num; den = -den; }
+  const g = wsGcd(num, den);
+  return { num: num / g, den: den / g };
+}
+// Delar upp en förkortad bråk i heltalsdel + resterande bråkdel, för
+// visning som blandad form i facit (t.ex. 7/2 → {whole:3, num:1, den:2}).
+function toMixed(num, den) {
+  const sign = num < 0 ? -1 : 1;
+  const an = Math.abs(num);
+  return { whole: sign * Math.floor(an / den), num: sign * (an % den), den };
+}
+
+function wsRandInt(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
+function wsRandNonZero(lo, hi) {
+  let n;
+  do { n = wsRandInt(lo, hi); } while (n === 0);
+  return n;
+}
+
+// Delad av alla Heltal-generatorer: respekterar "Negativa tal"-kryssrutan.
+// Avstängd ger bara positiva tal (aldrig 0); påslagen (standard) ger samma
+// spridning som tidigare, ±1..maxAbs.
+function wsIntTerm(maxAbs) {
+  const mag = wsRandNonZero(1, maxAbs);
+  return (wsIntNegative.checked && Math.random() < 0.5) ? -mag : mag;
+}
+
+function genWorksheetProblem(advanced) {
+  const big = (wsIntAddSubLevel === 2);
+  const t1Max = big ? 200 : 10, termMax = big ? 99 : 9;
+  const t1 = wsIntTerm(t1Max);
+  let total = t1;
+  const parts = [fmtNum(t1)];
+  const termCount = advanced ? wsRandInt(3, 4) : 2; // totalt antal termer, inkl. t1
+  for (let i = 1; i < termCount; i++) {
+    const op = Math.random() < 0.5 ? '+' : '−';
+    let t = wsIntTerm(termMax);
+    total += (op === '+') ? t : -t;
+    parts.push(op, fmtNum(t));
+  }
+  return { text: parts.join(' '), answer: total, isFraction: false };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  MULTIPLIKATION & DIVISION — tre nivåer styr multiplikationens
+//  komplexitet (faktorantal/storlek); wsIntMethod styr HUR divisions-
+//  halvan konstrueras, oberoende av nivå:
+//   - 'kort'   : klassisk kortdivision, komplexitet skalar med nivå
+//                (samma som tidigare — täljare/nämnare, ev. som
+//                produkter eller summor som måste räknas ut först).
+//   - 'delar'  : täljaren delas medvetet upp i en "rund" tiotals-del +
+//                en entals-del (t.ex. 91 ÷ 7 = 70 ÷ 7 + 21 ÷ 7).
+//   - 'stort'  : 3–4-siffrig täljare ÷ en ensam siffra; oftast ett
+//                jämnt heltal som kvot, men ibland (kortdivision
+//                fortsatt förbi kommat) en kvot med 1–2 decimaler.
+//  "isFraction" avgör om uttrycket ritas som ett bråk (täljare/nämnare)
+//  eller som vanlig text.
+// ═══════════════════════════════════════════════════════════════════
+
+function genIntDivisionKort(level) {
+  if (level === 1) {
+    const d = wsIntTerm(9);
+    const q = wsIntTerm(9);
+    const n = d * q;
+    return { num: fmtNum(n), den: fmtNum(d), answer: q, isFraction: true };
+  }
+  if (level === 2) {
+    for (let i = 0; i < 60; i++) {
+      const a = wsIntTerm(6), b = wsIntTerm(6);
+      const c = wsIntTerm(5), d = wsIntTerm(5);
+      const N = a * b, D = c * d;
+      if (D !== 0 && N % D === 0) {
+        return { num: `${fmtNum(a)} × ${fmtNum(b)}`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: N / D, isFraction: true };
+      }
+    }
+    // Garanterat jämnt fallback om slumpen inte gav en delbar kombination
+    const c = wsIntTerm(5), d = wsIntTerm(5);
+    const q = wsIntTerm(6);
+    const D = c * d;
+    return { num: `${fmtNum(D * q)} × 1`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: q, isFraction: true };
+  }
+  // level 3: täljare och/eller nämnare är en summa/differens som måste
+  // räknas ut innan själva divisionen utförs.
+  for (let i = 0; i < 100; i++) {
+    const n1 = wsIntTerm(9), n2 = wsIntTerm(9);
+    const nOp = Math.random() < 0.5 ? '+' : '−';
+    const N = (nOp === '+') ? n1 + n2 : n1 - n2;
+
+    let denText, D;
+    if (Math.random() < 0.5) {
+      const d1 = wsIntTerm(6), d2 = wsIntTerm(6);
+      const dOp = Math.random() < 0.5 ? '+' : '−';
+      D = (dOp === '+') ? d1 + d2 : d1 - d2;
+      denText = `${fmtNum(d1)} ${dOp} ${fmtNum(d2)}`;
+    } else {
+      D = wsIntTerm(6);
+      denText = fmtNum(D);
+    }
+    if (D !== 0 && N !== 0 && N % D === 0) {
+      return { num: `${fmtNum(n1)} ${nOp} ${fmtNum(n2)}`, den: denText, answer: N / D, isFraction: true };
+    }
+  }
+  // Garanterat jämnt fallback
+  const d = wsRandInt(2, 6);
+  const q = wsIntTerm(6);
+  const n1 = wsRandInt(1, 5);
+  const n2 = d * q - n1;
+  return { num: `${fmtNum(n1)} + ${fmtNum(n2)}`, den: fmtNum(d), answer: q, isFraction: true };
+}
+
+// "Uppdelning i delar": kvoten är alltid ett tvåsiffrigt tal (tiotal +
+// ental), så täljaren går att dela upp rent, t.ex. 91 ÷ 7 = 70÷7 + 21÷7.
+// Metoden handlar om positiva tals platsvärde, så negativa tal kopplas
+// bort här oavsett "Negativa tal"-läget.
+function genIntDivisionDelning() {
+  const d = wsRandInt(2, 9);
+  const tens = wsRandInt(1, 9), ones = wsRandInt(1, 9);
+  const q = tens * 10 + ones;
+  const n = d * q;
+  return { num: String(n), den: String(d), answer: q, isFraction: true };
+}
+
+// "Stort tal": 3–4-siffrig täljare ÷ en ensam siffra. Oftast (60%) ett
+// jämnt heltal som kvot; annars (40%) fortsätter kortdivisionen förbi
+// kommat och ger en kvot med 1–2 decimaler — nämnaren är då alltid
+// 2, 4 eller 5, vilket garanterar att den decimalutvecklingen alltid
+// tar slut inom två decimaler, oavsett täljare. Positiva tal, av samma
+// skäl som "Uppdelning i delar".
+function genIntDivisionStort() {
+  if (Math.random() < 0.6) {
+    const d = wsRandInt(2, 9);
+    const lo = Math.ceil(100 / d), hi = Math.floor(9999 / d);
+    const q = wsRandInt(lo, hi);
+    const n = d * q;
+    return { num: String(n), den: String(d), answer: q, isFraction: true };
+  }
+  const d = [2, 4, 5][wsRandInt(0, 2)];
+  const dp = (d === 4) ? 2 : 1;
+  const scale = Math.pow(10, dp);
+  const n = wsRandInt(100, 9999);
+  const scaledQuotient = n * scale / d; // alltid ett heltal eftersom d delar scale jämnt
+  return { num: String(n), den: String(d), answer: { value: scaledQuotient, dp }, isFraction: true };
+}
+
+function genIntDivision(level) {
+  if (wsIntMethod === 'delar') return genIntDivisionDelning();
+  if (wsIntMethod === 'stort') return genIntDivisionStort();
+  return genIntDivisionKort(level);
+}
+
+// Nivå 1: två faktorer → produkt, ELLER en division (se genIntDivision)
+function genMulDivLevel1() {
+  if (Math.random() < 0.5) {
+    const a = wsIntTerm(9), b = wsIntTerm(9);
+    return { text: `${fmtNum(a)} × ${fmtNum(b)}`, answer: a * b, isFraction: false };
+  }
+  return genIntDivision(1);
+}
+
+// Nivå 2: en multiplikationskedja med tre faktorer, ELLER en division
+function genMulDivLevel2() {
+  if (Math.random() < 0.5) {
+    const a = wsIntTerm(6), b = wsIntTerm(6), c = wsIntTerm(6);
+    return { text: `${fmtNum(a)} × ${fmtNum(b)} × ${fmtNum(c)}`, answer: a * b * c, isFraction: false };
+  }
+  return genIntDivision(2);
+}
+
+// Nivå 3: alltid en division (den mest komplexa formen under Kortdivision)
+function genMulDivLevel3() {
+  return genIntDivision(3);
+}
+
+function genMulDivProblem(level) {
+  if (level === 1) return genMulDivLevel1();
+  if (level === 2) return genMulDivLevel2();
+  return genMulDivLevel3();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DECIMALTAL — multiplikation, division.
+//  wsDecLevel (1|2) och wsDecNegative delas av båda kategorierna.
+//
+//  Tal representeras internally som {n: heltal, dp: antal decimaler}
+//  (n / 10^dp) istället för JS-flyttal, för att undvika
+//  avrundningsfel och för att kunna bygga uppgifter "baklänges" från
+//  heltalskärnan — precis den metod som faktiskt lärs ut:
+//   × : räkna kärnorna (n1×n2) som heltal, flytta sen decimaltecknet
+//       dp1+dp2 steg — inget annat facit behövs än den uträkningen.
+//   ÷ : nämnaren konstrueras alltid så att den, gjord till ett heltal,
+//       går att förkorta ner till en ensam siffra (kortdivision).
+// ═══════════════════════════════════════════════════════════════════
+function intToDecimalStr(n, dp, wrapNeg) {
+  const neg = n < 0;
+  const s = String(Math.abs(n)).padStart(dp + 1, '0');
+  const whole = s.slice(0, s.length - dp) || '0';
+  const frac = dp > 0 ? ',' + s.slice(s.length - dp) : '';
+  const str = whole + frac;
+  if (!neg) return str;
+  return wrapNeg ? `(-${str})` : `-${str}`;
+}
+
+function genDecimalMul() {
+  const bothDecimal = (wsDecLevel === 2);
+  const coreMax = bothDecimal ? 45 : 9; // "siffrorna" i multiplikationen
+  const c1 = wsRandNonZero(1, coreMax), c2 = wsRandNonZero(1, coreMax);
+  const dp1 = wsRandInt(1, 2);
+  const dp2 = bothDecimal ? wsRandInt(1, 2) : 0;
+  const roundFactor = bothDecimal ? 1 : Math.pow(10, wsRandInt(2, 4)); // gör faktor 2 rund, t.ex. 30 000
+  let n1 = c1, n2 = c2 * roundFactor;
+  if (wsDecNegative.checked && Math.random() < 0.5) n1 = -n1;
+  if (wsDecNegative.checked && Math.random() < 0.5) n2 = -n2;
+  const rawProduct = n1 * n2;
+  const totalDp = dp1 + dp2;
+  return {
+    parts: [
+      { t: 'txt', text: intToDecimalStr(n1, dp1, true) },
+      { t: 'txt', text: '×' },
+      { t: 'txt', text: intToDecimalStr(n2, dp2, true) },
+    ],
+    answerKind: 'decimal', answer: { value: rawProduct, dp: totalDp },
+  };
+}
+
+function genDecimalDiv() {
+  const d = wsRandInt(2, 9);                         // målnämnare efter förkortning — en ensam siffra
+  const k = (wsDecLevel === 2) ? wsRandInt(2, 9) : 1; // hur mycket som måste förkortas bort
+  const divisorInt  = d * k;
+  const q = wsRandInt(2, 12);                         // kvoten hålls som ett rent heltal (kortdivisionen går jämnt upp)
+  const dividendInt = divisorInt * q;
+  const p = (wsDecLevel === 2) ? wsRandInt(1, 2) : 1;  // antal decimaler i den presenterade uppgiften
+
+  let n1 = dividendInt, n2 = divisorInt, sign = 1;
+  if (wsDecNegative.checked && Math.random() < 0.5) { n1 = -n1; sign *= -1; }
+  if (wsDecNegative.checked && Math.random() < 0.5) { n2 = -n2; sign *= -1; }
+
+  return {
+    parts: [
+      { t: 'txt', text: intToDecimalStr(n1, p, true) },
+      { t: 'txt', text: '÷' },
+      { t: 'txt', text: intToDecimalStr(n2, p, true) },
+    ],
+    answerKind: 'integer', answer: sign * q,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BRÅKFORM — addition/subtraktion, multiplikation, division.
+//  wsFracNegative styr om täljarna får bli negativa (samma tema som
+//  heltalsdelen: negativa tal ska inte vara ett specialfall utan en
+//  naturlig del av träningen).
+//
+//  VIKTIGT: svårighetsgraden vid +/− drivs av RELATIONEN mellan
+//  nämnarna (samma nämnare → multipel av varandra → relativt prima),
+//  inte av hur stora talen är — det är det steget som avgör om man
+//  kan skala om en enda nämnare eller måste multiplicera ihop båda,
+//  och om uppgiften går att rita/visualisera. Vid × och ÷ finns inget
+//  gemensam-nämnare-steg, så där styr wsFracMagLevel (talens storlek)
+//  precis som tidigare. Därför två separata nivå-variabler.
+// ═══════════════════════════════════════════════════════════════════
+function genFracNum(maxAbs) {
+  let n = wsRandNonZero(1, maxAbs);
+  if (wsFracNegative.checked && Math.random() < 0.5) n = -n;
+  return n;
+}
+
+// Nivå 1 (relation): samma nämnare — enklast, ingen omskalning alls.
+function genFracPairSameDen() {
+  const den = wsRandInt(4, 10);
+  return { a: { num: genFracNum(den + 2), den }, b: { num: genFracNum(den + 2), den } };
+}
+// Nivå 2 (relation): en nämnare är en multipel av den andra — bara ETT
+// av bråken behöver skalas om för att få gemensam nämnare.
+function genFracPairMultiple() {
+  const denSmall = wsRandInt(2, 6);
+  const denBig = denSmall * wsRandInt(2, 3);
+  const small = { num: genFracNum(denSmall), den: denSmall };
+  const big   = { num: genFracNum(denBig), den: denBig };
+  return (Math.random() < 0.5) ? { a: small, b: big } : { a: big, b: small };
+}
+// Nivå 3 (relation): nämnare utan gemensam faktor — BÅDA måste skalas
+// om (gemensam nämnare = produkten), går sällan att rita enkelt.
+function genFracPairCoprime() {
+  let den1, den2;
+  do { den1 = wsRandInt(2, 9); den2 = wsRandInt(2, 9); } while (wsGcd(den1, den2) !== 1);
+  return { a: { num: genFracNum(den1), den: den1 }, b: { num: genFracNum(den2), den: den2 } };
+}
+
+// Används av × och ÷, där bara storleken (inte nämnarrelationen) spelar roll.
+function genFractionTerm(denMax) {
+  return { num: genFracNum(denMax), den: wsRandInt(2, denMax) };
+}
+
+function genFractionAddSub() {
+  const { a, b } = (wsFracRelLevel === 1) ? genFracPairSameDen()
+                  : (wsFracRelLevel === 2) ? genFracPairMultiple()
+                  : genFracPairCoprime();
+  const op = Math.random() < 0.5 ? '+' : '−';
+  const an = a.num * b.den, bn = b.num * a.den, commonDen = a.den * b.den;
+  const answer = simplifyFrac(op === '+' ? an + bn : an - bn, commonDen);
+  return {
+    parts: [
+      { t: 'frac', num: fmtNum(a.num), den: String(a.den) },
+      { t: 'txt', text: op },
+      { t: 'frac', num: fmtNum(b.num), den: String(b.den) },
+    ],
+    answerKind: 'fraction', answer,
+  };
+}
+
+function genFractionMul() {
+  const denMax = (wsFracMagLevel === 1) ? 6 : 12;
+  // "Förkortningsbara faktorer": bygger två bråk med en gemensam faktor snett
+  // över täljare/nämnare (t.ex. 7/25 × 5/49 → 1/5 × 1/7), så uppgiften går att
+  // förkorta INNAN man multiplicerar ut, istället för att bara råka bli enkel.
+  if (wsFracMulCancel.checked) {
+    const primes = [2, 3, 5, 7, 11];
+    let p, q;
+    do { p = primes[wsRandInt(0, primes.length - 1)]; q = primes[wsRandInt(0, primes.length - 1)]; } while (p === q);
+    let xNum = p, yNum = q;
+    if (wsFracNegative.checked && Math.random() < 0.5) xNum = -xNum;
+    if (wsFracNegative.checked && Math.random() < 0.5) yNum = -yNum;
+    const x = { num: xNum, den: q * q }, y = { num: yNum, den: p * p };
+    const answer = simplifyFrac(x.num * y.num, x.den * y.den);
+    return {
+      parts: [
+        { t: 'frac', num: fmtNum(x.num), den: String(x.den) },
+        { t: 'txt', text: '×' },
+        { t: 'frac', num: fmtNum(y.num), den: String(y.den) },
+      ],
+      answerKind: 'fraction', answer,
+    };
+  }
+  const a = genFractionTerm(denMax), b = genFractionTerm(denMax);
+  const answer = simplifyFrac(a.num * b.num, a.den * b.den);
+  return {
+    parts: [
+      { t: 'frac', num: fmtNum(a.num), den: String(a.den) },
+      { t: 'txt', text: '×' },
+      { t: 'frac', num: fmtNum(b.num), den: String(b.den) },
+    ],
+    answerKind: 'fraction', answer,
+  };
+}
+
+// Ett heltal (nämnare 1) skrivs som vanlig text, ett äkta bråk som ett stapelbråk —
+// alltid som en LISTA av parts, så att en täljare/nämnare i det stora bråkstrecket
+// kan vara antingen en enda term eller ett helt uttryck (se genFractionDiv nedan).
+function fracOrIntParts(num, den) {
+  return [(den === 1) ? { t: 'txt', text: fmtNum(num) } : { t: 'frac', num: fmtNum(num), den: String(den) }];
+}
+
+function genFractionDiv() {
+  const denMax = (wsFracMagLevel === 1) ? 6 : 12;
+  const nested = wsFracDivNested.checked;
+  let topVal, topParts;
+
+  if (nested) {
+    // "Nästlad täljare": täljaren i det stora bråkstrecket är själv en
+    // multiplikation av två bråk som måste räknas ut innan man kan utföra
+    // själva divisionen.
+    const x = genFractionTerm(Math.min(denMax, 9)), y = genFractionTerm(Math.min(denMax, 9));
+    topVal = simplifyFrac(x.num * y.num, x.den * y.den);
+    topParts = [
+      { t: 'frac', num: fmtNum(x.num), den: String(x.den) },
+      { t: 'txt', text: '×' },
+      { t: 'frac', num: fmtNum(y.num), den: String(y.den) },
+    ];
+  } else if (Math.random() < 0.4) {
+    // Innehållsdivision-vänligt specialfall: heltal ÷ enkelt bråk, t.ex. 3 ÷ 1/2
+    // ("hur många halvor får plats i 3 hela?").
+    topVal = { num: genFracNum(9), den: 1 };
+    topParts = fracOrIntParts(topVal.num, topVal.den);
+  } else {
+    topVal = genFractionTerm(denMax);
+    topParts = fracOrIntParts(topVal.num, topVal.den);
+  }
+
+  // Enkla-heltalsfallet ovan ("3 ÷ 1/2") vill ha en enkel enhetsnämnare i b;
+  // annars ett vanligt bråk. Vid nästlad täljare gäller alltid det vanliga fallet.
+  const wantsUnitFraction = !nested && topParts.length === 1 && topVal.den === 1;
+  const b = wantsUnitFraction
+    ? { num: (wsFracNegative.checked && Math.random() < 0.5) ? -1 : 1, den: wsRandInt(2, 5) }
+    : genFractionTerm(denMax);
+
+  const answer = simplifyFrac(topVal.num * b.den, topVal.den * b.num);
+  return {
+    // Stort vågrätt bråkstreck istället för ÷ eller snedstreck, enligt önskemål —
+    // tydlig täljare (bråk, heltal eller ett uttryck) dividerad med tydlig nämnare.
+    parts: [{ t: 'bigfrac', top: topParts, bottom: fracOrIntParts(b.num, b.den) }],
+    answerKind: 'fraction', answer,
+  };
+}
+
+// Gör om de äldre heltals-generatorernas {text}/{num,den,isFraction}-form
+// till det gemensamma parts-kontraktet, utan att skriva om dem. Svaret är
+// vanligtvis ett rent heltal, men "Stort tal"-metoden kan ge ett
+// {value,dp}-objekt (kvot med decimaler) — samma form som decimalkategorierna
+// redan använder, så vi känner igen den och sätter rätt answerKind.
+function adaptLegacy(p) {
+  const parts = p.isFraction
+    ? [{ t: 'frac', num: p.num, den: p.den }]
+    : [{ t: 'txt', text: p.text }];
+  const isDecimalAnswer = p.answer && typeof p.answer === 'object' && 'value' in p.answer && 'dp' in p.answer;
+  return { parts, answerKind: isDecimalAnswer ? 'decimal' : 'integer', answer: p.answer };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  KATEGORIREGISTER — se kommentaren högst upp i filen.
+// ═══════════════════════════════════════════════════════════════════
+const CATEGORIES = {
+  intAddSub:  { label: 'Heltal +/−', group: 'Heltal',  gen: () => adaptLegacy(genWorksheetProblem(wsAdvanced.checked)) },
+  intMulDiv:  { label: 'Heltal ×/÷', group: 'Heltal',  gen: () => adaptLegacy(genMulDivProblem(wsLevel)) },
+  fracAddSub: { label: 'Bråk +/−',   group: 'Bråk',    gen: genFractionAddSub },
+  fracMul:    { label: 'Bråk ×',     group: 'Bråk',    gen: genFractionMul },
+  fracDiv:    { label: 'Bråk ÷',     group: 'Bråk',    gen: genFractionDiv },
+  decMul:     { label: 'Decimal ×',  group: 'Decimal', gen: genDecimalMul },
+  decDiv:     { label: 'Decimal ÷',  group: 'Decimal', gen: genDecimalDiv },
+};
+let wsActiveCategories = new Set(['intAddSub']);
+
+const worksheetGrid       = document.getElementById('worksheetGrid');
+const worksheetAnswerGrid = document.getElementById('worksheetAnswerGrid');
+const worksheetAnswerPage = document.getElementById('worksheetAnswerPage');
+const wsTitle     = document.getElementById('wsTitle');
+const wsCount     = document.getElementById('wsCount');
+const wsAdvanced  = document.getElementById('wsAdvanced');
+const wsAnswerKey = document.getElementById('wsAnswerKey');
+const wsAnswerKeyLabel = document.getElementById('wsAnswerKeyLabel');
+const wsModePrint       = document.getElementById('wsModePrint');
+const wsModeInteractive = document.getElementById('wsModeInteractive');
+const wsNumlineLabel    = document.getElementById('wsNumlineLabel');
+const wsNumlineToggle   = document.getElementById('wsNumlineToggle');
+const wsIntNegGroup    = document.getElementById('wsIntNegGroup');
+const wsIntNegative    = document.getElementById('wsIntNegative');
+const wsIntAddSubGroup = document.getElementById('wsIntAddSubGroup');
+const wsIntAddSubLevelBtns = Array.from(document.querySelectorAll('.ws-int-addsub-level-btn'));
+const wsIntMulDivGroup = document.getElementById('wsIntMulDivGroup');
+const wsLevelBtns   = Array.from(document.querySelectorAll('.ws-level-btn'));
+const wsIntMethodBtns = Array.from(document.querySelectorAll('.ws-int-method-btn'));
+const wsFracAddSubGroup = document.getElementById('wsFracAddSubGroup');
+const wsFracRelBtns   = Array.from(document.querySelectorAll('.ws-frac-rel-btn'));
+const wsFracMulGroup = document.getElementById('wsFracMulGroup');
+const wsFracMagBtns   = Array.from(document.querySelectorAll('.ws-frac-mag-btn'));
+const wsFracMulCancel = document.getElementById('wsFracMulCancel');
+const wsFracDivGroup = document.getElementById('wsFracDivGroup');
+const wsFracDivNested = document.getElementById('wsFracDivNested');
+const wsFracNegGroup  = document.getElementById('wsFracNegGroup');
+const wsFracNegative  = document.getElementById('wsFracNegative');
+const wsDecGroup = document.getElementById('wsDecGroup');
+const wsDecLevelBtns   = Array.from(document.querySelectorAll('.ws-dec-level-btn'));
+const wsDecNegative  = document.getElementById('wsDecNegative');
+const wsNumlineTypeGroup = document.getElementById('wsNumlineTypeGroup');
+const wsNumlineTypeBtns  = Array.from(document.querySelectorAll('.ws-numline-type-btn'));
+const wsCatBtns = Array.from(document.querySelectorAll('.ws-cat-btn'));
+const wsCatCountInputs = Array.from(document.querySelectorAll('.ws-cat-count'));
+const wsPerTypeMode = document.getElementById('wsPerTypeMode');
+const wsCountLabel = document.getElementById('wsCountLabel');
+const wsPrintBtn = document.getElementById('wsPrint');
+const wsGlassToggle = document.getElementById('wsGlassToggle');
+const wsSettingsToggle = document.getElementById('wsSettingsToggle');
+const wsSettingsDrawer = document.getElementById('wsSettingsDrawer');
+const wsCheckBtn = document.getElementById('wsCheck');
+const wsScoreEl  = document.getElementById('wsScore');
+
+let wsMode  = 'print';  // 'print' | 'interactive' | 'numline'
+let wsLevel = 1;        // 1 | 2 | 3 — endast relevant för Heltal ×/÷
+let wsIntAddSubLevel = 1; // 1 | 2 — talens storlek, endast Heltal +/−
+let wsIntMethod = 'kort'; // 'kort' | 'delar' | 'stort' — endast divisionshalvan av Heltal ×/÷
+let wsFracRelLevel = 1; // 1 | 2 | 3 — nämnarrelation, endast Bråk +/−
+let wsFracMagLevel = 1; // 1 | 2 — talens storlek, endast Bråk ×/÷
+let wsDecLevel = 1;     // 1 | 2 — delas av Decimal × och Decimal ÷
+let wsNumlineType = 'graderad'; // 'graderad' | 'oppen' — endast Tallinjeblad
+let wsProblems = [];
+
+// Rendera ett uttryck utifrån dess parts-lista (se kommentaren högst upp i filen).
+function renderPart(part) {
+  if (part.t === 'frac') {
+    return `<span class="ws-frac"><span class="ws-frac-num">${part.num}</span><span class="ws-frac-den">${part.den}</span></span>`;
+  }
+  if (part.t === 'bigfrac') {
+    const topHTML = part.top.map(renderPart).join(' ');
+    const bottomHTML = part.bottom.map(renderPart).join(' ');
+    return `<span class="ws-bigfrac"><span class="ws-bigfrac-top">${topHTML}</span><span class="ws-bigfrac-bottom">${bottomHTML}</span></span>`;
+  }
+  return `<span>${part.text}</span>`;
+}
+function wsProblemHTML(p) {
+  return `<span class="wexpr">${p.parts.map(renderPart).join(' ')}</span>`;
+}
+
+// Formaterar ett svar för facit/rättning. Heltal och decimaltal skrivs rakt
+// av; bråk visas förkortat, och om det är oäkta (|num| ≥ nämnare) läggs
+// blandad form till inom parentes, eftersom pedagogiken vill se svar i
+// blandad form när det är naturligt — men eleven matar in täljare/nämnare,
+// så båda behöver visas.
+function fracInlineHTML(n, d) {
+  return `<span class="ws-frac" style="margin:0 3px;"><span class="ws-frac-num">${n}</span><span class="ws-frac-den">${d}</span></span>`;
+}
+function wsAnswerHTML(p) {
+  if (p.answerKind === 'integer') return String(p.answer);
+  if (p.answerKind === 'decimal') return intToDecimalStr(p.answer.value, p.answer.dp, false);
+  const { num, den } = p.answer;
+  if (den === 1) return String(num);
+  if (Math.abs(num) < den) return fracInlineHTML(num, den);
+  const m = toMixed(num, den);
+  return `${fracInlineHTML(num, den)}<span style="color:var(--muted);font-weight:400;">&nbsp;(=&nbsp;${m.whole}&nbsp;</span>${fracInlineHTML(m.num, m.den)}<span style="color:var(--muted);font-weight:400;">)</span>`;
+}
+
+function genOneProblem() {
+  const ids = Array.from(wsActiveCategories);
+  const id = ids[wsRandInt(0, ids.length - 1)];
+  return CATEGORIES[id].gen();
+}
+
+// En blank tallinje med bara 0:an markerad — eleven får själv peka ut var
+// starttalet ligger, rita pilar för riktning och skriva ut antal steg.
+function wsGradedNumberLineSVG() {
+  const W = 640, H = 46, marginX = 16, N = 31; // 31 omärkta streck: -15..15, bara 0 får en siffra
+  const usableW = W - marginX * 2;
+  let ticks = '';
+  for (let i = 0; i < N; i++) {
+    const val = i - 15;
+    const x = marginX + (usableW * i / (N - 1));
+    const isZero = val === 0;
+    const tickH = isZero ? 13 : 7;
+    ticks += `<line x1="${x.toFixed(1)}" y1="${H/2-tickH}" x2="${x.toFixed(1)}" y2="${H/2+tickH}" stroke="#100e28" stroke-width="${isZero?2.2:1.1}"/>`;
+    if (isZero) {
+      ticks += `<text x="${x.toFixed(1)}" y="${H/2+24}" font-family="Sora" font-size="12" font-weight="700" text-anchor="middle" fill="#100e28">0</text>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${W} ${H+16}" class="ws-numline" preserveAspectRatio="none">
+    <line x1="${marginX}" y1="${H/2}" x2="${W-marginX}" y2="${H/2}" stroke="#100e28" stroke-width="1.5"/>
+    ${ticks}
+  </svg>`;
+}
+
+// "Öppen" tallinje: helt tom, bara en linje med pilar i båda ändar — inget
+// 0-läge alls. Eleven markerar själv var sitt första tal "bor" (även för
+// stora tal som 245, där det inte är rimligt att skala mot en synlig 0:a)
+// och gör sedan egna hopp för nästa term, gärna uppdelat i runda steg.
+function wsOpenNumberLineSVG() {
+  const W = 640, H = 46, m = 24, cy = H / 2;
+  return `<svg viewBox="0 0 ${W} ${H+16}" class="ws-numline" preserveAspectRatio="none">
+    <line x1="${m}" y1="${cy}" x2="${W-m}" y2="${cy}" stroke="#100e28" stroke-width="1.5"/>
+    <polyline points="${W-m-9},${cy-6} ${W-m},${cy} ${W-m-9},${cy+6}" fill="none" stroke="#100e28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="${m+9},${cy-6} ${m},${cy} ${m+9},${cy+6}" fill="none" stroke="#100e28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+function wsNumberLineSVG() {
+  return (wsNumlineType === 'oppen') ? wsOpenNumberLineSVG() : wsGradedNumberLineSVG();
+}
+
+// Visar bara antals-rutan för en kategori när "Anpassa antal per typ" är på
+// OCH den kategorin faktiskt är aktiv — annars är den bara brus.
+function updateCatCountVisibility() {
+  const perType = wsPerTypeMode.checked;
+  wsCatCountInputs.forEach(inp => {
+    const active = wsActiveCategories.has(inp.dataset.cat);
+    inp.style.display = (perType && active) ? '' : 'none';
+  });
+  wsCount.disabled = perType;
+  wsCountLabel.title = perType ? 'Summan av antalen du satt per typ nedan' : '';
+}
+function currentPerTypeSum() {
+  let sum = 0;
+  wsCatCountInputs.forEach(inp => {
+    if (wsActiveCategories.has(inp.dataset.cat)) sum += Math.max(0, parseInt(inp.value, 10) || 0);
+  });
+  return sum;
+}
+function updateCountFromPerType() {
+  if (!wsPerTypeMode.checked) return;
+  wsCount.value = currentPerTypeSum();
+}
+
+// Bygger uppgiftslistan. Normalt: N slumpmässiga uppgifter jämnt spridda
+// över de aktiva kategorierna (som tidigare). I "Anpassa antal per typ":
+// exakt så många av VARJE aktiv kategori som angetts, sedan blandade så
+// att samma typ inte klumpar ihop sig i följd.
+function buildProblemSet(n) {
+  if (!wsPerTypeMode.checked) {
+    return Array.from({ length: n }, genOneProblem);
+  }
+  let list = [];
+  wsCatCountInputs.forEach(inp => {
+    const cat = inp.dataset.cat;
+    if (!wsActiveCategories.has(cat)) return;
+    const count = Math.max(0, parseInt(inp.value, 10) || 0);
+    for (let i = 0; i < count; i++) list.push(CATEGORIES[cat].gen());
+  });
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list.length ? list : Array.from({ length: n }, genOneProblem); // fallback om alla rutor står på 0
+}
+
+function renderWorksheet() {
+  const maxCount = (wsMode === 'numline') ? 20 : 60;
+  const n = Math.max(4, Math.min(maxCount, parseInt(wsCount.value, 10) || 30));
+  wsProblems = buildProblemSet(n);
+  wsScoreEl.textContent = '';
+  worksheetGrid.classList.toggle('ws-grid-single', wsMode === 'numline');
+
+  if (wsMode === 'interactive') {
+    worksheetAnswerPage.style.display = 'none'; // facit ska inte synas direkt i interaktivt läge
+    worksheetGrid.innerHTML = wsProblems.map((p, i) => {
+      const inputHTML = (p.answerKind === 'fraction')
+        ? `<span class="ws-frac-input no-print">
+             <input type="number" id="wsAnsNum${i}" title="Täljare">
+             <span class="ws-frac-input-bar"></span>
+             <input type="number" id="wsAnsDen${i}" title="Nämnare">
+           </span>`
+        : (p.answerKind === 'decimal')
+          ? `<input type="text" inputmode="decimal" class="ws-answer-input no-print" id="wsAns${i}" placeholder="t.ex. 3,5">`
+          : `<input type="number" class="ws-answer-input no-print" id="wsAns${i}">`;
+      return `
+      <div class="worksheet-problem" data-idx="${i}">
+        <span class="wnum">${i + 1}.</span>
+        ${wsProblemHTML(p)}<span>&nbsp;=</span>
+        ${inputHTML}
+        <span class="ws-feedback no-print" id="wsFeedback${i}"></span>
+      </div>`;
+    }).join('');
+  } else if (wsMode === 'numline') {
+    worksheetGrid.innerHTML = wsProblems.map((p, i) => `
+      <div class="worksheet-problem ws-numline-row">
+        <div><span class="wnum">${i + 1}.</span> ${wsProblemHTML(p)}<span>&nbsp;=&nbsp;______</span></div>
+        ${wsNumberLineSVG()}
+      </div>`).join('');
+    worksheetAnswerGrid.innerHTML = wsProblems.map((p, i) =>
+      `<div><b>${i + 1}.</b> ${wsAnswerHTML(p)}</div>`).join('');
+    worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
+  } else {
+    worksheetGrid.innerHTML = wsProblems.map((p, i) => `
+      <div class="worksheet-problem">
+        <span class="wnum">${i + 1}.</span>
+        ${wsProblemHTML(p)}<span>&nbsp;=</span>
+        <span class="wanswer-line"></span>
+      </div>`).join('');
+    worksheetAnswerGrid.innerHTML = wsProblems.map((p, i) =>
+      `<div><b>${i + 1}.</b> ${wsAnswerHTML(p)}</div>`).join('');
+    worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
+  }
+}
+
+// Bygger en liten rund badge (✓/✗) + text, delas av alla tre svarstyper.
+function wsFeedbackHTML(isCorrect, correctAnswerHTML) {
+  const badge = `<span class="ws-feedback-badge">${isCorrect ? '✓' : '✗'}</span>`;
+  return isCorrect ? `${badge} Rätt` : `${badge} Rätt svar: ${correctAnswerHTML}`;
+}
+
+function checkWorksheetAnswers() {
+  let correct = 0, answered = 0;
+  wsProblems.forEach((p, i) => {
+    const fb  = document.getElementById('wsFeedback' + i);
+    const row = document.querySelector(`.worksheet-problem[data-idx="${i}"]`);
+
+    if (p.answerKind === 'fraction') {
+      const numEl = document.getElementById('wsAnsNum' + i), denEl = document.getElementById('wsAnsDen' + i);
+      if (numEl.value === '' || denEl.value === '') { row.classList.remove('ws-correct','ws-wrong'); fb.textContent=''; return; }
+      answered++;
+      const sn = parseInt(numEl.value, 10), sd = parseInt(denEl.value, 10);
+      const isCorrect = sd !== 0 && sn * p.answer.den === p.answer.num * sd; // korsvis likhet — godtar icke förkortade svar
+      if (isCorrect) correct++;
+      row.classList.toggle('ws-correct', isCorrect);
+      row.classList.toggle('ws-wrong', !isCorrect);
+      fb.innerHTML = wsFeedbackHTML(isCorrect, wsAnswerHTML(p));
+      return;
+    }
+
+    if (p.answerKind === 'decimal') {
+      const input = document.getElementById('wsAns' + i);
+      if (input.value.trim() === '') { row.classList.remove('ws-correct','ws-wrong'); fb.textContent=''; return; }
+      answered++;
+      const parsed = parseFloat(input.value.trim().replace(',', '.'));
+      const expected = p.answer.value / Math.pow(10, p.answer.dp);
+      const isCorrect = !isNaN(parsed) && Math.abs(parsed - expected) < 1e-6;
+      if (isCorrect) correct++;
+      row.classList.toggle('ws-correct', isCorrect);
+      row.classList.toggle('ws-wrong', !isCorrect);
+      fb.innerHTML = wsFeedbackHTML(isCorrect, wsAnswerHTML(p));
+      return;
+    }
+
+    const input = document.getElementById('wsAns' + i);
+    if (input.value === '') { row.classList.remove('ws-correct','ws-wrong'); fb.textContent=''; return; }
+    answered++;
+    const isCorrect = parseInt(input.value, 10) === p.answer;
+    if (isCorrect) correct++;
+    row.classList.toggle('ws-correct', isCorrect);
+    row.classList.toggle('ws-wrong', !isCorrect);
+    fb.innerHTML = wsFeedbackHTML(isCorrect, String(p.answer));
+  });
+  wsScoreEl.textContent = `${correct} av ${answered} besvarade rätt (${wsProblems.length} totalt)`;
+}
+
+function setWorksheetMode(mode) {
+  wsMode = mode;
+  wsModePrint.classList.toggle('active', mode === 'print' || mode === 'numline');
+  wsModeInteractive.classList.toggle('active', mode === 'interactive');
+  wsAnswerKeyLabel.style.display = (mode === 'interactive') ? 'none' : '';
+  wsPrintBtn.style.display       = (mode === 'interactive') ? 'none' : '';
+  wsCheckBtn.style.display       = (mode === 'interactive') ? '' : 'none';
+  wsScoreEl.style.display        = (mode === 'interactive') ? '' : 'none';
+  document.body.classList.toggle('ws-mode-interactive', mode === 'interactive');
+  renderWorksheet();
+}
+
+// Tallinjeblad är egentligen en variant av "Skrivbar", inte ett eget jämbördigt
+// läge — och det blir bara märkligt för bråk/decimal (t.ex. bråkdivision på en
+// tallinje ger inte mening). Så kryssrutan visas bara när enbart heltalskategorier
+// är aktiva, och faller automatiskt tillbaka till vanlig "Skrivbar" annars.
+function numlineEligible() {
+  return Array.from(wsActiveCategories).every(id => id === 'intAddSub' || id === 'intMulDiv');
+}
+function updateNumlineAvailability() {
+  const eligible = numlineEligible();
+  wsNumlineLabel.style.display = eligible ? '' : 'none';
+  if (!eligible && wsNumlineToggle.checked) {
+    wsNumlineToggle.checked = false;
+    if (wsMode === 'numline') setWorksheetMode('print');
+  }
+  wsNumlineTypeGroup.style.display = (eligible && wsNumlineToggle.checked) ? '' : 'none';
+}
+function applyPrintFamilyMode() {
+  setWorksheetMode((wsNumlineToggle.checked && numlineEligible()) ? 'numline' : 'print');
+  updateNumlineAvailability();
+}
+
+// Visar bara de inställningsGRUPPER som hör till minst en just nu aktiv
+// kategori — flera kan visas samtidigt vid mixning. Grupperingen (istället
+// för att dölja enskilda kontroller huller om buller) är själva
+// dekluttringen: varje låda visar tydligt vilken kategori den hör till.
+function updateSettingsVisibility() {
+  const hasIntAddSub = wsActiveCategories.has('intAddSub');
+  const hasIntMulDiv = wsActiveCategories.has('intMulDiv');
+  const hasFracAddSub = wsActiveCategories.has('fracAddSub');
+  const hasFracMul = wsActiveCategories.has('fracMul');
+  const hasFracDiv = wsActiveCategories.has('fracDiv');
+  const hasDecimal = wsActiveCategories.has('decMul') || wsActiveCategories.has('decDiv');
+  wsIntNegGroup.style.display    = (hasIntAddSub || hasIntMulDiv) ? '' : 'none';
+  wsIntAddSubGroup.style.display = hasIntAddSub ? '' : 'none';
+  wsIntMulDivGroup.style.display = hasIntMulDiv ? '' : 'none';
+  wsFracAddSubGroup.style.display = hasFracAddSub ? '' : 'none';
+  wsFracMulGroup.style.display    = hasFracMul ? '' : 'none';
+  wsFracDivGroup.style.display    = hasFracDiv ? '' : 'none';
+  wsFracNegGroup.style.display    = (hasFracAddSub || hasFracMul || hasFracDiv) ? '' : 'none';
+  wsDecGroup.style.display        = hasDecimal ? '' : 'none';
+}
+
+function updateTitle() {
+  const ids = Array.from(wsActiveCategories);
+  wsTitle.textContent = (ids.length === 1)
+    ? `Träning — ${CATEGORIES[ids[0]].label}`
+    : `Blandad träning — ${ids.map(id => CATEGORIES[id].label).join(' · ')}`;
+}
+
+document.getElementById('wsRegenerate').addEventListener('click', renderWorksheet);
+function updateGlassToggleUI() {
+  wsGlassToggle.classList.toggle('active', document.body.classList.contains('glass-mode'));
+}
+wsGlassToggle.addEventListener('click', () => {
+  document.body.classList.toggle('glass-mode');
+  updateGlassToggleUI();
+});
+wsSettingsToggle.addEventListener('click', () => {
+  const willOpen = wsSettingsDrawer.style.display === 'none';
+  wsSettingsDrawer.style.display = willOpen ? 'flex' : 'none';
+  wsSettingsToggle.classList.toggle('active', willOpen);
+});
+wsPrintBtn.addEventListener('click', () => window.print());
+wsCheckBtn.addEventListener('click', checkWorksheetAnswers);
+wsAnswerKey.addEventListener('change', () => {
+  worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
+});
+wsModePrint.addEventListener('click', applyPrintFamilyMode);
+wsNumlineToggle.addEventListener('change', applyPrintFamilyMode);
+wsModeInteractive.addEventListener('click', () => setWorksheetMode('interactive'));
+wsIntNegative.addEventListener('change', renderWorksheet);
+wsIntAddSubLevelBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsIntAddSubLevel = parseInt(btn.dataset.level, 10);
+    wsIntAddSubLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
+wsLevelBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsLevel = parseInt(btn.dataset.level, 10);
+    wsLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
+wsIntMethodBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsIntMethod = btn.dataset.method;
+    wsIntMethodBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
+wsFracRelBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsFracRelLevel = parseInt(btn.dataset.level, 10);
+    wsFracRelBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
+wsFracMagBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsFracMagLevel = parseInt(btn.dataset.level, 10);
+    wsFracMagBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
+wsFracNegative.addEventListener('change', renderWorksheet);
+wsFracMulCancel.addEventListener('change', renderWorksheet);
+wsFracDivNested.addEventListener('change', renderWorksheet);
+wsDecLevelBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsDecLevel = parseInt(btn.dataset.level, 10);
+    wsDecLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
+wsDecNegative.addEventListener('change', renderWorksheet);
+wsNumlineTypeBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsNumlineType = btn.dataset.type;
+    wsNumlineTypeBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
+wsCatBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cat = btn.dataset.cat;
+    if (wsActiveCategories.has(cat)) {
+      if (wsActiveCategories.size === 1) return; // minst en kategori måste alltid vara aktiv
+      wsActiveCategories.delete(cat);
+      btn.classList.remove('active');
+    } else {
+      wsActiveCategories.add(cat);
+      btn.classList.add('active');
+    }
+    updateSettingsVisibility();
+    updateNumlineAvailability();
+    updateCatCountVisibility();
+    updateCountFromPerType();
+    updateTitle();
+    renderWorksheet();
+  });
+});
+wsPerTypeMode.addEventListener('change', () => {
+  updateCatCountVisibility();
+  updateCountFromPerType();
+  renderWorksheet();
+});
+wsCatCountInputs.forEach(inp => {
+  inp.addEventListener('input', () => {
+    updateCountFromPerType();
+    renderWorksheet();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════
+updateSettingsVisibility();
+updateNumlineAvailability();
+updateCatCountVisibility();
+updateGlassToggleUI();
+updateTitle();
+renderWorksheet();
+</script>
+
+</body>
+</html>
