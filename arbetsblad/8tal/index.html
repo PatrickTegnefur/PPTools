@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Räkneträning — Arbetsblad</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -25,6 +25,13 @@
   .ws-ambient span:nth-child(2){ background:var(--ak8); top:30%; right:-140px; }
   .ws-ambient span:nth-child(3){ background:var(--ak9); bottom:-160px; left:20%; }
   body.glass-mode{ background:linear-gradient(160deg,#f6f4ff 0%,#eef0ff 100%); }
+  body.glass-mode .ws-sidebar{
+    background:transparent; border-right:none; overflow-x:hidden;
+    margin:16px 0 16px 16px; border-radius:20px; box-shadow:0 20px 50px rgba(16,14,40,.10);
+    max-height:calc(100vh - 47px - 32px);
+  }
+  body.glass-mode .ws-sidebar-top{ border-radius:20px 20px 0 0; }
+  body.glass-mode .ws-table{ border-radius:0 0 18px 18px; overflow:hidden; }
   body.glass-mode .ws-sidebar-top,
   body.glass-mode .ws-sidebar-actions,
   body.glass-mode .ws-table-group{
@@ -58,12 +65,27 @@
   }
   .pt-header-theme-btn:hover{ background:rgba(255,255,255,.26); }
   .pt-header-theme-btn.active{ background:#fff; color:var(--accent); border-color:#fff; }
+  .pt-header-font-select{
+    border:1.5px solid rgba(255,255,255,.6); background:rgba(255,255,255,.14); color:#fff; border-radius:20px;
+    padding:6px 10px; font-weight:700; font-size:.82rem; cursor:pointer; font-family:'Sora',sans-serif;
+  }
+  .pt-header-font-select option{ color:#100e28; }
+
+  /* Typsnitt för själva uppgiftstexterna (skiljs från gränssnittets Sora) */
+  body.font-handwritten .worksheet-page,
+  body.font-handwritten .worksheet-answerkey,
+  body.font-handwritten .ws-title-input,
+  body.font-handwritten .ws-answer-input{ font-family:'Patrick Hand',cursive; }
+  body.font-calibri .worksheet-page,
+  body.font-calibri .worksheet-answerkey,
+  body.font-calibri .ws-title-input,
+  body.font-calibri .ws-answer-input{ font-family:Calibri,Candara,Segoe,'Segoe UI',Optima,Arial,sans-serif; }
   .worksheet-page-wrap{ min-height:100vh; background:#fff; position:relative; z-index:1; flex:1 1 auto; min-width:0; }
 
   /* ═══════════ VÄNSTER SIDOPANEL — allt urval av innehåll samlat här ═══════════ */
   .ws-layout{ display:flex; align-items:flex-start; }
   .ws-sidebar{
-    width:360px; flex:0 0 360px; position:sticky; top:47px; align-self:flex-start;
+    width:440px; flex:0 0 440px; position:sticky; top:47px; align-self:flex-start;
     max-height:calc(100vh - 47px); overflow-y:auto; background:var(--surface);
     border-right:1.5px solid var(--border); font-family:'Sora',sans-serif; z-index:2;
   }
@@ -109,19 +131,23 @@
   .ws-switch-input:checked + .ws-switch-track .ws-switch-knob{ transform:translateX(15px); }
   .ws-switch-input:focus-visible + .ws-switch-track{ outline:2px solid var(--accent); outline-offset:2px; }
   .ws-table-row{
-    display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:9px 12px;
-    border-top:1px solid var(--border);
+    display:flex; flex-direction:column; padding:9px 12px; border-top:1px solid var(--border);
   }
   .ws-table-row:first-of-type{ border-top:none; }
-  .ws-row-check{ font-size:.84rem !important; color:var(--text) !important; font-weight:700 !important; flex:0 0 auto; min-width:150px; }
-  .ws-row-controls{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; flex:1 1 auto; }
+  .ws-row-top{ display:flex; align-items:center; gap:8px; }
+  .ws-row-check{ font-size:.84rem !important; color:var(--text) !important; font-weight:700 !important; flex:1 1 auto; }
+  .ws-row-controls-wrap{
+    max-height:0; opacity:0; overflow:hidden;
+    transition:max-height .28s ease, opacity .2s ease, margin-top .28s ease;
+  }
+  .ws-row-controls{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding-left:22px; }
   .ws-row-controls label{ font-size:.74rem; white-space:nowrap; }
+  .ws-table-row.ws-row-active .ws-row-controls-wrap{ max-height:140px; opacity:1; margin-top:8px; }
   .ws-row-count{
     width:40px; padding:4px 4px; border:1.5px solid var(--border); border-radius:6px; text-align:center;
     font-weight:700; font-family:'Sora',sans-serif; flex-shrink:0;
   }
-  .ws-table-row.ws-row-disabled .ws-row-controls,
-  .ws-table-row.ws-row-disabled .ws-row-count{ opacity:.4; }
+  .ws-row-count:disabled{ opacity:.4; }
   .ws-table .ws-mode-toggle{ padding:2px; }
   .ws-table .ws-mode-btn{ padding:5px 9px; font-size:.72rem; }
   body.glass-mode .ws-table-group{ background:rgba(255,255,255,.4); border-color:var(--glass-border); }
@@ -261,6 +287,11 @@
 <header class="pt-header no-print">
   <span class="pt-header-icon">📝</span><span>Arbetsblad — Matematikportalen</span>
   <div class="wc-spacer"></div>
+  <select id="wsFontSelect" class="pt-header-font-select" title="Typsnitt för uppgiftstexterna">
+    <option value="default">Aa Sora</option>
+    <option value="handwritten">Aa Patrick Hand</option>
+    <option value="calibri">Aa Calibri</option>
+  </select>
   <button type="button" id="wsGlassToggle" class="pt-header-theme-btn" title="Byt mellan modern och klassisk vy — påverkar aldrig utskriften">🌓 Tema</button>
 </header>
 <div class="ws-ambient"><span></span><span></span><span></span></div>
@@ -292,33 +323,45 @@
       <div class="ws-table-group">
         <div class="ws-table-grouphead">
           <span class="ws-table-group-label">Heltal</span>
-          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsIntNegative" class="ws-switch-input" checked><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa tal</label>
+          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsIntNegative" class="ws-switch-input"><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa tal</label>
         </div>
         <div class="ws-table-row" data-row="intAddSub">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intAddSub" checked> Addition och subtraktion</label>
-          <div class="ws-row-controls">
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intAddSub" checked> Addition och subtraktion</label>
+            <input type="number" class="ws-row-count" data-cat="intAddSub" min="0" max="60" value="15">
+          </div>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
             <label><input type="checkbox" id="wsAdvanced"> Avancerad</label>
             <div class="ws-mode-toggle">
               <button type="button" class="ws-mode-btn ws-int-addsub-level-btn active" data-level="1" title="Tal ca 1–10">Nivå 1</button>
               <button type="button" class="ws-mode-btn ws-int-addsub-level-btn" data-level="2" title="Tal ca 1–100">Nivå 2</button>
             </div>
           </div>
-          <input type="number" class="ws-row-count" data-cat="intAddSub" min="0" max="60" value="15">
+          </div>
         </div>
         <div class="ws-table-row" data-row="intMul">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intMul"> Multiplikation</label>
-          <div class="ws-row-controls">
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intMul"> Multiplikation</label>
+            <input type="number" class="ws-row-count" data-cat="intMul" min="0" max="60" value="10" disabled>
+          </div>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
             <div class="ws-mode-toggle">
               <button type="button" class="ws-mode-btn ws-int-mul-level-btn active" data-level="1">Nivå 1</button>
               <button type="button" class="ws-mode-btn ws-int-mul-level-btn" data-level="2">Nivå 2</button>
               <button type="button" class="ws-mode-btn ws-int-mul-level-btn" data-level="3">Nivå 3</button>
             </div>
           </div>
-          <input type="number" class="ws-row-count" data-cat="intMul" min="0" max="60" value="10" disabled>
+          </div>
         </div>
         <div class="ws-table-row" data-row="intDiv">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intDiv"> Division</label>
-          <div class="ws-row-controls">
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intDiv"> Division</label>
+            <input type="number" class="ws-row-count" data-cat="intDiv" min="0" max="60" value="10" disabled>
+          </div>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
             <div class="ws-mode-toggle">
               <button type="button" class="ws-mode-btn ws-int-div-level-btn active" data-level="1">Nivå 1</button>
               <button type="button" class="ws-mode-btn ws-int-div-level-btn" data-level="2">Nivå 2</button>
@@ -330,84 +373,108 @@
               <button type="button" class="ws-mode-btn ws-int-method-btn" data-method="stort" title="3–4 siffror i täljaren, ibland med kvot i decimalform">Stort</button>
             </div>
           </div>
-          <input type="number" class="ws-row-count" data-cat="intDiv" min="0" max="60" value="10" disabled>
+          </div>
         </div>
       </div>
 
       <div class="ws-table-group">
         <div class="ws-table-grouphead">
           <span class="ws-table-group-label">Bråk</span>
-          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsFracNegative" class="ws-switch-input" checked><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa bråk</label>
+          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsFracNegative" class="ws-switch-input"><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa bråk</label>
         </div>
         <div class="ws-table-row" data-row="fracAddSub">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracAddSub"> Addition och subtraktion</label>
-          <div class="ws-row-controls">
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracAddSub"> Addition och subtraktion</label>
+            <input type="number" class="ws-row-count" data-cat="fracAddSub" min="0" max="60" value="10" disabled>
+          </div>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
             <div class="ws-mode-toggle">
               <button type="button" class="ws-mode-btn ws-frac-rel-btn active" data-level="1" title="T.ex. 3/8 + 2/8">Samma nämnare</button>
               <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="2" title="T.ex. 1/2 + 1/4">Multipel</button>
               <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="3" title="T.ex. 1/7 + 1/3">Relativt prima</button>
             </div>
           </div>
-          <input type="number" class="ws-row-count" data-cat="fracAddSub" min="0" max="60" value="10" disabled>
+          </div>
         </div>
         <div class="ws-table-row" data-row="fracMul">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracMul"> Multiplikation</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-frac-mag-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-frac-mag-btn" data-level="2">Nivå 2</button>
-            </div>
-            <label title="T.ex. 7/25 × 5/49 → 1/5 × 1/7"><input type="checkbox" id="wsFracMulCancel"> Förkortningsbara</label>
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracMul"> Multiplikation</label>
+            <input type="number" class="ws-row-count" data-cat="fracMul" min="0" max="60" value="10" disabled>
           </div>
-          <input type="number" class="ws-row-count" data-cat="fracMul" min="0" max="60" value="10" disabled>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
+              <div class="ws-mode-toggle">
+                <button type="button" class="ws-mode-btn ws-frac-mag-btn active" data-level="1">Nivå 1</button>
+                <button type="button" class="ws-mode-btn ws-frac-mag-btn" data-level="2">Nivå 2</button>
+              </div>
+              <label title="T.ex. 7/25 × 5/49 → 1/5 × 1/7"><input type="checkbox" id="wsFracMulCancel"> Förkortningsbara</label>
+            </div>
+          </div>
         </div>
         <div class="ws-table-row" data-row="fracDiv">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracDiv"> Division</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-frac-mag-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-frac-mag-btn" data-level="2">Nivå 2</button>
-            </div>
-            <label title="Täljaren är en multiplikation av två bråk som ska räknas ut först"><input type="checkbox" id="wsFracDivNested"> Nästlad täljare</label>
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracDiv"> Division</label>
+            <input type="number" class="ws-row-count" data-cat="fracDiv" min="0" max="60" value="10" disabled>
           </div>
-          <input type="number" class="ws-row-count" data-cat="fracDiv" min="0" max="60" value="10" disabled>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
+              <div class="ws-mode-toggle">
+                <button type="button" class="ws-mode-btn ws-frac-mag-btn active" data-level="1">Nivå 1</button>
+                <button type="button" class="ws-mode-btn ws-frac-mag-btn" data-level="2">Nivå 2</button>
+              </div>
+              <label title="Täljaren är en multiplikation av två bråk som ska räknas ut först"><input type="checkbox" id="wsFracDivNested"> Nästlad täljare</label>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="ws-table-group">
         <div class="ws-table-grouphead">
           <span class="ws-table-group-label">Decimaltal</span>
-          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsDecNegative" class="ws-switch-input" checked><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa decimaltal</label>
+          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsDecNegative" class="ws-switch-input"><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa decimaltal</label>
         </div>
         <div class="ws-table-row" data-row="decAddSub">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decAddSub"> Addition och subtraktion</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-dec-addsub-level-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-dec-addsub-level-btn" data-level="2">Nivå 2</button>
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decAddSub"> Addition och subtraktion</label>
+            <input type="number" class="ws-row-count" data-cat="decAddSub" min="0" max="60" value="10" disabled>
+          </div>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
+              <div class="ws-mode-toggle">
+                <button type="button" class="ws-mode-btn ws-dec-addsub-level-btn active" data-level="1">Nivå 1</button>
+                <button type="button" class="ws-mode-btn ws-dec-addsub-level-btn" data-level="2">Nivå 2</button>
+              </div>
             </div>
           </div>
-          <input type="number" class="ws-row-count" data-cat="decAddSub" min="0" max="60" value="10" disabled>
         </div>
         <div class="ws-table-row" data-row="decMul">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decMul"> Multiplikation</label>
-          <div class="ws-row-controls">
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decMul"> Multiplikation</label>
+            <input type="number" class="ws-row-count" data-cat="decMul" min="0" max="60" value="10" disabled>
+          </div>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
             <div class="ws-mode-toggle">
               <button type="button" class="ws-mode-btn ws-dec-level-btn active" data-level="1">Nivå 1</button>
               <button type="button" class="ws-mode-btn ws-dec-level-btn" data-level="2">Nivå 2</button>
             </div>
           </div>
-          <input type="number" class="ws-row-count" data-cat="decMul" min="0" max="60" value="10" disabled>
+          </div>
         </div>
         <div class="ws-table-row" data-row="decDiv">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decDiv"> Division</label>
-          <div class="ws-row-controls">
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decDiv"> Division</label>
+            <input type="number" class="ws-row-count" data-cat="decDiv" min="0" max="60" value="10" disabled>
+          </div>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
             <div class="ws-mode-toggle">
               <button type="button" class="ws-mode-btn ws-dec-level-btn active" data-level="1">Nivå 1</button>
               <button type="button" class="ws-mode-btn ws-dec-level-btn" data-level="2">Nivå 2</button>
             </div>
           </div>
-          <input type="number" class="ws-row-count" data-cat="decDiv" min="0" max="60" value="10" disabled>
+          </div>
         </div>
       </div>
     </div>
@@ -514,6 +581,12 @@ function wsIntTerm(maxAbs) {
   const mag = wsRandNonZero(1, maxAbs);
   return (wsIntNegative.checked && Math.random() < 0.5) ? -mag : mag;
 }
+// Samma sak, men utesluter ental (1/-1) — används för nämnare/divisorer och
+// multiplikationsfaktorer, så vi undviker triviala uppgifter som "5/1" eller "1 × 7".
+function wsIntTermNoUnit(maxAbs) {
+  const mag = wsRandInt(2, Math.max(2, maxAbs));
+  return (wsIntNegative.checked && Math.random() < 0.5) ? -mag : mag;
+}
 
 function genWorksheetProblem(advanced) {
   const big = (wsIntAddSubLevel === 2);
@@ -549,7 +622,7 @@ function genWorksheetProblem(advanced) {
 
 function genIntDivisionKort(level) {
   if (level === 1) {
-    const d = wsIntTerm(9);
+    const d = wsIntTermNoUnit(9);
     const q = wsIntTerm(9);
     const n = d * q;
     return { num: fmtNum(n), den: fmtNum(d), answer: q, isFraction: true };
@@ -557,14 +630,14 @@ function genIntDivisionKort(level) {
   if (level === 2) {
     for (let i = 0; i < 60; i++) {
       const a = wsIntTerm(6), b = wsIntTerm(6);
-      const c = wsIntTerm(5), d = wsIntTerm(5);
+      const c = wsIntTermNoUnit(5), d = wsIntTermNoUnit(5);
       const N = a * b, D = c * d;
       if (D !== 0 && N % D === 0) {
         return { num: `${fmtNum(a)} × ${fmtNum(b)}`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: N / D, isFraction: true };
       }
     }
     // Garanterat jämnt fallback om slumpen inte gav en delbar kombination
-    const c = wsIntTerm(5), d = wsIntTerm(5);
+    const c = wsIntTermNoUnit(5), d = wsIntTermNoUnit(5);
     const q = wsIntTerm(6);
     const D = c * d;
     return { num: `${fmtNum(D * q)} × 1`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: q, isFraction: true };
@@ -583,10 +656,10 @@ function genIntDivisionKort(level) {
       D = (dOp === '+') ? d1 + d2 : d1 - d2;
       denText = `${fmtNum(d1)} ${dOp} ${fmtNum(d2)}`;
     } else {
-      D = wsIntTerm(6);
+      D = wsIntTermNoUnit(6);
       denText = fmtNum(D);
     }
-    if (D !== 0 && N !== 0 && N % D === 0) {
+    if (D !== 0 && Math.abs(D) !== 1 && N !== 0 && N % D === 0) {
       return { num: `${fmtNum(n1)} ${nOp} ${fmtNum(n2)}`, den: denText, answer: N / D, isFraction: true };
     }
   }
@@ -642,14 +715,14 @@ function genIntDivision(level) {
 // Nivå 1: två faktorer. Nivå 2: tre faktorer. Nivå 3: fyra faktorer.
 function genIntMultiplication(level) {
   if (level === 1) {
-    const a = wsIntTerm(9), b = wsIntTerm(9);
+    const a = wsIntTermNoUnit(9), b = wsIntTermNoUnit(9);
     return { text: `${fmtNum(a)} × ${fmtNum(b)}`, answer: a * b, isFraction: false };
   }
   if (level === 2) {
-    const a = wsIntTerm(6), b = wsIntTerm(6), c = wsIntTerm(6);
+    const a = wsIntTermNoUnit(6), b = wsIntTermNoUnit(6), c = wsIntTermNoUnit(6);
     return { text: `${fmtNum(a)} × ${fmtNum(b)} × ${fmtNum(c)}`, answer: a * b * c, isFraction: false };
   }
-  const a = wsIntTerm(5), b = wsIntTerm(5), c = wsIntTerm(5), d = wsIntTerm(5);
+  const a = wsIntTermNoUnit(5), b = wsIntTermNoUnit(5), c = wsIntTermNoUnit(5), d = wsIntTermNoUnit(5);
   return { text: `${fmtNum(a)} × ${fmtNum(b)} × ${fmtNum(c)} × ${fmtNum(d)}`, answer: a * b * c * d, isFraction: false };
 }
 
@@ -732,11 +805,9 @@ function genDecimalDiv() {
   if (wsDecNegative.checked && Math.random() < 0.5) { n2 = -n2; sign *= -1; }
 
   return {
-    parts: [
-      { t: 'txt', text: intToDecimalStr(n1, p, true) },
-      { t: 'txt', text: '÷' },
-      { t: 'txt', text: intToDecimalStr(n2, p, true) },
-    ],
+    // Bråkform — samma stapelbråks-utseende (täljare/nämnare) som Bråk +/−,
+    // inte ÷-tecken och inte en amerikansk "long division"-bracket.
+    parts: [{ t: 'frac', num: intToDecimalStr(n1, p, true), den: intToDecimalStr(n2, p, true) }],
     answerKind: 'integer', answer: sign * q,
   };
 }
@@ -908,13 +979,13 @@ function adaptLegacy(p) {
 const CATEGORIES = {
   intAddSub:  { label: 'Heltal +/−',        group: 'Heltal',  gen: () => adaptLegacy(genWorksheetProblem(wsAdvanced.checked)) },
   intMul:     { label: 'Heltal ×',          group: 'Heltal',  gen: () => adaptLegacy(genIntMultiplication(wsIntMulLevel)) },
-  intDiv:     { label: 'Heltal ÷',          group: 'Heltal',  gen: () => adaptLegacy(genIntDivision(wsIntDivLevel)) },
+  intDiv:     { label: 'Heltal division',       group: 'Heltal',  gen: () => adaptLegacy(genIntDivision(wsIntDivLevel)) },
   fracAddSub: { label: 'Bråk +/−',          group: 'Bråk',    gen: genFractionAddSub },
   fracMul:    { label: 'Bråk ×',            group: 'Bråk',    gen: genFractionMul },
-  fracDiv:    { label: 'Bråk ÷',            group: 'Bråk',    gen: genFractionDiv },
+  fracDiv:    { label: 'Bråk division',         group: 'Bråk',    gen: genFractionDiv },
   decAddSub:  { label: 'Decimaltal +/−',    group: 'Decimal', gen: genDecimalAddSub },
   decMul:     { label: 'Decimaltal ×',      group: 'Decimal', gen: genDecimalMul },
-  decDiv:     { label: 'Decimaltal ÷',      group: 'Decimal', gen: genDecimalDiv },
+  decDiv:     { label: 'Decimaltal division',   group: 'Decimal', gen: genDecimalDiv },
 };
 let wsActiveCategories = new Set(['intAddSub']);
 
@@ -953,6 +1024,7 @@ const wsRowCounts  = Array.from(document.querySelectorAll('.ws-row-count'));
 const wsTotalCountEl = document.getElementById('wsTotalCount');
 const wsPrintBtn = document.getElementById('wsPrint');
 const wsGlassToggle = document.getElementById('wsGlassToggle');
+const wsFontSelect = document.getElementById('wsFontSelect');
 const wsCheckBtn = document.getElementById('wsCheck');
 const wsScoreEl  = document.getElementById('wsScore');
 
@@ -1213,13 +1285,13 @@ function applyPrintFamilyMode() {
   updateNumlineAvailability();
 }
 
-// Radens kryssruta styr bara vilken FÄRG/opacitet raden har och om dess
-// kontroller (nivåer, antal) är klickbara — raden själv försvinner aldrig
-// eller byts ut, så inget "poppar upp" på oväntade ställen längre.
+// Radens kryssruta styr en riktig accordion: kontrollerna (nivåer, metod,
+// checkboxar) fälls ut mjukt när räknesättet är aktiverat, och fälls ihop
+// kompakt annars — förutsägbart och begränsat till just den egna raden.
 function updateRowEnabledState(row) {
   const cb = row.querySelector('.ws-row-toggle');
   const on = cb.checked;
-  row.classList.toggle('ws-row-disabled', !on);
+  row.classList.toggle('ws-row-active', on);
   row.querySelectorAll('.ws-row-controls button, .ws-row-controls input, .ws-row-count').forEach(el => { el.disabled = !on; });
 }
 function updateAllRowStates() {
@@ -1245,6 +1317,10 @@ function updateGlassToggleUI() {
 wsGlassToggle.addEventListener('click', () => {
   document.body.classList.toggle('glass-mode');
   updateGlassToggleUI();
+});
+wsFontSelect.addEventListener('change', () => {
+  document.body.classList.remove('font-handwritten', 'font-calibri');
+  if (wsFontSelect.value !== 'default') document.body.classList.add('font-' + wsFontSelect.value);
 });
 wsPrintBtn.addEventListener('click', () => window.print());
 wsCheckBtn.addEventListener('click', checkWorksheetAnswers);

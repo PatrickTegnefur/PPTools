@@ -776,7 +776,8 @@
 
     <!-- klunga vid uttrycksrutan: visa/dölj, växla tecken, visa lösning -->
     <button class="pearl-nav-btn" id="canvasBtnExprToggle" title="Visa/dölj uttrycket">𝑓</button>
-    <button class="pearl-nav-btn invert-right" id="canvasBtnInvert" title="Växla + / −">+</button>
+    <button class="pearl-nav-btn invert-right" id="canvasBtnInvert" title="Växla räknesätt + / −">+</button>
+    <button class="pearl-nav-btn" id="canvasBtnT2Sign" title="Växla tecken på andra termen (t.ex. 5 + 2 ↔ 5 + (−2))">±</button>
     <button class="pearl-nav-btn" id="canvasBtnReveal" title="Visa lösning">👁</button>
     <button class="pearl-nav-btn pearl-nav-btn-lg" id="canvasBtnBeak" title="Visa/dölj näbben (riktningen)">👃</button>
   </div>
@@ -912,6 +913,7 @@
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">L</kbd><span style="font-size:.82rem;color:var(--muted);">Lås tallinje (−12 till 12)</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">S</kbd><span style="font-size:.82rem;color:var(--muted);">Små/stora kliv</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">N</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj näbben</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">T</kbd><span style="font-size:.82rem;color:var(--muted);">Växla tecken på andra termen</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">+ / −</kbd><span style="font-size:.82rem;color:var(--muted);">Växla operator</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">U</kbd><span style="font-size:.82rem;color:var(--muted);">Uttalat uttryck</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">E</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj uttrycket</span>
@@ -2473,6 +2475,15 @@ function invertOperator() {
 }
 btnInvertOp.addEventListener('click', invertOperator);
 
+// Växlar tecknet på ANDRA TERMEN specifikt (t.ex. 5 + 2 ↔ 5 + (−2)),
+// oberoende av räknesättet — samma idé som invertOperator men för t2.
+function invertT2Sign() {
+  if (S.animating) return;
+  setExpr(S.t1, S.op, -S.t2, false);
+}
+const ltBtnT2Sign = document.getElementById('canvasBtnT2Sign');
+ltBtnT2Sign.addEventListener('click', invertT2Sign);
+
 function openExprEditor() {
   if (S.animating) return;
   const { sx, sy } = getCanvasScale();
@@ -2731,6 +2742,13 @@ function updateLeftToolbar() {
   const facingRight = S.op === '+';
   ltBtnInvert.className = 'pearl-nav-btn ' + (facingRight ? 'invert-right' : 'invert-left');
   ltBtnInvert.textContent = facingRight ? '+' : '−';
+
+  // Andra termens tecken — samma teal/rosa-princip, men oberoende av räknesättet
+  const t2Positive = S.t2 >= 0;
+  ltBtnT2Sign.className = 'pearl-nav-btn ' + (t2Positive ? 'invert-right' : 'invert-left');
+  ltBtnT2Sign.title = t2Positive
+    ? 'Gör andra termen negativ (just nu ' + fmtNum(S.t2) + ')'
+    : 'Gör andra termen positiv (just nu ' + fmtNum(S.t2) + ')';
 
   // Kang
   ltBtnKang.className = 'lt-switch-row' + (S.kangMode ? ' active kang-on' : '');
@@ -3916,10 +3934,10 @@ function positionPearlNavButtons() {
     btn.style.top  = y + 'px';
   });
 
-  // Klunga vid uttrycksrutan: visa/dölj, växla tecken, visa lösning, näbb — direkt under rutan
+  // Klunga vid uttrycksrutan: visa/dölj, växla räknesätt, växla termtecken, visa lösning, näbb
   const ey  = canvasOffsetTop + (exprBoxRect.y + exprBoxRect.h + 18) * sy;
-  const exs = [exprBoxRect.x + 14, exprBoxRect.x + 46, exprBoxRect.x + 78, exprBoxRect.x + 114];
-  [ltBtnExpr, ltBtnInvert, ltBtnReveal, ltBtnBeak].forEach((btn, i) => {
+  const exs = [exprBoxRect.x + 14, exprBoxRect.x + 44, exprBoxRect.x + 74, exprBoxRect.x + 104, exprBoxRect.x + 140];
+  [ltBtnExpr, ltBtnInvert, ltBtnT2Sign, ltBtnReveal, ltBtnBeak].forEach((btn, i) => {
     btn.style.left = (canvasOffsetLeft + exs[i] * sx) + 'px';
     btn.style.top  = ey + 'px';
   });
@@ -4529,6 +4547,8 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
         e.preventDefault(); if (S.op !== '+') invertOperator(); break;
       case '-': case '_':
         e.preventDefault(); if (S.op !== '−') invertOperator(); break;
+      case 't': case 'T':
+        e.preventDefault(); invertT2Sign(); break;
       case 'u': case 'U':
         e.preventDefault();
         if (!S.showUtterance) { S.showUtterance=true; S.showFullUtterance=false; }
