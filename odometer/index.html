@@ -4,485 +4,522 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Positionssystemet – Trippmätare</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f6f4ff;
-    --surface: #fff;
-    --surface2: #eae6ff;
-    --border: #ccc5f0;
-    --text: #100e28;
-    --muted: #585078;
-    --accent: #306BF0;
-    --accent2: #EC6095;
-    --shadow: rgba(48,107,240,.12);
-    --DH: 56px;
-    --DW: 54px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Sora', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2.5rem 1rem 3rem;
-  }
+:root {
+  --bg:      #f6f4ff;
+  --surface: #ffffff;
+  --surface2:#eae6ff;
+  --border:  #ccc5f0;
+  --text:    #100e28;
+  --muted:   #585078;
+  --accent:  #306BF0;
+  --accent2: #EC6095;
+  --shadow:  rgba(48,107,240,.12);
+  --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+  --DH: 60px;
+  --DW: 56px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Sora',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:0 1rem 3rem;
+  overflow-x:hidden;
+  position:relative;
+}
 
-  /* ODOMETER SHELL */
-  .odo-wrap {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 18px;
-    padding: 1.2rem 1.6rem 1rem;
-    box-shadow: 0 4px 24px var(--shadow);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 1.4rem;
-  }
+/* Ambient blobs */
+.blob{position:fixed;border-radius:50%;filter:blur(72px);opacity:.22;pointer-events:none;z-index:0;}
+.blob-1{width:340px;height:340px;background:#66C7C2;top:-80px;left:-100px;}
+.blob-2{width:280px;height:280px;background:#F4A261;top:200px;right:-80px;}
+.blob-3{width:220px;height:220px;background:#EC6095;bottom:60px;left:60px;}
 
-  .ctrl-row {
-    display: flex;
-    align-items: center;
-  }
+/* Header */
+header{
+  width:100%;height:52px;
+  background:var(--gradient);
+  display:flex;align-items:center;
+  padding:0 1.4rem;
+  margin-bottom:1.6rem;
+  position:relative;z-index:10;
+  box-shadow:0 4px 20px rgba(0,0,0,.18);
+}
+header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;color:#fff;letter-spacing:.02em;}
+.header-chip{
+  margin-left:10px;background:rgba(255,255,255,.22);color:#fff;
+  font-size:.65rem;font-weight:600;padding:2px 8px;border-radius:99px;
+  letter-spacing:.04em;text-transform:uppercase;
+}
 
-  .drum-col {
-    width: var(--DW);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+/* Glass card */
+.glass-card{
+  position:relative;z-index:1;
+  background:rgba(255,255,255,.58);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid rgba(255,255,255,.72);
+  border-radius:20px;
+  box-shadow:0 8px 40px var(--shadow);
+  padding:1.2rem 1.6rem 1rem;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  margin-bottom:1rem;
+}
+.glass-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,#d4813a,#F4A261);
+  border-radius:20px 20px 0 0;
+}
 
-  .dot-col {
-    width: 20px;
-    flex-shrink: 0;
-  }
+/* Toggle pills */
+.toggle-bar{display:flex;gap:6px;margin-bottom:2px;}
+.toggle-pill{
+  font-size:.65rem;font-weight:600;font-family:'Sora',sans-serif;
+  padding:3px 10px;border-radius:99px;
+  border:1.5px solid var(--border);
+  background:rgba(255,255,255,.6);color:var(--muted);
+  cursor:pointer;transition:all .15s;user-select:none;
+}
+.toggle-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.toggle-pill:hover:not(.active){border-color:var(--accent);color:var(--accent);}
 
-  .sep-col {
-    width: 10px;
-    flex-shrink: 0;
-  }
+/* Label rows (togglable) */
+.label-row,.value-label-row{
+  display:flex;align-items:flex-end;
+  max-height:0;overflow:hidden;
+  transition:max-height .25s ease;
+}
+.label-row.visible,.value-label-row.visible{max-height:36px;}
+.place-lbl{
+  width:var(--DW);text-align:center;
+  font-size:.52rem;font-weight:600;color:var(--muted);
+  letter-spacing:.03em;line-height:1.25;white-space:normal;padding:0 1px;
+}
+.place-lbl.dec{color:var(--accent2);}
+.place-val-lbl{
+  width:var(--DW);text-align:center;
+  font-size:.58rem;font-weight:700;color:var(--accent);
+  font-family:'Montserrat',sans-serif;
+}
+.place-val-lbl.dec{color:var(--accent2);}
+.lbl-spacer{flex-shrink:0;}
 
-  /* +/- buttons */
-  .drum-btn {
-    width: 34px;
-    height: 24px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.1s, border-color 0.1s, transform 0.08s;
-    font-family: 'Sora', sans-serif;
-    line-height: 1;
-    user-select: none;
-  }
-  .drum-btn:hover { background: var(--surface2); border-color: var(--accent); }
-  .drum-btn:active { transform: scale(0.92); }
-  .drum-btn.minus { color: var(--accent2); }
-  .drum-btn.minus:hover { border-color: var(--accent2); }
+/* +/- rows */
+.ctrl-row{display:flex;align-items:center;}
+.drum-col{width:var(--DW);display:flex;justify-content:center;}
+.dot-col,.sep-col{flex-shrink:0;}
 
-  /* DRUM ROW */
-  .drums-row {
-    display: flex;
-    align-items: center;
-    background: #18131f;
-    border-radius: 10px;
-    padding: 5px 8px;
-    box-shadow: inset 0 4px 14px rgba(0,0,0,0.6), 0 2px 8px var(--shadow);
-    position: relative;
-  }
+.drum-btn{
+  width:36px;height:24px;
+  border:1.5px solid var(--border);
+  background:rgba(255,255,255,.7);
+  border-radius:6px;cursor:pointer;
+  font-size:1rem;font-weight:700;color:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .1s,border-color .1s,transform .08s;
+  font-family:'Sora',sans-serif;line-height:1;user-select:none;
+}
+.drum-btn:hover{background:var(--surface2);border-color:var(--accent);}
+.drum-btn:active{transform:scale(.9);}
+.drum-btn.minus{color:var(--accent2);}
+.drum-btn.minus:hover{border-color:var(--accent2);}
 
-  /* center highlight window */
-  .drums-row::after {
-    content: '';
-    position: absolute;
-    left: 8px; right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    height: var(--DH);
-    border-top: 1px solid rgba(255,255,255,0.18);
-    border-bottom: 1px solid rgba(255,255,255,0.18);
-    pointer-events: none;
-    z-index: 4;
-  }
+/* Drum shell */
+.drums-row{
+  display:flex;align-items:center;
+  background:#18131f;
+  border-radius:12px;padding:6px 10px;
+  box-shadow:inset 0 4px 16px rgba(0,0,0,.65),0 3px 12px rgba(0,0,0,.25);
+  position:relative;
+}
+.drums-row::after{
+  content:'';position:absolute;left:10px;right:10px;top:50%;
+  transform:translateY(-50%);height:var(--DH);
+  border-top:1px solid rgba(255,255,255,.16);
+  border-bottom:1px solid rgba(255,255,255,.16);
+  pointer-events:none;z-index:4;
+}
+.drum{width:var(--DW);height:var(--DH);overflow:hidden;position:relative;}
+.drum::before,.drum::after{content:'';position:absolute;left:0;right:0;height:16px;z-index:3;pointer-events:none;}
+.drum::before{top:0;background:linear-gradient(to bottom,rgba(24,19,31,.93),transparent);}
+.drum::after {bottom:0;background:linear-gradient(to top,rgba(24,19,31,.93),transparent);}
 
-  /* individual drum */
-  .drum {
-    width: var(--DW);
-    height: var(--DH);
-    overflow: hidden;
-    position: relative;
-  }
+.tape{position:absolute;width:100%;will-change:transform;}
+.tape-digit{
+  width:100%;height:var(--DH);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;font-weight:700;
+  font-family:'Montserrat',sans-serif;
+  color:rgba(240,236,252,.32);user-select:none;
+}
+.tape-digit.lit{color:#fff;}
 
-  /* fade top/bottom */
-  .drum::before, .drum::after {
-    content: '';
-    position: absolute;
-    left: 0; right: 0;
-    height: 14px;
-    z-index: 3;
-    pointer-events: none;
-  }
-  .drum::before { top: 0;    background: linear-gradient(to bottom, rgba(24,19,31,0.92), transparent); }
-  .drum::after  { bottom: 0; background: linear-gradient(to top,   rgba(24,19,31,0.92), transparent); }
+.dec-dot{
+  width:22px;display:flex;align-items:center;justify-content:center;
+  font-size:2.4rem;font-weight:700;color:#F4A261;
+  flex-shrink:0;padding-bottom:4px;
+}
+.drum-sep{width:1px;height:38px;background:rgba(255,255,255,.1);flex-shrink:0;align-self:center;}
 
-  /* the scrolling tape — contains 0–9 then 0 again (11 digits total for wrap illusion) */
-  .tape {
-    position: absolute;
-    width: 100%;
-    will-change: transform;
-  }
+/* Op section */
+.op-section{
+  position:relative;z-index:1;
+  background:rgba(255,255,255,.52);
+  backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
+  border:1px solid rgba(255,255,255,.68);
+  border-radius:16px;
+  box-shadow:0 4px 20px var(--shadow);
+  padding:.8rem 1.2rem .75rem;
+  width:100%;max-width:620px;
+  margin-bottom:.7rem;
+}
+.op-title{
+  font-size:.6rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--muted);margin-bottom:.45rem;
+}
+.op-row{display:flex;flex-wrap:wrap;gap:5px;}
+.op-btn{
+  height:30px;padding:0 .8rem;border-radius:8px;
+  font-family:'Sora',sans-serif;font-size:.78rem;font-weight:600;
+  cursor:pointer;border:1.5px solid transparent;
+  transition:opacity .12s,transform .08s,background .12s;
+  white-space:nowrap;
+}
+.op-btn:active{transform:scale(.93);}
+.op-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.op-btn.add{background:#e8f0fe;color:#1a56db;border-color:#c3d3fc;}
+.op-btn.add:hover:not(:disabled){background:#d0e2fd;}
+.op-btn.sub{background:#fde8f1;color:#b03070;border-color:#f9c2d9;}
+.op-btn.sub:hover:not(:disabled){background:#fbd0e4;}
+.op-btn.mul{background:#e8f7e8;color:#166534;border-color:#bbdebb;}
+.op-btn.mul:hover:not(:disabled){background:#d1f0d1;}
+.op-btn.div{background:#fff4e5;color:#92400e;border-color:#f8d9a8;}
+.op-btn.div:hover:not(:disabled){background:#fdebc7;}
 
-  .tape-digit {
-    width: 100%;
-    height: var(--DH);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.4rem;
-    font-weight: 700;
-    color: rgba(240,236,252,0.55);
-    user-select: none;
-    transition: color 0.15s;
-  }
-  .tape-digit.lit { color: #ffffff; }
-
-  /* decimal dot */
-  .dec-dot {
-    width: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #F4A261;
-    flex-shrink: 0;
-    padding-bottom: 3px;
-  }
-
-  /* thin separator */
-  .drum-sep {
-    width: 1px;
-    height: 36px;
-    background: rgba(255,255,255,0.1);
-    flex-shrink: 0;
-    align-self: center;
-  }
-
-  /* INPUT PANEL */
-  .input-section {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 0.6rem 1.1rem;
-    box-shadow: 0 2px 12px var(--shadow);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-  }
-  .input-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .input-label {
-    font-size: 0.72rem;
-    color: var(--muted);
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .divider {
-    width: 1px;
-    height: 22px;
-    background: var(--border);
-    margin: 0 4px;
-    flex-shrink: 0;
-  }
-  input[type="text"] {
-    width: 90px;
-    height: 30px;
-    border: 1.5px solid var(--border);
-    border-radius: 7px;
-    padding: 0 0.5rem;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.85rem;
-    color: var(--text);
-    background: var(--bg);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  input[type="text"]:focus { border-color: var(--accent); }
-  .action-btn {
-    height: 30px;
-    padding: 0 0.75rem;
-    border: 1.5px solid var(--accent);
-    background: var(--accent);
-    color: #fff;
-    border-radius: 7px;
-    font-family: 'Sora', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: opacity 0.12s, transform 0.08s;
-  }
-  .action-btn:hover { opacity: 0.85; }
-  .action-btn:active { transform: scale(0.97); }
-  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .reset-btn { background: transparent; border-color: var(--border); color: var(--muted); }
-  .reset-btn:hover { border-color: var(--accent2); color: var(--accent2); opacity: 1; }
-  .error-msg { font-size: 0.72rem; color: #e02020; min-height: 1em; padding-left: 2px; }
-  .val-disp { font-size: 0.78rem; color: var(--muted); text-align: center; }
-  .val-disp strong { color: var(--accent); }
+/* Input panel */
+.input-panel{
+  position:relative;z-index:1;
+  background:rgba(255,255,255,.52);
+  backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
+  border:1px solid rgba(255,255,255,.68);
+  border-radius:16px;
+  box-shadow:0 4px 20px var(--shadow);
+  padding:.6rem 1.1rem;
+  width:100%;max-width:620px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.input-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.input-label{font-size:.7rem;color:var(--muted);font-weight:600;white-space:nowrap;}
+.divider-v{width:1px;height:22px;background:var(--border);margin:0 3px;flex-shrink:0;}
+input[type="text"]{
+  width:82px;height:28px;
+  border:1.5px solid var(--border);border-radius:7px;
+  padding:0 .45rem;
+  font-family:'Sora',sans-serif;font-size:.82rem;
+  color:var(--text);background:rgba(255,255,255,.8);
+  outline:none;transition:border-color .15s;
+}
+input[type="text"]:focus{border-color:var(--accent);}
+.action-btn{
+  height:28px;padding:0 .7rem;
+  border:1.5px solid var(--accent);background:var(--accent);color:#fff;
+  border-radius:7px;font-family:'Sora',sans-serif;font-size:.72rem;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:opacity .12s,transform .08s;
+}
+.action-btn:hover{opacity:.85;}
+.action-btn:active{transform:scale(.96);}
+.action-btn:disabled{opacity:.4;cursor:not-allowed;}
+.reset-btn{background:transparent;border-color:var(--border);color:var(--muted);}
+.reset-btn:hover{border-color:var(--accent2);color:var(--accent2);opacity:1;}
+.error-msg{font-size:.7rem;color:#e02020;min-height:1em;}
 </style>
 </head>
 <body>
 
-<div class="odo-wrap">
-  <div class="ctrl-row" id="plusRow"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<header>
+  <h1>Positionssystemet</h1>
+  <span class="header-chip">För läraren</span>
+</header>
+
+<div class="glass-card">
+  <div class="toggle-bar">
+    <button class="toggle-pill" id="pillNames"  onclick="toggleNames()">Positionsnamn</button>
+    <button class="toggle-pill" id="pillValues" onclick="toggleValues()">Positionsvärden</button>
+  </div>
+  <div class="label-row"       id="labelRow"></div>
+  <div class="value-label-row" id="valueLabelRow"></div>
+  <div class="ctrl-row"  id="plusRow"></div>
   <div class="drums-row" id="drumsRow"></div>
-  <div class="ctrl-row" id="minusRow"></div>
+  <div class="ctrl-row"  id="minusRow"></div>
 </div>
 
-<div class="input-section">
+<div class="op-section">
+  <div class="op-title">Addera &amp; Subtrahera</div>
+  <div class="op-row" id="addSubRow"></div>
+</div>
+
+<div class="op-section">
+  <div class="op-title">Multiplicera &amp; Dividera (tiotalsfaktorer)</div>
+  <div class="op-row" id="mulDivRow"></div>
+</div>
+
+<div class="input-panel">
   <div class="input-row">
     <span class="input-label">Ange tal:</span>
     <input type="text" id="setInput" autocomplete="off">
     <button class="action-btn" onclick="applySet()">Sätt</button>
     <button class="action-btn reset-btn" onclick="resetAll()">Nollställ</button>
-    <div class="divider"></div>
+    <div class="divider-v"></div>
     <span class="input-label">Beräkna:</span>
     <input type="text" id="addInput" autocomplete="off">
-    <button class="action-btn" id="addBtn" onclick="startAdd()">Utför</button>
+    <button class="action-btn" id="addBtn" onclick="startCustomAdd()">Utför</button>
   </div>
   <div class="error-msg" id="errorMsg"></div>
 </div>
 
 <script>
-// 9 drums: index 0=hundratusental … 5=ental, 6=tiondel, 7=hundradel, 8=tusendel
-const PLACE_VALUES = [100000, 10000, 1000, 100, 10, 1, 0.1, 0.01, 0.001];
+// ── Constants ────────────────────────────────────────────────────────────────
+const PLACE_VALUES    = [100000,10000,1000,100,10,1,0.1,0.01,0.001];
+const PLACE_NAMES     = ['Hundra\u00adtusental','Tio\u00adtusental','Tusental','Hundratal','Tiotal','Ental','Tiondel','Hundradel','Tusendel'];
+const PLACE_IS_DEC    = [false,false,false,false,false,false,true,true,true];
+const PLACE_VAL_LBLS  = ['100\u202f000','10\u202f000','1\u202f000','100','10','1','0,1','0,01','0,001'];
+const DH              = 60; // px — matches --DH
 
-let digits = [0,0,0,0,0,0,0,0,0];
-let busy = false;
+// ── State ────────────────────────────────────────────────────────────────────
+// digits[0] = hundratusental, digits[8] = tusendel
+let digits     = [0,0,0,0,0,0,0,0,0];
+let busy       = false;
+let showNames  = false;
+let showVals   = false;
+
+// ── Toggle pills ─────────────────────────────────────────────────────────────
+function toggleNames() {
+  showNames = !showNames;
+  document.getElementById('pillNames').classList.toggle('active', showNames);
+  document.getElementById('labelRow').classList.toggle('visible', showNames);
+}
+function toggleValues() {
+  showVals = !showVals;
+  document.getElementById('pillValues').classList.toggle('active', showVals);
+  document.getElementById('valueLabelRow').classList.toggle('visible', showVals);
+}
 
 // ── Build DOM ────────────────────────────────────────────────────────────────
 function buildUI() {
+  buildLabelRows();
+  buildDrumRows();
+  buildOpButtons();
+}
+
+function insertSpacer(parent, w) {
+  const el = document.createElement('div');
+  el.className = 'lbl-spacer';
+  el.style.width = w;
+  parent.appendChild(el);
+}
+
+function buildLabelRows() {
+  const lr  = document.getElementById('labelRow');
+  const vlr = document.getElementById('valueLabelRow');
+  for (let i = 0; i < 9; i++) {
+    if (i === 3) { insertSpacer(lr,'10px'); insertSpacer(vlr,'10px'); }
+    if (i === 6) { insertSpacer(lr,'22px'); insertSpacer(vlr,'22px'); }
+    const cls  = 'place-lbl'     + (PLACE_IS_DEC[i] ? ' dec' : '');
+    const vcls = 'place-val-lbl' + (PLACE_IS_DEC[i] ? ' dec' : '');
+    lr.insertAdjacentHTML('beforeend',  `<div class="${cls}">${PLACE_NAMES[i]}</div>`);
+    vlr.insertAdjacentHTML('beforeend', `<div class="${vcls}">${PLACE_VAL_LBLS[i]}</div>`);
+  }
+}
+
+function buildDrumRows() {
   const plusRow  = document.getElementById('plusRow');
   const drumsRow = document.getElementById('drumsRow');
   const minusRow = document.getElementById('minusRow');
 
   for (let i = 0; i < 9; i++) {
-
-    // Separators & decimal dot BEFORE drum
+    // separators
     if (i === 3) {
-      // thin sep between group 1 and group 2
       ['plusRow','drumsRow','minusRow'].forEach(id => {
         const el = document.createElement('div');
-        el.className = id === 'drumsRow' ? 'drum-sep' : 'sep-col';
+        if (id === 'drumsRow') { el.className = 'drum-sep'; }
+        else { el.className = 'sep-col'; el.style.width = '10px'; }
         document.getElementById(id).appendChild(el);
       });
     }
     if (i === 6) {
-      // decimal dot in drum row, spacer in ctrl rows
       const dot = document.createElement('div');
       dot.className = 'dec-dot'; dot.textContent = ',';
       drumsRow.appendChild(dot);
       ['plusRow','minusRow'].forEach(id => {
         const el = document.createElement('div');
-        el.className = 'dot-col';
+        el.className = 'dot-col'; el.style.width = '22px';
         document.getElementById(id).appendChild(el);
       });
     }
 
-    // + button column
+    // + button
     const pc = document.createElement('div'); pc.className = 'drum-col';
-    const pb = document.createElement('button');
-    pb.className = 'drum-btn plus'; pb.textContent = '+';
+    const pb = document.createElement('button'); pb.className = 'drum-btn plus'; pb.textContent = '+';
     pb.addEventListener('click', () => userStep(i, 1));
     pc.appendChild(pb); plusRow.appendChild(pc);
 
     // drum
-    const drum = document.createElement('div');
-    drum.className = 'drum'; drum.id = `d${i}`;
+    const drum = document.createElement('div'); drum.className = 'drum'; drum.id = `d${i}`;
     drum.appendChild(makeTape(0));
     drumsRow.appendChild(drum);
 
-    // − button column
+    // − button
     const mc = document.createElement('div'); mc.className = 'drum-col';
-    const mb = document.createElement('button');
-    mb.className = 'drum-btn minus'; mb.textContent = '−';
+    const mb = document.createElement('button'); mb.className = 'drum-btn minus'; mb.textContent = '−';
     mb.addEventListener('click', () => userStep(i, -1));
     mc.appendChild(mb); minusRow.appendChild(mc);
   }
-  refreshDisplay();
 }
 
-// ── Tape construction ────────────────────────────────────────────────────────
-// Tape has 11 cells: 0,1,2,…,9,0  — the trailing 0 lets us animate wrap-up
-// and 11 cells going the other way: 0,9,8,…,1,0 for wrap-down
-// We rebuild the tape each animation so we can always do a straight slide.
-function makeTape(currentDigit) {
-  const tape = document.createElement('div');
-  tape.className = 'tape';
-  // build 0–9 + extra 0 at bottom for wrap
-  for (let d = 0; d <= 10; d++) {
-    const cell = document.createElement('div');
-    cell.className = 'tape-digit';
-    const val = d % 10;
-    cell.textContent = val;
-    if (val === currentDigit && d < 10) cell.classList.add('lit');
-    tape.appendChild(cell);
-  }
-  positionTapeInstant(tape, currentDigit);
-  return tape;
-}
+function buildOpButtons() {
+  const addSubRow = document.getElementById('addSubRow');
+  const mulDivRow = document.getElementById('mulDivRow');
 
-const DH = () => parseInt(getComputedStyle(document.documentElement).getPropertyValue('--DH')) || 56;
+  [
+    { label:'+1000', val:1000 }, { label:'+100', val:100 }, { label:'+10', val:10 },
+    { label:'+1',    val:1    }, { label:'+0,1', val:0.1 }, { label:'+0,01', val:0.01 },
+    { label:'−0,01', val:-0.01},{ label:'−0,1',  val:-0.1}, { label:'−1',   val:-1   },
+    { label:'−10',   val:-10  },{ label:'−100',  val:-100}, { label:'−1000',val:-1000 },
+  ].forEach(op => {
+    const btn = document.createElement('button');
+    btn.className = 'op-btn ' + (op.val > 0 ? 'add' : 'sub');
+    btn.textContent = op.label;
+    btn.addEventListener('click', () => runDelta(op.val));
+    addSubRow.appendChild(btn);
+  });
 
-function positionTapeInstant(tape, digit) {
-  tape.style.transition = 'none';
-  tape.style.transform = `translateY(${-digit * DH()}px)`;
-}
-
-// ── Single drum step with real CSS transition ─────────────────────────────────
-// Strategy: always slide the tape by exactly one cell-height.
-// For wrap 9→0 (dir +1): position tape at row 9, animate to row 10 (which shows "0"),
-//   then snap tape back to row 0 without transition.
-// For wrap 0→9 (dir -1): position tape at row 0, animate to row -1,
-//   then snap to row 9.
-function animateDrum(i, dir) {
-  return new Promise(resolve => {
-    const drum = document.getElementById(`d${i}`);
-    const h = DH();
-    const cur = digits[i];
-    const next = (cur + dir + 10) % 10;
-
-    const tape = drum.querySelector('.tape');
-
-    // Determine start and end Y for the animation
-    let startY, endY;
-    if (dir > 0) {
-      // scrolling upward visually (numbers increase): translate decreases
-      if (cur === 9) {
-        // wrap: show 9, animate to the extra "0" at index 10
-        startY = -9 * h;
-        endY   = -10 * h;
-      } else {
-        startY = -cur * h;
-        endY   = -(cur + 1) * h;
-      }
-    } else {
-      // scrolling downward visually (numbers decrease): translate increases
-      if (cur === 0) {
-        // wrap: we'll append a "9" above by repositioning tape to show 9 above 0
-        // Snap tape to position 10 (the extra 0 maps to 0, so 10-1=9 is at index 9)
-        // Actually: just snap to row 1 (showing "1" in window) then appear to come from above
-        // Simpler: snap to -(-1)*h = +h (one step above 0), then slide down to 0
-        startY = h;      // one cell above 0
-        endY   = 0;
-      } else {
-        startY = -cur * h;
-        endY   = -(cur - 1) * h;
-      }
-    }
-
-    // Snap to start position
-    tape.style.transition = 'none';
-    tape.style.transform = `translateY(${startY}px)`;
-    // Update lit state for current
-    tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
-      el.classList.toggle('lit', idx % 10 === cur);
-    });
-
-    // Force reflow
-    tape.getBoundingClientRect();
-
-    // Animate to end
-    tape.style.transition = `transform 0.22s cubic-bezier(0.25, 0.8, 0.35, 1)`;
-    tape.style.transform = `translateY(${endY}px)`;
-
-    tape.addEventListener('transitionend', function onEnd() {
-      tape.removeEventListener('transitionend', onEnd);
-      digits[i] = next;
-
-      // Snap to correct resting position
-      tape.style.transition = 'none';
-      tape.style.transform = `translateY(${-next * h}px)`;
-
-      // Update lit
-      tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
-        el.classList.toggle('lit', idx % 10 === next && idx < 10);
-      });
-      resolve();
-    }, { once: true });
-
-    // Fallback in case transitionend doesn't fire
-    setTimeout(() => {
-      digits[i] = next;
-      tape.style.transition = 'none';
-      tape.style.transform = `translateY(${-next * h}px)`;
-      tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
-        el.classList.toggle('lit', idx % 10 === next && idx < 10);
-      });
-      resolve();
-    }, 350);
+  [
+    { label:'× 1000', f:1000 }, { label:'× 100', f:100 }, { label:'× 10', f:10 },
+    { label:'÷ 10',   f:0.1  }, { label:'÷ 100', f:0.01}, { label:'÷ 1000', f:0.001 },
+  ].forEach(op => {
+    const btn = document.createElement('button');
+    btn.className = 'op-btn ' + (op.f >= 1 ? 'mul' : 'div');
+    btn.textContent = op.label;
+    btn.addEventListener('click', () => runMultiply(op.f));
+    mulDivRow.appendChild(btn);
   });
 }
 
-// ── User button press: animate this drum, then carry if needed ───────────────
-async function userStep(i, dir) {
-  if (busy) return;
-  busy = true;
-  await cascadeStep(i, dir);
-  refreshDisplay();
-  busy = false;
+// ── Tape construction ─────────────────────────────────────────────────────────
+// 11 cells: 0–9 then 0 again (trailing "0" enables smooth 9→0 wrap animation)
+function makeTape(activeDigit) {
+  const tape = document.createElement('div');
+  tape.className = 'tape';
+  for (let d = 0; d <= 10; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'tape-digit';
+    const v = d % 10;
+    cell.textContent = v;
+    if (v === activeDigit && d < 10) cell.classList.add('lit');
+    tape.appendChild(cell);
+  }
+  tape.style.transition = 'none';
+  tape.style.transform  = `translateY(${-activeDigit * DH}px)`;
+  return tape;
 }
 
-// Step drum i in dir; if it wraps (9→0 when +1, or 0→9 when -1) carry into i-1
+// ── Animate one drum one step ─────────────────────────────────────────────────
+function animateDrum(i, dir) {
+  return new Promise(resolve => {
+    const drum = document.getElementById(`d${i}`);
+    const cur  = digits[i];
+    const next = (cur + dir + 10) % 10;
+    const tape = drum.querySelector('.tape');
+
+    // Compute start/end Y
+    let startY, endY;
+    if (dir > 0) {
+      // increasing: tape scrolls upward (Y decreases)
+      startY = -cur * DH;
+      endY   = (cur === 9) ? -10 * DH : -(cur + 1) * DH;
+    } else {
+      // decreasing: tape scrolls downward (Y increases)
+      startY = (cur === 0) ? DH : -cur * DH;
+      endY   = (cur === 0) ? 0  : -(cur - 1) * DH;
+    }
+
+    // Snap to start, highlight current
+    tape.style.transition = 'none';
+    tape.style.transform  = `translateY(${startY}px)`;
+    tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
+      el.classList.toggle('lit', idx % 10 === cur && idx < 10);
+    });
+
+    tape.getBoundingClientRect(); // force reflow
+
+    // Animate to end
+    tape.style.transition = 'transform 0.19s cubic-bezier(0.22,0.8,0.3,1)';
+    tape.style.transform  = `translateY(${endY}px)`;
+
+    let done = false;
+    const finish = () => {
+      if (done) return; done = true;
+      digits[i] = next;
+      tape.style.transition = 'none';
+      tape.style.transform  = `translateY(${-next * DH}px)`;
+      tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
+        el.classList.toggle('lit', idx % 10 === next && idx < 10);
+      });
+      resolve();
+    };
+    tape.addEventListener('transitionend', finish, { once: true });
+    setTimeout(finish, 320); // safety fallback
+  });
+}
+
+// ── Cascade: step drum i, carry if it wrapped ─────────────────────────────────
 async function cascadeStep(i, dir) {
   const before = digits[i];
   await animateDrum(i, dir);
   const after = digits[i];
-
-  const wrappedUp   = (dir === 1  && before === 9 && after === 0);
-  const wrappedDown = (dir === -1 && before === 0 && after === 9);
-
-  if ((wrappedUp || wrappedDown) && i > 0) {
-    await cascadeStep(i - 1, dir);
-  }
+  const wrapped = (dir === 1 && before === 9 && after === 0)
+               || (dir === -1 && before === 0 && after === 9);
+  if (wrapped && i > 0) await cascadeStep(i - 1, dir);
 }
 
-// ── Instant set (no animation) ───────────────────────────────────────────────
-function setDigitsInstant(newDigits) {
-  digits = [...newDigits];
+// ── +/- drum button ───────────────────────────────────────────────────────────
+async function userStep(i, dir) {
+  if (busy) return;
+  busy = true;
+  await cascadeStep(i, dir);
+  busy = false;
+}
+
+// ── Instant set (no animation) ────────────────────────────────────────────────
+function setDigitsInstant(nd) {
+  digits = [...nd];
   for (let i = 0; i < 9; i++) {
     const drum = document.getElementById(`d${i}`);
     drum.innerHTML = '';
     drum.appendChild(makeTape(digits[i]));
   }
-  refreshDisplay();
 }
 
+// ── Parse value string → 9-digit array ───────────────────────────────────────
 function parseToDigits(str) {
   str = str.trim().replace(',', '.');
   const n = parseFloat(str);
   if (isNaN(n)) return null;
-  const clamped = Math.max(0, Math.min(n, 999999.999));
-  const r = Math.round(clamped * 1000) / 1000;
+  // Clamp to 0 – 999 999.999
+  const r    = Math.round(Math.max(0, Math.min(n, 999999.999)) * 1000) / 1000;
   const intP = Math.floor(r);
-  const fracP = Math.round((r - intP) * 1000);
+  const frac = Math.round((r - intP) * 1000);
   return [
     Math.floor(intP / 100000) % 10,
     Math.floor(intP / 10000)  % 10,
@@ -490,67 +527,199 @@ function parseToDigits(str) {
     Math.floor(intP / 100)    % 10,
     Math.floor(intP / 10)     % 10,
     intP % 10,
-    Math.floor(fracP / 100)   % 10,
-    Math.floor(fracP / 10)    % 10,
-    fracP % 10,
+    Math.floor(frac / 100)    % 10,
+    Math.floor(frac / 10)     % 10,
+    frac % 10,
   ];
 }
 
-function applySet() {
-  clearErr();
-  const d = parseToDigits(document.getElementById('setInput').value);
-  if (!d) { showErr('Ogiltigt tal. Ange t.ex. 3456.78'); return; }
-  setDigitsInstant(d);
+// Current value from digits array (avoids float drift)
+function getCurrentMilli() {
+  // Return value in milli-units (integer) to avoid float arithmetic
+  return digits[0]*100000000 + digits[1]*10000000 + digits[2]*1000000
+       + digits[3]*100000    + digits[4]*10000    + digits[5]*1000
+       + digits[6]*100       + digits[7]*10       + digits[8];
 }
 
-// ── Animated add ─────────────────────────────────────────────────────────────
-async function startAdd() {
+function milliToDigits(m) {
+  // m is integer 0 – 999999999
+  m = Math.max(0, Math.min(Math.round(m), 999999999));
+  return [
+    Math.floor(m / 100000000) % 10,
+    Math.floor(m / 10000000)  % 10,
+    Math.floor(m / 1000000)   % 10,
+    Math.floor(m / 100000)    % 10,
+    Math.floor(m / 10000)     % 10,
+    Math.floor(m / 1000)      % 10,
+    Math.floor(m / 100)       % 10,
+    Math.floor(m / 10)        % 10,
+    m % 10,
+  ];
+}
+
+// ── Add/Subtract fixed amount (animate drum-by-drum, carry correctly) ─────────
+async function runDelta(delta) {
+  if (busy) return;
+  busy = true;
+  setAllOpBtns(true);
+
+  const deltaMilli = Math.round(delta * 1000);
+  const curMilli   = getCurrentMilli();
+  const targetMilli = Math.max(0, Math.min(curMilli + deltaMilli, 999999999));
+  const targetDig  = milliToDigits(targetMilli);
+  const sign       = deltaMilli > 0 ? 1 : -1;
+
+  // Animate each position from smallest (tusendel=8) to largest (hundratusental=0)
+  // At each position, figure out how many steps to take in 'sign' direction,
+  // using the actual current drum state (which includes any carries from previous drums).
+  for (let i = 8; i >= 0; i--) {
+    let cur  = digits[i];
+    let tgt  = targetDig[i];
+    // How many steps in 'sign' direction to get from cur to tgt?
+    let steps;
+    if (sign > 0) {
+      steps = (tgt - cur + 10) % 10;
+    } else {
+      steps = (cur - tgt + 10) % 10;
+    }
+    for (let s = 0; s < steps; s++) {
+      // Note: cascadeStep handles carry into i-1 automatically,
+      // but here we control the loop ourselves, so use animateDrum directly
+      // and handle carry below.
+      await animateDrum(i, sign);
+      await sleep(40);
+    }
+  }
+
+  // Safety snap: ensure we're exactly at target
+  setDigitsInstant(targetDig);
+
+  setAllOpBtns(false);
+  busy = false;
+}
+
+// ── Multiply / Divide by powers of ten (digits shift left or right) ───────────
+async function runMultiply(factor) {
+  if (busy) return;
+  busy = true;
+  setAllOpBtns(true);
+
+  const curMilli    = getCurrentMilli();
+  // Multiply in milli-space: ×10 = shift left 1 decimal place = ×10 in milli too
+  // factor 10   → shift digits 1 left   → milli ×10
+  // factor 0.1  → shift digits 1 right  → milli ÷10
+  const milliShiftFactor = Math.round(factor * 1000) / 1000;
+  const rawNext     = Math.round(curMilli * milliShiftFactor);
+  const targetMilli = Math.max(0, Math.min(rawNext, 999999999));
+  const targetDig   = milliToDigits(targetMilli);
+
+  // Count how many position-shifts this is
+  const positions = Math.round(Math.log10(Math.abs(factor)));
+  const dir       = factor >= 1 ? 1 : -1; // +1 = multiply (shift left), -1 = divide
+
+  // Animate: for each position shift, roll each drum to its new value
+  // We do positions passes, each time shifting the digit array by one place
+  let workDig = [...digits];
+  for (let pass = 0; pass < Math.abs(positions); pass++) {
+    // What does the digit array look like after one ×10 or ÷10 shift?
+    let shiftedDig;
+    if (dir > 0) {
+      // ×10: each digit moves one column left (to higher value column)
+      // d[0] gets d[1], d[1] gets d[2], ..., d[8] = 0
+      shiftedDig = [...workDig.slice(1), 0];
+    } else {
+      // ÷10: each digit moves one column right (to lower value column)
+      // d[0] = 0, d[1] gets d[0], ..., d[8] gets d[7]
+      shiftedDig = [0, ...workDig.slice(0, 8)];
+    }
+
+    // Animate all drums simultaneously to their new values
+    const anims = [];
+    for (let i = 0; i < 9; i++) {
+      if (workDig[i] !== shiftedDig[i]) {
+        anims.push(animateDrumToTarget(i, workDig[i], shiftedDig[i]));
+      }
+    }
+    // update digits array so animateDrumToTarget can read it
+    digits = [...workDig];
+    await Promise.all(anims);
+    digits  = [...shiftedDig];
+    workDig = [...shiftedDig];
+    await sleep(120);
+  }
+
+  // Safety snap
+  setDigitsInstant(targetDig);
+
+  setAllOpBtns(false);
+  busy = false;
+}
+
+// Animate drum i directly from 'from' to 'to' (choosing shortest rotational path)
+function animateDrumToTarget(i, from, to) {
+  return new Promise(async resolve => {
+    if (from === to) { resolve(); return; }
+
+    // Determine shortest direction
+    const cwSteps  = (to - from + 10) % 10; // steps going +1
+    const ccwSteps = (from - to + 10) % 10; // steps going -1
+    const dir   = cwSteps <= ccwSteps ? 1 : -1;
+    const steps = Math.min(cwSteps, ccwSteps);
+
+    for (let s = 0; s < steps; s++) {
+      await animateDrum(i, dir);
+      await sleep(30);
+    }
+    resolve();
+  });
+}
+
+// ── "Beräkna" field: step smallest place first, cascade naturally ─────────────
+async function startCustomAdd() {
   if (busy) return;
   clearErr();
-  const raw = document.getElementById('addInput').value.trim().replace(',', '.');
+  const raw   = document.getElementById('addInput').value.trim().replace(',', '.');
   const delta = parseFloat(raw);
-  if (isNaN(delta)) { showErr('Ange t.ex. +124 eller -50.5'); return; }
-  const dr = Math.round(delta * 1000) / 1000;
-  if (dr === 0) return;
+  if (isNaN(delta)) { showErr('Ange t.ex. +124 eller −50,5'); return; }
+  const deltaMilli = Math.round(delta * 1000);
+  if (deltaMilli === 0) return;
 
   busy = true;
   document.getElementById('addBtn').disabled = true;
+  const sign      = deltaMilli > 0 ? 1 : -1;
+  const absMilli  = Math.abs(deltaMilli);
 
-  const sign = dr > 0 ? 1 : -1;
-  // Work in milli-units (×1000) to avoid float issues
-  const absMilli = Math.round(Math.abs(dr) * 1000);
+  // Units per position in milli-space
+  const milliPerPlace = [100000000,10000000,1000000,100000,10000,1000,100,10,1];
 
-  // placeUnits in milli: tusendel=1, hundradel=10, tiondel=100, ental=1000, ...
-  const milliPerPlace = [100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1];
-
+  // Step smallest-first (tusendel → hundratusental)
   for (let i = 8; i >= 0; i--) {
-    const unit = milliPerPlace[i];
-    const steps = Math.floor(absMilli / unit) % 10;
-    // skip zero steps
+    const steps = Math.floor(absMilli / milliPerPlace[i]) % 10;
     for (let s = 0; s < steps; s++) {
-      await animateDrum(i, sign);
-      // carry cascade from this drum if it wrapped
-      // (handled inside cascadeStep, but here we do manual per-step carry)
-      refreshDisplay();
-      await sleep(55);
+      await cascadeStep(i, sign);
+      await sleep(50);
     }
   }
 
   busy = false;
   document.getElementById('addBtn').disabled = false;
-  refreshDisplay();
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-function getCurrentValue() {
-  let v = 0;
-  digits.forEach((d, i) => v += d * PLACE_VALUES[i]);
-  return Math.round(v * 1000) / 1000;
+function setAllOpBtns(disabled) {
+  document.querySelectorAll('.op-btn').forEach(b => b.disabled = disabled);
+  document.getElementById('addBtn').disabled = disabled;
 }
 
-function refreshDisplay() {}
+function applySet() {
+  clearErr();
+  const val = document.getElementById('setInput').value;
+  const d   = parseToDigits(val);
+  if (!d) { showErr('Ogiltigt tal, ange t.ex. 3456,78'); return; }
+  setDigitsInstant(d);
+}
 
 function resetAll() {
   clearErr();
@@ -563,7 +732,7 @@ function showErr(msg) { document.getElementById('errorMsg').textContent = msg; }
 function clearErr()   { document.getElementById('errorMsg').textContent = ''; }
 
 document.getElementById('setInput').addEventListener('keydown', e => { if (e.key==='Enter') applySet(); });
-document.getElementById('addInput').addEventListener('keydown', e => { if (e.key==='Enter') startAdd(); });
+document.getElementById('addInput').addEventListener('keydown', e => { if (e.key==='Enter') startCustomAdd(); });
 
 buildUI();
 </script>
