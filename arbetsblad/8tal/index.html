@@ -95,6 +95,19 @@
   }
   .ws-table-group-label{ font-size:.86rem; font-weight:800; color:var(--text); }
   .ws-neg-toggle{ font-size:.76rem !important; }
+  .ws-switch-label{ position:relative; display:inline-flex; align-items:center; gap:7px; cursor:pointer; }
+  .ws-switch-input{ position:absolute; top:0; left:0; width:34px; height:19px; opacity:0; margin:0; cursor:pointer; z-index:1; }
+  .ws-switch-track{
+    position:relative; width:34px; height:19px; background:var(--border); border-radius:999px;
+    transition:background .15s; flex-shrink:0; display:inline-block;
+  }
+  .ws-switch-knob{
+    position:absolute; top:2px; left:2px; width:15px; height:15px; background:#fff; border-radius:50%;
+    box-shadow:0 1px 3px rgba(16,14,40,.3); transition:transform .15s;
+  }
+  .ws-switch-input:checked + .ws-switch-track{ background:var(--accent); }
+  .ws-switch-input:checked + .ws-switch-track .ws-switch-knob{ transform:translateX(15px); }
+  .ws-switch-input:focus-visible + .ws-switch-track{ outline:2px solid var(--accent); outline-offset:2px; }
   .ws-table-row{
     display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:9px 12px;
     border-top:1px solid var(--border);
@@ -107,7 +120,8 @@
     width:40px; padding:4px 4px; border:1.5px solid var(--border); border-radius:6px; text-align:center;
     font-weight:700; font-family:'Sora',sans-serif; flex-shrink:0;
   }
-  .ws-table-row.ws-row-disabled{ opacity:.45; }
+  .ws-table-row.ws-row-disabled .ws-row-controls,
+  .ws-table-row.ws-row-disabled .ws-row-count{ opacity:.4; }
   .ws-table .ws-mode-toggle{ padding:2px; }
   .ws-table .ws-mode-btn{ padding:5px 9px; font-size:.72rem; }
   body.glass-mode .ws-table-group{ background:rgba(255,255,255,.4); border-color:var(--glass-border); }
@@ -121,7 +135,33 @@
     -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact;
   }
   .worksheet-page h1{ font-size:1.5rem; margin:0 0 8px; }
+  .ws-title-input{
+    display:block; width:100%; font-size:1.5rem; font-weight:700; font-family:'Sora',sans-serif;
+    color:#100e28; border:none; background:transparent; margin:0 0 8px; padding:2px 0;
+    border-bottom:1.5px dashed transparent;
+  }
+  .ws-title-input:hover, .ws-title-input:focus{ border-bottom-color:var(--border); outline:none; }
+  .ws-title-input::placeholder{ color:#b9b2e0; }
+  .ws-title-print-only{ display:none; }
+  .worksheet-footnote{ margin-top:22px; padding-top:10px; border-top:1px solid #e4e0f7; font-size:.78rem; color:var(--muted); }
+  @media print{ .ws-title-print-only{ display:block; } }
   .worksheet-meta{ font-size:.95rem; color:#585078; margin-bottom:28px; }
+
+  .ws-interactive-bar{
+    position:sticky; top:0; z-index:2; display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    padding:10px 22px; background:var(--surface); border-bottom:1.5px solid var(--border);
+    font-family:'Sora',sans-serif;
+  }
+  .ws-interactive-bar button{
+    border:1.5px solid var(--accent); background:var(--accent); color:#fff; border-radius:8px;
+    padding:7px 14px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; font-size:.82rem;
+  }
+  .ws-interactive-bar .ws-score-display{ font-size:.85rem; font-weight:700; color:var(--text); }
+  body.glass-mode .ws-interactive-bar{
+    background:var(--glass-bg); backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
+    border-color:var(--glass-border);
+  }
+  body.ws-focus-mode .ws-sidebar{ display:none; }
   .worksheet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px 48px; }
   .worksheet-grid.ws-grid-single{ grid-template-columns:1fr; max-width:700px; margin:0 auto; }
   .worksheet-problem{
@@ -252,7 +292,7 @@
       <div class="ws-table-group">
         <div class="ws-table-grouphead">
           <span class="ws-table-group-label">Heltal</span>
-          <label class="ws-neg-toggle"><input type="checkbox" id="wsIntNegative" checked> ± Negativa tal</label>
+          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsIntNegative" class="ws-switch-input" checked><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa tal</label>
         </div>
         <div class="ws-table-row" data-row="intAddSub">
           <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intAddSub" checked> Addition och subtraktion</label>
@@ -297,7 +337,7 @@
       <div class="ws-table-group">
         <div class="ws-table-grouphead">
           <span class="ws-table-group-label">Bråk</span>
-          <label class="ws-neg-toggle"><input type="checkbox" id="wsFracNegative" checked> ± Negativa bråk</label>
+          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsFracNegative" class="ws-switch-input" checked><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa bråk</label>
         </div>
         <div class="ws-table-row" data-row="fracAddSub">
           <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracAddSub"> Addition och subtraktion</label>
@@ -337,7 +377,7 @@
       <div class="ws-table-group">
         <div class="ws-table-grouphead">
           <span class="ws-table-group-label">Decimaltal</span>
-          <label class="ws-neg-toggle"><input type="checkbox" id="wsDecNegative" checked> ± Negativa decimaltal</label>
+          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsDecNegative" class="ws-switch-input" checked><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa decimaltal</label>
         </div>
         <div class="ws-table-row" data-row="decAddSub">
           <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decAddSub"> Addition och subtraktion</label>
@@ -374,11 +414,20 @@
   </aside>
 
   <div class="worksheet-page-wrap">
+    <div class="ws-interactive-bar no-print" id="wsInteractiveBar" style="display:none;">
+      <button type="button" id="wsFocusToggle" class="wc-pill-btn">🎯 Fokusläge</button>
+      <div class="wc-spacer"></div>
+      <button type="button" class="ws-btn-regenerate">🔄 Nytt arbetsblad</button>
+      <button type="button" class="ws-btn-check">✅ Rätta</button>
+      <span class="ws-score-display"></span>
+    </div>
     <div class="worksheet-page">
-      <h1 id="wsTitle">Blandad träning — positiva och negativa tal</h1>
+      <input type="text" id="wsTitle" class="ws-title-input no-print" placeholder="Taluppfattning">
+      <h1 class="ws-title-print-only" id="wsTitlePrint"></h1>
       <div class="worksheet-title-bar"></div>
-      <div class="worksheet-meta">Namn: ________________________________&nbsp;&nbsp;&nbsp;&nbsp;Datum: ______________</div>
+      <div class="worksheet-meta">Namn: ________________________________&nbsp;&nbsp;&nbsp;&nbsp;Klass: ______________</div>
       <div class="worksheet-grid" id="worksheetGrid"></div>
+      <div class="worksheet-footnote" id="wsFootnote"></div>
     </div>
 
     <div class="worksheet-page worksheet-answerkey" id="worksheetAnswerPage">
@@ -873,6 +922,10 @@ const worksheetGrid       = document.getElementById('worksheetGrid');
 const worksheetAnswerGrid = document.getElementById('worksheetAnswerGrid');
 const worksheetAnswerPage = document.getElementById('worksheetAnswerPage');
 const wsTitle     = document.getElementById('wsTitle');
+const wsTitlePrint = document.getElementById('wsTitlePrint');
+const wsFootnote  = document.getElementById('wsFootnote');
+const wsInteractiveBar = document.getElementById('wsInteractiveBar');
+const wsFocusToggle = document.getElementById('wsFocusToggle');
 const wsAdvanced  = document.getElementById('wsAdvanced');
 const wsAnswerKey = document.getElementById('wsAnswerKey');
 const wsAnswerKeyLabel = document.getElementById('wsAnswerKeyLabel');
@@ -977,16 +1030,15 @@ function wsGradedNumberLineSVG() {
   </svg>`;
 }
 
-// "Öppen" tallinje: helt tom, bara en linje med pilar i båda ändar — inget
-// 0-läge alls. Eleven markerar själv var sitt första tal "bor" (även för
-// stora tal som 245, där det inte är rimligt att skala mot en synlig 0:a)
-// och gör sedan egna hopp för nästa term, gärna uppdelat i runda steg.
+// "Öppen" tallinje: helt tom, bara en linje med EN solid pil åt höger —
+// inget 0-läge alls. Eleven markerar själv var sitt första tal "bor" (även
+// för stora tal som 245, där det inte är rimligt att skala mot en synlig
+// 0:a) och gör sedan egna hopp för nästa term, gärna uppdelat i runda steg.
 function wsOpenNumberLineSVG() {
   const W = 640, H = 46, m = 24, cy = H / 2;
   return `<svg viewBox="0 0 ${W} ${H+16}" class="ws-numline" preserveAspectRatio="none">
-    <line x1="${m}" y1="${cy}" x2="${W-m}" y2="${cy}" stroke="#100e28" stroke-width="1.5"/>
-    <polyline points="${W-m-9},${cy-6} ${W-m},${cy} ${W-m-9},${cy+6}" fill="none" stroke="#100e28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <polyline points="${m+9},${cy-6} ${m},${cy} ${m+9},${cy+6}" fill="none" stroke="#100e28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="${m}" y1="${cy}" x2="${W-m-2}" y2="${cy}" stroke="#100e28" stroke-width="1.5"/>
+    <polygon points="${W-m-14},${cy-7} ${W-m+2},${cy} ${W-m-14},${cy+7}" fill="#100e28"/>
   </svg>`;
 }
 function wsNumberLineSVG() {
@@ -1028,6 +1080,7 @@ function buildProblemSet() {
 function renderWorksheet() {
   wsProblems = buildProblemSet();
   wsScoreEl.textContent = '';
+  document.querySelectorAll('.ws-score-display').forEach(el => { el.textContent = ''; });
   worksheetGrid.classList.toggle('ws-grid-single', wsMode === 'numline');
 
   if (wsMode === 'interactive') {
@@ -1120,7 +1173,9 @@ function checkWorksheetAnswers() {
     row.classList.toggle('ws-wrong', !isCorrect);
     fb.innerHTML = wsFeedbackHTML(isCorrect, String(p.answer));
   });
-  wsScoreEl.textContent = `${correct} av ${answered} besvarade rätt (${wsProblems.length} totalt)`;
+  const scoreText = `${correct} av ${answered} besvarade rätt (${wsProblems.length} totalt)`;
+  wsScoreEl.textContent = scoreText;
+  document.querySelectorAll('.ws-score-display').forEach(el => { el.textContent = scoreText; });
 }
 
 function setWorksheetMode(mode) {
@@ -1131,6 +1186,8 @@ function setWorksheetMode(mode) {
   wsPrintBtn.style.display       = (mode === 'interactive') ? 'none' : '';
   wsCheckBtn.style.display       = (mode === 'interactive') ? '' : 'none';
   wsScoreEl.style.display        = (mode === 'interactive') ? '' : 'none';
+  wsInteractiveBar.style.display = (mode === 'interactive') ? '' : 'none';
+  if (mode !== 'interactive') document.body.classList.remove('ws-focus-mode');
   document.body.classList.toggle('ws-mode-interactive', mode === 'interactive');
   renderWorksheet();
 }
@@ -1169,12 +1226,17 @@ function updateAllRowStates() {
   document.querySelectorAll('.ws-table-row').forEach(updateRowEnabledState);
 }
 
+// Rubriken (wsTitle) är fritt redigerbar av läraren och rörs aldrig
+// automatiskt. Den löpande sammanfattningen av vad arbetsbladet tränar på
+// hamnar istället i en fotnot längst ner på sidan.
 function updateTitle() {
   const ids = Array.from(wsActiveCategories);
-  wsTitle.textContent = (ids.length === 1)
-    ? `Träning — ${CATEGORIES[ids[0]].label}`
-    : `Blandad träning — ${ids.map(id => CATEGORIES[id].label).join(' · ')}`;
+  wsFootnote.textContent = 'Tränar på: ' + ids.map(id => CATEGORIES[id].label).join(' · ');
 }
+function syncTitlePrint() {
+  wsTitlePrint.textContent = wsTitle.value.trim() || '\u00A0';
+}
+wsTitle.addEventListener('input', syncTitlePrint);
 
 document.getElementById('wsRegenerate').addEventListener('click', renderWorksheet);
 function updateGlassToggleUI() {
@@ -1280,12 +1342,19 @@ wsRowCounts.forEach(inp => {
     renderWorksheet();
   });
 });
+wsFocusToggle.addEventListener('click', () => {
+  const on = document.body.classList.toggle('ws-focus-mode');
+  wsFocusToggle.classList.toggle('active', on);
+});
+document.querySelectorAll('.ws-btn-regenerate').forEach(btn => btn.addEventListener('click', renderWorksheet));
+document.querySelectorAll('.ws-btn-check').forEach(btn => btn.addEventListener('click', checkWorksheetAnswers));
 
 // ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
 updateAllRowStates();
 updateNumlineAvailability();
+syncTitlePrint();
 updateTotalCount();
 updateGlassToggleUI();
 updateTitle();
