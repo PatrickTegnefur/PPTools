@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Bråktavla — Tegnefurs Matte</title>
+<meta name="description" content="Interaktiv bråktavla — utforska ekvivalenta bråk genom att klicka och dra rader.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Sora:wght@400;500;600&display=swap');
+
+:root{
+  --bg:        #f6f4ff;
+  --surface:   #ffffff;
+  --surface2:  #eae6ff;
+  --border:    #ccc5f0;
+  --text:      #100e28;
+  --muted:     #585078;
+  --accent:    #306BF0;
+  --accent2:   #EC6095;
+  --gradient:  linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+  --correct:   #18a348;
+  --wrong:     #e02020;
+  --shadow:    rgba(48, 107, 240, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --shadow-sm: 0 2px 8px var(--shadow);
+  --shadow-md: 0 4px 20px var(--shadow);
+  --shadow-lg: 0 8px 40px var(--shadow);
+
+  --glass-bg:     rgba(255,255,255,0.72);
+  --glass-border: rgba(255,255,255,0.9);
+}
+
+*{ box-sizing: border-box; }
+
+html{ background: var(--bg); }
+body{ margin:0; padding:0; color: var(--text); font-family: 'Sora', sans-serif;
+  -webkit-tap-highlight-color: transparent; min-height:100vh; overflow-x:hidden; position:relative; }
+
+*:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Ambient bakgrund */
+.ambient{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.ambient span{ position:absolute; border-radius:50%; filter:blur(70px); }
+.ambient span.b1{ width:440px; height:440px; background:#66C7C2; opacity:0.5; top:-120px; left:-130px; }
+.ambient span.b2{ width:480px; height:480px; background:#F4A261; opacity:0.48; top:38%; right:-160px; }
+.ambient span.b3{ width:420px; height:420px; background:#EC6095; opacity:0.5; bottom:-150px; left:14%; }
+
+header{
+  background: var(--gradient); min-height:56px; position: relative; z-index:10;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding: 8px 18px; position: sticky; top:0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+}
+header a.back{
+  color:#ffffff; text-decoration:none; font-weight:600; font-size:0.86rem;
+  display:flex; align-items:center; gap:6px; opacity:0.9;
+  padding:8px 10px; border-radius:var(--radius-sm);
+}
+header a.back:hover{ background:rgba(255,255,255,0.16); opacity:1; }
+header h1{ margin:0; color:#ffffff; font-family:'Playfair Display', serif; font-weight:700;
+  font-size:1.25rem; text-align:center; flex:1; }
+header .spacer{ width:68px; }
+
+main{ position:relative; z-index:1; max-width: 920px; margin: 0 auto; padding: 16px 14px 48px;
+  display:flex; flex-direction:column; gap:14px; }
+
+.glass{ background: var(--glass-bg); backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 16px 18px; }
+
+/* Stående bråk */
+.vfrac{ display:inline-flex; flex-direction:column; align-items:center; line-height:1;
+  font-family:'Montserrat', sans-serif; font-weight:700; color:inherit; }
+.vfrac .num{ padding-bottom:2px; border-bottom:2px solid currentColor; min-width:1em; text-align:center; }
+.vfrac .den{ padding-top:2px; min-width:1em; text-align:center; }
+.vfrac.vfrac-sm{ font-size:0.6rem; }
+.vfrac.vfrac-sm .num{ border-bottom-width:1.3px; padding-bottom:1px; }
+.vfrac.vfrac-sm .den{ padding-top:1px; }
+.vfrac.vfrac-lg{ font-size:1rem; }
+.vfrac.vfrac-xs{ font-size:0.56rem; }
+
+.wall-topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.legend{ display:flex; gap:14px; flex-wrap:wrap; font-size:0.78rem; color:var(--muted); }
+.legend span{ display:inline-flex; align-items:center; gap:5px; }
+.legend i{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+.legend i.sel{ background:var(--accent); }
+.legend i.eq{ background:var(--accent2); }
+
+.iconbar{ display:flex; gap:6px; flex:none; }
+.iconbtn{ width:32px; height:32px; border-radius:var(--radius-sm); border:1.5px solid var(--border);
+  background:var(--surface2); color:var(--accent); font-size:0.95rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition: transform 0.15s, box-shadow 0.15s; }
+.iconbtn:hover{ box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+.iconbtn:active{ transform: translateY(0); }
+.iconbtn[aria-pressed="true"]{ background:var(--accent); color:#fff; border-color:var(--accent); }
+
+/* En "rad" (delas av tallinjen och bråkraderna, för garanterad kant-i-kant) */
+.row{ display:flex; align-items:stretch; gap:6px; }
+.row-tools{ display:flex; align-items:center; justify-content:center; width:18px; flex:none; }
+.grip{ width:18px; height:22px; border-radius:6px; border:1px solid var(--border); background:var(--surface);
+  color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:grab;
+  font-size:11px; user-select:none; touch-action:none; }
+.grip:active{ cursor:grabbing; }
+.row-label{ flex:none; width:84px; display:flex; align-items:center;
+  background: var(--surface); border:1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 4px 8px; }
+.row-label .name{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:0.68rem; color:var(--text); line-height:1.1; }
+
+/* Tallinjen (samma kolumnbredder som raderna, för perfekt kantjustering) */
+.nl-row{ margin-bottom:6px; }
+.nl-zone{ flex:1; position:relative; height:78px; }
+.nl-line{ position:absolute; left:-14px; right:-26px; top:36px; height:2px; background:var(--text); }
+.nl-arrow{ position:absolute; right:-34px; top:31px; width:0; height:0;
+  border-top:6px solid transparent; border-bottom:6px solid transparent; border-left:10px solid var(--text); }
+.nl-tick{ position:absolute; top:36px; width:0; }
+.nl-tick .stem{ position:absolute; left:0; top:0; width:2px; height:8px; background:var(--text); transform:translateX(-1px); }
+.nl-tick .lbl{ position:absolute; left:0; top:12px; transform:translateX(-50%); font-size:0.66rem; color:var(--muted);
+  font-weight:600; white-space:nowrap; }
+.nl-tick.major .stem{ height:11px; }
+.nl-tick.major .lbl{ font-size:0.72rem; color:var(--text); font-weight:700; }
+
+.nl-marker{ position:absolute; top:36px; transform:translateX(-50%); transition: left 0.35s ease; }
+.nl-marker .nl-dot{ position:absolute; top:-6px; left:50%; transform:translate(-50%,0); width:13px; height:13px;
+  border-radius:50%; background:var(--accent); border:3px solid #fff; box-shadow: 0 2px 10px rgba(48,107,240,0.5); }
+.nl-marker .nl-tag{ position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+  background:var(--surface); border:1.5px solid var(--accent); border-radius:var(--radius-sm);
+  padding:6px 10px; display:flex; align-items:center; gap:8px; white-space:nowrap;
+  box-shadow: var(--shadow-sm); }
+.nl-marker .nl-tag .nl-dec{ font-size:0.8rem; color:var(--muted); font-weight:600; }
+.nl-marker .nl-tag::after{ content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  border:6px solid transparent; border-top-color:var(--accent); }
+
+/* Bråktavlan */
+.wall{ display:flex; flex-direction:column; gap:3px; }
+.frow.dragging{ box-shadow: var(--shadow-lg); border-radius: var(--radius-sm); opacity:0.96; }
+.row-placeholder{ border:2px dashed var(--accent); border-radius:8px; background:rgba(48,107,240,0.06); }
+
+.tiles{ flex:1; display:flex; gap:3px; min-height:32px; }
+.tile{ flex:1; min-width:0; border-radius: 6px; border: 1.5px solid var(--tile-border, var(--border));
+  background: var(--tile-bg, var(--surface)); color: var(--tile-text, var(--muted));
+  display:flex; align-items:center; justify-content:center; cursor:pointer; padding:1px;
+  transition: background 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s; }
+.tile:hover{ transform: translateY(-1px); }
+.tile.selected{ background: var(--accent); border-color: var(--accent); color:#fff;
+  box-shadow: 0 3px 14px rgba(48,107,240,0.4); }
+.tile.equivalent{ background: var(--accent2); border-color: var(--accent2); color:#fff;
+  box-shadow: 0 3px 14px rgba(236,96,149,0.4); animation: pulse 0.9s ease-in-out infinite alternate; }
+@keyframes pulse{ from{ filter:brightness(1);} to{ filter:brightness(1.12);} }
+
+/* Gloslista (stambråk & decimalform) */
+.glossary-title{ margin:0 0 10px; font-family:'Montserrat', sans-serif; font-weight:700; font-size:0.95rem; }
+.glossary-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap:10px; }
+.glossary-item{ background: var(--surface); border:1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding:8px 6px; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.glossary-item .arrow{ color:var(--muted); font-size:0.8rem; }
+.glossary-item .dec{ font-size:0.76rem; font-weight:600; color:var(--accent); }
+
+details.intro summary{ cursor:pointer; font-family:'Montserrat', sans-serif; font-weight:700;
+  font-size:0.92rem; color:var(--text); list-style:revert; }
+details.intro[open] summary{ margin-bottom:10px; }
+details.intro p{ margin:0 0 8px; color:var(--muted); font-size:0.9rem; line-height:1.5; }
+details.intro p:last-child{ margin-bottom:0; }
+
+@media (max-width: 640px){
+  .row-label{ width:58px; padding:4px 5px; }
+  .row-label .name{ font-size:0.6rem; }
+  header h1{ font-size:1.02rem; }
+  header .spacer{ width:0; }
+}
+
+footer{ text-align:center; color:var(--muted); font-size:0.76rem; padding:6px 0 20px; }
+</style>
+</head>
+<body>
+
+<div class="ambient"><span class="b1"></span><span class="b2"></span><span class="b3"></span></div>
+
+<header>
+  <a class="back" href="../index.html">← Verktyg</a>
+  <h1>Bråktavla</h1>
+  <div class="spacer"></div>
+</header>
+
+<main>
+  <section class="glass">
+    <div class="wall-topbar">
+      <div class="legend">
+        <span><i class="sel"></i> Markerat bråk</span>
+        <span><i class="eq"></i> Lika stort värde</span>
+      </div>
+      <div class="iconbar">
+        <button class="iconbtn" id="glossaryBtn" type="button" title="Visa/dölj stambråk & decimalform" aria-label="Visa eller dölj lista över stambråk och deras decimalform" aria-pressed="false">🔢</button>
+        <button class="iconbtn" id="clearBtn" type="button" title="Nollställ markering" aria-label="Nollställ markering">✕</button>
+        <button class="iconbtn" id="resetOrderBtn" type="button" title="Återställ ordning" aria-label="Återställ ordning på raderna">↺</button>
+      </div>
+    </div>
+
+    <div class="row nl-row" aria-hidden="true">
+      <div class="row-tools" style="visibility:hidden"></div>
+      <div class="row-label" style="visibility:hidden"></div>
+      <div class="nl-zone" id="nlZone">
+        <div class="nl-line"></div>
+        <div class="nl-arrow"></div>
+        <div id="nlTicks"></div>
+        <div class="nl-marker" id="nlMarker" hidden>
+          <div class="nl-tag" id="nlTag"></div>
+          <div class="nl-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wall" id="wall"></div>
+  </section>
+
+  <section class="glass" id="glossaryPanel" hidden>
+    <h2 class="glossary-title">Stambråk & decimalform</h2>
+    <div class="glossary-grid" id="glossaryGrid"></div>
+  </section>
+
+  <details class="glass intro">
+    <summary>Så här funkar bråktavlan ▾</summary>
+    <p><strong>Klicka</strong> på en bit i tavlan för att markera bråket från vänster kant. Rader med exakt samma värde lyser upp i en annan färg — ett sätt att <em>se</em> att bråk kan skrivas på flera sätt.</p>
+    <p><strong>Dra</strong> i handtaget ⋮⋮ för att flytta rader upp och ner — lägg till exempel fjärdedelar och åttondelar bredvid varandra för att jämföra dem extra tydligt. Handtaget kan även flyttas med piltangenterna när det är fokuserat.</p>
+  </details>
+
+  <footer>Tegnefurs Matte · PT Verktyg</footer>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var NAMES = {
+    1:"En hel", 2:"Halvor", 3:"Tredjedelar", 4:"Fjärdedelar", 5:"Femtedelar",
+    6:"Sjättedelar", 7:"Sjundedelar", 8:"Åttondelar", 9:"Niondedelar",
+    10:"Tiondedelar", 11:"Elftedelar", 12:"Tolftedelar"
+  };
+  var DENOMS = [1,2,3,4,5,6,7,8,9,10,11,12];
+
+  var wallEl = document.getElementById('wall');
+  var nlMarker = document.getElementById('nlMarker');
+  var nlTag = document.getElementById('nlTag');
+  var nlTicks = document.getElementById('nlTicks');
+
+  var selected = null; // { n, k } -> value k/n, k tiles filled from the left
+
+  function gcd(a,b){ return b===0 ? a : gcd(b, a%b); }
+
+  function hexToRgb(hex){ var v=parseInt(hex.slice(1),16); return [(v>>16)&255,(v>>8)&255,v&255]; }
+  function rgbToHex(r,g,b){
+    function h(c){ c=Math.max(0,Math.min(255,Math.round(c))); var s=c.toString(16); return s.length<2?'0'+s:s; }
+    return '#'+h(r)+h(g)+h(b);
+  }
+  function mix(hexA,hexB,t){ var a=hexToRgb(hexA), b=hexToRgb(hexB);
+    return rgbToHex(a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t); }
+  function gradientColor(t){
+    if(t<=0.5) return mix('#66C7C2','#F4A261', t/0.5);
+    return mix('#F4A261','#EC6095',(t-0.5)/0.5);
+  }
+  function lighten(hex, amount){ return mix(hex,'#ffffff',amount); }
+
+  function vfracHTML(num, den, sizeClass){
+    return '<span class="vfrac '+(sizeClass||'')+'"><span class="num">'+num+'</span><span class="den">'+den+'</span></span>';
+  }
+
+  function factorOut(n,p){ var count=0; while(n % p === 0){ n = n/p; count++; } return { n:n, count:count }; }
+
+  function decimalInfo(k,n){
+    var g = gcd(k,n); k = k/g; n = n/g;
+    if(n===1) return { text:String(k), exact:true };
+    var r2 = factorOut(n,2);
+    var r5 = factorOut(r2.n,5);
+    if(r5.n===1){
+      var maxPow = Math.max(r2.count, r5.count);
+      var mul2 = maxPow - r2.count, mul5 = maxPow - r5.count;
+      var scaled = k * Math.pow(2,mul2) * Math.pow(5,mul5);
+      var digits = String(scaled);
+      while(digits.length < maxPow) digits = '0'+digits;
+      return { text:'0,'+digits, exact:true };
+    }
+    var approx = Math.floor((k/n)*1000)/1000;
+    var digits2 = approx.toFixed(3).split('.')[1];
+    return { text:'≈0,'+digits2+'…', exact:false };
+  }
+
+  function animateReorder(mutate){
+    var rows = Array.prototype.slice.call(wallEl.querySelectorAll('.frow:not(.dragging)'));
+    var first = {};
+    rows.forEach(function(r){ first[r.dataset.n] = r.getBoundingClientRect().top; });
+    mutate();
+    var rows2 = Array.prototype.slice.call(wallEl.querySelectorAll('.frow:not(.dragging)'));
+    rows2.forEach(function(r){
+      var last = r.getBoundingClientRect().top;
+      var delta = first[r.dataset.n] - last;
+      if(delta){
+        r.style.transition = 'none';
+        r.style.transform = 'translateY('+delta+'px)';
+        requestAnimationFrame(function(){
+          r.style.transition = 'transform 0.22s ease';
+          r.style.transform = '';
+        });
+      }
+    });
+  }
+
+  function buildRow(n){
+    var row = document.createElement('div');
+    row.className = 'row frow';
+    row.dataset.n = n;
+
+    var t = (n-1)/(DENOMS.length-1);
+    var base = gradientColor(t);
+    var tint = lighten(base, 0.82);
+
+    var tools = document.createElement('div');
+    tools.className = 'row-tools';
+
+    var grip = document.createElement('div');
+    grip.className='grip'; grip.textContent='⋮⋮';
+    grip.tabIndex = 0;
+    grip.setAttribute('role','button');
+    grip.setAttribute('aria-label','Flytta raden ' + NAMES[n] + '. Dra, eller använd piltangenterna upp och ner.');
+    tools.appendChild(grip);
+
+    var label = document.createElement('div');
+    label.className='row-label';
+    label.style.borderColor = base;
+    var nameEl = document.createElement('div');
+    nameEl.className='name'; nameEl.textContent = NAMES[n];
+    label.appendChild(nameEl);
+
+    var tiles = document.createElement('div');
+    tiles.className='tiles';
+    for(var i=0;i<n;i++){
+      var tile = document.createElement('button');
+      tile.type='button'; tile.className='tile';
+      tile.style.setProperty('--tile-bg', tint);
+      tile.style.setProperty('--tile-border', base);
+      tile.style.setProperty('--tile-text', '#3a3560');
+      tile.innerHTML = vfracHTML(1, n, 'vfrac-sm');
+      tile.dataset.k = i+1;
+      tile.setAttribute('aria-label', '1/'+n);
+      tile.addEventListener('click', onTileClick.bind(null, n, i+1));
+      tiles.appendChild(tile);
+    }
+
+    row.appendChild(tools);
+    row.appendChild(label);
+    row.appendChild(tiles);
+
+    attachDrag(row, grip);
+
+    grip.addEventListener('keydown', function(e){
+      if(e.key==='ArrowUp'){ e.preventDefault(); moveRow(row,-1); grip.focus(); }
+      else if(e.key==='ArrowDown'){ e.preventDefault(); moveRow(row,1); grip.focus(); }
+    });
+
+    return row;
+  }
+
+  function attachDrag(row, grip){
+    var pointerId = null, placeholder = null, startRect = null, startClientY = 0;
+
+    grip.addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      pointerId = e.pointerId;
+      grip.setPointerCapture(pointerId);
+      startClientY = e.clientY;
+      startRect = row.getBoundingClientRect();
+
+      placeholder = document.createElement('div');
+      placeholder.className = 'row-placeholder';
+      placeholder.style.height = startRect.height + 'px';
+      row.parentNode.insertBefore(placeholder, row);
+
+      row.style.position = 'fixed';
+      row.style.top = startRect.top + 'px';
+      row.style.left = startRect.left + 'px';
+      row.style.width = startRect.width + 'px';
+      row.style.zIndex = '300';
+      row.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+    });
+
+    grip.addEventListener('pointermove', function(e){
+      if(pointerId===null) return;
+      var dy = e.clientY - startClientY;
+      row.style.top = (startRect.top + dy) + 'px';
+      repositionPlaceholder(e.clientY);
+    });
+
+    function repositionPlaceholder(clientY){
+      var rows = Array.prototype.slice.call(wallEl.querySelectorAll('.frow')).filter(function(r){ return r!==row; });
+      var target = null;
+      for(var i=0;i<rows.length;i++){
+        var rct = rows[i].getBoundingClientRect();
+        var mid = rct.top + rct.height/2;
+        if(clientY < mid){ target = rows[i]; break; }
+      }
+      if(target){
+        if(placeholder.nextElementSibling !== target){
+          animateReorder(function(){ wallEl.insertBefore(placeholder, target); });
+        }
+      } else {
+        if(wallEl.lastElementChild !== placeholder){
+          animateReorder(function(){ wallEl.appendChild(placeholder); });
+        }
+      }
+    }
+
+    function endDrag(){
+      if(pointerId===null) return;
+      wallEl.insertBefore(row, placeholder);
+      placeholder.remove();
+      row.style.position = ''; row.style.top = ''; row.style.left = '';
+      row.style.width = ''; row.style.zIndex = '';
+      row.classList.remove('dragging');
+      document.body.style.userSelect = '';
+      pointerId = null; placeholder = null; startRect = null;
+    }
+
+    grip.addEventListener('pointerup', endDrag);
+    grip.addEventListener('pointercancel', endDrag);
+  }
+
+  function moveRow(row, dir){
+    animateReorder(function(){
+      if(dir<0){ var prev = row.previousElementSibling; if(prev) wallEl.insertBefore(row, prev); }
+      else { var next = row.nextElementSibling; if(next) wallEl.insertBefore(next, row); }
+    });
+  }
+
+  function onTileClick(n, k){
+    if(selected && selected.n===n && selected.k===k){ selected = null; }
+    else { selected = { n:n, k:k }; }
+    render();
+  }
+
+  function render(){
+    var rows = wallEl.querySelectorAll('.frow');
+    var matches = [];
+
+    if(selected){
+      rows.forEach(function(r){
+        var n = parseInt(r.dataset.n,10);
+        if((selected.k * n) % selected.n === 0){
+          var k = (selected.k * n) / selected.n;
+          if(k>=1 && k<=n) matches.push({ n:n, k:k, isOrigin:n===selected.n });
+        }
+      });
+    }
+
+    rows.forEach(function(r){
+      var n = parseInt(r.dataset.n,10);
+      var tiles = r.querySelectorAll('.tile');
+      var match = matches.filter(function(m){ return m.n===n; })[0];
+      tiles.forEach(function(tile, idx){
+        tile.classList.remove('selected','equivalent');
+        tile.setAttribute('aria-pressed','false');
+        if(match && idx < match.k){
+          tile.classList.add(match.isOrigin ? 'selected' : 'equivalent');
+          tile.setAttribute('aria-pressed','true');
+        }
+      });
+    });
+
+    if(!selected){
+      nlMarker.hidden = true;
+      return;
+    }
+
+    var pct = (selected.k/selected.n) * 100;
+    var dec = decimalInfo(selected.k, selected.n);
+    nlMarker.hidden = false;
+    nlMarker.style.left = pct + '%';
+    nlTag.innerHTML = vfracHTML(selected.k, selected.n, 'vfrac-lg') +
+      '<span class="nl-dec">' + dec.text + '</span>';
+  }
+
+  function buildNumberline(){
+    var html = '';
+    for(var i=0;i<=10;i++){
+      var pct = i*10;
+      var major = (i===0 || i===10);
+      var label = i===0 ? '0' : (i===10 ? '1' : '0,'+i);
+      html += '<div class="nl-tick'+(major?' major':'')+'" style="left:'+pct+'%">'+
+                '<div class="stem"></div><div class="lbl">'+label+'</div></div>';
+    }
+    nlTicks.innerHTML = html;
+  }
+
+  function buildGlossary(){
+    var grid = document.getElementById('glossaryGrid');
+    var html = '';
+    DENOMS.forEach(function(n){
+      var dec = decimalInfo(1,n);
+      html += '<div class="glossary-item">'+vfracHTML(1,n,'vfrac-xs')+
+              '<span class="arrow">↓</span><span class="dec">'+dec.text+'</span></div>';
+    });
+    grid.innerHTML = html;
+  }
+
+  document.getElementById('clearBtn').addEventListener('click', function(){ selected=null; render(); });
+  document.getElementById('resetOrderBtn').addEventListener('click', function(){
+    animateReorder(function(){
+      DENOMS.forEach(function(n){
+        var row = wallEl.querySelector('.frow[data-n="'+n+'"]');
+        wallEl.appendChild(row);
+      });
+    });
+  });
+  document.getElementById('glossaryBtn').addEventListener('click', function(){
+    var panel = document.getElementById('glossaryPanel');
+    var btn = document.getElementById('glossaryBtn');
+    var show = panel.hidden;
+    panel.hidden = !show;
+    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+  });
+
+  buildNumberline();
+  buildGlossary();
+  DENOMS.forEach(function(n){ wallEl.appendChild(buildRow(n)); });
+  render();
+})();
+</script>
+</body>
+</html>
