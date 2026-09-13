@@ -34,117 +34,122 @@
 
   --glass-bg:     rgba(255,255,255,0.72);
   --glass-border: rgba(255,255,255,0.9);
+
+  --bg-dark:      #14122b;
 }
 
 *{ box-sizing: border-box; }
 
-html{ background: var(--bg); }
+html{ background: var(--bg); color-scheme: light; }
+html.pt-mork{ background: var(--bg-dark); color-scheme: dark; }
 body{ margin:0; padding:0; color: var(--text); font-family: 'Sora', sans-serif;
   -webkit-tap-highlight-color: transparent; min-height:100vh; overflow-x:hidden; position:relative; }
 
 *:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* Ambient bakgrund */
+/* Ambient bakgrund — i mörkt läge (PT Mörk) glöder klotarna starkare mot den mörka botten;
+   panelerna nedan förblir oförändrat ljusa/frostade, PT Ljus rakt av. */
 .ambient{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
-.ambient span{ position:absolute; border-radius:50%; filter:blur(70px); }
+.ambient span{ position:absolute; border-radius:50%; filter:blur(70px); transition: opacity 0.3s ease; }
 .ambient span.b1{ width:440px; height:440px; background:#66C7C2; opacity:0.5; top:-120px; left:-130px; }
 .ambient span.b2{ width:480px; height:480px; background:#F4A261; opacity:0.48; top:38%; right:-160px; }
 .ambient span.b3{ width:420px; height:420px; background:#EC6095; opacity:0.5; bottom:-150px; left:14%; }
+html.pt-mork .ambient span.b1{ opacity:0.62; }
+html.pt-mork .ambient span.b2{ opacity:0.6; }
+html.pt-mork .ambient span.b3{ opacity:0.62; }
 
 header{
-  background: var(--gradient); min-height:56px; position: relative; z-index:10;
+  background: var(--gradient); min-height:64px; position:sticky; top:0; z-index:10;
   display:flex; align-items:center; justify-content:space-between; gap:12px;
-  padding: 8px 18px; position: sticky; top:0;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  padding: 10px 22px; box-shadow: 0 4px 24px rgba(0,0,0,0.18);
 }
 header a.back{
-  color:#ffffff; text-decoration:none; font-weight:600; font-size:0.86rem;
+  color:#ffffff; text-decoration:none; font-weight:600; font-size:0.92rem;
   display:flex; align-items:center; gap:6px; opacity:0.9;
-  padding:8px 10px; border-radius:var(--radius-sm);
+  padding:9px 12px; border-radius:var(--radius-sm);
 }
 header a.back:hover{ background:rgba(255,255,255,0.16); opacity:1; }
 header h1{ margin:0; color:#ffffff; font-family:'Playfair Display', serif; font-weight:700;
-  font-size:1.25rem; text-align:center; flex:1; }
-header .spacer{ width:68px; }
+  font-size:1.55rem; text-align:center; flex:1; }
+header .spacer{ width:84px; }
 
-main{ position:relative; z-index:1; max-width: 920px; margin: 0 auto; padding: 16px 14px 48px;
-  display:flex; flex-direction:column; gap:14px; }
+main{ position:relative; z-index:1; max-width: 1180px; margin: 0 auto; padding: 24px 18px 56px;
+  display:flex; flex-direction:column; gap:20px; }
 
 .glass{ background: var(--glass-bg); backdrop-filter: blur(14px) saturate(160%);
   -webkit-backdrop-filter: blur(14px) saturate(160%); border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 16px 18px; }
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 22px 26px; }
+
+.wall-card{ padding: 22px 64px 26px 26px; position:relative; }
+
+.trace-line{ position:absolute; width:2px; z-index:5; pointer-events:none;
+  background: repeating-linear-gradient(to bottom, var(--accent) 0 7px, transparent 7px 14px);
+  opacity:0.55; }
 
 /* Stående bråk */
 .vfrac{ display:inline-flex; flex-direction:column; align-items:center; line-height:1;
   font-family:'Montserrat', sans-serif; font-weight:700; color:inherit; }
-.vfrac .num{ padding-bottom:2px; border-bottom:2px solid currentColor; min-width:1em; text-align:center; }
-.vfrac .den{ padding-top:2px; min-width:1em; text-align:center; }
-.vfrac.vfrac-sm{ font-size:0.6rem; }
-.vfrac.vfrac-sm .num{ border-bottom-width:1.3px; padding-bottom:1px; }
-.vfrac.vfrac-sm .den{ padding-top:1px; }
-.vfrac.vfrac-lg{ font-size:1rem; }
-.vfrac.vfrac-xs{ font-size:0.56rem; }
+.vfrac .num{ padding-bottom:3px; border-bottom:2px solid currentColor; min-width:1em; text-align:center; }
+.vfrac .den{ padding-top:3px; min-width:1em; text-align:center; }
+.vfrac.vfrac-sm{ font-size:0.8rem; }
+.vfrac.vfrac-sm .num{ border-bottom-width:1.6px; padding-bottom:2px; }
+.vfrac.vfrac-sm .den{ padding-top:2px; }
+.vfrac.vfrac-lg{ font-size:1.15rem; }
+.vfrac.vfrac-md{ font-size:0.95rem; }
 
-.wall-topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
-.legend{ display:flex; gap:14px; flex-wrap:wrap; font-size:0.78rem; color:var(--muted); }
-.legend span{ display:inline-flex; align-items:center; gap:5px; }
-.legend i{ width:11px; height:11px; border-radius:3px; display:inline-block; }
-.legend i.sel{ background:var(--accent); }
-.legend i.eq{ background:var(--accent2); }
-
-.iconbar{ display:flex; gap:6px; flex:none; }
-.iconbtn{ width:32px; height:32px; border-radius:var(--radius-sm); border:1.5px solid var(--border);
-  background:var(--surface2); color:var(--accent); font-size:0.95rem; cursor:pointer;
+.toolbar{ display:flex; justify-content:flex-end; gap:8px; margin-bottom:18px; }
+.iconbtn{ width:40px; height:40px; border-radius:var(--radius-sm); border:1.5px solid var(--border);
+  background:var(--surface2); color:var(--accent); font-size:1.05rem; font-weight:700; cursor:pointer;
   display:flex; align-items:center; justify-content:center; transition: transform 0.15s, box-shadow 0.15s; }
 .iconbtn:hover{ box-shadow: var(--shadow-sm); transform: translateY(-1px); }
 .iconbtn:active{ transform: translateY(0); }
 .iconbtn[aria-pressed="true"]{ background:var(--accent); color:#fff; border-color:var(--accent); }
 
 /* En "rad" (delas av tallinjen och bråkraderna, för garanterad kant-i-kant) */
-.row{ display:flex; align-items:stretch; gap:6px; }
-.row-tools{ display:flex; align-items:center; justify-content:center; width:18px; flex:none; }
-.grip{ width:18px; height:22px; border-radius:6px; border:1px solid var(--border); background:var(--surface);
+.row{ display:flex; align-items:stretch; gap:8px; }
+.row-tools{ display:flex; align-items:center; justify-content:center; width:30px; flex:none; }
+.grip{ width:26px; height:32px; border-radius:7px; border:1px solid var(--border); background:var(--surface);
   color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:grab;
-  font-size:11px; user-select:none; touch-action:none; }
+  font-size:13px; user-select:none; touch-action:none; }
 .grip:active{ cursor:grabbing; }
-.row-label{ flex:none; width:84px; display:flex; align-items:center;
+.row-label{ flex:none; width:128px; display:flex; align-items:center;
   background: var(--surface); border:1.5px solid var(--border); border-radius: var(--radius-sm);
-  padding: 4px 8px; }
-.row-label .name{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:0.68rem; color:var(--text); line-height:1.1; }
+  padding: 6px 12px; }
+.row-label .name{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:0.86rem; color:var(--text); line-height:1.15; }
 
 /* Tallinjen (samma kolumnbredder som raderna, för perfekt kantjustering) */
-.nl-row{ margin-bottom:6px; }
-.nl-zone{ flex:1; position:relative; height:78px; }
-.nl-line{ position:absolute; left:-14px; right:-26px; top:36px; height:2px; background:var(--text); }
-.nl-arrow{ position:absolute; right:-34px; top:31px; width:0; height:0;
-  border-top:6px solid transparent; border-bottom:6px solid transparent; border-left:10px solid var(--text); }
-.nl-tick{ position:absolute; top:36px; width:0; }
-.nl-tick .stem{ position:absolute; left:0; top:0; width:2px; height:8px; background:var(--text); transform:translateX(-1px); }
-.nl-tick .lbl{ position:absolute; left:0; top:12px; transform:translateX(-50%); font-size:0.66rem; color:var(--muted);
+.nl-row{ margin-bottom:10px; }
+.nl-zone{ flex:1; position:relative; height:108px; }
+.nl-line{ position:absolute; left:-20px; right:-38px; top:50px; height:3px; background:var(--text); }
+.nl-arrow{ position:absolute; right:-49px; top:43px; width:0; height:0;
+  border-top:7px solid transparent; border-bottom:7px solid transparent; border-left:13px solid var(--text); }
+.nl-tick{ position:absolute; top:50px; width:0; }
+.nl-tick .stem{ position:absolute; left:0; top:0; width:2px; height:11px; background:var(--text); transform:translateX(-1px); }
+.nl-tick .lbl{ position:absolute; left:0; top:16px; transform:translateX(-50%); font-size:0.78rem; color:var(--muted);
   font-weight:600; white-space:nowrap; }
-.nl-tick.major .stem{ height:11px; }
-.nl-tick.major .lbl{ font-size:0.72rem; color:var(--text); font-weight:700; }
+.nl-tick.major .stem{ height:14px; }
+.nl-tick.major .lbl{ font-size:0.9rem; color:var(--text); font-weight:700; }
 
-.nl-marker{ position:absolute; top:36px; transform:translateX(-50%); transition: left 0.35s ease; }
-.nl-marker .nl-dot{ position:absolute; top:-6px; left:50%; transform:translate(-50%,0); width:13px; height:13px;
+.nl-marker{ position:absolute; top:50px; transform:translateX(-50%); transition: left 0.35s ease; }
+.nl-marker .nl-dot{ position:absolute; top:-8px; left:50%; transform:translate(-50%,0); width:17px; height:17px;
   border-radius:50%; background:var(--accent); border:3px solid #fff; box-shadow: 0 2px 10px rgba(48,107,240,0.5); }
-.nl-marker .nl-tag{ position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+.nl-marker .nl-tag{ position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
   background:var(--surface); border:1.5px solid var(--accent); border-radius:var(--radius-sm);
-  padding:6px 10px; display:flex; align-items:center; gap:8px; white-space:nowrap;
+  padding:8px 14px; display:flex; align-items:center; gap:10px; white-space:nowrap;
   box-shadow: var(--shadow-sm); }
-.nl-marker .nl-tag .nl-dec{ font-size:0.8rem; color:var(--muted); font-weight:600; }
+.nl-marker .nl-tag .nl-dec{ font-size:0.92rem; color:var(--muted); font-weight:600; }
 .nl-marker .nl-tag::after{ content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
-  border:6px solid transparent; border-top-color:var(--accent); }
+  border:7px solid transparent; border-top-color:var(--accent); }
 
 /* Bråktavlan */
-.wall{ display:flex; flex-direction:column; gap:3px; }
+.wall{ display:flex; flex-direction:column; gap:6px; }
 .frow.dragging{ box-shadow: var(--shadow-lg); border-radius: var(--radius-sm); opacity:0.96; }
 .row-placeholder{ border:2px dashed var(--accent); border-radius:8px; background:rgba(48,107,240,0.06); }
 
-.tiles{ flex:1; display:flex; gap:3px; min-height:32px; }
-.tile{ flex:1; min-width:0; border-radius: 6px; border: 1.5px solid var(--tile-border, var(--border));
+.tiles{ flex:1; display:flex; gap:4px; min-height:48px; }
+.tile{ flex:1; min-width:0; border-radius: 7px; border: 1.5px solid var(--tile-border, var(--border));
   background: var(--tile-bg, var(--surface)); color: var(--tile-text, var(--muted));
-  display:flex; align-items:center; justify-content:center; cursor:pointer; padding:1px;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; padding:2px;
   transition: background 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s; }
 .tile:hover{ transform: translateY(-1px); }
 .tile.selected{ background: var(--accent); border-color: var(--accent); color:#fff;
@@ -153,28 +158,34 @@ main{ position:relative; z-index:1; max-width: 920px; margin: 0 auto; padding: 1
   box-shadow: 0 3px 14px rgba(236,96,149,0.4); animation: pulse 0.9s ease-in-out infinite alternate; }
 @keyframes pulse{ from{ filter:brightness(1);} to{ filter:brightness(1.12);} }
 
-/* Gloslista (stambråk & decimalform) */
-.glossary-title{ margin:0 0 10px; font-family:'Montserrat', sans-serif; font-weight:700; font-size:0.95rem; }
-.glossary-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap:10px; }
-.glossary-item{ background: var(--surface); border:1.5px solid var(--border); border-radius: var(--radius-sm);
-  padding:8px 6px; display:flex; flex-direction:column; align-items:center; gap:4px; }
-.glossary-item .arrow{ color:var(--muted); font-size:0.8rem; }
-.glossary-item .dec{ font-size:0.76rem; font-weight:600; color:var(--accent); }
+/* Dialoger (popup-rutor) */
+dialog{ padding:0; max-width: min(90vw, 460px); }
+dialog::backdrop{ background: rgba(16,14,40,0.38); backdrop-filter: blur(3px); }
+.dialog-card{ background: var(--glass-bg); backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 24px 26px; position:relative; }
+.dialog-close{ position:absolute; top:14px; right:14px; width:34px; height:34px; }
+.dialog-title{ margin:0 0 16px; font-family:'Montserrat', sans-serif; font-weight:700; font-size:1.1rem;
+  padding-right: 36px; }
+.dialog-card p{ margin:0 0 10px; color:var(--muted); font-size:0.94rem; line-height:1.55; }
+.dialog-card p:last-child{ margin-bottom:0; }
+.dialog-card strong{ color:var(--text); }
 
-details.intro summary{ cursor:pointer; font-family:'Montserrat', sans-serif; font-weight:700;
-  font-size:0.92rem; color:var(--text); list-style:revert; }
-details.intro[open] summary{ margin-bottom:10px; }
-details.intro p{ margin:0 0 8px; color:var(--muted); font-size:0.9rem; line-height:1.5; }
-details.intro p:last-child{ margin-bottom:0; }
+.gloss-table{ width:100%; border-collapse:separate; border-spacing:0 6px; }
+.gloss-table td{ background: var(--surface); padding:8px 14px; }
+.gloss-table td:first-child{ border-radius: var(--radius-sm) 0 0 var(--radius-sm); border-left:5px solid var(--row-color, var(--border)); width:64px; }
+.gloss-table td:last-child{ border-radius: 0 var(--radius-sm) var(--radius-sm) 0; text-align:right; }
+.gloss-table .dec{ font-weight:700; color:var(--accent); font-size:0.98rem; }
 
 @media (max-width: 640px){
-  .row-label{ width:58px; padding:4px 5px; }
-  .row-label .name{ font-size:0.6rem; }
-  header h1{ font-size:1.02rem; }
+  .row-label{ width:78px; padding:5px 8px; }
+  .row-label .name{ font-size:0.72rem; }
+  header h1{ font-size:1.18rem; }
   header .spacer{ width:0; }
+  .wall-card{ padding-right:56px; }
 }
 
-footer{ text-align:center; color:var(--muted); font-size:0.76rem; padding:6px 0 20px; }
+footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 24px; }
 </style>
 </head>
 <body>
@@ -188,17 +199,14 @@ footer{ text-align:center; color:var(--muted); font-size:0.76rem; padding:6px 0 
 </header>
 
 <main>
-  <section class="glass">
-    <div class="wall-topbar">
-      <div class="legend">
-        <span><i class="sel"></i> Markerat bråk</span>
-        <span><i class="eq"></i> Lika stort värde</span>
-      </div>
-      <div class="iconbar">
-        <button class="iconbtn" id="glossaryBtn" type="button" title="Visa/dölj stambråk & decimalform" aria-label="Visa eller dölj lista över stambråk och deras decimalform" aria-pressed="false">🔢</button>
-        <button class="iconbtn" id="clearBtn" type="button" title="Nollställ markering" aria-label="Nollställ markering">✕</button>
-        <button class="iconbtn" id="resetOrderBtn" type="button" title="Återställ ordning" aria-label="Återställ ordning på raderna">↺</button>
-      </div>
+  <section class="glass wall-card">
+    <div class="toolbar">
+      <button class="iconbtn" id="themeBtn" type="button" title="Växla mörkt bakgrundstema (PT Mörk)" aria-label="Växla mörkt bakgrundstema" aria-pressed="false">🌙</button>
+      <button class="iconbtn" id="helpBtn" type="button" title="Så här funkar bråktavlan" aria-label="Visa hjälp om hur bråktavlan funkar">?</button>
+      <button class="iconbtn" id="glossaryBtn" type="button" title="Stambråk & decimalform" aria-label="Visa lista över stambråk och deras decimalform" aria-pressed="false">🔢</button>
+      <button class="iconbtn" id="facitBtn" type="button" title="Facit: visar alla likvärdiga bråk automatiskt (klicka för övningsläge)" aria-label="Växla mellan facit och övningsläge" aria-pressed="true">🎯</button>
+      <button class="iconbtn" id="clearBtn" type="button" title="Nollställ markering" aria-label="Nollställ markering">✕</button>
+      <button class="iconbtn" id="resetOrderBtn" type="button" title="Återställ ordning" aria-label="Återställ ordning på raderna">↺</button>
     </div>
 
     <div class="row nl-row" aria-hidden="true">
@@ -208,29 +216,33 @@ footer{ text-align:center; color:var(--muted); font-size:0.76rem; padding:6px 0 
         <div class="nl-line"></div>
         <div class="nl-arrow"></div>
         <div id="nlTicks"></div>
-        <div class="nl-marker" id="nlMarker" hidden>
-          <div class="nl-tag" id="nlTag"></div>
-          <div class="nl-dot"></div>
-        </div>
+        <div id="nlMarkers"></div>
       </div>
     </div>
 
+    <div id="traceLines"></div>
     <div class="wall" id="wall"></div>
   </section>
 
-  <section class="glass" id="glossaryPanel" hidden>
-    <h2 class="glossary-title">Stambråk & decimalform</h2>
-    <div class="glossary-grid" id="glossaryGrid"></div>
-  </section>
-
-  <details class="glass intro">
-    <summary>Så här funkar bråktavlan ▾</summary>
-    <p><strong>Klicka</strong> på en bit i tavlan för att markera bråket från vänster kant. Rader med exakt samma värde lyser upp i en annan färg — ett sätt att <em>se</em> att bråk kan skrivas på flera sätt.</p>
-    <p><strong>Dra</strong> i handtaget ⋮⋮ för att flytta rader upp och ner — lägg till exempel fjärdedelar och åttondelar bredvid varandra för att jämföra dem extra tydligt. Handtaget kan även flyttas med piltangenterna när det är fokuserat.</p>
-  </details>
-
   <footer>Tegnefurs Matte · PT Verktyg</footer>
 </main>
+
+<dialog id="helpDialog">
+  <div class="dialog-card">
+    <button class="iconbtn dialog-close" type="button" data-close aria-label="Stäng hjälp">✕</button>
+    <h2 class="dialog-title">Så här funkar bråktavlan</h2>
+    <p><strong>Klicka</strong> på en bit i tavlan för att markera bråket från vänster kant. Rader med exakt samma värde lyser upp i en annan färg — ett sätt att <em>se</em> att bråk kan skrivas på flera sätt.</p>
+    <p><strong>Dra</strong> i handtaget ⋮⋮ för att flytta rader upp och ner — lägg till exempel fjärdedelar och åttondelar bredvid varandra för att jämföra dem extra tydligt. Handtaget kan även flyttas med piltangenterna när det är fokuserat.</p>
+  </div>
+</dialog>
+
+<dialog id="glossaryDialog">
+  <div class="dialog-card">
+    <button class="iconbtn dialog-close" type="button" data-close aria-label="Stäng listan">✕</button>
+    <h2 class="dialog-title">Stambråk & decimalform</h2>
+    <table class="gloss-table" id="glossTable"></table>
+  </div>
+</dialog>
 
 <script>
 (function(){
@@ -244,11 +256,14 @@ footer{ text-align:center; color:var(--muted); font-size:0.76rem; padding:6px 0 
   var DENOMS = [1,2,3,4,5,6,7,8,9,10,11,12];
 
   var wallEl = document.getElementById('wall');
-  var nlMarker = document.getElementById('nlMarker');
-  var nlTag = document.getElementById('nlTag');
+  var nlZone = document.getElementById('nlZone');
   var nlTicks = document.getElementById('nlTicks');
+  var nlMarkersEl = document.getElementById('nlMarkers');
+  var wallCard = document.querySelector('.wall-card');
+  var traceLinesEl = document.getElementById('traceLines');
 
-  var selected = null; // { n, k } -> value k/n, k tiles filled from the left
+  var selectedList = []; // array of { n, k } -> value k/n, k tiles filled from the left
+  var facitMode = true; // false = övningsläge: likvärdiga bråk lyser inte upp automatiskt, flera bråk kan markeras samtidigt
 
   function gcd(a,b){ return b===0 ? a : gcd(b, a%b); }
 
@@ -436,52 +451,98 @@ footer{ text-align:center; color:var(--muted); font-size:0.76rem; padding:6px 0 
     });
   }
 
+  function selectionIndex(n,k){
+    for(var i=0;i<selectedList.length;i++){
+      if(selectedList[i].n===n && selectedList[i].k===k) return i;
+    }
+    return -1;
+  }
+
   function onTileClick(n, k){
-    if(selected && selected.n===n && selected.k===k){ selected = null; }
-    else { selected = { n:n, k:k }; }
+    if(facitMode){
+      var idx = selectionIndex(n,k);
+      selectedList = (idx>=0) ? [] : [{ n:n, k:k }];
+    } else {
+      var rowIdx = -1;
+      for(var i=0;i<selectedList.length;i++){ if(selectedList[i].n===n){ rowIdx = i; break; } }
+      if(rowIdx>=0){
+        if(selectedList[rowIdx].k===k){ selectedList.splice(rowIdx,1); } // samma bricka igen -> avmarkera
+        else { selectedList[rowIdx] = { n:n, k:k }; } // annan bricka i samma rad -> ersätt (max en stråle per bråktyp)
+      } else {
+        selectedList.push({ n:n, k:k });
+      }
+    }
     render();
   }
 
   function render(){
     var rows = wallEl.querySelectorAll('.frow');
-    var matches = [];
-
-    if(selected){
-      rows.forEach(function(r){
-        var n = parseInt(r.dataset.n,10);
-        if((selected.k * n) % selected.n === 0){
-          var k = (selected.k * n) / selected.n;
-          if(k>=1 && k<=n) matches.push({ n:n, k:k, isOrigin:n===selected.n });
-        }
-      });
-    }
 
     rows.forEach(function(r){
-      var n = parseInt(r.dataset.n,10);
-      var tiles = r.querySelectorAll('.tile');
-      var match = matches.filter(function(m){ return m.n===n; })[0];
-      tiles.forEach(function(tile, idx){
+      r.querySelectorAll('.tile').forEach(function(tile){
         tile.classList.remove('selected','equivalent');
         tile.setAttribute('aria-pressed','false');
-        if(match && idx < match.k){
-          tile.classList.add(match.isOrigin ? 'selected' : 'equivalent');
-          tile.setAttribute('aria-pressed','true');
+      });
+    });
+
+    selectedList.forEach(function(sel){
+      rows.forEach(function(r){
+        var n = parseInt(r.dataset.n,10);
+        var isOrigin = (n===sel.n);
+        if(!isOrigin && !facitMode) return; // övningsläge: bara den klickade raden
+        if((sel.k * n) % sel.n === 0){
+          var k = (sel.k * n) / sel.n;
+          if(k>=1 && k<=n){
+            var tiles = r.querySelectorAll('.tile');
+            for(var idx=0; idx<k; idx++){
+              tiles[idx].classList.add(isOrigin ? 'selected' : 'equivalent');
+              tiles[idx].setAttribute('aria-pressed','true');
+            }
+          }
         }
       });
     });
 
-    if(!selected){
-      nlMarker.hidden = true;
-      return;
-    }
-
-    var pct = (selected.k/selected.n) * 100;
-    var dec = decimalInfo(selected.k, selected.n);
-    nlMarker.hidden = false;
-    nlMarker.style.left = pct + '%';
-    nlTag.innerHTML = vfracHTML(selected.k, selected.n, 'vfrac-lg') +
-      '<span class="nl-dec">' + dec.text + '</span>';
+    renderMarkers();
   }
+
+  function renderMarkers(){
+    nlMarkersEl.innerHTML = '';
+    traceLinesEl.innerHTML = '';
+    if(selectedList.length===0) return;
+
+    var zoneRect = nlZone.getBoundingClientRect();
+    var cardRect = wallCard.getBoundingClientRect();
+    var wallRect = wallEl.getBoundingClientRect();
+    var dotY = zoneRect.top + 50 - cardRect.top; // 50 matchar .nl-line top i CSS
+    var bottomY = wallRect.bottom - cardRect.top;
+
+    selectedList.forEach(function(sel){
+      var row = wallEl.querySelector('.frow[data-n="'+sel.n+'"]');
+      var tileEl = row.querySelectorAll('.tile')[sel.k-1];
+      var tileRect = tileEl.getBoundingClientRect();
+      var dec = decimalInfo(sel.k, sel.n);
+
+      var pct = ((tileRect.right - zoneRect.left) / zoneRect.width) * 100;
+
+      var marker = document.createElement('div');
+      marker.className = 'nl-marker';
+      marker.style.left = pct + '%';
+      marker.innerHTML = '<div class="nl-tag">' + vfracHTML(sel.k, sel.n, 'vfrac-lg') +
+        '<span class="nl-dec">' + dec.text + '</span></div><div class="nl-dot"></div>';
+      nlMarkersEl.appendChild(marker);
+
+      var x = tileRect.right - cardRect.left;
+      var trace = document.createElement('div');
+      trace.className = 'trace-line';
+      trace.style.left = x + 'px';
+      trace.style.top = dotY + 'px';
+      trace.style.height = Math.max(0, bottomY - dotY) + 'px';
+      traceLinesEl.appendChild(trace);
+    });
+  }
+
+  window.addEventListener('resize', function(){ if(selectedList.length) renderMarkers(); });
 
   function buildNumberline(){
     var html = '';
@@ -496,17 +557,46 @@ footer{ text-align:center; color:var(--muted); font-size:0.76rem; padding:6px 0 
   }
 
   function buildGlossary(){
-    var grid = document.getElementById('glossaryGrid');
-    var html = '';
+    var table = document.getElementById('glossTable');
+    var html = '<tbody>';
     DENOMS.forEach(function(n){
       var dec = decimalInfo(1,n);
-      html += '<div class="glossary-item">'+vfracHTML(1,n,'vfrac-xs')+
-              '<span class="arrow">↓</span><span class="dec">'+dec.text+'</span></div>';
+      var t = (n-1)/(DENOMS.length-1);
+      var base = gradientColor(t);
+      html += '<tr style="--row-color:'+base+'"><td>'+vfracHTML(1,n,'vfrac-md')+
+              '</td><td class="dec">'+dec.text+'</td></tr>';
     });
-    grid.innerHTML = html;
+    html += '</tbody>';
+    table.innerHTML = html;
   }
 
-  document.getElementById('clearBtn').addEventListener('click', function(){ selected=null; render(); });
+  var themeBtn = document.getElementById('themeBtn');
+  function applyTheme(dark){
+    document.documentElement.classList.toggle('pt-mork', dark);
+    themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    themeBtn.textContent = dark ? '☀️' : '🌙';
+    themeBtn.title = dark ? 'Växla till ljust bakgrundstema (PT Ljus)' : 'Växla mörkt bakgrundstema (PT Mörk)';
+  }
+  var savedTheme = null;
+  try{ savedTheme = localStorage.getItem('pt-theme'); }catch(e){}
+  applyTheme(savedTheme === 'mork');
+  themeBtn.addEventListener('click', function(){
+    var dark = !document.documentElement.classList.contains('pt-mork');
+    applyTheme(dark);
+    try{ localStorage.setItem('pt-theme', dark ? 'mork' : 'ljus'); }catch(e){}
+  });
+
+  document.getElementById('facitBtn').addEventListener('click', function(){
+    facitMode = !facitMode;
+    selectedList = [];
+    var btn = document.getElementById('facitBtn');
+    btn.setAttribute('aria-pressed', facitMode ? 'true' : 'false');
+    btn.title = facitMode
+      ? 'Facit: visar alla likvärdiga bråk automatiskt (klicka för övningsläge)'
+      : 'Övningsläge: markera flera bråk själv, inget facit visas automatiskt (klicka för facit)';
+    render();
+  });
+  document.getElementById('clearBtn').addEventListener('click', function(){ selectedList=[]; render(); });
   document.getElementById('resetOrderBtn').addEventListener('click', function(){
     animateReorder(function(){
       DENOMS.forEach(function(n){
@@ -515,12 +605,16 @@ footer{ text-align:center; color:var(--muted); font-size:0.76rem; padding:6px 0 
       });
     });
   });
-  document.getElementById('glossaryBtn').addEventListener('click', function(){
-    var panel = document.getElementById('glossaryPanel');
-    var btn = document.getElementById('glossaryBtn');
-    var show = panel.hidden;
-    panel.hidden = !show;
-    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+
+  var helpDialog = document.getElementById('helpDialog');
+  var glossaryDialog = document.getElementById('glossaryDialog');
+
+  document.getElementById('helpBtn').addEventListener('click', function(){ helpDialog.showModal(); });
+  document.getElementById('glossaryBtn').addEventListener('click', function(){ glossaryDialog.showModal(); });
+
+  [helpDialog, glossaryDialog].forEach(function(dlg){
+    dlg.querySelector('[data-close]').addEventListener('click', function(){ dlg.close(); });
+    dlg.addEventListener('click', function(e){ if(e.target === dlg) dlg.close(); });
   });
 
   buildNumberline();
