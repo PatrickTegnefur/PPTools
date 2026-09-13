@@ -25,11 +25,10 @@
   .ws-ambient span:nth-child(2){ background:var(--ak8); top:30%; right:-140px; }
   .ws-ambient span:nth-child(3){ background:var(--ak9); bottom:-160px; left:20%; }
   body.glass-mode{ background:linear-gradient(160deg,#f6f4ff 0%,#eef0ff 100%); }
-  body.glass-mode .ws-sidebar-top,
-  body.glass-mode .ws-sidebar-actions,
-  body.glass-mode .ws-table-group{
+  body.glass-mode .ws-mode-strip,
+  body.glass-mode .ws-panel{
     background:var(--glass-bg); backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
-    border-color:var(--glass-border);
+    border:1px solid var(--glass-border); box-shadow:0 10px 30px rgba(16,14,40,.08);
   }
   body.glass-mode.ws-mode-interactive .worksheet-problem{
     background:var(--glass-bg); backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
@@ -44,8 +43,10 @@
   body.glass-mode.ws-mode-interactive .worksheet-problem.ws-wrong{
     box-shadow:0 8px 22px rgba(236,96,149,.2); background:linear-gradient(120deg,rgba(236,96,149,.13),var(--glass-bg) 65%);
   }
+  body.glass-mode .ws-settings-group{ background:rgba(255,255,255,.55); border-color:var(--glass-border); }
 
   /* ═══════════ ARBETSBLAD (utskriftsvänligt) ═══════════ */
+  .worksheet-page-wrap{ min-height:100vh; background:#fff; position:relative; z-index:1; }
   .pt-header{
     background:var(--grad); color:#fff; padding:13px 22px; display:flex; align-items:center; gap:10px;
     font-family:'Sora',sans-serif; font-weight:800; font-size:1.05rem; position:sticky; top:0; z-index:6;
@@ -58,76 +59,49 @@
   }
   .pt-header-theme-btn:hover{ background:rgba(255,255,255,.26); }
   .pt-header-theme-btn.active{ background:#fff; color:var(--accent); border-color:#fff; }
-  .worksheet-page-wrap{ min-height:100vh; background:#fff; position:relative; z-index:1; flex:1 1 auto; min-width:0; }
 
-  /* ═══════════ VÄNSTER SIDOPANEL — allt urval av innehåll samlat här ═══════════ */
-  .ws-layout{ display:flex; align-items:flex-start; }
-  .ws-sidebar{
-    width:360px; flex:0 0 360px; position:sticky; top:47px; align-self:flex-start;
-    max-height:calc(100vh - 47px); overflow-y:auto; background:var(--surface);
-    border-right:1.5px solid var(--border); font-family:'Sora',sans-serif; z-index:2;
+  /* Lägesväljaren (Skrivbar/Interaktiv) hör ihop och sitter för sig, direkt under bannern */
+  .ws-mode-strip{
+    position:sticky; top:47px; z-index:4; display:flex; flex-wrap:wrap; align-items:center; gap:12px;
+    background:var(--surface); border-bottom:1.5px solid var(--border); padding:10px 22px;
+    font-family:'Sora',sans-serif; transition:background .2s, border-color .2s;
   }
-  .ws-sidebar label{ font-size:.85rem; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:6px; }
-  .ws-sidebar input[type=checkbox]{ width:15px; height:15px; accent-color:var(--accent); flex-shrink:0; }
-  .ws-sidebar-top, .ws-sidebar-actions{
-    display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px 16px;
-    border-bottom:1.5px solid var(--border); position:sticky; z-index:2; background:var(--surface);
+  .ws-mode-strip label{ font-size:.85rem; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:6px; }
+
+  /* Allt som rör arbetsbladets INNEHÅLL (kategorier, antal, facit, svårighetsgrad, åtgärder)
+     samlat i EN panel, med tunna avdelare mellan sektionerna istället för separata block. */
+  .ws-panel{
+    position:sticky; top:93px; z-index:3; background:var(--surface); border-bottom:1.5px solid var(--border);
+    font-family:'Sora',sans-serif; transition:background .2s, border-color .2s;
   }
-  .ws-sidebar-top{ top:0; }
-  .ws-sidebar-actions{ top:53px; }
-  body.glass-mode .ws-sidebar-top{ top:0; }
-  .ws-total-count{ font-size:.8rem; color:var(--muted); font-weight:700; }
-  .ws-score-line{ padding:6px 16px; font-size:.85rem; font-weight:700; color:var(--text); border-bottom:1.5px solid var(--border); }
-  .ws-sidebar-actions button{
+  .ws-panel-section{
+    display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:12px 22px;
+    border-top:1.5px solid var(--border);
+  }
+  .ws-panel-section:first-child{ border-top:none; }
+  body.glass-mode .ws-panel-section{ border-top-color:var(--glass-border); }
+  .ws-panel label{ font-size:.85rem; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:6px; }
+  .ws-panel input[type=number]{ width:56px; padding:4px 6px; border:1.5px solid var(--border); border-radius:6px; font-family:'Sora',sans-serif; }
+  .ws-panel input[type=checkbox]{ width:16px; height:16px; accent-color:var(--accent); }
+  .ws-panel-actions button{
     border:1.5px solid var(--accent); background:var(--accent); color:#fff; border-radius:8px;
-    padding:7px 12px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; font-size:.8rem;
+    padding:8px 16px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; font-size:.85rem;
   }
-  .ws-sidebar-actions button:hover{ opacity:.88; }
-  .wc-spacer{ flex:1 1 auto; min-width:4px; }
-
-  .ws-table{ padding:10px 12px 24px; display:flex; flex-direction:column; gap:14px; }
-  .ws-table-group{
-    background:var(--surface2); border:1.5px solid var(--border); border-radius:12px; overflow:hidden;
+  .ws-panel-actions button:hover{ opacity:.88; }
+  .wc-spacer{ flex:1 1 auto; min-width:8px; }
+  .wc-pill-btn{
+    border:1.5px solid var(--border); background:var(--surface2); color:var(--text);
+    border-radius:20px; padding:8px 15px; font-size:.82rem; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif;
   }
-  .ws-table-grouphead{
-    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;
-    padding:9px 12px; background:rgba(48,107,240,.07); border-bottom:1.5px solid var(--border);
+  .wc-pill-btn.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .ws-settings-drawer{ display:flex; flex-wrap:wrap; gap:10px; align-items:stretch; }
+  .ws-settings-group{
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:8px 12px;
+    background:var(--surface2); border:1.5px solid var(--border); border-radius:10px;
   }
-  .ws-table-group-label{ font-size:.86rem; font-weight:800; color:var(--text); }
-  .ws-neg-toggle{ font-size:.76rem !important; }
-  .ws-switch-label{ position:relative; display:inline-flex; align-items:center; gap:7px; cursor:pointer; }
-  .ws-switch-input{ position:absolute; top:0; left:0; width:34px; height:19px; opacity:0; margin:0; cursor:pointer; z-index:1; }
-  .ws-switch-track{
-    position:relative; width:34px; height:19px; background:var(--border); border-radius:999px;
-    transition:background .15s; flex-shrink:0; display:inline-block;
-  }
-  .ws-switch-knob{
-    position:absolute; top:2px; left:2px; width:15px; height:15px; background:#fff; border-radius:50%;
-    box-shadow:0 1px 3px rgba(16,14,40,.3); transition:transform .15s;
-  }
-  .ws-switch-input:checked + .ws-switch-track{ background:var(--accent); }
-  .ws-switch-input:checked + .ws-switch-track .ws-switch-knob{ transform:translateX(15px); }
-  .ws-switch-input:focus-visible + .ws-switch-track{ outline:2px solid var(--accent); outline-offset:2px; }
-  .ws-table-row{
-    display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:9px 12px;
-    border-top:1px solid var(--border);
-  }
-  .ws-table-row:first-of-type{ border-top:none; }
-  .ws-row-check{ font-size:.84rem !important; color:var(--text) !important; font-weight:700 !important; flex:0 0 auto; min-width:150px; }
-  .ws-row-controls{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; flex:1 1 auto; }
-  .ws-row-controls label{ font-size:.74rem; white-space:nowrap; }
-  .ws-row-count{
-    width:40px; padding:4px 4px; border:1.5px solid var(--border); border-radius:6px; text-align:center;
-    font-weight:700; font-family:'Sora',sans-serif; flex-shrink:0;
-  }
-  .ws-table-row.ws-row-disabled .ws-row-controls,
-  .ws-table-row.ws-row-disabled .ws-row-count{ opacity:.4; }
-  .ws-table .ws-mode-toggle{ padding:2px; }
-  .ws-table .ws-mode-btn{ padding:5px 9px; font-size:.72rem; }
-  body.glass-mode .ws-table-group{ background:rgba(255,255,255,.4); border-color:var(--glass-border); }
-  body.glass-mode .ws-table-grouphead{ background:rgba(48,107,240,.1); border-color:var(--glass-border); }
-  body.glass-mode .ws-table-row{ border-color:var(--glass-border); }
-
+  .ws-settings-group-label{ font-size:.76rem; color:var(--muted); font-weight:800; margin-right:2px; white-space:nowrap; }
+  .ws-cat-item{ display:flex; align-items:center; gap:5px; }
+  .ws-cat-count{ width:42px !important; text-align:center; font-weight:700; }
   .ws-divider{ width:1.5px; align-self:stretch; background:var(--border); margin:0 4px; }
   .worksheet-page{ max-width:900px; margin:0 auto; padding:38px 34px 60px; font-family:'Sora',sans-serif; color:#100e28; }
   .worksheet-title-bar{
@@ -135,33 +109,7 @@
     -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact;
   }
   .worksheet-page h1{ font-size:1.5rem; margin:0 0 8px; }
-  .ws-title-input{
-    display:block; width:100%; font-size:1.5rem; font-weight:700; font-family:'Sora',sans-serif;
-    color:#100e28; border:none; background:transparent; margin:0 0 8px; padding:2px 0;
-    border-bottom:1.5px dashed transparent;
-  }
-  .ws-title-input:hover, .ws-title-input:focus{ border-bottom-color:var(--border); outline:none; }
-  .ws-title-input::placeholder{ color:#b9b2e0; }
-  .ws-title-print-only{ display:none; }
-  .worksheet-footnote{ margin-top:22px; padding-top:10px; border-top:1px solid #e4e0f7; font-size:.78rem; color:var(--muted); }
-  @media print{ .ws-title-print-only{ display:block; } }
   .worksheet-meta{ font-size:.95rem; color:#585078; margin-bottom:28px; }
-
-  .ws-interactive-bar{
-    position:sticky; top:0; z-index:2; display:flex; flex-wrap:wrap; align-items:center; gap:10px;
-    padding:10px 22px; background:var(--surface); border-bottom:1.5px solid var(--border);
-    font-family:'Sora',sans-serif;
-  }
-  .ws-interactive-bar button{
-    border:1.5px solid var(--accent); background:var(--accent); color:#fff; border-radius:8px;
-    padding:7px 14px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; font-size:.82rem;
-  }
-  .ws-interactive-bar .ws-score-display{ font-size:.85rem; font-weight:700; color:var(--text); }
-  body.glass-mode .ws-interactive-bar{
-    background:var(--glass-bg); backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
-    border-color:var(--glass-border);
-  }
-  body.ws-focus-mode .ws-sidebar{ display:none; }
   .worksheet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px 48px; }
   .worksheet-grid.ws-grid-single{ grid-template-columns:1fr; max-width:700px; margin:0 auto; }
   .worksheet-problem{
@@ -223,6 +171,21 @@
   .ws-bigfrac-top{ padding:0 7px 5px; border-bottom:2.2px solid #100e28; }
   .ws-bigfrac-bottom{ padding:5px 7px 0; }
 
+  /* ═══ Kategori-panel (flerval: talform × räknesätt) ═══ */
+  .ws-cat-panel{
+    display:flex; flex-wrap:wrap; align-items:center; gap:16px;
+    padding:0 22px 14px; font-family:'Sora',sans-serif;
+  }
+  .ws-cat-group{ display:flex; align-items:center; gap:6px; }
+  .ws-cat-group-label{ font-size:.78rem; color:var(--muted); font-weight:700; margin-right:2px; }
+  .ws-cat-btn{
+    border:1.5px solid var(--border); background:#fff; color:var(--muted); padding:6px 13px;
+    font-weight:700; border-radius:7px; cursor:pointer; font-family:'Sora',sans-serif; font-size:.85rem;
+    transition:all .15s;
+  }
+  .ws-cat-btn:hover{ border-color:var(--accent); }
+  .ws-cat-btn.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+
   /* ═══ Bråksvar: täljare/nämnare-rutor i interaktivt läge ═══ */
   .ws-frac-input{ display:inline-flex; flex-direction:column; align-items:center; gap:3px; }
   .ws-frac-input input{ width:52px; text-align:center; }
@@ -264,177 +227,128 @@
   <button type="button" id="wsGlassToggle" class="pt-header-theme-btn" title="Byt mellan modern och klassisk vy — påverkar aldrig utskriften">🌓 Tema</button>
 </header>
 <div class="ws-ambient"><span></span><span></span><span></span></div>
-<div class="ws-layout">
-  <aside class="ws-sidebar no-print">
-    <div class="ws-sidebar-top">
-      <div class="ws-mode-toggle">
-        <button type="button" id="wsModePrint" class="ws-mode-btn active">📄 Skrivbar</button>
-        <button type="button" id="wsModeInteractive" class="ws-mode-btn">💻 Interaktiv</button>
+<div class="worksheet-page-wrap">
+  <div class="ws-mode-strip no-print">
+    <div class="ws-mode-toggle">
+      <button type="button" id="wsModePrint" class="ws-mode-btn active">📄 Skrivbar</button>
+      <button type="button" id="wsModeInteractive" class="ws-mode-btn">💻 Interaktiv</button>
+    </div>
+    <label id="wsNumlineLabel" style="display:none;"><input type="checkbox" id="wsNumlineToggle"> 📏 Som tallinjeblad</label>
+  </div>
+
+  <div class="ws-panel no-print">
+    <div class="ws-panel-section ws-cat-panel">
+      <div class="ws-cat-group">
+        <span class="ws-cat-group-label">Heltal</span>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn active" data-cat="intAddSub">+/−</button><input type="number" class="ws-cat-count" data-cat="intAddSub" min="0" max="60" value="15" style="display:none;"></div>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="intMulDiv">×/÷</button><input type="number" class="ws-cat-count" data-cat="intMulDiv" min="0" max="60" value="15" style="display:none;"></div>
       </div>
-      <label id="wsNumlineLabel" style="display:none;"><input type="checkbox" id="wsNumlineToggle"> 📏 Som tallinjeblad</label>
-      <div class="ws-mode-toggle" id="wsNumlineTypeToggle" style="display:none;">
-        <button type="button" class="ws-mode-btn ws-numline-type-btn active" data-type="graderad" title="Omärkta streck, bara 0:an utsatt">Graderad</button>
-        <button type="button" class="ws-mode-btn ws-numline-type-btn" data-type="oppen" title="Tom linje med pilar — eleven placerar själv sina markeringar">Öppen</button>
+      <div class="ws-cat-group">
+        <span class="ws-cat-group-label">Bråk</span>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="fracAddSub">+/−</button><input type="number" class="ws-cat-count" data-cat="fracAddSub" min="0" max="60" value="10" style="display:none;"></div>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="fracMul">×</button><input type="number" class="ws-cat-count" data-cat="fracMul" min="0" max="60" value="10" style="display:none;"></div>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="fracDiv">÷</button><input type="number" class="ws-cat-count" data-cat="fracDiv" min="0" max="60" value="10" style="display:none;"></div>
+      </div>
+      <div class="ws-cat-group">
+        <span class="ws-cat-group-label">Decimal</span>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="decMul">×</button><input type="number" class="ws-cat-count" data-cat="decMul" min="0" max="60" value="10" style="display:none;"></div>
+        <div class="ws-cat-item"><button type="button" class="ws-cat-btn" data-cat="decDiv">÷</button><input type="number" class="ws-cat-count" data-cat="decDiv" min="0" max="60" value="10" style="display:none;"></div>
       </div>
     </div>
 
-    <div class="ws-sidebar-actions">
+    <div class="ws-panel-section ws-panel-countrow">
+      <label id="wsCountLabel">Antal uppgifter: <input type="number" id="wsCount" min="4" max="60" value="30"></label>
+      <label><input type="checkbox" id="wsPerTypeMode"> Anpassa antal per typ</label>
       <label id="wsAnswerKeyLabel"><input type="checkbox" id="wsAnswerKey" checked> Facit</label>
-      <span id="wsTotalCount" class="ws-total-count"></span>
       <div class="wc-spacer"></div>
-      <button id="wsRegenerate">🔄 Nytt</button>
+      <button type="button" id="wsSettingsToggle" class="wc-pill-btn">⚙️ Svårighetsgrad</button>
+    </div>
+
+    <div class="ws-panel-section ws-settings-drawer" id="wsSettingsDrawer" style="display:none;">
+    <div class="ws-settings-group" id="wsIntNegGroup" style="display:none;">
+      <span class="ws-settings-group-label">Heltal</span>
+      <label><input type="checkbox" id="wsIntNegative" checked> Negativa tal</label>
+    </div>
+    <div class="ws-settings-group" id="wsIntAddSubGroup" style="display:none;">
+      <span class="ws-settings-group-label">Heltal +/−</span>
+      <label><input type="checkbox" id="wsAdvanced"> Avancerad (3–4 termer)</label>
+      <div class="ws-mode-toggle" id="wsIntAddSubLevelToggle">
+        <button type="button" class="ws-mode-btn ws-int-addsub-level-btn active" data-level="1" title="Tal ca 1–10">Nivå 1</button>
+        <button type="button" class="ws-mode-btn ws-int-addsub-level-btn" data-level="2" title="Tal ca 1–100">Nivå 2</button>
+      </div>
+    </div>
+    <div class="ws-settings-group" id="wsIntMulDivGroup" style="display:none;">
+      <span class="ws-settings-group-label">Heltal ×/÷</span>
+      <div class="ws-mode-toggle" id="wsLevelToggle">
+        <button type="button" class="ws-mode-btn ws-level-btn active" data-level="1">Nivå 1</button>
+        <button type="button" class="ws-mode-btn ws-level-btn" data-level="2">Nivå 2</button>
+        <button type="button" class="ws-mode-btn ws-level-btn" data-level="3">Nivå 3</button>
+      </div>
+      <div class="ws-mode-toggle" id="wsIntMethodToggle">
+        <button type="button" class="ws-mode-btn ws-int-method-btn active" data-method="kort" title="Klassisk kortdivision">Kortdivision</button>
+        <button type="button" class="ws-mode-btn ws-int-method-btn" data-method="delar" title="T.ex. 91 ÷ 7 = 70 ÷ 7 + 21 ÷ 7">Uppdelning i delar</button>
+        <button type="button" class="ws-mode-btn ws-int-method-btn" data-method="stort" title="3–4 siffror i täljaren, ibland med kvot i decimalform">Stort tal</button>
+      </div>
+    </div>
+    <div class="ws-settings-group" id="wsFracAddSubGroup" style="display:none;">
+      <span class="ws-settings-group-label">Bråk +/−</span>
+      <div class="ws-mode-toggle" id="wsFracRelToggle">
+        <button type="button" class="ws-mode-btn ws-frac-rel-btn active" data-level="1" title="T.ex. 3/8 + 2/8">Samma nämnare</button>
+        <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="2" title="T.ex. 1/2 + 1/4">Multipel</button>
+        <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="3" title="T.ex. 1/7 + 1/3">Relativt prima</button>
+      </div>
+    </div>
+    <div class="ws-settings-group" id="wsFracMulGroup" style="display:none;">
+      <span class="ws-settings-group-label">Bråk ×</span>
+      <div class="ws-mode-toggle" id="wsFracMagToggle">
+        <button type="button" class="ws-mode-btn ws-frac-mag-btn active" data-level="1">Nivå 1</button>
+        <button type="button" class="ws-mode-btn ws-frac-mag-btn" data-level="2">Nivå 2</button>
+      </div>
+      <label title="T.ex. 7/25 × 5/49 → 1/5 × 1/7"><input type="checkbox" id="wsFracMulCancel"> Förkortningsbara faktorer</label>
+    </div>
+    <div class="ws-settings-group" id="wsFracDivGroup" style="display:none;">
+      <span class="ws-settings-group-label">Bråk ÷</span>
+      <label title="Täljaren är en multiplikation av två bråk som ska räknas ut först"><input type="checkbox" id="wsFracDivNested"> Nästlad täljare</label>
+    </div>
+    <div class="ws-settings-group" id="wsFracNegGroup" style="display:none;">
+      <span class="ws-settings-group-label">Bråk</span>
+      <label><input type="checkbox" id="wsFracNegative" checked> Negativa bråk</label>
+    </div>
+    <div class="ws-settings-group" id="wsDecGroup" style="display:none;">
+      <span class="ws-settings-group-label">Decimal</span>
+      <div class="ws-mode-toggle" id="wsDecLevelToggle">
+        <button type="button" class="ws-mode-btn ws-dec-level-btn active" data-level="1" title="En decimalfaktor + ett runt heltal / nämnare kräver ingen förkortning">Nivå 1</button>
+        <button type="button" class="ws-mode-btn ws-dec-level-btn" data-level="2" title="Decimaler i båda faktorerna / nämnaren kräver förkortning">Nivå 2</button>
+      </div>
+      <label><input type="checkbox" id="wsDecNegative" checked> Negativa decimaltal</label>
+    </div>
+    <div class="ws-settings-group" id="wsNumlineTypeGroup" style="display:none;">
+      <span class="ws-settings-group-label">Tallinje</span>
+      <div class="ws-mode-toggle" id="wsNumlineTypeToggle">
+        <button type="button" class="ws-mode-btn ws-numline-type-btn active" data-type="graderad" title="Nuvarande stil: omärkta streck, bara 0:an utsatt">Graderad</button>
+        <button type="button" class="ws-mode-btn ws-numline-type-btn" data-type="oppen" title="Helt tom linje med pilar i båda ändar — eleven placerar själv sina markeringar">Öppen</button>
+      </div>
+    </div>
+
+    <div class="ws-panel-section ws-panel-actions">
+      <button id="wsRegenerate">🔄 Nytt arbetsblad</button>
       <button id="wsPrint">🖨️ Skriv ut</button>
       <button id="wsCheck" style="display:none;">✅ Rätta</button>
+      <span id="wsScore" style="display:none;font-weight:700;color:var(--text);"></span>
     </div>
-    <div id="wsScore" class="ws-score-line" style="display:none;"></div>
+  </div>
 
-    <div class="ws-table">
-      <div class="ws-table-group">
-        <div class="ws-table-grouphead">
-          <span class="ws-table-group-label">Heltal</span>
-          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsIntNegative" class="ws-switch-input" checked><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa tal</label>
-        </div>
-        <div class="ws-table-row" data-row="intAddSub">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intAddSub" checked> Addition och subtraktion</label>
-          <div class="ws-row-controls">
-            <label><input type="checkbox" id="wsAdvanced"> Avancerad</label>
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-int-addsub-level-btn active" data-level="1" title="Tal ca 1–10">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-int-addsub-level-btn" data-level="2" title="Tal ca 1–100">Nivå 2</button>
-            </div>
-          </div>
-          <input type="number" class="ws-row-count" data-cat="intAddSub" min="0" max="60" value="15">
-        </div>
-        <div class="ws-table-row" data-row="intMul">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intMul"> Multiplikation</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-int-mul-level-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-int-mul-level-btn" data-level="2">Nivå 2</button>
-              <button type="button" class="ws-mode-btn ws-int-mul-level-btn" data-level="3">Nivå 3</button>
-            </div>
-          </div>
-          <input type="number" class="ws-row-count" data-cat="intMul" min="0" max="60" value="10" disabled>
-        </div>
-        <div class="ws-table-row" data-row="intDiv">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intDiv"> Division</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-int-div-level-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-int-div-level-btn" data-level="2">Nivå 2</button>
-              <button type="button" class="ws-mode-btn ws-int-div-level-btn" data-level="3">Nivå 3</button>
-            </div>
-            <div class="ws-mode-toggle" title="Nivå ovan gäller bara Kortdivision">
-              <button type="button" class="ws-mode-btn ws-int-method-btn active" data-method="kort" title="Klassisk kortdivision">Kort</button>
-              <button type="button" class="ws-mode-btn ws-int-method-btn" data-method="delar" title="T.ex. 91 ÷ 7 = 70 ÷ 7 + 21 ÷ 7">Delar</button>
-              <button type="button" class="ws-mode-btn ws-int-method-btn" data-method="stort" title="3–4 siffror i täljaren, ibland med kvot i decimalform">Stort</button>
-            </div>
-          </div>
-          <input type="number" class="ws-row-count" data-cat="intDiv" min="0" max="60" value="10" disabled>
-        </div>
-      </div>
+  <div class="worksheet-page">
+    <h1 id="wsTitle">Blandad träning — positiva och negativa tal</h1>
+    <div class="worksheet-title-bar"></div>
+    <div class="worksheet-meta">Namn: ________________________________&nbsp;&nbsp;&nbsp;&nbsp;Datum: ______________</div>
+    <div class="worksheet-grid" id="worksheetGrid"></div>
+  </div>
 
-      <div class="ws-table-group">
-        <div class="ws-table-grouphead">
-          <span class="ws-table-group-label">Bråk</span>
-          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsFracNegative" class="ws-switch-input" checked><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa bråk</label>
-        </div>
-        <div class="ws-table-row" data-row="fracAddSub">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracAddSub"> Addition och subtraktion</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-frac-rel-btn active" data-level="1" title="T.ex. 3/8 + 2/8">Samma nämnare</button>
-              <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="2" title="T.ex. 1/2 + 1/4">Multipel</button>
-              <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="3" title="T.ex. 1/7 + 1/3">Relativt prima</button>
-            </div>
-          </div>
-          <input type="number" class="ws-row-count" data-cat="fracAddSub" min="0" max="60" value="10" disabled>
-        </div>
-        <div class="ws-table-row" data-row="fracMul">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracMul"> Multiplikation</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-frac-mag-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-frac-mag-btn" data-level="2">Nivå 2</button>
-            </div>
-            <label title="T.ex. 7/25 × 5/49 → 1/5 × 1/7"><input type="checkbox" id="wsFracMulCancel"> Förkortningsbara</label>
-          </div>
-          <input type="number" class="ws-row-count" data-cat="fracMul" min="0" max="60" value="10" disabled>
-        </div>
-        <div class="ws-table-row" data-row="fracDiv">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracDiv"> Division</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-frac-mag-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-frac-mag-btn" data-level="2">Nivå 2</button>
-            </div>
-            <label title="Täljaren är en multiplikation av två bråk som ska räknas ut först"><input type="checkbox" id="wsFracDivNested"> Nästlad täljare</label>
-          </div>
-          <input type="number" class="ws-row-count" data-cat="fracDiv" min="0" max="60" value="10" disabled>
-        </div>
-      </div>
-
-      <div class="ws-table-group">
-        <div class="ws-table-grouphead">
-          <span class="ws-table-group-label">Decimaltal</span>
-          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsDecNegative" class="ws-switch-input" checked><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa decimaltal</label>
-        </div>
-        <div class="ws-table-row" data-row="decAddSub">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decAddSub"> Addition och subtraktion</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-dec-addsub-level-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-dec-addsub-level-btn" data-level="2">Nivå 2</button>
-            </div>
-          </div>
-          <input type="number" class="ws-row-count" data-cat="decAddSub" min="0" max="60" value="10" disabled>
-        </div>
-        <div class="ws-table-row" data-row="decMul">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decMul"> Multiplikation</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-dec-level-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-dec-level-btn" data-level="2">Nivå 2</button>
-            </div>
-          </div>
-          <input type="number" class="ws-row-count" data-cat="decMul" min="0" max="60" value="10" disabled>
-        </div>
-        <div class="ws-table-row" data-row="decDiv">
-          <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decDiv"> Division</label>
-          <div class="ws-row-controls">
-            <div class="ws-mode-toggle">
-              <button type="button" class="ws-mode-btn ws-dec-level-btn active" data-level="1">Nivå 1</button>
-              <button type="button" class="ws-mode-btn ws-dec-level-btn" data-level="2">Nivå 2</button>
-            </div>
-          </div>
-          <input type="number" class="ws-row-count" data-cat="decDiv" min="0" max="60" value="10" disabled>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <div class="worksheet-page-wrap">
-    <div class="ws-interactive-bar no-print" id="wsInteractiveBar" style="display:none;">
-      <button type="button" id="wsFocusToggle" class="wc-pill-btn">🎯 Fokusläge</button>
-      <div class="wc-spacer"></div>
-      <button type="button" class="ws-btn-regenerate">🔄 Nytt arbetsblad</button>
-      <button type="button" class="ws-btn-check">✅ Rätta</button>
-      <span class="ws-score-display"></span>
-    </div>
-    <div class="worksheet-page">
-      <input type="text" id="wsTitle" class="ws-title-input no-print" placeholder="Taluppfattning">
-      <h1 class="ws-title-print-only" id="wsTitlePrint"></h1>
-      <div class="worksheet-title-bar"></div>
-      <div class="worksheet-meta">Namn: ________________________________&nbsp;&nbsp;&nbsp;&nbsp;Klass: ______________</div>
-      <div class="worksheet-grid" id="worksheetGrid"></div>
-      <div class="worksheet-footnote" id="wsFootnote"></div>
-    </div>
-
-    <div class="worksheet-page worksheet-answerkey" id="worksheetAnswerPage">
-      <h1>Facit</h1>
-      <div class="worksheet-title-bar"></div>
-      <div class="worksheet-answer-grid" id="worksheetAnswerGrid"></div>
-    </div>
+  <div class="worksheet-page worksheet-answerkey" id="worksheetAnswerPage">
+    <h1>Facit</h1>
+    <div class="worksheet-title-bar"></div>
+    <div class="worksheet-answer-grid" id="worksheetAnswerGrid"></div>
   </div>
 </div>
 
@@ -638,19 +552,33 @@ function genIntDivision(level) {
   return genIntDivisionKort(level);
 }
 
-// Multiplikation — egen rad, egen nivåskala (oberoende av divisionens Nivå/Metod).
-// Nivå 1: två faktorer. Nivå 2: tre faktorer. Nivå 3: fyra faktorer.
-function genIntMultiplication(level) {
-  if (level === 1) {
+// Nivå 1: två faktorer → produkt, ELLER en division (se genIntDivision)
+function genMulDivLevel1() {
+  if (Math.random() < 0.5) {
     const a = wsIntTerm(9), b = wsIntTerm(9);
     return { text: `${fmtNum(a)} × ${fmtNum(b)}`, answer: a * b, isFraction: false };
   }
-  if (level === 2) {
+  return genIntDivision(1);
+}
+
+// Nivå 2: en multiplikationskedja med tre faktorer, ELLER en division
+function genMulDivLevel2() {
+  if (Math.random() < 0.5) {
     const a = wsIntTerm(6), b = wsIntTerm(6), c = wsIntTerm(6);
     return { text: `${fmtNum(a)} × ${fmtNum(b)} × ${fmtNum(c)}`, answer: a * b * c, isFraction: false };
   }
-  const a = wsIntTerm(5), b = wsIntTerm(5), c = wsIntTerm(5), d = wsIntTerm(5);
-  return { text: `${fmtNum(a)} × ${fmtNum(b)} × ${fmtNum(c)} × ${fmtNum(d)}`, answer: a * b * c * d, isFraction: false };
+  return genIntDivision(2);
+}
+
+// Nivå 3: alltid en division (den mest komplexa formen under Kortdivision)
+function genMulDivLevel3() {
+  return genIntDivision(3);
+}
+
+function genMulDivProblem(level) {
+  if (level === 1) return genMulDivLevel1();
+  if (level === 2) return genMulDivLevel2();
+  return genMulDivLevel3();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -674,27 +602,6 @@ function intToDecimalStr(n, dp, wrapNeg) {
   const str = whole + frac;
   if (!neg) return str;
   return wrapNeg ? `(-${str})` : `-${str}`;
-}
-
-// Addition/subtraktion: båda talen har SAMMA antal decimaler (Nivå 1: 1 decimal,
-// Nivå 2: 2 decimaler) — det är en förutsättning för att kunna räkna direkt.
-function genDecimalAddSub() {
-  const twoDp = (wsDecAddSubLevel === 2);
-  const dp = twoDp ? wsRandInt(1, 2) : 1;
-  const coreMax = twoDp ? 999 : 99;
-  let n1 = wsRandNonZero(1, coreMax), n2 = wsRandNonZero(1, coreMax);
-  if (wsDecNegative.checked && Math.random() < 0.5) n1 = -n1;
-  if (wsDecNegative.checked && Math.random() < 0.5) n2 = -n2;
-  const op = Math.random() < 0.5 ? '+' : '−';
-  const total = (op === '+') ? n1 + n2 : n1 - n2;
-  return {
-    parts: [
-      { t: 'txt', text: intToDecimalStr(n1, dp, true) },
-      { t: 'txt', text: op },
-      { t: 'txt', text: intToDecimalStr(n2, dp, true) },
-    ],
-    answerKind: 'decimal', answer: { value: total, dp },
-  };
 }
 
 function genDecimalMul() {
@@ -906,15 +813,13 @@ function adaptLegacy(p) {
 //  KATEGORIREGISTER — se kommentaren högst upp i filen.
 // ═══════════════════════════════════════════════════════════════════
 const CATEGORIES = {
-  intAddSub:  { label: 'Heltal +/−',        group: 'Heltal',  gen: () => adaptLegacy(genWorksheetProblem(wsAdvanced.checked)) },
-  intMul:     { label: 'Heltal ×',          group: 'Heltal',  gen: () => adaptLegacy(genIntMultiplication(wsIntMulLevel)) },
-  intDiv:     { label: 'Heltal ÷',          group: 'Heltal',  gen: () => adaptLegacy(genIntDivision(wsIntDivLevel)) },
-  fracAddSub: { label: 'Bråk +/−',          group: 'Bråk',    gen: genFractionAddSub },
-  fracMul:    { label: 'Bråk ×',            group: 'Bråk',    gen: genFractionMul },
-  fracDiv:    { label: 'Bråk ÷',            group: 'Bråk',    gen: genFractionDiv },
-  decAddSub:  { label: 'Decimaltal +/−',    group: 'Decimal', gen: genDecimalAddSub },
-  decMul:     { label: 'Decimaltal ×',      group: 'Decimal', gen: genDecimalMul },
-  decDiv:     { label: 'Decimaltal ÷',      group: 'Decimal', gen: genDecimalDiv },
+  intAddSub:  { label: 'Heltal +/−', group: 'Heltal',  gen: () => adaptLegacy(genWorksheetProblem(wsAdvanced.checked)) },
+  intMulDiv:  { label: 'Heltal ×/÷', group: 'Heltal',  gen: () => adaptLegacy(genMulDivProblem(wsLevel)) },
+  fracAddSub: { label: 'Bråk +/−',   group: 'Bråk',    gen: genFractionAddSub },
+  fracMul:    { label: 'Bråk ×',     group: 'Bråk',    gen: genFractionMul },
+  fracDiv:    { label: 'Bråk ÷',     group: 'Bråk',    gen: genFractionDiv },
+  decMul:     { label: 'Decimal ×',  group: 'Decimal', gen: genDecimalMul },
+  decDiv:     { label: 'Decimal ÷',  group: 'Decimal', gen: genDecimalDiv },
 };
 let wsActiveCategories = new Set(['intAddSub']);
 
@@ -922,10 +827,7 @@ const worksheetGrid       = document.getElementById('worksheetGrid');
 const worksheetAnswerGrid = document.getElementById('worksheetAnswerGrid');
 const worksheetAnswerPage = document.getElementById('worksheetAnswerPage');
 const wsTitle     = document.getElementById('wsTitle');
-const wsTitlePrint = document.getElementById('wsTitlePrint');
-const wsFootnote  = document.getElementById('wsFootnote');
-const wsInteractiveBar = document.getElementById('wsInteractiveBar');
-const wsFocusToggle = document.getElementById('wsFocusToggle');
+const wsCount     = document.getElementById('wsCount');
 const wsAdvanced  = document.getElementById('wsAdvanced');
 const wsAnswerKey = document.getElementById('wsAnswerKey');
 const wsAnswerKeyLabel = document.getElementById('wsAnswerKeyLabel');
@@ -933,38 +835,45 @@ const wsModePrint       = document.getElementById('wsModePrint');
 const wsModeInteractive = document.getElementById('wsModeInteractive');
 const wsNumlineLabel    = document.getElementById('wsNumlineLabel');
 const wsNumlineToggle   = document.getElementById('wsNumlineToggle');
+const wsIntNegGroup    = document.getElementById('wsIntNegGroup');
 const wsIntNegative    = document.getElementById('wsIntNegative');
+const wsIntAddSubGroup = document.getElementById('wsIntAddSubGroup');
 const wsIntAddSubLevelBtns = Array.from(document.querySelectorAll('.ws-int-addsub-level-btn'));
-const wsIntMulLevelBtns    = Array.from(document.querySelectorAll('.ws-int-mul-level-btn'));
-const wsIntDivLevelBtns    = Array.from(document.querySelectorAll('.ws-int-div-level-btn'));
+const wsIntMulDivGroup = document.getElementById('wsIntMulDivGroup');
+const wsLevelBtns   = Array.from(document.querySelectorAll('.ws-level-btn'));
 const wsIntMethodBtns = Array.from(document.querySelectorAll('.ws-int-method-btn'));
+const wsFracAddSubGroup = document.getElementById('wsFracAddSubGroup');
 const wsFracRelBtns   = Array.from(document.querySelectorAll('.ws-frac-rel-btn'));
+const wsFracMulGroup = document.getElementById('wsFracMulGroup');
 const wsFracMagBtns   = Array.from(document.querySelectorAll('.ws-frac-mag-btn'));
 const wsFracMulCancel = document.getElementById('wsFracMulCancel');
+const wsFracDivGroup = document.getElementById('wsFracDivGroup');
 const wsFracDivNested = document.getElementById('wsFracDivNested');
+const wsFracNegGroup  = document.getElementById('wsFracNegGroup');
 const wsFracNegative  = document.getElementById('wsFracNegative');
-const wsDecAddSubLevelBtns = Array.from(document.querySelectorAll('.ws-dec-addsub-level-btn'));
+const wsDecGroup = document.getElementById('wsDecGroup');
 const wsDecLevelBtns   = Array.from(document.querySelectorAll('.ws-dec-level-btn'));
 const wsDecNegative  = document.getElementById('wsDecNegative');
-const wsNumlineTypeGroup = document.getElementById('wsNumlineTypeToggle');
+const wsNumlineTypeGroup = document.getElementById('wsNumlineTypeGroup');
 const wsNumlineTypeBtns  = Array.from(document.querySelectorAll('.ws-numline-type-btn'));
-const wsRowToggles = Array.from(document.querySelectorAll('.ws-row-toggle'));
-const wsRowCounts  = Array.from(document.querySelectorAll('.ws-row-count'));
-const wsTotalCountEl = document.getElementById('wsTotalCount');
+const wsCatBtns = Array.from(document.querySelectorAll('.ws-cat-btn'));
+const wsCatCountInputs = Array.from(document.querySelectorAll('.ws-cat-count'));
+const wsPerTypeMode = document.getElementById('wsPerTypeMode');
+const wsCountLabel = document.getElementById('wsCountLabel');
 const wsPrintBtn = document.getElementById('wsPrint');
 const wsGlassToggle = document.getElementById('wsGlassToggle');
+const wsSettingsToggle = document.getElementById('wsSettingsToggle');
+const wsSettingsDrawer = document.getElementById('wsSettingsDrawer');
 const wsCheckBtn = document.getElementById('wsCheck');
 const wsScoreEl  = document.getElementById('wsScore');
 
 let wsMode  = 'print';  // 'print' | 'interactive' | 'numline'
+let wsLevel = 1;        // 1 | 2 | 3 — endast relevant för Heltal ×/÷
 let wsIntAddSubLevel = 1; // 1 | 2 — talens storlek, endast Heltal +/−
-let wsIntMulLevel = 1;    // 1 | 2 | 3 — endast Heltal ×
-let wsIntDivLevel = 1;    // 1 | 2 | 3 — endast Heltal ÷ (bara vid Metod=Kort)
-let wsIntMethod = 'kort'; // 'kort' | 'delar' | 'stort' — endast Heltal ÷
+let wsIntMethod = 'kort'; // 'kort' | 'delar' | 'stort' — endast divisionshalvan av Heltal ×/÷
 let wsFracRelLevel = 1; // 1 | 2 | 3 — nämnarrelation, endast Bråk +/−
-let wsFracMagLevel = 1; // 1 | 2 — talens storlek, delas av Bråk × och Bråk ÷
-let wsDecAddSubLevel = 1; // 1 | 2 — antal decimaler, endast Decimaltal +/−
-let wsDecLevel = 1;     // 1 | 2 — delas av Decimaltal × och Decimaltal ÷
+let wsFracMagLevel = 1; // 1 | 2 — talens storlek, endast Bråk ×/÷
+let wsDecLevel = 1;     // 1 | 2 — delas av Decimal × och Decimal ÷
 let wsNumlineType = 'graderad'; // 'graderad' | 'oppen' — endast Tallinjeblad
 let wsProblems = [];
 
@@ -1030,40 +939,55 @@ function wsGradedNumberLineSVG() {
   </svg>`;
 }
 
-// "Öppen" tallinje: helt tom, bara en linje med EN solid pil åt höger —
-// inget 0-läge alls. Eleven markerar själv var sitt första tal "bor" (även
-// för stora tal som 245, där det inte är rimligt att skala mot en synlig
-// 0:a) och gör sedan egna hopp för nästa term, gärna uppdelat i runda steg.
+// "Öppen" tallinje: helt tom, bara en linje med pilar i båda ändar — inget
+// 0-läge alls. Eleven markerar själv var sitt första tal "bor" (även för
+// stora tal som 245, där det inte är rimligt att skala mot en synlig 0:a)
+// och gör sedan egna hopp för nästa term, gärna uppdelat i runda steg.
 function wsOpenNumberLineSVG() {
   const W = 640, H = 46, m = 24, cy = H / 2;
   return `<svg viewBox="0 0 ${W} ${H+16}" class="ws-numline" preserveAspectRatio="none">
-    <line x1="${m}" y1="${cy}" x2="${W-m-2}" y2="${cy}" stroke="#100e28" stroke-width="1.5"/>
-    <polygon points="${W-m-14},${cy-7} ${W-m+2},${cy} ${W-m-14},${cy+7}" fill="#100e28"/>
+    <line x1="${m}" y1="${cy}" x2="${W-m}" y2="${cy}" stroke="#100e28" stroke-width="1.5"/>
+    <polyline points="${W-m-9},${cy-6} ${W-m},${cy} ${W-m-9},${cy+6}" fill="none" stroke="#100e28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="${m+9},${cy-6} ${m},${cy} ${m+9},${cy+6}" fill="none" stroke="#100e28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
 }
 function wsNumberLineSVG() {
   return (wsNumlineType === 'oppen') ? wsOpenNumberLineSVG() : wsGradedNumberLineSVG();
 }
 
-// Uppdaterar totalsumman som visas ovanför tabellen — summan av antalet
-// för varje rad vars kryssruta är ikryssad.
-function updateTotalCount() {
+// Visar bara antals-rutan för en kategori när "Anpassa antal per typ" är på
+// OCH den kategorin faktiskt är aktiv — annars är den bara brus.
+function updateCatCountVisibility() {
+  const perType = wsPerTypeMode.checked;
+  wsCatCountInputs.forEach(inp => {
+    const active = wsActiveCategories.has(inp.dataset.cat);
+    inp.style.display = (perType && active) ? '' : 'none';
+  });
+  wsCount.disabled = perType;
+  wsCountLabel.title = perType ? 'Summan av antalen du satt per typ nedan' : '';
+}
+function currentPerTypeSum() {
   let sum = 0;
-  wsRowCounts.forEach(inp => {
+  wsCatCountInputs.forEach(inp => {
     if (wsActiveCategories.has(inp.dataset.cat)) sum += Math.max(0, parseInt(inp.value, 10) || 0);
   });
-  wsTotalCountEl.textContent = `Totalt: ${sum} uppgift${sum === 1 ? '' : 'er'}`;
   return sum;
 }
+function updateCountFromPerType() {
+  if (!wsPerTypeMode.checked) return;
+  wsCount.value = currentPerTypeSum();
+}
 
-// Bygger uppgiftslistan: exakt så många av VARJE ikryssad rad som dess eget
-// antalsfält anger, sedan blandade så att samma typ inte klumpar ihop sig.
-// Det är samma mekanism oavsett om en eller flera rader är ikryssade —
-// mixning är bara "flera rader aktiva samtidigt", precis som i kategori-
-// registret ovan.
-function buildProblemSet() {
+// Bygger uppgiftslistan. Normalt: N slumpmässiga uppgifter jämnt spridda
+// över de aktiva kategorierna (som tidigare). I "Anpassa antal per typ":
+// exakt så många av VARJE aktiv kategori som angetts, sedan blandade så
+// att samma typ inte klumpar ihop sig i följd.
+function buildProblemSet(n) {
+  if (!wsPerTypeMode.checked) {
+    return Array.from({ length: n }, genOneProblem);
+  }
   let list = [];
-  wsRowCounts.forEach(inp => {
+  wsCatCountInputs.forEach(inp => {
     const cat = inp.dataset.cat;
     if (!wsActiveCategories.has(cat)) return;
     const count = Math.max(0, parseInt(inp.value, 10) || 0);
@@ -1073,14 +997,14 @@ function buildProblemSet() {
     const j = Math.floor(Math.random() * (i + 1));
     [list[i], list[j]] = [list[j], list[i]];
   }
-  if (wsMode === 'numline' && list.length > 20) list = list.slice(0, 20);
-  return list.length ? list : [genOneProblem()]; // ytterst defensiv fallback om alla rutor råkar stå på 0
+  return list.length ? list : Array.from({ length: n }, genOneProblem); // fallback om alla rutor står på 0
 }
 
 function renderWorksheet() {
-  wsProblems = buildProblemSet();
+  const maxCount = (wsMode === 'numline') ? 20 : 60;
+  const n = Math.max(4, Math.min(maxCount, parseInt(wsCount.value, 10) || 30));
+  wsProblems = buildProblemSet(n);
   wsScoreEl.textContent = '';
-  document.querySelectorAll('.ws-score-display').forEach(el => { el.textContent = ''; });
   worksheetGrid.classList.toggle('ws-grid-single', wsMode === 'numline');
 
   if (wsMode === 'interactive') {
@@ -1173,9 +1097,7 @@ function checkWorksheetAnswers() {
     row.classList.toggle('ws-wrong', !isCorrect);
     fb.innerHTML = wsFeedbackHTML(isCorrect, String(p.answer));
   });
-  const scoreText = `${correct} av ${answered} besvarade rätt (${wsProblems.length} totalt)`;
-  wsScoreEl.textContent = scoreText;
-  document.querySelectorAll('.ws-score-display').forEach(el => { el.textContent = scoreText; });
+  wsScoreEl.textContent = `${correct} av ${answered} besvarade rätt (${wsProblems.length} totalt)`;
 }
 
 function setWorksheetMode(mode) {
@@ -1186,8 +1108,6 @@ function setWorksheetMode(mode) {
   wsPrintBtn.style.display       = (mode === 'interactive') ? 'none' : '';
   wsCheckBtn.style.display       = (mode === 'interactive') ? '' : 'none';
   wsScoreEl.style.display        = (mode === 'interactive') ? '' : 'none';
-  wsInteractiveBar.style.display = (mode === 'interactive') ? '' : 'none';
-  if (mode !== 'interactive') document.body.classList.remove('ws-focus-mode');
   document.body.classList.toggle('ws-mode-interactive', mode === 'interactive');
   renderWorksheet();
 }
@@ -1197,7 +1117,7 @@ function setWorksheetMode(mode) {
 // tallinje ger inte mening). Så kryssrutan visas bara när enbart heltalskategorier
 // är aktiva, och faller automatiskt tillbaka till vanlig "Skrivbar" annars.
 function numlineEligible() {
-  return Array.from(wsActiveCategories).every(id => id === 'intAddSub' || id === 'intMul' || id === 'intDiv');
+  return Array.from(wsActiveCategories).every(id => id === 'intAddSub' || id === 'intMulDiv');
 }
 function updateNumlineAvailability() {
   const eligible = numlineEligible();
@@ -1213,30 +1133,33 @@ function applyPrintFamilyMode() {
   updateNumlineAvailability();
 }
 
-// Radens kryssruta styr bara vilken FÄRG/opacitet raden har och om dess
-// kontroller (nivåer, antal) är klickbara — raden själv försvinner aldrig
-// eller byts ut, så inget "poppar upp" på oväntade ställen längre.
-function updateRowEnabledState(row) {
-  const cb = row.querySelector('.ws-row-toggle');
-  const on = cb.checked;
-  row.classList.toggle('ws-row-disabled', !on);
-  row.querySelectorAll('.ws-row-controls button, .ws-row-controls input, .ws-row-count').forEach(el => { el.disabled = !on; });
-}
-function updateAllRowStates() {
-  document.querySelectorAll('.ws-table-row').forEach(updateRowEnabledState);
+// Visar bara de inställningsGRUPPER som hör till minst en just nu aktiv
+// kategori — flera kan visas samtidigt vid mixning. Grupperingen (istället
+// för att dölja enskilda kontroller huller om buller) är själva
+// dekluttringen: varje låda visar tydligt vilken kategori den hör till.
+function updateSettingsVisibility() {
+  const hasIntAddSub = wsActiveCategories.has('intAddSub');
+  const hasIntMulDiv = wsActiveCategories.has('intMulDiv');
+  const hasFracAddSub = wsActiveCategories.has('fracAddSub');
+  const hasFracMul = wsActiveCategories.has('fracMul');
+  const hasFracDiv = wsActiveCategories.has('fracDiv');
+  const hasDecimal = wsActiveCategories.has('decMul') || wsActiveCategories.has('decDiv');
+  wsIntNegGroup.style.display    = (hasIntAddSub || hasIntMulDiv) ? '' : 'none';
+  wsIntAddSubGroup.style.display = hasIntAddSub ? '' : 'none';
+  wsIntMulDivGroup.style.display = hasIntMulDiv ? '' : 'none';
+  wsFracAddSubGroup.style.display = hasFracAddSub ? '' : 'none';
+  wsFracMulGroup.style.display    = hasFracMul ? '' : 'none';
+  wsFracDivGroup.style.display    = hasFracDiv ? '' : 'none';
+  wsFracNegGroup.style.display    = (hasFracAddSub || hasFracMul || hasFracDiv) ? '' : 'none';
+  wsDecGroup.style.display        = hasDecimal ? '' : 'none';
 }
 
-// Rubriken (wsTitle) är fritt redigerbar av läraren och rörs aldrig
-// automatiskt. Den löpande sammanfattningen av vad arbetsbladet tränar på
-// hamnar istället i en fotnot längst ner på sidan.
 function updateTitle() {
   const ids = Array.from(wsActiveCategories);
-  wsFootnote.textContent = 'Tränar på: ' + ids.map(id => CATEGORIES[id].label).join(' · ');
+  wsTitle.textContent = (ids.length === 1)
+    ? `Träning — ${CATEGORIES[ids[0]].label}`
+    : `Blandad träning — ${ids.map(id => CATEGORIES[id].label).join(' · ')}`;
 }
-function syncTitlePrint() {
-  wsTitlePrint.textContent = wsTitle.value.trim() || '\u00A0';
-}
-wsTitle.addEventListener('input', syncTitlePrint);
 
 document.getElementById('wsRegenerate').addEventListener('click', renderWorksheet);
 function updateGlassToggleUI() {
@@ -1245,6 +1168,11 @@ function updateGlassToggleUI() {
 wsGlassToggle.addEventListener('click', () => {
   document.body.classList.toggle('glass-mode');
   updateGlassToggleUI();
+});
+wsSettingsToggle.addEventListener('click', () => {
+  const willOpen = wsSettingsDrawer.style.display === 'none';
+  wsSettingsDrawer.style.display = willOpen ? 'flex' : 'none';
+  wsSettingsToggle.classList.toggle('active', willOpen);
 });
 wsPrintBtn.addEventListener('click', () => window.print());
 wsCheckBtn.addEventListener('click', checkWorksheetAnswers);
@@ -1262,17 +1190,10 @@ wsIntAddSubLevelBtns.forEach(btn => {
     renderWorksheet();
   });
 });
-wsIntMulLevelBtns.forEach(btn => {
+wsLevelBtns.forEach(btn => {
   btn.addEventListener('click', () => {
-    wsIntMulLevel = parseInt(btn.dataset.level, 10);
-    wsIntMulLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
-    renderWorksheet();
-  });
-});
-wsIntDivLevelBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    wsIntDivLevel = parseInt(btn.dataset.level, 10);
-    wsIntDivLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
+    wsLevel = parseInt(btn.dataset.level, 10);
+    wsLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
     renderWorksheet();
   });
 });
@@ -1300,13 +1221,6 @@ wsFracMagBtns.forEach(btn => {
 wsFracNegative.addEventListener('change', renderWorksheet);
 wsFracMulCancel.addEventListener('change', renderWorksheet);
 wsFracDivNested.addEventListener('change', renderWorksheet);
-wsDecAddSubLevelBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    wsDecAddSubLevel = parseInt(btn.dataset.level, 10);
-    wsDecAddSubLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
-    renderWorksheet();
-  });
-});
 wsDecLevelBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     wsDecLevel = parseInt(btn.dataset.level, 10);
@@ -1322,40 +1236,43 @@ wsNumlineTypeBtns.forEach(btn => {
     renderWorksheet();
   });
 });
-wsRowToggles.forEach(cb => {
-  cb.addEventListener('change', () => {
-    const cat = cb.dataset.cat;
-    if (!cb.checked && wsActiveCategories.size === 1 && wsActiveCategories.has(cat)) {
-      cb.checked = true; return; // minst en rad måste alltid vara aktiv
+wsCatBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cat = btn.dataset.cat;
+    if (wsActiveCategories.has(cat)) {
+      if (wsActiveCategories.size === 1) return; // minst en kategori måste alltid vara aktiv
+      wsActiveCategories.delete(cat);
+      btn.classList.remove('active');
+    } else {
+      wsActiveCategories.add(cat);
+      btn.classList.add('active');
     }
-    if (cb.checked) wsActiveCategories.add(cat); else wsActiveCategories.delete(cat);
-    updateRowEnabledState(cb.closest('.ws-table-row'));
+    updateSettingsVisibility();
     updateNumlineAvailability();
-    updateTotalCount();
+    updateCatCountVisibility();
+    updateCountFromPerType();
     updateTitle();
     renderWorksheet();
   });
 });
-wsRowCounts.forEach(inp => {
+wsPerTypeMode.addEventListener('change', () => {
+  updateCatCountVisibility();
+  updateCountFromPerType();
+  renderWorksheet();
+});
+wsCatCountInputs.forEach(inp => {
   inp.addEventListener('input', () => {
-    updateTotalCount();
+    updateCountFromPerType();
     renderWorksheet();
   });
 });
-wsFocusToggle.addEventListener('click', () => {
-  const on = document.body.classList.toggle('ws-focus-mode');
-  wsFocusToggle.classList.toggle('active', on);
-});
-document.querySelectorAll('.ws-btn-regenerate').forEach(btn => btn.addEventListener('click', renderWorksheet));
-document.querySelectorAll('.ws-btn-check').forEach(btn => btn.addEventListener('click', checkWorksheetAnswers));
 
 // ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
-updateAllRowStates();
+updateSettingsVisibility();
 updateNumlineAvailability();
-syncTitlePrint();
-updateTotalCount();
+updateCatCountVisibility();
 updateGlassToggleUI();
 updateTitle();
 renderWorksheet();

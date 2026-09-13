@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laddningsmodellen – Multiplikation</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ff;--surface:#fff;--surface2:#eae6ff;--border:#ccc5f0;
+  --text:#100e28;--muted:#585078;--accent:#306BF0;--accent2:#EC6095;
+  --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+  --correct:#18a348;--wrong:#e02020;--shadow:rgba(48,107,240,0.12);
+  --r-sm:8px;--r-md:14px;--r-lg:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(ellipse 420px 320px at 15% 20%,rgba(102,199,194,0.28) 0%,transparent 70%),
+    radial-gradient(ellipse 380px 300px at 85% 75%,rgba(236,96,149,0.22) 0%,transparent 70%),
+    radial-gradient(ellipse 350px 280px at 55% 50%,rgba(244,162,97,0.18) 0%,transparent 70%);
+  pointer-events:none;}
+
+/* NAV */
+header{background:var(--gradient);height:52px;display:flex;align-items:center;
+  padding:0 1.25rem;box-shadow:0 4px 24px rgba(0,0,0,0.14);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.95rem;color:#fff;}
+.logo span{opacity:0.75;font-weight:600;}
+.switch-btn{
+  background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.45);
+  border-radius:20px;color:#fff;font-family:'Sora',sans-serif;font-size:0.75rem;font-weight:600;
+  padding:4px 12px;text-decoration:none;transition:background .15s;white-space:nowrap;}
+.switch-btn:hover{background:rgba(255,255,255,0.32);}
+.help-btn{margin-left:0;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.4);
+  border-radius:20px;color:#fff;font-family:'Sora',sans-serif;font-size:0.75rem;font-weight:600;
+  padding:4px 12px;cursor:pointer;transition:background .15s;}
+.help-btn:hover{background:rgba(255,255,255,0.35);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(16,14,40,0.45);
+  z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:rgba(255,255,255,0.88);backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);border:1px solid rgba(255,255,255,0.9);
+  border-radius:var(--r-lg);box-shadow:0 16px 48px rgba(16,14,40,0.18);
+  padding:1.5rem;max-width:420px;width:90%;position:relative;}
+.modal h2{font-family:'Montserrat',sans-serif;font-size:1rem;margin-bottom:.6rem;}
+.modal p,.modal li{font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:.3rem;}
+.modal ul{padding-left:1.1rem;margin-bottom:.4rem;}
+.modal code{background:var(--surface2);border-radius:4px;padding:1px 5px;color:var(--accent);}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;
+  font-size:1.2rem;cursor:pointer;color:var(--muted);}
+
+/* LAYOUT */
+main{flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:.75rem .75rem 1.5rem;gap:.25rem;}
+
+/* CONTROL BLOCK */
+.control-block{display:flex;align-items:center;
+  background:rgba(255,255,255,0.72);backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.9);border-radius:var(--r-md);
+  box-shadow:0 8px 24px rgba(48,107,240,.10),0 2px 6px rgba(16,14,40,.06);overflow:hidden;}
+.expr-in{width:170px;font-family:'Sora',sans-serif;font-size:1rem;font-weight:500;
+  border:none;border-right:1.5px solid var(--border);padding:10px 14px;
+  background:transparent;color:var(--text);outline:none;text-align:center;transition:background .15s;}
+.expr-in:focus{background:var(--surface2);}
+.expr-in::placeholder{color:var(--muted);font-size:.82rem;}
+.btn-strip{display:flex;align-items:center;}
+.btn{font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;
+  border:none;border-right:1.5px solid var(--border);cursor:pointer;padding:0 16px;height:44px;
+  transition:background .13s;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.btn:last-child{border-right:none;}
+.btn-start{background:var(--accent);color:#fff;}
+.btn-start:hover:not(:disabled){background:#2358d4;}
+.btn-start:disabled{background:#a8bff8;color:#fff;cursor:default;}
+.btn-next{background:var(--correct);color:#fff;min-width:120px;}
+.btn-next:hover:not(:disabled){background:#14853c;}
+.btn-next:disabled{background:#a8d5bb;color:#fff;cursor:default;}
+.btn-reset{background:transparent;color:var(--muted);}
+.btn-reset:hover{background:var(--surface2);color:var(--text);}
+.kbd{font-size:.6rem;opacity:.65;background:rgba(255,255,255,.2);border-radius:3px;
+  padding:1px 4px;font-family:'Sora',sans-serif;border:1px solid rgba(255,255,255,.3);}
+.btn-reset .kbd{background:var(--surface2);border-color:var(--border);color:var(--muted);}
+.feedback-line{font-size:.72rem;font-weight:500;min-height:0;text-align:center;display:none;}
+.feedback-line.err{color:var(--wrong);display:block;}
+
+/* CANVAS CARD */
+.canvas-area{width:100%;max-width:600px;
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  border:1px solid rgba(255,255,255,.95);border-radius:var(--r-lg);
+  box-shadow:0 10px 32px rgba(48,107,240,.12),0 2px 8px rgba(16,14,40,.06);
+  display:flex;flex-direction:column;align-items:center;padding:.6rem;gap:.4rem;}
+.top-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.expr-display{font-family:'Montserrat',sans-serif;font-size:1.45rem;font-weight:700;
+  color:var(--text);letter-spacing:.5px;min-height:1.8rem;flex:1;text-align:center;}
+.legend{display:flex;gap:10px;font-size:.68rem;color:var(--muted);align-items:center;}
+.legend-item{display:flex;align-items:center;gap:3px;}
+.ldot{width:10px;height:10px;border-radius:50%;border:2px solid;flex-shrink:0;}
+.canvas-wrap{position:relative;width:100%;display:flex;justify-content:center;
+  background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--border);}
+canvas{display:block;width:100%;height:auto;}
+.narration-bar{width:100%;display:flex;align-items:center;gap:6px;min-height:28px;}
+.step-badge{flex-shrink:0;font-family:'Montserrat',sans-serif;font-size:.65rem;font-weight:700;
+  background:var(--surface2);color:var(--accent);border:1.5px solid var(--border);
+  border-radius:5px;padding:1px 7px;white-space:nowrap;}
+.narration{font-size:.78rem;color:var(--muted);line-height:1.45;transition:opacity .2s;flex:1;}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.result-row{display:none;align-items:center;justify-content:center;gap:8px;
+  background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--r-sm);
+  padding:6px 14px;width:100%;}
+.result-row.show{display:flex;animation:slideUp .22s ease forwards;}
+.result-eq{font-size:.8rem;color:var(--muted);}
+.result-val{font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:700;color:var(--correct);}
+.result-desc{font-size:.7rem;color:var(--muted);}
+
+/* PATTERN TABLE (rendered in HTML, shown over canvas when negA) */
+.pattern-wrap{width:100%;display:none;flex-direction:column;align-items:center;
+  padding:.5rem 0;}
+.pattern-wrap.visible{display:flex;}
+.pattern-table{border-collapse:collapse;font-family:'Sora',sans-serif;font-size:.85rem;}
+.pattern-table td{padding:6px 18px;text-align:center;border-bottom:1px solid var(--border);
+  transition:all .3s;}
+.pattern-table td.op{color:var(--muted);font-size:.8rem;}
+.pattern-table td.val-pos{font-weight:700;color:var(--accent);}
+.pattern-table td.val-neg{font-weight:700;color:var(--accent2);}
+.pattern-table td.val-zero{font-weight:700;color:var(--muted);}
+.pattern-table tr.highlight-row td{background:var(--surface2);}
+.pattern-table tr.reveal td{animation:revealCell .4s ease forwards;}
+@keyframes revealCell{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.pattern-arrow{font-size:.72rem;color:var(--muted);margin:.3rem 0;text-align:center;}
+.pattern-divider td{border-bottom:2px solid var(--border);padding:2px 0;}
+.pattern-table td.question{color:var(--border);font-size:1.1rem;font-weight:700;}
+
+/* BEADS */
+.beads-section{width:100%;max-width:600px;}
+.beads-label{font-size:.68rem;font-weight:600;color:var(--muted);
+  letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;padding-left:2px;}
+.beads-track{background:rgba(255,255,255,.68);backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);border:1px solid rgba(255,255,255,.85);
+  border-radius:var(--r-lg);box-shadow:0 6px 20px rgba(48,107,240,.09),0 2px 6px rgba(16,14,40,.05);
+  padding:10px 14px;display:flex;flex-direction:column;gap:8px;}
+.bead-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.bead-string{display:flex;align-items:center;gap:0;flex:1;flex-wrap:wrap;position:relative;}
+.bead-string::before{content:'';position:absolute;left:0;right:0;top:50%;height:2px;
+  background:var(--border);z-index:0;border-radius:1px;}
+.bead{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Sora',sans-serif;font-size:.6rem;font-weight:600;border:2px solid;cursor:pointer;
+  transition:transform .12s,box-shadow .12s;position:relative;z-index:1;flex-shrink:0;user-select:none;}
+.bead:hover{transform:scale(1.18);box-shadow:0 2px 8px rgba(0,0,0,.18);}
+.bead.active{transform:scale(1.22);box-shadow:0 0 0 3px white,0 0 0 5px currentColor;}
+.bead.used{opacity:.35;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Tegnefurs Matte <span>· Multiplikation med negativa tal</span></div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <!-- LÄNK TILL ADDITION/SUBTRAKTIONSVERKTYGET: byt ut href="#" mot rätt relativ sökväg -->
+    <a href="laddningsmodell/additionsubtraktion/index.html" class="switch-btn" title="Gå till addition & subtraktion">← Addition & subtraktion</a>
+    <button class="help-btn" onclick="document.getElementById('helpModal').classList.add('open')">? Hjälp</button>
+  </div>
+</header>
+
+<div class="modal-overlay" id="helpModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('helpModal').classList.remove('open')">✕</button>
+    <h2>🧮 Multiplikation med negativa tal</h2>
+    <p><strong>Positiv × tal</strong> — visas som grupper av kulor. <code>3 × (-2)</code> = tre grupper à 2 negativa kulor.</p>
+    <p><strong>Negativ × tal</strong> — visas som ett mönster i tabell. Mönstret avslöjar vad svaret måste bli!</p>
+    <ul>
+      <li>Skriv <code>×</code>, <code>*</code> eller <code>x</code> som multiplikationstecken</li>
+      <li>Negativa tal: <code>-3</code> eller <code>(-3)</code></li>
+      <li>Tal mellan −6 och 6</li>
+    </ul>
+    <p><strong>Tangentbord:</strong> <code>Enter</code> = Starta/Nästa · <code>Space</code> = Nästa · <code>Esc</code> = Återställ</p>
+  </div>
+</div>
+
+<main>
+  <div class="control-block">
+    <input class="expr-in" id="exprIn" type="text" autocomplete="off" spellcheck="false"
+           placeholder="t.ex. 3 × (-2)"
+           oninput="onInput()" onkeydown="if(event.key==='Enter')tryStart()">
+    <div class="btn-strip">
+      <button class="btn btn-start" id="playBtn" onclick="tryStart()">▶ Starta <span class="kbd">↵</span></button>
+      <button class="btn btn-next"  id="nextBtn" onclick="clickNext()" style="display:none" disabled>Nästa → <span class="kbd">Space</span></button>
+      <button class="btn btn-reset"              onclick="doReset()">↺ <span class="kbd">Esc</span></button>
+    </div>
+  </div>
+  <div class="feedback-line" id="feedback">&nbsp;</div>
+
+  <div class="canvas-area">
+    <div class="top-row">
+      <div class="expr-display" id="exprDisplay">&nbsp;</div>
+      <div class="legend" id="legendArea">
+        <div class="legend-item"><div class="ldot" style="background:#c7dcff;border-color:#306BF0"></div>+1</div>
+        <div class="legend-item"><div class="ldot" style="background:#ffd6e8;border-color:#EC6095"></div>−1</div>
+      </div>
+    </div>
+
+    <!-- GROUP CANVAS (positiv faktor) -->
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="c" width="560" height="300"></canvas>
+    </div>
+
+    <!-- PATTERN TABLE (negativ faktor) -->
+    <div class="pattern-wrap" id="patternWrap">
+      <table class="pattern-table" id="patternTable"></table>
+      <div class="pattern-arrow" id="patternArrow"></div>
+    </div>
+
+    <div class="narration-bar">
+      <div class="step-badge" id="stepBadge">—</div>
+      <div class="narration"  id="narration">Skriv ett uttryck ovan och tryck Starta.</div>
+    </div>
+    <div class="result-row" id="resultRow">
+      <span class="result-eq"  id="resultEq"></span>
+      <span class="result-val" id="resultVal"></span>
+      <span class="result-desc" id="resultDesc"></span>
+    </div>
+  </div>
+
+  <div class="beads-section">
+    <div class="beads-label">Uppgifter</div>
+    <div class="beads-track" id="beadsTrack"></div>
+  </div>
+</main>
+
+<script>
+// ══════════════════════════════════════════
+// PRESETS
+// ══════════════════════════════════════════
+const CATEGORIES=[
+  {id:'green', color:'#22c55e',stroke:'#15803d',text:'#fff',
+   tasks:['2×3','3×2','4×2','3×3']},
+  {id:'blue',  color:'#60a5fa',stroke:'#2563eb',text:'#fff',
+   tasks:['3×(-2)','2×(-4)','4×(-1)','2×(-3)']},
+  {id:'orange',color:'#fb923c',stroke:'#c2410c',text:'#fff',
+   tasks:['(-2)×3','(-3)×2','(-1)×4','(-2)×4']},
+  {id:'purple',color:'#a78bfa',stroke:'#6d28d9',text:'#fff',
+   tasks:['(-2)×(-3)','(-3)×(-2)','(-1)×(-4)','(-2)×(-4)']},
+];
+const usedBeads=new Set();
+let activeBead=null;
+
+function buildBeads(){
+  const track=document.getElementById('beadsTrack');
+  track.innerHTML='';
+  CATEGORIES.forEach((cat,ci)=>{
+    const row=document.createElement('div');row.className='bead-row';
+    const dot=document.createElement('div');
+    dot.style.cssText=`width:8px;height:8px;border-radius:50%;background:${cat.color};border:2px solid ${cat.stroke};flex-shrink:0;`;
+    row.appendChild(dot);
+    const str=document.createElement('div');str.className='bead-string';
+    cat.tasks.forEach((task,ti)=>{
+      const key=ci+'-'+ti;
+      const b=document.createElement('div');
+      b.className='bead'+(usedBeads.has(key)?' used':'');
+      b.style.cssText=`background:${cat.color};border-color:${cat.stroke};color:${cat.text};`;
+      b.textContent=ti+1;b.title=task;
+      b.onclick=()=>loadBead(ci,ti,task,b);
+      str.appendChild(b);
+    });
+    row.appendChild(str);track.appendChild(row);
+  });
+}
+
+function loadBead(ci,ti,task,el){
+  doReset(false);
+  document.getElementById('exprIn').value=task;
+  onInput();
+  document.querySelectorAll('.bead').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  activeBead={ci,ti,key:ci+'-'+ti};
+  setTimeout(()=>tryStart(),80);
+}
+
+// ══════════════════════════════════════════
+// PARSER
+// ══════════════════════════════════════════
+let parsedA=null,parsedB=null,parseValid=false;
+
+function parseExpr(raw){
+  const s=raw.replace(/[×xX]/g,'*').replace(/\u2212/g,'-').replace(/\s+/g,'');
+  if(!s) return null;
+  const pats=[
+    /^(-?\d+)\*\((-?\d+)\)$/,
+    /^\((-?\d+)\)\*(-?\d+)$/,
+    /^\((-?\d+)\)\*\((-?\d+)\)$/,
+    /^(-?\d+)\*(-?\d+)$/,
+  ];
+  for(const re of pats){
+    const m=s.match(re);
+    if(m){
+      const a=parseInt(m[1]),b=parseInt(m[2]);
+      if(isNaN(a)||isNaN(b)) continue;
+      if(Math.abs(a)>6||Math.abs(b)>6) return{err:'Håll talen mellan −6 och 6.'};
+      return{a,b};
+    }
+  }
+  return{err:'Format: 3 × (-2) eller (-2) × 3'};
+}
+
+function fmtN(n){return n<0?'('+n+')':''+n;}
+
+function setFeedback(msg,type){
+  const el=document.getElementById('feedback');
+  el.className='feedback-line'+(type?' '+type:'');
+  el.textContent=msg||'\u00a0';
+}
+
+function onInput(){
+  const raw=document.getElementById('exprIn').value;
+  const res=parseExpr(raw);
+  if(!raw.trim()){setFeedback('','');parseValid=false;
+    document.getElementById('exprDisplay').innerHTML='&nbsp;';return;}
+  if(!res||res.err){setFeedback(res?res.err:'Ogiltigt format.','err');parseValid=false;return;}
+  if(simRunning||groups.length>0) doReset(false);
+  parsedA=res.a;parsedB=res.b;parseValid=true;
+  document.getElementById('exprDisplay').textContent=fmtN(res.a)+' × '+fmtN(res.b);
+  setFeedback('','');
+}
+
+// ══════════════════════════════════════════
+// CANVAS (groups mode)
+// ══════════════════════════════════════════
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height;
+const BALL_R=13;
+const GRAVITY=0.55,BOUNCE=0.30,FRICTION=0.88;
+
+let groups=[];      // [{balls,x,y,w,h,type,label}]
+let animBalls=[];   // in-flight balls
+let simRunning=false,rafId=null;
+let queue=[],queueRunning=false,waitClickResolve=null;
+
+const BALL_COLS={
+  pos:{orig:{fill:'#c7dcff',stroke:'#306BF0',text:'#1a4bb8'}},
+  neg:{orig:{fill:'#ffd6e8',stroke:'#EC6095',text:'#9c1a52'}}
+};
+
+function startLoop(){if(!rafId)rafId=requestAnimationFrame(loop);}
+function stopLoop(){if(rafId){cancelAnimationFrame(rafId);rafId=null;}}
+
+function loop(){
+  rafId=null;
+  let more=false;
+  animBalls.forEach(b=>{
+    if(b.landed) return;
+    b.vy+=GRAVITY;b.vx*=FRICTION;b.x+=b.vx;b.y+=b.vy;
+    if(b.y>=b.ty){
+      b.y=b.ty;
+      if(Math.abs(b.vy)>1){
+        b.vy=-b.vy*BOUNCE;
+        if(Math.abs(b.vy)<0.8){b.vy=0;b.vx=0;b.landed=true;}
+      }else{b.vy=0;b.vx=0;b.landed=true;}
+    }
+    if(!b.landed) more=true;
+  });
+  if(animBalls.length>0&&animBalls.every(b=>b.landed)){
+    const pending=animBalls.splice(0);
+    pending.forEach(b=>{const g=groups[b.gi];if(g)g.balls.push({type:b.type,x:b.x,y:b.y});});
+    render();advanceQueue();return;
+  }
+  render();
+  if(more) startLoop();
+}
+
+function groupLayout(nG,gSize){
+  const bd=BALL_R*2+4;
+  const gCols=Math.max(1,Math.min(gSize,Math.ceil(Math.sqrt(gSize*1.4))));
+  const gRows=Math.ceil(gSize/gCols);
+  const gW=gCols*bd+12;
+  const gH=gRows*bd+24;
+  const avail=W-32;
+  const perRow=Math.max(1,Math.floor((avail+10)/(gW+10)));
+  return{gW,gH,gCols,gRows,perRow};
+}
+
+function groupRect(gi,nG,gSize){
+  const{gW,gH,perRow}=groupLayout(nG,gSize);
+  const col=gi%perRow,row=Math.floor(gi/perRow);
+  const rowCount=Math.min(perRow,nG-row*perRow);
+  const rowW=rowCount*(gW+10)-10;
+  const nRows=Math.ceil(nG/perRow);
+  const totalH=nRows*(gH+10)-10;
+  const sx=(W-rowW)/2,sy=(H-totalH)/2+4;
+  return{x:sx+col*(gW+10),y:sy+row*(gH+10),w:gW,h:gH};
+}
+
+function ballSlot(gi,bi,nG,gSize){
+  const{gCols}=groupLayout(nG,gSize);
+  const bd=BALL_R*2+4;
+  const r=groupRect(gi,nG,gSize);
+  const col=bi%gCols,row=Math.floor(bi/gCols);
+  return{x:r.x+6+BALL_R+col*bd,y:r.y+20+BALL_R+row*bd};
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  groups.forEach((g,gi)=>{
+    if(!g) return;
+    ctx.save();
+    ctx.fillStyle=g.type==='pos'?'rgba(199,220,255,.22)':'rgba(255,214,232,.22)';
+    rRect(ctx,g.x,g.y,g.w,g.h,8);ctx.fill();
+    ctx.strokeStyle=g.type==='pos'?'#306BF0':'#EC6095';
+    ctx.lineWidth=1.8;rRect(ctx,g.x,g.y,g.w,g.h,8);ctx.stroke();
+    ctx.font="600 10px 'Sora',sans-serif";
+    ctx.fillStyle=g.type==='pos'?'#1a4bb8':'#9c1a52';
+    ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.fillText(g.label,g.x+g.w/2,g.y+5);
+    g.balls.forEach(b=>drawBall(b.x,b.y,b.type,1));
+    ctx.restore();
+  });
+  animBalls.forEach(b=>drawBall(b.x,b.y,b.type,1));
+  if(groups.length===0&&animBalls.length===0){
+    ctx.save();
+    ctx.font="500 13px 'Sora',sans-serif";
+    ctx.fillStyle='rgba(88,80,120,.35)';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('Skriv ett uttryck och tryck Starta',W/2,H/2);
+    ctx.restore();
+  }
+}
+
+function drawBall(x,y,type,alpha){
+  if(!BALL_COLS[type]) return;
+  const c=BALL_COLS[type].orig;
+  ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);
+  ctx.beginPath();ctx.arc(0,0,BALL_R,0,Math.PI*2);
+  ctx.fillStyle=c.fill;ctx.fill();
+  ctx.strokeStyle=c.stroke;ctx.lineWidth=1.8;ctx.stroke();
+  ctx.fillStyle=c.text;ctx.font="700 9px 'Sora',sans-serif";
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(type==='pos'?'+1':'−1',0,0);
+  ctx.restore();
+}
+
+function rRect(c,x,y,w,h,r){
+  c.beginPath();c.moveTo(x+r,y);
+  c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);
+  c.closePath();
+}
+
+// ══════════════════════════════════════════
+// PATTERN TABLE (negativ A)
+// ══════════════════════════════════════════
+let patternRows=[];   // all rows to show
+let patternShown=0;   // how many revealed so far
+
+function buildPatternRows(A,B){
+  // Show from +3 down through 0 then into negative A territory
+  // The target is A*B — we show enough rows above to establish the pattern
+  const aAbs=Math.abs(A);
+  const rows=[];
+  // Start from (aAbs+2) down to A (inclusive), e.g. A=-3,B=-2: show 5,4,3,2,1,0,-1,-2,-3
+  const top=aAbs+2;
+  for(let i=top;i>=A;i--){
+    rows.push({
+      a:i, b:B,
+      result:i*B,
+      isDivider:i===0,    // bold line after 0
+      isTarget:i===A,     // the answer row
+    });
+  }
+  return rows;
+}
+
+function valClass(n){
+  if(n>0) return 'val-pos';
+  if(n<0) return 'val-neg';
+  return 'val-zero';
+}
+
+function renderPatternTable(revealCount){
+  const tbl=document.getElementById('patternTable');
+  tbl.innerHTML='';
+  patternRows.forEach((row,i)=>{
+    const tr=document.createElement('tr');
+    if(i===revealCount-1) tr.className='reveal';
+    if(row.isDivider) tr.classList.add('pattern-divider');
+    if(i===patternRows.length-1) tr.classList.add('highlight-row');
+
+    const hidden=i>=revealCount;
+    const isTarget=row.isTarget;
+
+    const tdA=document.createElement('td');
+    tdA.textContent=fmtN(row.a);
+    tdA.style.fontWeight=isTarget?'700':'400';
+    tdA.style.color=isTarget?'var(--text)':'var(--muted)';
+
+    const tdOp=document.createElement('td');tdOp.className='op';tdOp.textContent='×';
+
+    const tdB=document.createElement('td');
+    tdB.textContent=fmtN(row.b);
+    tdB.style.fontWeight=isTarget?'700':'400';
+    tdB.style.color=isTarget?'var(--text)':'var(--muted)';
+
+    const tdEq=document.createElement('td');tdEq.className='op';tdEq.textContent='=';
+
+    const tdR=document.createElement('td');
+    if(hidden){
+      tdR.className='question';tdR.textContent='?';
+    }else{
+      tdR.className=valClass(row.result);
+      tdR.textContent=row.result;
+    }
+
+    tr.appendChild(tdA);tr.appendChild(tdOp);tr.appendChild(tdB);
+    tr.appendChild(tdEq);tr.appendChild(tdR);
+    tbl.appendChild(tr);
+  });
+
+  // Pattern arrow hint
+  const arr=document.getElementById('patternArrow');
+  if(revealCount>=2){
+    const prev=patternRows[revealCount-2].result;
+    const curr=patternRows[revealCount-1].result;
+    const diff=curr-prev;
+    arr.textContent='Mönster: varje rad '+(diff>0?'+'+diff:diff)+(diff>0?' (ökar)':(diff<0?' (minskar)':''));
+  }else{
+    arr.textContent='';
+  }
+}
+
+// ══════════════════════════════════════════
+// QUEUE
+// ══════════════════════════════════════════
+function enqueue(a){queue.push(a);}
+
+function advanceQueue(){
+  if(!queueRunning||queue.length===0) return;
+  const action=queue.shift();
+
+  if(action.type==='narrate'){
+    setNarration(action.html,action.step,action.total);
+    const isLast=queue.length>0&&queue[0].type==='done';
+    showNextBtn(isLast?'Visa resultat →':'Nästa →');
+    waitClickResolve=()=>advanceQueue();
+  }
+  else if(action.type==='pause'){setTimeout(advanceQueue,action.ms);}
+  else if(action.type==='addGroup'){
+    const{gi,ballType,count,nG,gSize}=action;
+    const j=(Math.random()-0.5)*5;
+    for(let i=0;i<count;i++){
+      const{x,y}=ballSlot(gi,i,nG,gSize);
+      animBalls.push({type:ballType,gi,
+        x:x+j+(Math.random()-0.5)*4,y:-BALL_R-10-(Math.random()*20),
+        vx:j*0.1,vy:0,tx:x,ty:y,landed:false});
+    }
+    startLoop();
+  }
+  else if(action.type==='revealRow'){
+    patternShown++;
+    renderPatternTable(patternShown);
+    advanceQueue();
+  }
+  else if(action.type==='done'){queueRunning=false;onDone();}
+}
+
+function setNarration(html,step,total){
+  document.getElementById('stepBadge').textContent=(step&&total)?step+'/'+total:(step||'—');
+  const n=document.getElementById('narration');
+  n.style.opacity='0';
+  setTimeout(()=>{n.innerHTML=html;n.style.opacity='1';},180);
+}
+
+function clickNext(){
+  document.getElementById('nextBtn').disabled=true;
+  if(waitClickResolve){const r=waitClickResolve;waitClickResolve=null;r();}
+}
+function showNextBtn(label){
+  const n=document.getElementById('nextBtn'),p=document.getElementById('playBtn');
+  n.style.display='flex';n.innerHTML=label+' <span class="kbd">Space</span>';n.disabled=false;
+  p.style.display='none';
+}
+function hideNextBtn(){
+  const n=document.getElementById('nextBtn'),p=document.getElementById('playBtn');
+  n.style.display='none';n.disabled=true;waitClickResolve=null;p.style.display='flex';
+}
+
+function onDone(){
+  hideNextBtn();render();
+  document.getElementById('playBtn').disabled=false;
+  simRunning=false;
+  const result=parsedA*parsedB;
+  document.getElementById('resultEq').textContent=fmtN(parsedA)+' × '+fmtN(parsedB)+' =';
+  document.getElementById('resultVal').textContent=result;
+  document.getElementById('resultDesc').textContent=
+    result===0?'noll':result>0?'positivt':'negativt';
+  document.getElementById('resultRow').classList.add('show');
+  setNarration('Svaret är <strong>'+result+'</strong>.','✓','');
+  if(activeBead){usedBeads.add(activeBead.key);buildBeads();activeBead=null;}
+}
+
+// ══════════════════════════════════════════
+// START SIM
+// ══════════════════════════════════════════
+function tryStart(){
+  if(simRunning) return;
+  const raw=document.getElementById('exprIn').value;
+  const res=parseExpr(raw);
+  if(!res||res.err){
+    setFeedback(res?res.err:'Skriv ett uttryck, t.ex. 3 × (-2)','err');
+    document.getElementById('exprIn').focus();return;
+  }
+  parsedA=res.a;parsedB=res.b;parseValid=true;
+  document.getElementById('exprDisplay').textContent=fmtN(parsedA)+' × '+fmtN(parsedB);
+  document.getElementById('exprIn').blur();
+  startSim();
+}
+
+function startSim(){
+  simRunning=true;hideNextBtn();
+  document.getElementById('playBtn').disabled=true;
+  document.getElementById('resultRow').classList.remove('show');
+  groups=[];animBalls=[];queue=[];
+  patternRows=[];patternShown=0;
+  render();
+
+  const A=parsedA,B=parsedB;
+  const aAbs=Math.abs(A),bAbs=Math.abs(B);
+  const aPos=A>=0,bPos=B>=0;
+  const result=A*B;
+  const ballType=bPos?'pos':'neg';
+  const nG=aAbs,gSize=bAbs;
+
+  if(A===0||B===0){
+    // Trivial case
+    document.getElementById('canvasWrap').style.display='flex';
+    document.getElementById('patternWrap').classList.remove('visible');
+    document.getElementById('legendArea').style.display='flex';
+    enqueue({type:'narrate',
+      html:'En faktor är <strong>0</strong> — produkten är alltid 0.',step:1,total:1});
+    enqueue({type:'done'});
+    queueRunning=true;advanceQueue();return;
+  }
+
+  if(aPos){
+    // ── POSITIV A: GRUPPER ──
+    document.getElementById('canvasWrap').style.display='flex';
+    document.getElementById('patternWrap').classList.remove('visible');
+    document.getElementById('legendArea').style.display='flex';
+
+    const totalSteps=aAbs+1;
+    enqueue({type:'narrate',
+      html:fmtN(A)+' × '+fmtN(B)+' = <strong>'+aAbs+' grupper</strong> à '+bAbs+
+        ' '+(bPos?'positiva':'negativa')+' kulor.',
+      step:1,total:totalSteps});
+
+    for(let gi=0;gi<aAbs;gi++){
+      const rect=groupRect(gi,nG,gSize);
+      groups.push({...rect,type:ballType,balls:[],
+        label:'Grupp '+(gi+1)});
+      enqueue({type:'addGroup',gi,ballType,count:gSize,nG,gSize});
+      enqueue({type:'narrate',
+        html:'<strong>Grupp '+(gi+1)+'</strong> läggs i: '+gSize+
+          ' '+(bPos?'positiva':'negativa')+' kulor.',
+        step:gi+2,total:totalSteps});
+    }
+
+  } else {
+    // ── NEGATIV A: MÖNSTRET ──
+    document.getElementById('canvasWrap').style.display='none';
+    document.getElementById('patternWrap').classList.add('visible');
+    document.getElementById('legendArea').style.display='none';
+
+    patternRows=buildPatternRows(A,B);
+    const nRows=patternRows.length;
+    // Reveal rows that are "known" first (from top to row where a=0), then step-by-step into negatives
+    const knownCount=patternRows.findIndex(r=>r.a<0); // index of first negative a row
+    renderPatternTable(0);
+
+    const totalSteps=nRows+1;
+
+    enqueue({type:'narrate',
+      html:'För att förstå '+fmtN(A)+' × '+fmtN(B)+
+        ' bygger vi ett <strong>mönster</strong>. Vi börjar med det vi redan vet.',
+      step:1,total:totalSteps});
+
+    // Reveal known rows fast
+    for(let i=0;i<knownCount;i++){
+      enqueue({type:'revealRow'});
+      enqueue({type:'pause',ms:120});
+    }
+
+    enqueue({type:'narrate',
+      html:'Mönstret är tydligt — varje steg '+(result>0?'ökar':'minskar')+
+        ' svaret med <strong>'+Math.abs(B)+'</strong>. Vad händer när vi fortsätter?',
+      step:2,total:totalSteps});
+
+    // Reveal rows with negative a one at a time with pause
+    const negStart=knownCount;
+    for(let i=negStart;i<nRows;i++){
+      enqueue({type:'revealRow'});
+      enqueue({type:'narrate',
+        html:(i===nRows-1
+          ? '<strong>'+fmtN(patternRows[i].a)+' × '+fmtN(B)+' = '+patternRows[i].result+'</strong> — mönstret tvingar fram svaret!'
+          : fmtN(patternRows[i].a)+' × '+fmtN(B)+' = <strong>'+patternRows[i].result+'</strong>'),
+        step:i+3,total:totalSteps});
+    }
+  }
+
+  enqueue({type:'done'});
+  queueRunning=true;advanceQueue();
+}
+
+// ── RESET ──
+function doReset(clearInput=true){
+  stopLoop();
+  groups=[];animBalls=[];queue=[];queueRunning=false;simRunning=false;waitClickResolve=null;
+  patternRows=[];patternShown=0;
+  hideNextBtn();
+  document.getElementById('playBtn').disabled=false;
+  document.getElementById('resultRow').classList.remove('show');
+  document.getElementById('narration').innerHTML='Skriv ett uttryck ovan och tryck Starta.';
+  document.getElementById('stepBadge').textContent='—';
+  document.getElementById('exprDisplay').innerHTML='&nbsp;';
+  document.getElementById('canvasWrap').style.display='flex';
+  document.getElementById('patternWrap').classList.remove('visible');
+  document.getElementById('legendArea').style.display='flex';
+  document.getElementById('patternTable').innerHTML='';
+  document.getElementById('patternArrow').textContent='';
+  if(clearInput){
+    document.getElementById('exprIn').value='';
+    setFeedback('','');parseValid=false;
+  }
+  document.querySelectorAll('.bead').forEach(b=>b.classList.remove('active'));
+  activeBead=null;
+  render();
+}
+
+// ── Keyboard ──
+document.addEventListener('keydown',e=>{
+  if(document.activeElement===document.getElementById('exprIn')) return;
+  if(e.key===' '||e.key==='Spacebar'){e.preventDefault();
+    const n=document.getElementById('nextBtn');
+    if(n.style.display!=='none'&&!n.disabled) clickNext();}
+  if(e.key==='Escape') doReset();
+  if(e.key==='Enter'){
+    const n=document.getElementById('nextBtn');
+    if(n.style.display!=='none'&&!n.disabled) clickNext(); else tryStart();}
+});
+
+buildBeads();
+render();
+</script>
+</body>
+</html>

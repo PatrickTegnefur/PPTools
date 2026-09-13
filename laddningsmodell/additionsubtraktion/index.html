@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laddningsmodellen – Kulor i bägaren</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f6f4ff; --surface:#ffffff; --surface2:#eae6ff; --border:#ccc5f0;
+  --text:#100e28; --muted:#585078; --accent:#306BF0; --accent2:#EC6095;
+  --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+  --correct:#18a348; --wrong:#e02020; --shadow:rgba(48,107,240,0.12);
+  --r-sm:8px; --r-md:14px; --r-lg:20px;
+  --sh-sm:0 2px 8px var(--shadow); --sh-md:0 4px 20px var(--shadow);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── Ambient background ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(ellipse 420px 320px at 15% 20%, rgba(102,199,194,0.28) 0%, transparent 70%),
+    radial-gradient(ellipse 380px 300px at 85% 75%, rgba(236,96,149,0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 350px 280px at 55% 50%, rgba(244,162,97,0.18) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+/* ── Navbar ── */
+header{background:var(--gradient);height:52px;display:flex;align-items:center;
+  padding:0 1.25rem;box-shadow:0 4px 24px rgba(0,0,0,0.14);
+  position:sticky;top:0;z-index:100;}
+.logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.95rem;
+  color:#fff;letter-spacing:-0.2px;}
+.logo span{opacity:0.75;font-weight:600;}
+.switch-btn{
+  background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.45);
+  border-radius:20px;color:#fff;font-family:'Sora',sans-serif;font-size:0.75rem;font-weight:600;
+  padding:4px 12px;text-decoration:none;transition:background .15s;white-space:nowrap;}
+.switch-btn:hover{background:rgba(255,255,255,0.32);}
+.help-btn{margin-left:auto;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.4);
+  border-radius:20px;color:#fff;font-family:'Sora',sans-serif;font-size:0.75rem;font-weight:600;
+  padding:4px 12px;cursor:pointer;transition:background 0.15s;}
+.help-btn:hover{background:rgba(255,255,255,0.35);}
+
+/* ── Help modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(16,14,40,0.45);
+  z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.9);
+  border-radius:var(--r-lg);box-shadow:0 16px 48px rgba(16,14,40,0.18);
+  padding:1.5rem;max-width:400px;width:90%;position:relative;}
+.modal h2{font-family:'Montserrat',sans-serif;font-size:1rem;margin-bottom:0.75rem;}
+.modal p,.modal li{font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:0.35rem;}
+.modal ul{padding-left:1.1rem;margin-bottom:0.4rem;}
+.modal code{background:var(--surface2);border-radius:4px;padding:1px 5px;color:var(--accent);}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;
+  font-size:1.2rem;cursor:pointer;color:var(--muted);}
+
+/* ── Layout ── */
+main{flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:0.75rem 0.75rem 1.5rem;gap:0.25rem;}
+
+/* ── Control block ── */
+.control-block{
+  display:flex;align-items:center;gap:0;
+  background:rgba(255,255,255,0.72);
+  backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.9);
+  border-radius:var(--r-md);
+  box-shadow:0 8px 24px rgba(48,107,240,0.10), 0 2px 6px rgba(16,14,40,0.06);
+  overflow:hidden;}
+.expr-in{
+  width:170px;font-family:'Sora',sans-serif;font-size:1rem;font-weight:500;
+  border:none;border-right:1.5px solid var(--border);
+  padding:10px 14px;background:transparent;color:var(--text);outline:none;
+  text-align:center;transition:background 0.15s;}
+.expr-in:focus{background:var(--surface2);}
+.expr-in::placeholder{color:var(--muted);font-size:0.82rem;}
+.btn-strip{display:flex;align-items:center;}
+.btn{
+  font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:600;
+  border:none;border-right:1.5px solid var(--border);
+  cursor:pointer;padding:0 16px;height:44px;
+  transition:background 0.13s;white-space:nowrap;
+  display:flex;align-items:center;gap:6px;}
+.btn:last-child{border-right:none;}
+.btn-start{background:var(--accent);color:#fff;}
+.btn-start:hover:not(:disabled){background:#2358d4;}
+.btn-start:disabled{background:#a8bff8;color:#fff;cursor:default;}
+.btn-next{background:var(--correct);color:#fff;min-width:120px;}
+.btn-next:hover:not(:disabled){background:#14853c;}
+.btn-next:disabled{background:#a8d5bb;color:#fff;cursor:default;}
+.btn-reset{background:transparent;color:var(--muted);}
+.btn-reset:hover{background:var(--surface2);color:var(--text);}
+.kbd{
+  font-size:0.6rem;opacity:0.65;background:rgba(255,255,255,0.2);
+  border-radius:3px;padding:1px 4px;letter-spacing:0;font-family:'Sora',sans-serif;
+  border:1px solid rgba(255,255,255,0.3);}
+.btn-reset .kbd{background:var(--surface2);border-color:var(--border);color:var(--muted);}
+.feedback-line{font-size:0.72rem;font-weight:500;min-height:0;text-align:center;display:none;}
+.feedback-line.err{color:var(--wrong);display:block;}
+
+/* ── Canvas card ── */
+.canvas-area{width:100%;max-width:560px;
+  background:rgba(255,255,255,0.88);
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  border:1px solid rgba(255,255,255,0.95);
+  border-radius:var(--r-lg);
+  box-shadow:0 10px 32px rgba(48,107,240,0.12),0 2px 8px rgba(16,14,40,0.06);
+  display:flex;flex-direction:column;align-items:center;
+  padding:0.6rem;gap:0.4rem;}
+.top-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.expr-display{font-family:'Montserrat',sans-serif;font-size:1.45rem;font-weight:700;
+  color:var(--text);letter-spacing:0.5px;min-height:1.8rem;line-height:1;
+  flex:1;text-align:center;}
+.legend{display:flex;gap:10px;font-size:0.68rem;color:var(--muted);align-items:center;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:3px;}
+.ldot{width:10px;height:10px;border-radius:50%;border:2px solid;flex-shrink:0;}
+.canvas-wrap{position:relative;width:100%;display:flex;justify-content:center;
+  background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--border);}
+canvas{display:block;width:100%;height:auto;}
+.narration-bar{width:100%;display:flex;align-items:center;gap:6px;min-height:28px;}
+.step-badge{flex-shrink:0;font-family:'Montserrat',sans-serif;font-size:0.65rem;font-weight:700;
+  background:var(--surface2);color:var(--accent);border:1.5px solid var(--border);
+  border-radius:5px;padding:1px 7px;white-space:nowrap;}
+.narration{font-size:0.78rem;color:var(--muted);line-height:1.45;transition:opacity 0.2s;flex:1;}
+
+/* ── Result ── */
+@keyframes slideUp{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.result-row{display:none;align-items:center;justify-content:center;gap:8px;
+  background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--r-sm);
+  padding:6px 14px;width:100%;}
+.result-row.show{display:flex;animation:slideUp 0.22s ease forwards;}
+.result-eq{font-size:0.8rem;color:var(--muted);}
+.result-val{font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:700;color:var(--correct);}
+.result-desc{font-size:0.7rem;color:var(--muted);}
+
+/* ── Bead necklace ── */
+.beads-section{width:100%;max-width:560px;}
+.beads-label{font-size:0.68rem;font-weight:600;color:var(--muted);
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;padding-left:2px;}
+.beads-track{
+  background:rgba(255,255,255,0.68);
+  backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  border:1px solid rgba(255,255,255,0.85);
+  border-radius:var(--r-lg);
+  box-shadow:0 6px 20px rgba(48,107,240,0.09),0 2px 6px rgba(16,14,40,0.05);
+  padding:10px 14px;
+  display:flex;flex-direction:column;gap:8px;}
+.bead-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.bead-row-label{font-size:0.65rem;font-weight:600;width:10px;flex-shrink:0;}
+
+/* The string line */
+.bead-string{display:flex;align-items:center;gap:0;flex:1;flex-wrap:wrap;
+  position:relative;}
+.bead-string::before{
+  content:'';position:absolute;left:0;right:0;top:50%;height:2px;
+  background:var(--border);z-index:0;border-radius:1px;}
+.bead{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Sora',sans-serif;font-size:0.6rem;font-weight:600;
+  border:2px solid;cursor:pointer;
+  transition:transform 0.12s,box-shadow 0.12s,opacity 0.12s;
+  position:relative;z-index:1;flex-shrink:0;
+  user-select:none;}
+.bead:hover{transform:scale(1.18);box-shadow:0 2px 8px rgba(0,0,0,0.18);}
+.bead.active{transform:scale(1.22);box-shadow:0 0 0 3px white,0 0 0 5px currentColor;}
+.bead.used{opacity:0.35;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Tegnefurs Matte <span>· Laddningsmodellen</span></div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <!-- LÄNK TILL MULTIPLIKATIONSVERKTYGET: byt ut href="#" mot rätt relativ sökväg -->
+    <a href="laddningsmodell/multiplikationdivision/index.html" class="switch-btn" title="Gå till multiplikation">✕ → Multiplikation</a>
+    <button class="help-btn" onclick="document.getElementById('helpModal').classList.add('open')">? Hjälp</button>
+  </div>
+</header>
+
+<div class="modal-overlay" id="helpModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('helpModal').classList.remove('open')">✕</button>
+    <h2>🧪 Hur fungerar verktyget?</h2>
+    <p>Skriv ett uttryck och tryck ▶, eller klicka på en pärla i pärlbandet nedan.</p>
+    <ul>
+      <li>Negativa tal: <code>-3</code> eller <code>(-3)</code></li>
+      <li>T.ex. <code>5 + -3</code> · <code>-4 - -2</code> · <code>(-5)+8</code></li>
+      <li>Tal mellan −12 och 12</li>
+    </ul>
+    <p><strong>Steg för steg</strong> — klicka Nästa för att styra tempot. Perfekt under genomgångar.</p>
+    <p><strong>Tangentbord:</strong> <code>Enter</code> = Starta / Nästa &nbsp;·&nbsp; <code>Space</code> = Nästa &nbsp;·&nbsp; <code>Esc</code> = Återställ</p>
+    <p><strong>Kulor:</strong> Blå/lila = positiv (+1), Rosa/röd = negativ (−1).<br>
+    Ljusare nyans = ursprungliga kulor. Mörkare nyans = nollpar (läggs till för att möjliggöra subtraktion).</p>
+    <p><strong>Pärlbandet:</strong> färgerna är uppgiftskategorier.</p>
+  </div>
+</div>
+
+<main>
+
+  <div class="control-block">
+    <input class="expr-in" id="exprIn" type="text" autocomplete="off" spellcheck="false"
+           placeholder="t.ex. 5 + -3"
+           oninput="onTextInput()" onkeydown="if(event.key==='Enter')tryStart()">
+    <div class="btn-strip">
+      <button class="btn btn-start" id="playBtn" onclick="tryStart()" title="Starta (Enter)">
+        ▶ Starta <span class="kbd">↵</span>
+      </button>
+      <button class="btn btn-next" id="nextBtn" onclick="clickNext()" style="display:none" disabled>
+        Nästa → <span class="kbd">Space</span>
+      </button>
+      <button class="btn btn-reset" onclick="doReset()" title="Återställ (Escape)">
+        ↺ <span class="kbd">Esc</span>
+      </button>
+    </div>
+  </div>
+  <div class="feedback-line" id="feedback">&nbsp;</div>
+
+  <div class="canvas-area">
+    <div class="top-row">
+      <div class="expr-display" id="exprDisplay">&nbsp;</div>
+      <div class="legend">
+        <div class="legend-item"><div class="ldot" style="background:#c7dcff;border-color:#306BF0"></div>+1</div>
+        <div class="legend-item"><div class="ldot" style="background:#6e9ef5;border-color:#1a4bb8"></div>+1 (par)</div>
+        <div class="legend-item"><div class="ldot" style="background:#ffd6e8;border-color:#EC6095"></div>−1</div>
+        <div class="legend-item"><div class="ldot" style="background:#e0508a;border-color:#9c1a52"></div>−1 (par)</div>
+      </div>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c" width="520" height="300"></canvas>
+    </div>
+    <div class="narration-bar">
+      <div class="step-badge" id="stepBadge">—</div>
+      <div class="narration"  id="narration">Skriv ett uttryck ovan eller välj en uppgift nedan.</div>
+    </div>
+    <div class="result-row" id="resultRow">
+      <span class="result-eq"  id="resultEq"></span>
+      <span class="result-val" id="resultVal"></span>
+      <span class="result-desc" id="resultDesc"></span>
+    </div>
+  </div>
+
+  <!-- Bead necklace -->
+  <div class="beads-section">
+    <div class="beads-label">Uppgifter</div>
+    <div class="beads-track" id="beadsTrack"></div>
+  </div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════
+// PRESET CATEGORIES
+// ══════════════════════════════════════════
+const CATEGORIES = [
+  {
+    id:'green', label:'A',
+    color:'#22c55e', stroke:'#15803d', text:'#fff',
+    tasks:['4+3','3+4','6+3','2+7']
+  },
+  {
+    id:'blue', label:'B',
+    color:'#60a5fa', stroke:'#2563eb', text:'#fff',
+    tasks:['9-4','7-3','5-4']
+  },
+  {
+    id:'orange', label:'C',
+    color:'#fb923c', stroke:'#c2410c', text:'#fff',
+    tasks:['5-5','5-7','6-10','4-9']
+  },
+  {
+    id:'purple', label:'D',
+    color:'#a78bfa', stroke:'#6d28d9', text:'#fff',
+    tasks:['(-8)+3','(-8)+5','(-5)+4','(-5)+5','(-5)+8','(-4)+4','(-4)+9']
+  },
+  {
+    id:'pink', label:'E',
+    color:'#f472b6', stroke:'#be185d', text:'#fff',
+    tasks:['5+3','5+(-3)','5-3','5-(-3)','(-6)+4','(-6)+(-4)','(-6)-4','(-6)-(-4)']
+  }
+];
+
+// Track which beads have been completed
+const usedBeads = new Set();
+let activeBead = null; // {catIdx, taskIdx}
+
+function buildBeads() {
+  const track = document.getElementById('beadsTrack');
+  track.innerHTML = '';
+  CATEGORIES.forEach((cat, ci) => {
+    const row = document.createElement('div');
+    row.className = 'bead-row';
+    // Category dot label
+    const lbl = document.createElement('div');
+    lbl.className = 'bead-row-label';
+    lbl.style.cssText = `width:8px;height:8px;border-radius:50%;
+      background:${cat.color};border:2px solid ${cat.stroke};flex-shrink:0;`;
+    row.appendChild(lbl);
+    // String + beads
+    const str = document.createElement('div');
+    str.className = 'bead-string';
+    cat.tasks.forEach((task, ti) => {
+      const key = ci+'-'+ti;
+      const b = document.createElement('div');
+      b.className = 'bead' + (usedBeads.has(key)?' used':'');
+      b.style.cssText = `background:${cat.color};border-color:${cat.stroke};color:${cat.text};`;
+      b.textContent = ti+1;
+      b.title = task;
+      b.onclick = () => loadBead(ci, ti, task, b);
+      str.appendChild(b);
+    });
+    row.appendChild(str);
+    track.appendChild(row);
+  });
+}
+
+function loadBead(ci, ti, task, el) {
+  doReset(false);
+  document.getElementById('exprIn').value = task;
+  onTextInput();
+  document.querySelectorAll('.bead').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  activeBead = {ci, ti, key: ci+'-'+ti};
+  setTimeout(() => tryStart(), 80);
+}
+
+// ══════════════════════════════════════════
+// PARSER
+// ══════════════════════════════════════════
+function parseExpr(raw) {
+  let s = raw.replace(/\u2212/g,'-').replace(/\s+/g,' ').trim();
+  if (!s) return null;
+  const c = s.replace(/\s/g,'');
+  const pats = [
+    /^(-?\d+)([+\-])\((-?\d+)\)$/,
+    /^(-?\d+)([+\-])(-\d+)$/,
+    /^\((-?\d+)\)([+\-])\((-?\d+)\)$/,
+    /^\((-?\d+)\)([+\-])(-?\d+)$/,
+    /^(-?\d+)([+\-])(\d+)$/,
+  ];
+  for (const re of pats) {
+    const m = c.match(re);
+    if (m) {
+      const a = parseInt(m[1]), b = parseInt(m[3]);
+      if (isNaN(a)||isNaN(b)) continue;
+      if (Math.abs(a)>12||Math.abs(b)>12) return {err:'Tal mellan −12 och 12.'};
+      return {a, b, op: m[2]==='+'?'add':'sub'};
+    }
+  }
+  return {err:'Prova: 5 + -3  eller  (-5)+8'};
+}
+
+function setFeedback(msg,type) {
+  const el = document.getElementById('feedback');
+  el.className = 'feedback-line'+(type?' '+type:'');
+  el.textContent = msg||'\u00a0';
+}
+
+let parsedA=null, parsedB=null, parsedOp=null, parseValid=false;
+
+function onTextInput() {
+  const raw = document.getElementById('exprIn').value;
+  const res = parseExpr(raw);
+  if (!raw.trim()) {
+    setFeedback('',''); parseValid=false;
+    document.getElementById('exprDisplay').innerHTML='&nbsp;'; return;
+  }
+  if (!res||res.err) {
+    setFeedback(res?res.err:'Ogiltigt format.','err'); parseValid=false; return;
+  }
+  // Reset canvas if a simulation is in progress or completed
+  if(simRunning || balls.length>0 || liftingBalls.length>0) doReset(false);
+  parsedA=res.a; parsedB=res.b; parsedOp=res.op; parseValid=true;
+  const aD = res.a<0?'('+res.a+')':''+res.a;
+  const bD = res.b<0?'('+res.b+')':''+res.b;
+  setFeedback('✓ '+aD+' '+(res.op==='add'?'+':'−')+' '+bD,'ok');
+  updateExprDisplay();
+}
+
+function updateExprDisplay() {
+  const el = document.getElementById('exprDisplay');
+  if (!parseValid) { el.innerHTML='&nbsp;'; return; }
+  // Always wrap negative terms in parens
+  const aD = parsedA<0?'('+parsedA+')':''+parsedA;
+  const bD = parsedB<0?'('+parsedB+')':''+parsedB;
+  el.textContent = aD+' '+(parsedOp==='add'?'+':'−')+' '+bD;
+}
+
+// ══════════════════════════════════════════
+// CANVAS & PHYSICS
+// ══════════════════════════════════════════
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+const CL=68, CR=W-68, CW=CR-CL;
+const CUP_TOP=32, CUP_BOT=H-22;
+const BALL_R = 18;
+const GRAVITY = 0.55;
+const BOUNCE  = 0.32;
+const FRICTION = 0.88;
+
+let balls=[], liftingBalls=[], dropping=null, droppingTwo=null;
+let flashAlpha=0;
+let queue=[], queueRunning=false, rafId=null;
+let waitClickResolve=null;
+
+function getCols(){
+  const innerW=(CR-BALL_R-3)-(CL+BALL_R+3);
+  return Math.max(1,Math.floor(innerW/(BALL_R*2+4)));
+}
+function landingY(count){
+  const row=Math.floor(count/getCols());
+  return CUP_BOT-BALL_R-8-row*(BALL_R*2+4);
+}
+function landingX(count){
+  const cols=getCols();
+  const innerW=(CR-BALL_R-3)-(CL+BALL_R+3);
+  const colW=innerW/cols;
+  const col=count%cols;
+  return CL+BALL_R+3+col*colW+colW/2;
+}
+// First index on a fresh row after n balls
+function rowStart(n){
+  const cols=getCols();
+  return Math.ceil(n/cols)*cols;
+}
+
+// ── Physics loop ──
+function startLoop(){ if(!rafId) rafId=requestAnimationFrame(loop); }
+function stopLoop(){ if(rafId){cancelAnimationFrame(rafId);rafId=null;} }
+
+function loop(){
+  rafId=null;
+  let needMore=false;
+  if(dropping){ physicsStep(); needMore=true; }
+  if(droppingTwo){ physicsTwoStep(); needMore=true; }
+  if(liftingBalls.length>0){
+    liftingBalls.forEach(b=>{
+      b.t=(b.t||0)+1;
+      const t=b.t/b.duration;
+      b.x=b.startX+b.dx*t;
+      b.y=b.startY-b.height*Math.sin(Math.PI*t);
+      b.alpha=Math.max(0,1-t*t);
+    });
+    liftingBalls=liftingBalls.filter(b=>b.alpha>0);
+    needMore=true;
+  }
+  render();
+  if(needMore) startLoop();
+}
+
+function physicsStep(){
+  if(!dropping) return;
+  dropping.vy+=GRAVITY;
+  dropping.vx*=FRICTION;
+  dropping.x+=dropping.vx;
+  dropping.y+=dropping.vy;
+  dropping.x=Math.max(CL+BALL_R+3,Math.min(CR-BALL_R-3,dropping.x));
+  const targetY=landingY(balls.length);
+  if(dropping.y>=targetY){
+    dropping.y=targetY;
+    if(Math.abs(dropping.vy)>1){
+      dropping.vy=-dropping.vy*BOUNCE;
+      if(Math.abs(dropping.vy)<0.8) finalizeDrop();
+    } else {
+      finalizeDrop();
+    }
+  }
+}
+
+function physicsTwoStep(){
+  if(!droppingTwo) return;
+  droppingTwo.forEach(b=>{
+    if(b._landed) return;
+    b.vy+=GRAVITY;
+    b.vx*=FRICTION;
+    b.x+=b.vx;
+    b.y+=b.vy;
+    b.x=Math.max(CL+BALL_R+3,Math.min(CR-BALL_R-3,b.x));
+    if(b.y>=b._targetY){
+      b.y=b._targetY;
+      if(Math.abs(b.vy)>1){
+        b.vy=-b.vy*BOUNCE;
+        if(Math.abs(b.vy)<0.8){b.vy=0;b.vx=0;b._landed=true;}
+      } else {
+        b.vy=0;b.vx=0;b._landed=true;
+      }
+    }
+  });
+  if(droppingTwo.every(b=>b._landed)){
+    droppingTwo.forEach(b=>{
+      delete b._landed; delete b._targetY;
+      b.vy=0; b.vx=0;
+      balls.push(b);
+    });
+    droppingTwo=null;
+    render();
+    advanceQueue();
+  }
+}
+
+function finalizeDrop(){
+  const b=dropping;
+  dropping=null;
+  b.vy=0; b.vx=0;
+  balls.push(b);
+  render();
+  advanceQueue();
+}
+
+// After removal, snap all real balls to correct grid positions immediately
+function compactBalls(){
+  const real=balls.filter(b=>!b._pad);
+  const pads=balls.filter(b=>b._pad);
+  real.forEach((b,i)=>{
+    b.x=landingX(i);
+    b.y=landingY(i);
+    b.vx=0; b.vy=0;
+  });
+  balls=[...real,...pads];
+  render();
+}
+
+// Calculate y for a ball that will be the nth ball (0-indexed)
+function landingY(count){
+  const innerW = (CR-BALL_R-3)-(CL+BALL_R+3);
+  const cols   = Math.max(1, Math.floor(innerW/(BALL_R*2+4)));
+  const row    = Math.floor(count / cols);
+  return CUP_BOT - BALL_R - 8 - row*(BALL_R*2+4);
+}
+
+// x-centre for the nth ball
+function landingX(count){
+  const innerW = (CR-BALL_R-3)-(CL+BALL_R+3);
+  const cols   = Math.max(1, Math.floor(innerW/(BALL_R*2+4)));
+  const colW   = innerW/cols;
+  const col    = count % cols;
+  return CL+BALL_R+3 + col*colW + colW/2;
+}
+
+// ── Render ──
+function render(){
+  ctx.clearRect(0,0,W,H);
+  const wW=10, rimH=6, botH=6;
+
+  // Interior
+  ctx.fillStyle='#ede9ff';
+  ctx.fillRect(CL,CUP_TOP,CW,CUP_BOT-CUP_TOP);
+
+  // Left wall
+  ctx.fillStyle='#b8b0e8';
+  ctx.fillRect(CL-wW,CUP_TOP,wW,CUP_BOT-CUP_TOP+botH);
+  // Right wall
+  ctx.fillStyle='#ccc5f0';
+  ctx.fillRect(CR,CUP_TOP,wW,CUP_BOT-CUP_TOP+botH);
+  // Bottom
+  ctx.fillStyle='#a9a0e0';
+  ctx.fillRect(CL-wW,CUP_BOT,CW+wW*2,botH);
+  // Rim
+  ctx.fillStyle='#9d94d8';
+  ctx.fillRect(CL-wW,CUP_TOP-rimH,CW+wW*2,rimH);
+  ctx.beginPath();
+  ctx.moveTo(CL-wW+2,CUP_TOP-rimH+1.5); ctx.lineTo(CR+wW-2,CUP_TOP-rimH+1.5);
+  ctx.strokeStyle='rgba(255,255,255,0.38)'; ctx.lineWidth=1; ctx.stroke();
+
+  // Balls (skip invisible pad placeholders)
+  for(const b of balls){ if(!b._pad) drawBall(b); }
+  if(dropping) drawBall(dropping);
+  if(droppingTwo) droppingTwo.forEach(b=>drawBall(b));
+  for(const b of liftingBalls) drawBall(b);
+
+  // ── Ball counter HUD (top-right inside cup) ──
+  const realBalls = balls.filter(b=>!b._pad&&!b._marked);
+  const posCount  = realBalls.filter(b=>b.type==='pos').length
+    + (dropping&&dropping.type==='pos'?1:0)
+    + (droppingTwo?droppingTwo.filter(b=>b.type==='pos'&&!b._landed).length:0);
+  const negCount  = realBalls.filter(b=>b.type==='neg').length
+    + (dropping&&dropping.type==='neg'?1:0)
+    + (droppingTwo?droppingTwo.filter(b=>b.type==='neg'&&!b._landed).length:0);
+
+  if(posCount > 0 || negCount > 0){
+    const hudX = CR - 8;
+    const hudY = CUP_TOP + 10;
+    const lineH = 18;
+    const pad   = 7;
+    const rows  = (posCount>0&&negCount>0) ? 2 : 1;
+    const boxH  = rows * lineH + pad*2 - 2;
+    const boxW  = 62;
+
+    // Frosted box
+    ctx.save();
+    ctx.globalAlpha = 0.82;
+    ctx.fillStyle = 'rgba(255,255,255,0.78)';
+    rRect(ctx, hudX-boxW, hudY, boxW, boxH, 7);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(200,196,240,0.8)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.font = "600 11px 'Sora',sans-serif";
+    ctx.textBaseline = 'middle';
+
+    let row = 0;
+    if(posCount > 0){
+      const ty = hudY + pad + row*lineH + lineH/2 - 1;
+      // Dot
+      ctx.beginPath();
+      ctx.arc(hudX-boxW+14, ty, 5, 0, Math.PI*2);
+      ctx.fillStyle = '#c7dcff';
+      ctx.fill();
+      ctx.strokeStyle = '#306BF0';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // Count
+      ctx.fillStyle = '#1a4bb8';
+      ctx.textAlign = 'left';
+      ctx.fillText('+1  ×  '+posCount, hudX-boxW+23, ty+0.5);
+      row++;
+    }
+    if(negCount > 0){
+      const ty = hudY + pad + row*lineH + lineH/2 - 1;
+      ctx.beginPath();
+      ctx.arc(hudX-boxW+14, ty, 5, 0, Math.PI*2);
+      ctx.fillStyle = '#ffd6e8';
+      ctx.fill();
+      ctx.strokeStyle = '#EC6095';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#9c1a52';
+      ctx.textAlign = 'left';
+      ctx.fillText('−1  ×  '+negCount, hudX-boxW+23, ty+0.5);
+    }
+    ctx.restore();
+  }
+}
+
+// Ball colour scheme:
+// pos/orig: light blue fill, blue stroke
+// pos/pair: medium blue fill, dark blue stroke  (darker = zero-pair)
+// neg/orig: light pink fill, pink stroke
+// neg/pair: dark pink fill, dark pink stroke
+const BALL_COLS = {
+  pos:{
+    orig:{ fill:'#c7dcff', stroke:'#306BF0', text:'#1a4bb8' },
+    pair:{ fill:'#6e9ef5', stroke:'#1a4bb8', text:'#fff' }
+  },
+  neg:{
+    orig:{ fill:'#ffd6e8', stroke:'#EC6095', text:'#9c1a52' },
+    pair:{ fill:'#e0508a', stroke:'#9c1a52', text:'#fff' }
+  }
+};
+
+function drawBall(b){
+  if(b._pad || !BALL_COLS[b.type]) return; // skip pad placeholders and unknown types
+  const shade = b.shade||'orig';
+  const c = BALL_COLS[b.type][shade];
+  ctx.save();
+  ctx.globalAlpha = b.alpha??1;
+  ctx.translate(b.x, b.y);
+  if(b._marked){
+    ctx.shadowColor = b.type==='pos'?'#306BF0':'#EC6095';
+    ctx.shadowBlur  = 16;
+  }
+  ctx.beginPath(); ctx.arc(0,0,BALL_R,0,Math.PI*2);
+  ctx.fillStyle=c.fill; ctx.fill();
+  ctx.strokeStyle=c.stroke; ctx.lineWidth=2; ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.fillStyle=c.text;
+  ctx.font="700 11px 'Sora',sans-serif";
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(b.type==='pos'?'+1':'−1',0,0);
+  ctx.restore();
+}
+
+function rRect(c,x,y,w,h,r){
+  c.beginPath(); c.moveTo(x+r,y);
+  c.lineTo(x+w-r,y); c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y);
+  c.closePath();
+}
+
+// ══════════════════════════════════════════
+// QUEUE
+// ══════════════════════════════════════════
+let simRunning=false;
+
+function enqueue(a){ queue.push(a); }
+
+function advanceQueue(){
+  if(!queueRunning||queue.length===0) return;
+  const action = queue.shift();
+
+  if(action.type==='narrate'){
+    setNarration(action.html, action.step, action.total);
+    const isLast = queue.length>0 && queue[0].type==='done';
+    showNextBtn(isLast?'Resultat →':'Nästa →');
+    waitClickResolve = ()=>advanceQueue();
+  }
+  else if(action.type==='pause'){
+    setTimeout(advanceQueue, action.ms);
+  }
+  else if(action.type==='drop'){
+    const count  = balls.length; // live — always correct
+    const tx     = landingX(count);
+    const jitter = (Math.random()-0.5)*5;
+    dropping = {
+      type:action.ballType, shade:action.shade||'orig',
+      x: tx+jitter, y: CUP_TOP-BALL_R-16,
+      vx: jitter*0.25, vy:0, alpha:1
+    };
+    startLoop();
+  }
+  else if(action.type==='dropPair'){
+    // Place pos and neg in the next two natural slots — no padding
+    const cols = getCols();
+    let posIdx = balls.length;
+    let negIdx = balls.length + 1;
+
+    // If the pair would split rows, push both to start of next row
+    if(Math.floor(posIdx/cols) !== Math.floor(negIdx/cols)){
+      // Skip to next row start
+      posIdx = Math.ceil((posIdx)/cols)*cols;
+      negIdx = posIdx + 1;
+      // Fill the gap with pads so balls.length matches posIdx
+      while(balls.length < posIdx){
+        balls.push({type:'pad',shade:'orig',x:0,y:0,vx:0,vy:0,alpha:0,_pad:true});
+      }
+    }
+
+    const px=landingX(posIdx), py=landingY(posIdx);
+    const nx=landingX(negIdx), ny=landingY(negIdx);
+    const j=(Math.random()-0.5)*4;
+
+    droppingTwo=[
+      {type:'pos',shade:'pair',x:px+j,  y:CUP_TOP-BALL_R-10,vx:j*0.15, vy:0,   alpha:1,_targetY:py},
+      {type:'neg',shade:'pair',x:nx-j,  y:CUP_TOP-BALL_R-22,vx:-j*0.15,vy:-0.5,alpha:1,_targetY:ny}
+    ];
+    startLoop();
+  }
+  else if(action.type==='flash'){
+    // Glow both, then lift them out together
+    const posEl = balls.find(b=>b.type==='pos'&&!b._marked);
+    const negEl = balls.find(b=>b.type==='neg'&&!b._marked);
+    if(!posEl||!negEl){ advanceQueue(); return; }
+    posEl._marked=true; negEl._marked=true;
+    startLoop();
+    setTimeout(()=>{
+      balls = balls.filter(b=>!b._marked);
+      [posEl, negEl].forEach((b,i)=>{
+        const riseHeight = b.y - CUP_TOP + BALL_R*2 + 20;
+        liftingBalls.push({
+          type:b.type, shade:b.shade||'orig',
+          startX:b.x, startY:b.y, x:b.x, y:b.y,
+          dx: i===0 ? -22 : 22,
+          height:riseHeight, duration:20, t:0, alpha:1, vy:0, vx:0
+        });
+      });
+      startLoop();
+      setTimeout(()=>{ render(); advanceQueue(); }, 380);
+    }, 450);
+  }
+  else if(action.type==='lift'){
+    // Find the ball to lift and arc it upward out of the cup
+    const idx = balls.findIndex(b=>b.type===action.ballType&&!b._removing&&!b._lifting);
+    if(idx===-1){ advanceQueue(); return; }
+    const b = balls[idx];
+    b._removing=true; b._lifting=true;
+    balls.splice(idx,1);
+    const riseHeight = b.y - CUP_TOP + BALL_R*2 + 20; // how far to rise above rim
+    const ghost = {
+      type:b.type, shade:b.shade||'orig',
+      startX:b.x, startY:b.y,
+      x:b.x, y:b.y,
+      dx: 0,              // straight up, no sideways drift
+      height: riseHeight,
+      duration: 24,
+      t:0, alpha:1,
+      vy:0, vx:0
+    };
+    liftingBalls.push(ghost);
+    startLoop();
+    setTimeout(()=>{ advanceQueue(); }, ghost.duration*16 + 60);
+  }
+  else if(action.type==='done'){
+    queueRunning=false; onDone();
+  }
+}
+
+function setNarration(html,step,total){
+  document.getElementById('stepBadge').textContent=(step&&total)?step+'/'+total:(step||'—');
+  const n=document.getElementById('narration');
+  n.style.opacity='0';
+  setTimeout(()=>{ n.innerHTML=html; n.style.opacity='1'; },180);
+}
+
+function clickNext(){
+  document.getElementById('nextBtn').disabled=true;
+  if(waitClickResolve){ const r=waitClickResolve; waitClickResolve=null; r(); }
+}
+function showNextBtn(label){
+  const n=document.getElementById('nextBtn'), p=document.getElementById('playBtn');
+  n.style.display='flex';
+  n.innerHTML=label+' <span class="kbd">Space</span>';
+  n.disabled=false;
+  p.style.display='none';
+}
+function hideNextBtn(){
+  const n=document.getElementById('nextBtn'), p=document.getElementById('playBtn');
+  n.style.display='none'; n.disabled=true; waitClickResolve=null;
+  p.style.display='flex';
+}
+
+function onDone(){
+  hideNextBtn(); render();
+  document.getElementById('playBtn').disabled=false;
+  simRunning=false;
+  const result = parsedOp==='add'?parsedA+parsedB:parsedA-parsedB;
+  const bD = parsedB<0?'('+parsedB+')':''+parsedB;
+  const opS = parsedOp==='add'?'+':'−';
+  document.getElementById('resultEq').textContent  = parsedA+' '+opS+' '+bD+' =';
+  document.getElementById('resultVal').textContent  = result;
+  document.getElementById('resultDesc').textContent =
+    result===0?'noll':result>0?'positiva kulor':'negativa kulor';
+  document.getElementById('resultRow').classList.add('show');
+  setNarration('Klart! <strong>'+balls.length+'</strong> kula'+(balls.length!==1?'r':'')+' kvar.','✓','');
+  // Mark bead as used
+  if(activeBead){
+    usedBeads.add(activeBead.key);
+    buildBeads();
+    activeBead=null;
+  }
+}
+
+// ══════════════════════════════════════════
+// START / RESET
+// ══════════════════════════════════════════
+function tryStart(){
+  if(simRunning) return;
+  const raw = document.getElementById('exprIn').value;
+  const res = parseExpr(raw);
+  if(!res||res.err){
+    setFeedback(res?res.err:'Skriv ett uttryck, t.ex. 5 + -3','err');
+    document.getElementById('exprIn').focus(); return;
+  }
+  parsedA=res.a; parsedB=res.b; parsedOp=res.op; parseValid=true;
+  const aD2=res.a<0?'('+res.a+')':''+res.a;
+  const bD2=res.b<0?'('+res.b+')':''+res.b;
+  setFeedback('✓ '+aD2+' '+(res.op==='add'?'+':'−')+' '+bD2,'ok');
+  updateExprDisplay();
+  document.getElementById('exprIn').blur();
+  startSim();
+}
+
+// First index on the row after n balls — always starts a fresh row
+function rowStart(n){
+  const innerW = (CR-BALL_R-3)-(CL+BALL_R+3);
+  const cols   = Math.max(1, Math.floor(innerW/(BALL_R*2+4)));
+  return Math.ceil(n/cols)*cols;
+}
+
+function startSim(){
+  simRunning=true; hideNextBtn();
+  document.getElementById('playBtn').disabled=true;
+  document.getElementById('resultRow').classList.remove('show');
+  balls=[]; liftingBalls=[]; dropping=null; droppingTwo=null; queue=[]; flashAlpha=0; render();
+
+  const a=parsedA, b=parsedB, op=parsedOp;
+  const aAbs=Math.abs(a), bAbs=Math.abs(b);
+  const aType=a>=0?'pos':'neg';
+  const bType=b>=0?'pos':'neg';
+  const hasBType=(aType===bType)?aAbs:0;
+  const pairsNeeded = (op==='sub') ? Math.max(0, bAbs-hasBType) : 0;
+
+  let totalSteps=2;
+  if(op==='add'&&bAbs>0&&aType!==bType) totalSteps=3;
+  if(op==='sub'&&pairsNeeded>0)         totalSteps=3;
+
+  // Step 1 — drop A balls
+  enqueue({type:'narrate',
+    html:'Lägg <strong>'+aAbs+' '+(a>=0?'positiva':'negativa')+'</strong> kulor i bägaren.',
+    step:1,total:totalSteps});
+  for(let i=0;i<aAbs;i++){
+    enqueue({type:'drop',ballType:aType,shade:'orig'});
+    enqueue({type:'pause',ms:65});
+  }
+  enqueue({type:'pause',ms:280});
+
+  if(b===0){
+    enqueue({type:'narrate',
+      html:'Vi '+(op==='add'?'adderar':'subtraherar')+' <strong>0</strong> — bägaren förblir oförändrad.',
+      step:2,total:totalSteps});
+
+  } else if(op==='add'){
+    enqueue({type:'narrate',
+      html:'Lägg till <strong>'+bAbs+' '+(b>=0?'positiva':'negativa')+'</strong> kulor.',
+      step:2,total:totalSteps});
+    for(let i=0;i<bAbs;i++){
+      enqueue({type:'drop',ballType:bType,shade:'orig'});
+      enqueue({type:'pause',ms:65});
+    }
+    enqueue({type:'pause',ms:280});
+
+    if(aType!==bType){
+      const cancel=Math.min(aAbs,bAbs);
+      enqueue({type:'narrate',
+        html:'<strong>'+cancel+' par</strong> (+1) och (−1) tar ut varandra — de försvinner!',
+        step:3,total:totalSteps});
+      enqueue({type:'pause',ms:200});
+      for(let i=0;i<cancel;i++){
+        enqueue({type:'flash'});
+        enqueue({type:'pause',ms:80});
+      }
+    }
+
+  } else {
+    if(pairsNeeded > 0){
+      enqueue({type:'narrate',
+        html:'Vi har <strong>'+hasBType+'</strong> '+(bType==='neg'?'negativa':'positiva')+
+          ' kulor men behöver <strong>'+bAbs+'</strong>. '+
+          'Lägg in <strong>'+pairsNeeded+' nollpar</strong> (+1 och −1 = 0).',
+        step:2,total:totalSteps});
+      for(let i=0;i<pairsNeeded;i++){
+        enqueue({type:'dropPair'});
+        enqueue({type:'pause',ms:120});
+      }
+      enqueue({type:'pause',ms:280});
+
+      enqueue({type:'narrate',
+        html:'Nu lyfter vi ut <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor.',
+        step:3,total:totalSteps});
+      enqueue({type:'pause',ms:200});
+      for(let i=0;i<bAbs;i++){
+        enqueue({type:'lift',ballType:bType});
+        enqueue({type:'pause',ms:90});
+      }
+    } else {
+      // Have enough — lift directly
+      enqueue({type:'narrate',
+        html:'Vi har <strong>'+bAbs+' '+(b<0?'negativa':'positiva')+'</strong> kulor att lyfta ut direkt.',
+        step:2,total:totalSteps});
+      enqueue({type:'pause',ms:280});
+      for(let i=0;i<bAbs;i++){
+        enqueue({type:'lift',ballType:bType});
+        enqueue({type:'pause',ms:100});
+      }
+    }
+  }
+
+  enqueue({type:'done'});
+  queueRunning=true;
+  advanceQueue();
+}
+
+function doReset(){
+  stopLoop();
+  balls=[]; liftingBalls=[]; dropping=null; droppingTwo=null; queue=[]; queueRunning=false; simRunning=false;
+  flashAlpha=0; waitClickResolve=null;
+  hideNextBtn();
+  document.getElementById('playBtn').disabled=false;
+  document.getElementById('resultRow').classList.remove('show');
+  document.getElementById('narration').innerHTML='Skriv ett uttryck ovan eller välj en uppgift nedan.';
+  document.getElementById('stepBadge').textContent='—';
+  document.getElementById('exprDisplay').innerHTML='&nbsp;';
+  document.getElementById('exprIn').value='';
+  setFeedback('',''); parseValid=false;
+  document.querySelectorAll('.bead').forEach(b=>b.classList.remove('active'));
+  activeBead=null;
+  render();
+}
+
+// ══════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════
+document.addEventListener('keydown', e=>{
+  // Don't fire when typing in the input field
+  if(document.activeElement === document.getElementById('exprIn')) return;
+  if(e.key === ' ' || e.key === 'Spacebar'){
+    e.preventDefault();
+    const next = document.getElementById('nextBtn');
+    if(next.style.display !== 'none' && !next.disabled) clickNext();
+  }
+  if(e.key === 'Escape') doReset();
+  if(e.key === 'Enter'){
+    const next = document.getElementById('nextBtn');
+    if(next.style.display !== 'none' && !next.disabled) clickNext();
+    else tryStart();
+  }
+});
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+buildBeads();
+render();
+</script>
+</body>
+</html>
