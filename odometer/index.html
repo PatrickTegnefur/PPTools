@@ -17,37 +17,27 @@
   --accent2: #EC6095;
   --shadow:  rgba(48,107,240,.12);
   --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
-  --DH: 60px;
-  --DW: 56px;
+  --DH: 56px;
+  --DW: 50px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
   font-family:'Sora',sans-serif;
-  background:var(--bg);
-  color:var(--text);
+  background:var(--bg);color:var(--text);
   min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  display:flex;flex-direction:column;align-items:center;
   padding:0 1rem 3rem;
-  overflow-x:hidden;
-  position:relative;
+  overflow-x:hidden;position:relative;
 }
-
-/* Ambient blobs */
 .blob{position:fixed;border-radius:50%;filter:blur(72px);opacity:.22;pointer-events:none;z-index:0;}
 .blob-1{width:340px;height:340px;background:#66C7C2;top:-80px;left:-100px;}
 .blob-2{width:280px;height:280px;background:#F4A261;top:200px;right:-80px;}
 .blob-3{width:220px;height:220px;background:#EC6095;bottom:60px;left:60px;}
 
-/* Header */
 header{
-  width:100%;height:52px;
-  background:var(--gradient);
-  display:flex;align-items:center;
-  padding:0 1.4rem;
-  margin-bottom:1.6rem;
-  position:relative;z-index:10;
+  width:100%;height:52px;background:var(--gradient);
+  display:flex;align-items:center;padding:0 1.4rem;
+  margin-bottom:1.4rem;position:relative;z-index:10;
   box-shadow:0 4px 20px rgba(0,0,0,.18);
 }
 header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;color:#fff;letter-spacing:.02em;}
@@ -57,18 +47,17 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   letter-spacing:.04em;text-transform:uppercase;
 }
 
-/* Glass card */
 .glass-card{
   position:relative;z-index:1;
   background:rgba(255,255,255,.58);
   backdrop-filter:blur(20px) saturate(180%);
   -webkit-backdrop-filter:blur(20px) saturate(180%);
   border:1px solid rgba(255,255,255,.72);
-  border-radius:20px;
-  box-shadow:0 8px 40px var(--shadow);
-  padding:1.2rem 1.6rem 1rem;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  margin-bottom:1rem;
+  border-radius:20px;box-shadow:0 8px 40px var(--shadow);
+  padding:1.1rem 1.4rem .9rem;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  margin-bottom:.9rem;
+  max-width:100%;overflow-x:auto;
 }
 .glass-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:4px;
@@ -76,7 +65,6 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   border-radius:20px 20px 0 0;
 }
 
-/* Toggle pills */
 .toggle-bar{display:flex;gap:6px;margin-bottom:2px;}
 .toggle-pill{
   font-size:.65rem;font-weight:600;font-family:'Sora',sans-serif;
@@ -88,38 +76,37 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
 .toggle-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 .toggle-pill:hover:not(.active){border-color:var(--accent);color:var(--accent);}
 
-/* Label rows (togglable) */
+/* Label rows */
 .label-row,.value-label-row{
   display:flex;align-items:flex-end;
   max-height:0;overflow:hidden;
   transition:max-height .25s ease;
+  flex-shrink:0;
 }
-.label-row.visible,.value-label-row.visible{max-height:36px;}
+.label-row.visible     { max-height:34px; }
+.value-label-row.visible{ max-height:22px; }
 .place-lbl{
   width:var(--DW);text-align:center;
-  font-size:.52rem;font-weight:600;color:var(--muted);
-  letter-spacing:.03em;line-height:1.25;white-space:normal;padding:0 1px;
+  font-size:.48rem;font-weight:600;color:var(--muted);
+  letter-spacing:.02em;line-height:1.2;white-space:normal;padding:0 1px;
 }
 .place-lbl.dec{color:var(--accent2);}
 .place-val-lbl{
   width:var(--DW);text-align:center;
-  font-size:.58rem;font-weight:700;color:var(--accent);
+  font-size:.55rem;font-weight:700;color:var(--accent);
   font-family:'Montserrat',sans-serif;
 }
 .place-val-lbl.dec{color:var(--accent2);}
 .lbl-spacer{flex-shrink:0;}
 
 /* +/- rows */
-.ctrl-row{display:flex;align-items:center;}
-.drum-col{width:var(--DW);display:flex;justify-content:center;}
+.ctrl-row{display:flex;align-items:center;flex-shrink:0;}
+.drum-col{width:var(--DW);display:flex;justify-content:center;align-items:center;}
 .dot-col,.sep-col{flex-shrink:0;}
-
 .drum-btn{
-  width:36px;height:24px;
-  border:1.5px solid var(--border);
-  background:rgba(255,255,255,.7);
-  border-radius:6px;cursor:pointer;
-  font-size:1rem;font-weight:700;color:var(--accent);
+  width:32px;height:22px;
+  border:1.5px solid var(--border);background:rgba(255,255,255,.7);
+  border-radius:6px;cursor:pointer;font-size:.95rem;font-weight:700;color:var(--accent);
   display:flex;align-items:center;justify-content:center;
   transition:background .1s,border-color .1s,transform .08s;
   font-family:'Sora',sans-serif;line-height:1;user-select:none;
@@ -129,67 +116,85 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
 .drum-btn.minus{color:var(--accent2);}
 .drum-btn.minus:hover{border-color:var(--accent2);}
 
-/* Drum shell */
+/* Odometer shell */
 .drums-row{
   display:flex;align-items:center;
-  background:#18131f;
-  border-radius:12px;padding:6px 10px;
+  background:#18131f;border-radius:12px;padding:5px 8px;
   box-shadow:inset 0 4px 16px rgba(0,0,0,.65),0 3px 12px rgba(0,0,0,.25);
-  position:relative;
+  position:relative;flex-shrink:0;
 }
 .drums-row::after{
-  content:'';position:absolute;left:10px;right:10px;top:50%;
+  content:'';position:absolute;left:8px;right:8px;top:50%;
   transform:translateY(-50%);height:var(--DH);
   border-top:1px solid rgba(255,255,255,.16);
   border-bottom:1px solid rgba(255,255,255,.16);
   pointer-events:none;z-index:4;
 }
 .drum{width:var(--DW);height:var(--DH);overflow:hidden;position:relative;}
-.drum::before,.drum::after{content:'';position:absolute;left:0;right:0;height:16px;z-index:3;pointer-events:none;}
-.drum::before{top:0;background:linear-gradient(to bottom,rgba(24,19,31,.93),transparent);}
-.drum::after {bottom:0;background:linear-gradient(to top,rgba(24,19,31,.93),transparent);}
+.drum::before,.drum::after{
+  content:'';position:absolute;left:0;right:0;height:14px;z-index:3;pointer-events:none;
+}
+.drum::before{top:0;   background:linear-gradient(to bottom,rgba(24,19,31,.93),transparent);}
+.drum::after {bottom:0;background:linear-gradient(to top,  rgba(24,19,31,.93),transparent);}
 
+/*
+  CYCLIC TAPE — contains 30 cells: digits repeated 3 times (0-9, 0-9, 0-9).
+  We track an absolute "offset" (integer, any value) and render:
+    translateY = -offset * DH
+  Increasing offset → tape moves up → larger digit shown (add direction).
+  Decreasing offset → tape moves down → smaller digit shown (subtract direction).
+  The digit shown = ((offset % 10) + 10) % 10.
+  We start at offset = digit (so digit 5 → offset 10+5=15, middle repetition).
+*/
 .tape{position:absolute;width:100%;will-change:transform;}
 .tape-digit{
   width:100%;height:var(--DH);
   display:flex;align-items:center;justify-content:center;
-  font-size:2.5rem;font-weight:700;
+  font-size:2.3rem;font-weight:700;
   font-family:'Montserrat',sans-serif;
-  color:rgba(240,236,252,.32);user-select:none;
+  color:rgba(240,236,252,.28);user-select:none;
 }
 .tape-digit.lit{color:#fff;}
 
 .dec-dot{
-  width:22px;display:flex;align-items:center;justify-content:center;
-  font-size:2.4rem;font-weight:700;color:#F4A261;
-  flex-shrink:0;padding-bottom:4px;
+  width:20px;display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;font-weight:700;color:#F4A261;
+  flex-shrink:0;padding-bottom:3px;
 }
-.drum-sep{width:1px;height:38px;background:rgba(255,255,255,.1);flex-shrink:0;align-self:center;}
+.drum-sep{
+  width:1px;height:34px;background:rgba(255,255,255,.1);
+  flex-shrink:0;align-self:center;
+}
 
-/* Op section */
+/* Op panels */
+.op-panels-row{
+  display:flex;gap:.65rem;
+  margin-bottom:.65rem;
+}
 .op-section{
   position:relative;z-index:1;
   background:rgba(255,255,255,.52);
   backdrop-filter:blur(16px) saturate(160%);
   -webkit-backdrop-filter:blur(16px) saturate(160%);
   border:1px solid rgba(255,255,255,.68);
-  border-radius:16px;
-  box-shadow:0 4px 20px var(--shadow);
-  padding:.8rem 1.2rem .75rem;
-  width:100%;max-width:620px;
-  margin-bottom:.7rem;
+  border-radius:16px;box-shadow:0 4px 20px var(--shadow);
+  padding:.75rem 1rem .7rem;
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;
 }
+.op-title{text-align:center;}
 .op-title{
   font-size:.6rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:.07em;color:var(--muted);margin-bottom:.45rem;
+  letter-spacing:.07em;color:var(--muted);margin-bottom:.5rem;
+  text-align:center;
 }
-.op-row{display:flex;flex-wrap:wrap;gap:5px;}
+.op-row{display:flex;gap:5px;margin-bottom:5px;justify-content:center;}
+.op-row:last-child{margin-bottom:0;}
 .op-btn{
-  height:30px;padding:0 .8rem;border-radius:8px;
-  font-family:'Sora',sans-serif;font-size:.78rem;font-weight:600;
+  height:28px;padding:0 .7rem;border-radius:8px;
+  font-family:'Sora',sans-serif;font-size:.75rem;font-weight:600;
   cursor:pointer;border:1.5px solid transparent;
-  transition:opacity .12s,transform .08s,background .12s;
-  white-space:nowrap;
+  transition:opacity .12s,transform .08s,background .12s;white-space:nowrap;
 }
 .op-btn:active{transform:scale(.93);}
 .op-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
@@ -209,28 +214,26 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   backdrop-filter:blur(16px) saturate(160%);
   -webkit-backdrop-filter:blur(16px) saturate(160%);
   border:1px solid rgba(255,255,255,.68);
-  border-radius:16px;
-  box-shadow:0 4px 20px var(--shadow);
-  padding:.6rem 1.1rem;
-  width:100%;max-width:620px;
+  border-radius:16px;box-shadow:0 4px 20px var(--shadow);
+  padding:.55rem 1.1rem;
   display:flex;flex-direction:column;align-items:center;gap:4px;
 }
 .input-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .input-label{font-size:.7rem;color:var(--muted);font-weight:600;white-space:nowrap;}
-.divider-v{width:1px;height:22px;background:var(--border);margin:0 3px;flex-shrink:0;}
+.divider-v{width:1px;height:20px;background:var(--border);margin:0 3px;flex-shrink:0;}
 input[type="text"]{
-  width:82px;height:28px;
+  width:80px;height:26px;
   border:1.5px solid var(--border);border-radius:7px;
-  padding:0 .45rem;
-  font-family:'Sora',sans-serif;font-size:.82rem;
+  padding:0 .4rem;
+  font-family:'Sora',sans-serif;font-size:.8rem;
   color:var(--text);background:rgba(255,255,255,.8);
   outline:none;transition:border-color .15s;
 }
 input[type="text"]:focus{border-color:var(--accent);}
 .action-btn{
-  height:28px;padding:0 .7rem;
+  height:26px;padding:0 .65rem;
   border:1.5px solid var(--accent);background:var(--accent);color:#fff;
-  border-radius:7px;font-family:'Sora',sans-serif;font-size:.72rem;font-weight:600;
+  border-radius:7px;font-family:'Sora',sans-serif;font-size:.7rem;font-weight:600;
   cursor:pointer;white-space:nowrap;transition:opacity .12s,transform .08s;
 }
 .action-btn:hover{opacity:.85;}
@@ -242,7 +245,6 @@ input[type="text"]:focus{border-color:var(--accent);}
 </style>
 </head>
 <body>
-
 <div class="blob blob-1"></div>
 <div class="blob blob-2"></div>
 <div class="blob blob-3"></div>
@@ -264,16 +266,18 @@ input[type="text"]:focus{border-color:var(--accent);}
   <div class="ctrl-row"  id="minusRow"></div>
 </div>
 
-<div class="op-section">
-  <div class="op-title">Addera &amp; Subtrahera</div>
-  <div class="op-row" id="addSubRow"></div>
+<div class="op-panels-row">
+  <div class="op-section">
+    <div class="op-title">Addera &amp; Subtrahera</div>
+    <div class="op-row" id="addRow"></div>
+    <div class="op-row" id="subRow"></div>
+  </div>
+  <div class="op-section">
+    <div class="op-title">Multiplicera &amp; Dividera</div>
+    <div class="op-row" id="mulRow"></div>
+    <div class="op-row" id="divRow"></div>
+  </div>
 </div>
-
-<div class="op-section">
-  <div class="op-title">Multiplicera &amp; Dividera (tiotalsfaktorer)</div>
-  <div class="op-row" id="mulDivRow"></div>
-</div>
-
 <div class="input-panel">
   <div class="input-row">
     <span class="input-label">Ange tal:</span>
@@ -289,22 +293,80 @@ input[type="text"]:focus{border-color:var(--accent);}
 </div>
 
 <script>
-// ── Constants ────────────────────────────────────────────────────────────────
-const PLACE_VALUES    = [100000,10000,1000,100,10,1,0.1,0.01,0.001];
-const PLACE_NAMES     = ['Hundra\u00adtusental','Tio\u00adtusental','Tusental','Hundratal','Tiotal','Ental','Tiondel','Hundradel','Tusendel'];
-const PLACE_IS_DEC    = [false,false,false,false,false,false,true,true,true];
-const PLACE_VAL_LBLS  = ['100\u202f000','10\u202f000','1\u202f000','100','10','1','0,1','0,01','0,001'];
-const DH              = 60; // px — matches --DH
+// ═══════════════════════════════════════════════════════════════
+//  LAYOUT DEFINITION
+//  15 drums: 8 integer positions + 6 decimal positions
+//  Groups of 3, separated by thin spacers; decimal dot before index 8
+// ═══════════════════════════════════════════════════════════════
+const DRUMS = [
+  // index, name, placeValue (as string for display), isDecimal
+  { name:'Tio\u00admiljoner',   pv:'10\u202f000\u202f000', dec:false },  // 0
+  { name:'Miljoner',            pv:'1\u202f000\u202f000',  dec:false },  // 1
+  { name:'Hundra\u00adtusental',pv:'100\u202f000',         dec:false },  // 2
+  { name:'Tio\u00adtusental',   pv:'10\u202f000',          dec:false },  // 3
+  { name:'Tusental',            pv:'1\u202f000',            dec:false },  // 4
+  { name:'Hundratal',           pv:'100',                  dec:false },  // 5
+  { name:'Tiotal',              pv:'10',                   dec:false },  // 6
+  { name:'Ental',               pv:'1',                    dec:false },  // 7
+  // decimal dot between 7 and 8
+  { name:'Tiondel',             pv:'0,1',                  dec:true  },  // 8
+  { name:'Hundradel',           pv:'0,01',                 dec:true  },  // 9
+  { name:'Tusendel',            pv:'0,001',                dec:true  },  // 10
+  { name:'Tiontusendel',        pv:'0,0001',               dec:true  },  // 11
+  { name:'Hundra\u00adtusendel',pv:'0,00001',              dec:true  },  // 12
+  { name:'Miljondelar',         pv:'0,000001',             dec:true  },  // 13
+];
+const N = DRUMS.length; // 14
+// Groups of 3 — separators inserted BEFORE these indices
+const SEP_BEFORE = new Set([2, 5, 9, 12]);   // thin separator — Swedish 3+3+2 grouping
+const DEC_DOT_BEFORE = 8;                     // decimal comma
+
+// Place values for arithmetic (index 0 = tio-miljoner)
+// All stored as milli-micro units: multiply by 10^9 to get micro-units
+// Easier: store as BigInt nano-units (×10^9) to keep integers.
+// Actually let's just use a fixed-point integer: store value * 10^6 (microunits).
+// tio-miljoner = 10_000_000 → micro = 10_000_000_000_000  — too big for Number.
+// Use BigInt for the accumulator.
+const MICRO_PER_DRUM = [
+  10000000000000n,  // 10 000 000      × 10^6
+   1000000000000n,  //  1 000 000
+    100000000000n,  //    100 000
+     10000000000n,  //     10 000
+      1000000000n,  //      1 000
+       100000000n,  //        100
+        10000000n,  //         10
+         1000000n,  //          1
+          100000n,  //          0.1
+           10000n,  //          0.01
+            1000n,  //          0.001
+             100n,  //          0.0001
+              10n,  //          0.00001
+               1n,  //          0.000001
+];
+const MICRO_MAX = 99999999999999n; // 99 999 999.999999 in micro
 
 // ── State ────────────────────────────────────────────────────────────────────
-// digits[0] = hundratusental, digits[8] = tusendel
-let digits     = [0,0,0,0,0,0,0,0,0];
-let busy       = false;
-let showNames  = false;
-let showVals   = false;
+// offsets[i]: absolute integer offset for drum i.
+// The digit shown = posmod(offset, 10).
+// Tape contains 30 cells (3 repetitions of 0-9).
+// Physical y = -offset * DH  (mod-corrected into [0..30*DH) window).
+// We keep offset unbounded; before each animation we mod it into a safe window.
+let offsets = new Array(N).fill(0); // starts at digit 0
+let busy    = false;
+let showNames = false;
+let showVals  = false;
 
-// ── Toggle pills ─────────────────────────────────────────────────────────────
-function toggleNames() {
+const DH = 56; // px — must match --DH
+const TAPE_REPS = 3;
+const TAPE_CELLS = 10 * TAPE_REPS; // 30
+
+// posmod: always-positive modulo
+function posmod(a, b) { return ((a % b) + b) % b; }
+// digit from offset
+function digitOf(off) { return posmod(off, 10); }
+
+// ── Toggle ───────────────────────────────────────────────────────────────────
+function toggleNames()  {
   showNames = !showNames;
   document.getElementById('pillNames').classList.toggle('active', showNames);
   document.getElementById('labelRow').classList.toggle('visible', showNames);
@@ -315,7 +377,7 @@ function toggleValues() {
   document.getElementById('valueLabelRow').classList.toggle('visible', showVals);
 }
 
-// ── Build DOM ────────────────────────────────────────────────────────────────
+// ── Build DOM ─────────────────────────────────────────────────────────────────
 function buildUI() {
   buildLabelRows();
   buildDrumRows();
@@ -332,13 +394,12 @@ function insertSpacer(parent, w) {
 function buildLabelRows() {
   const lr  = document.getElementById('labelRow');
   const vlr = document.getElementById('valueLabelRow');
-  for (let i = 0; i < 9; i++) {
-    if (i === 3) { insertSpacer(lr,'10px'); insertSpacer(vlr,'10px'); }
-    if (i === 6) { insertSpacer(lr,'22px'); insertSpacer(vlr,'22px'); }
-    const cls  = 'place-lbl'     + (PLACE_IS_DEC[i] ? ' dec' : '');
-    const vcls = 'place-val-lbl' + (PLACE_IS_DEC[i] ? ' dec' : '');
-    lr.insertAdjacentHTML('beforeend',  `<div class="${cls}">${PLACE_NAMES[i]}</div>`);
-    vlr.insertAdjacentHTML('beforeend', `<div class="${vcls}">${PLACE_VAL_LBLS[i]}</div>`);
+  for (let i = 0; i < N; i++) {
+    if (SEP_BEFORE.has(i)) { insertSpacer(lr,'1px'); insertSpacer(vlr,'1px'); }
+    if (i === DEC_DOT_BEFORE) { insertSpacer(lr,'20px'); insertSpacer(vlr,'20px'); }
+    const d = DRUMS[i];
+    lr.insertAdjacentHTML ('beforeend', `<div class="place-lbl${d.dec?' dec':''}">${d.name}</div>`);
+    vlr.insertAdjacentHTML('beforeend', `<div class="place-val-lbl${d.dec?' dec':''}">${d.pv}</div>`);
   }
 }
 
@@ -347,23 +408,24 @@ function buildDrumRows() {
   const drumsRow = document.getElementById('drumsRow');
   const minusRow = document.getElementById('minusRow');
 
-  for (let i = 0; i < 9; i++) {
-    // separators
-    if (i === 3) {
+  for (let i = 0; i < N; i++) {
+    // Separators
+    if (SEP_BEFORE.has(i)) {
       ['plusRow','drumsRow','minusRow'].forEach(id => {
         const el = document.createElement('div');
         if (id === 'drumsRow') { el.className = 'drum-sep'; }
-        else { el.className = 'sep-col'; el.style.width = '10px'; }
+        else { el.className = 'sep-col'; el.style.width = '1px'; }
         document.getElementById(id).appendChild(el);
       });
     }
-    if (i === 6) {
+    // Decimal dot
+    if (i === DEC_DOT_BEFORE) {
       const dot = document.createElement('div');
       dot.className = 'dec-dot'; dot.textContent = ',';
       drumsRow.appendChild(dot);
       ['plusRow','minusRow'].forEach(id => {
         const el = document.createElement('div');
-        el.className = 'dot-col'; el.style.width = '22px';
+        el.className = 'dot-col'; el.style.width = '20px';
         document.getElementById(id).appendChild(el);
       });
     }
@@ -387,113 +449,130 @@ function buildDrumRows() {
   }
 }
 
-function buildOpButtons() {
-  const addSubRow = document.getElementById('addSubRow');
-  const mulDivRow = document.getElementById('mulDivRow');
-
-  [
-    { label:'+1000', val:1000 }, { label:'+100', val:100 }, { label:'+10', val:10 },
-    { label:'+1',    val:1    }, { label:'+0,1', val:0.1 }, { label:'+0,01', val:0.01 },
-    { label:'−0,01', val:-0.01},{ label:'−0,1',  val:-0.1}, { label:'−1',   val:-1   },
-    { label:'−10',   val:-10  },{ label:'−100',  val:-100}, { label:'−1000',val:-1000 },
-  ].forEach(op => {
-    const btn = document.createElement('button');
-    btn.className = 'op-btn ' + (op.val > 0 ? 'add' : 'sub');
-    btn.textContent = op.label;
-    btn.addEventListener('click', () => runDelta(op.val));
-    addSubRow.appendChild(btn);
-  });
-
-  [
-    { label:'× 1000', f:1000 }, { label:'× 100', f:100 }, { label:'× 10', f:10 },
-    { label:'÷ 10',   f:0.1  }, { label:'÷ 100', f:0.01}, { label:'÷ 1000', f:0.001 },
-  ].forEach(op => {
-    const btn = document.createElement('button');
-    btn.className = 'op-btn ' + (op.f >= 1 ? 'mul' : 'div');
-    btn.textContent = op.label;
-    btn.addEventListener('click', () => runMultiply(op.f));
-    mulDivRow.appendChild(btn);
-  });
+function makeBtn(cls, label, onClick) {
+  const btn = document.createElement('button');
+  btn.className = 'op-btn ' + cls;
+  btn.textContent = label;
+  btn.addEventListener('click', onClick);
+  return btn;
 }
 
-// ── Tape construction ─────────────────────────────────────────────────────────
-// 11 cells: 0–9 then 0 again (trailing "0" enables smooth 9→0 wrap animation)
-function makeTape(activeDigit) {
+function buildOpButtons() {
+  const addRow = document.getElementById('addRow');
+  const subRow = document.getElementById('subRow');
+  const mulRow = document.getElementById('mulRow');
+  const divRow = document.getElementById('divRow');
+
+  [{l:'+1 000',v:1000},{l:'+100',v:100},{l:'+10',v:10}]
+    .forEach(op => addRow.appendChild(makeBtn('add', op.l, () => runDelta(op.v))));
+
+  [{l:'−1 000',v:-1000},{l:'−100',v:-100},{l:'−10',v:-10}]
+    .forEach(op => subRow.appendChild(makeBtn('sub', op.l, () => runDelta(op.v))));
+
+  [{l:'× 10',f:10},{l:'× 100',f:100},{l:'× 1 000',f:1000}]
+    .forEach(op => mulRow.appendChild(makeBtn('mul', op.l, () => runMultiply(op.f))));
+
+  [{l:'÷ 10',f:0.1},{l:'÷ 100',f:0.01},{l:'÷ 1 000',f:0.001}]
+    .forEach(op => divRow.appendChild(makeBtn('div', op.l, () => runMultiply(op.f))));
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CYCLIC TAPE
+//  30 cells: 0,1,2,...,9, 0,1,...,9, 0,1,...,9
+//  Physical Y of cell k = k * DH
+//  Tape translateY = -offset * DH  (but we keep offset in [10..20)
+//  so the "lit" cell is always in the middle repetition, away from edges)
+// ═══════════════════════════════════════════════════════════════
+function makeTape(initialDigit) {
   const tape = document.createElement('div');
   tape.className = 'tape';
-  for (let d = 0; d <= 10; d++) {
+  for (let k = 0; k < TAPE_CELLS; k++) {
     const cell = document.createElement('div');
     cell.className = 'tape-digit';
-    const v = d % 10;
-    cell.textContent = v;
-    if (v === activeDigit && d < 10) cell.classList.add('lit');
+    cell.textContent = k % 10;
     tape.appendChild(cell);
   }
+  // Start offset in middle repetition: offset = 10 + digit
+  const off = 10 + initialDigit;
+  offsets[0] = off; // will be overwritten by buildDrumRows caller
   tape.style.transition = 'none';
-  tape.style.transform  = `translateY(${-activeDigit * DH}px)`;
+  tape.style.transform  = `translateY(${-off * DH}px)`;
+  updateTapeLit(tape, off);
   return tape;
 }
 
-// ── Animate one drum one step ─────────────────────────────────────────────────
+function updateTapeLit(tape, offset) {
+  const digit = posmod(offset, 10);
+  tape.querySelectorAll('.tape-digit').forEach((el, k) => {
+    el.classList.toggle('lit', k % 10 === digit);
+  });
+}
+
+// Re-anchor offset into middle repetition (10..20) without moving the tape visually
+function reanchorOffset(i) {
+  const tape = document.getElementById(`d${i}`).querySelector('.tape');
+  let off = offsets[i];
+  // Shift by multiples of 10 to land in [10, 20)
+  const mod = posmod(off, 10);
+  const target = 10 + mod; // always in [10,19]
+  // Apply difference
+  const diff = target - off;
+  if (diff !== 0) {
+    offsets[i] = target;
+    tape.style.transition = 'none';
+    tape.style.transform  = `translateY(${-target * DH}px)`;
+  }
+}
+
+// ── Animate one step on drum i in direction dir (+1 or -1) ───────────────────
+// dir +1 → offset increases → tape scrolls upward → next digit (mod 10) appears
+// dir -1 → offset decreases → tape scrolls downward → previous digit appears
+// ALWAYS consistent rotational direction: +1 always up, -1 always down.
 function animateDrum(i, dir) {
   return new Promise(resolve => {
     const drum = document.getElementById(`d${i}`);
-    const cur  = digits[i];
-    const next = (cur + dir + 10) % 10;
     const tape = drum.querySelector('.tape');
 
-    // Compute start/end Y
-    let startY, endY;
-    if (dir > 0) {
-      // increasing: tape scrolls upward (Y decreases)
-      startY = -cur * DH;
-      endY   = (cur === 9) ? -10 * DH : -(cur + 1) * DH;
-    } else {
-      // decreasing: tape scrolls downward (Y increases)
-      startY = (cur === 0) ? DH : -cur * DH;
-      endY   = (cur === 0) ? 0  : -(cur - 1) * DH;
-    }
+    // Reanchor so we have room in both directions
+    reanchorOffset(i);
 
-    // Snap to start, highlight current
+    const startOff = offsets[i];
+    const endOff   = startOff + dir;
+
     tape.style.transition = 'none';
-    tape.style.transform  = `translateY(${startY}px)`;
-    tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
-      el.classList.toggle('lit', idx % 10 === cur && idx < 10);
-    });
+    tape.style.transform  = `translateY(${-startOff * DH}px)`;
+    updateTapeLit(tape, startOff);
 
-    tape.getBoundingClientRect(); // force reflow
+    tape.getBoundingClientRect(); // reflow
 
-    // Animate to end
     tape.style.transition = 'transform 0.19s cubic-bezier(0.22,0.8,0.3,1)';
-    tape.style.transform  = `translateY(${endY}px)`;
+    tape.style.transform  = `translateY(${-endOff * DH}px)`;
 
     let done = false;
     const finish = () => {
       if (done) return; done = true;
-      digits[i] = next;
-      tape.style.transition = 'none';
-      tape.style.transform  = `translateY(${-next * DH}px)`;
-      tape.querySelectorAll('.tape-digit').forEach((el, idx) => {
-        el.classList.toggle('lit', idx % 10 === next && idx < 10);
-      });
+      offsets[i] = endOff;
+      updateTapeLit(tape, endOff);
       resolve();
     };
     tape.addEventListener('transitionend', finish, { once: true });
-    setTimeout(finish, 320); // safety fallback
+    setTimeout(finish, 300);
   });
 }
 
-// ── Cascade: step drum i, carry if it wrapped ─────────────────────────────────
+// ── Cascade: step drum i, carry to i-1 if it wrapped ─────────────────────────
 async function cascadeStep(i, dir) {
-  const before = digits[i];
+  const before = digitOf(offsets[i]);
   await animateDrum(i, dir);
-  const after = digits[i];
-  const wrapped = (dir === 1 && before === 9 && after === 0)
-               || (dir === -1 && before === 0 && after === 9);
-  if (wrapped && i > 0) await cascadeStep(i - 1, dir);
+  const after  = digitOf(offsets[i]);
+  const wrappedUp   = dir === 1  && before === 9 && after === 0;
+  const wrappedDown = dir === -1 && before === 0 && after === 9;
+  if ((wrappedUp || wrappedDown) && i > 0) {
+    await cascadeStep(i - 1, dir);
+  }
 }
 
-// ── +/- drum button ───────────────────────────────────────────────────────────
+// ── User drum-button press ────────────────────────────────────────────────────
 async function userStep(i, dir) {
   if (busy) return;
   busy = true;
@@ -501,203 +580,175 @@ async function userStep(i, dir) {
   busy = false;
 }
 
-// ── Instant set (no animation) ────────────────────────────────────────────────
-function setDigitsInstant(nd) {
-  digits = [...nd];
-  for (let i = 0; i < 9; i++) {
+// ═══════════════════════════════════════════════════════════════
+//  ARITHMETIC — BigInt micro-units (value × 10^6)
+// ═══════════════════════════════════════════════════════════════
+function getCurrentMicro() {
+  let total = 0n;
+  for (let i = 0; i < N; i++) {
+    total += BigInt(digitOf(offsets[i])) * MICRO_PER_DRUM[i];
+  }
+  return total;
+}
+
+function microToDigits(m) {
+  m = bigClamp(m, 0n, MICRO_MAX);
+  const d = [];
+  let rem = m;
+  for (let i = 0; i < N; i++) {
+    d.push(Number(rem / MICRO_PER_DRUM[i]));
+    rem = rem % MICRO_PER_DRUM[i];
+  }
+  return d;
+}
+
+function bigClamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+// Set all drums instantly to given digit array
+function setDigitsInstant(digs) {
+  for (let i = 0; i < N; i++) {
     const drum = document.getElementById(`d${i}`);
-    drum.innerHTML = '';
-    drum.appendChild(makeTape(digits[i]));
+    const tape = drum.querySelector('.tape');
+    const off  = 10 + digs[i]; // anchor in middle rep
+    offsets[i] = off;
+    tape.style.transition = 'none';
+    tape.style.transform  = `translateY(${-off * DH}px)`;
+    updateTapeLit(tape, off);
   }
 }
 
-// ── Parse value string → 9-digit array ───────────────────────────────────────
-function parseToDigits(str) {
-  str = str.trim().replace(',', '.');
+// ── Parse text → digit array ──────────────────────────────────────────────────
+function parseInput(str) {
+  str = str.trim().replace(',', '.').replace(/\s/g,'');
   const n = parseFloat(str);
   if (isNaN(n)) return null;
-  // Clamp to 0 – 999 999.999
-  const r    = Math.round(Math.max(0, Math.min(n, 999999.999)) * 1000) / 1000;
-  const intP = Math.floor(r);
-  const frac = Math.round((r - intP) * 1000);
-  return [
-    Math.floor(intP / 100000) % 10,
-    Math.floor(intP / 10000)  % 10,
-    Math.floor(intP / 1000)   % 10,
-    Math.floor(intP / 100)    % 10,
-    Math.floor(intP / 10)     % 10,
-    intP % 10,
-    Math.floor(frac / 100)    % 10,
-    Math.floor(frac / 10)     % 10,
-    frac % 10,
-  ];
+  // Convert to micro BigInt
+  const micro = BigInt(Math.round(Math.max(0, n) * 1e6));
+  const clamped = bigClamp(micro, 0n, MICRO_MAX);
+  return microToDigits(clamped);
 }
 
-// Current value from digits array (avoids float drift)
-function getCurrentMilli() {
-  // Return value in milli-units (integer) to avoid float arithmetic
-  return digits[0]*100000000 + digits[1]*10000000 + digits[2]*1000000
-       + digits[3]*100000    + digits[4]*10000    + digits[5]*1000
-       + digits[6]*100       + digits[7]*10       + digits[8];
-}
-
-function milliToDigits(m) {
-  // m is integer 0 – 999999999
-  m = Math.max(0, Math.min(Math.round(m), 999999999));
-  return [
-    Math.floor(m / 100000000) % 10,
-    Math.floor(m / 10000000)  % 10,
-    Math.floor(m / 1000000)   % 10,
-    Math.floor(m / 100000)    % 10,
-    Math.floor(m / 10000)     % 10,
-    Math.floor(m / 1000)      % 10,
-    Math.floor(m / 100)       % 10,
-    Math.floor(m / 10)        % 10,
-    m % 10,
-  ];
-}
-
-// ── Add/Subtract fixed amount (animate drum-by-drum, carry correctly) ─────────
+// ── Add/Subtract fixed delta ──────────────────────────────────────────────────
 async function runDelta(delta) {
   if (busy) return;
   busy = true;
-  setAllOpBtns(true);
+  setAllBtns(true);
 
-  const deltaMilli = Math.round(delta * 1000);
-  const curMilli   = getCurrentMilli();
-  const targetMilli = Math.max(0, Math.min(curMilli + deltaMilli, 999999999));
-  const targetDig  = milliToDigits(targetMilli);
-  const sign       = deltaMilli > 0 ? 1 : -1;
+  const deltaMicro  = BigInt(Math.round(delta * 1e6));
+  const curMicro    = getCurrentMicro();
+  const targetMicro = bigClamp(curMicro + deltaMicro, 0n, MICRO_MAX);
+  const targetDigs  = microToDigits(targetMicro);
+  const sign        = deltaMicro > 0n ? 1 : -1;
 
-  // Animate each position from smallest (tusendel=8) to largest (hundratusental=0)
-  // At each position, figure out how many steps to take in 'sign' direction,
-  // using the actual current drum state (which includes any carries from previous drums).
-  for (let i = 8; i >= 0; i--) {
-    let cur  = digits[i];
-    let tgt  = targetDig[i];
-    // How many steps in 'sign' direction to get from cur to tgt?
-    let steps;
-    if (sign > 0) {
-      steps = (tgt - cur + 10) % 10;
-    } else {
-      steps = (cur - tgt + 10) % 10;
-    }
+  // Animate from smallest drum upward, each drum exactly the steps needed
+  for (let i = N - 1; i >= 0; i--) {
+    const cur = digitOf(offsets[i]);
+    const tgt = targetDigs[i];
+    let steps = sign > 0
+      ? posmod(tgt - cur, 10)
+      : posmod(cur - tgt, 10);
     for (let s = 0; s < steps; s++) {
-      // Note: cascadeStep handles carry into i-1 automatically,
-      // but here we control the loop ourselves, so use animateDrum directly
-      // and handle carry below.
       await animateDrum(i, sign);
-      await sleep(40);
+      await sleep(35);
     }
   }
 
-  // Safety snap: ensure we're exactly at target
-  setDigitsInstant(targetDig);
-
-  setAllOpBtns(false);
+  setDigitsInstant(targetDigs); // safety snap
+  setAllBtns(false);
   busy = false;
 }
 
-// ── Multiply / Divide by powers of ten (digits shift left or right) ───────────
+// ── Multiply/Divide by power of ten ──────────────────────────────────────────
+// Mechanically: digits shift left (×10) or right (÷10) by 'positions' places.
+// Each pass: all drums animate simultaneously to their post-shift values.
 async function runMultiply(factor) {
   if (busy) return;
   busy = true;
-  setAllOpBtns(true);
+  setAllBtns(true);
 
-  const curMilli    = getCurrentMilli();
-  // Multiply in milli-space: ×10 = shift left 1 decimal place = ×10 in milli too
-  // factor 10   → shift digits 1 left   → milli ×10
-  // factor 0.1  → shift digits 1 right  → milli ÷10
-  const milliShiftFactor = Math.round(factor * 1000) / 1000;
-  const rawNext     = Math.round(curMilli * milliShiftFactor);
-  const targetMilli = Math.max(0, Math.min(rawNext, 999999999));
-  const targetDig   = milliToDigits(targetMilli);
+  const positions = Math.round(Math.log10(Math.abs(factor))); // 1,2,3,...
+  const dir       = factor >= 1 ? 1 : -1; // +1 shift left (×10), -1 shift right (÷10)
 
-  // Count how many position-shifts this is
-  const positions = Math.round(Math.log10(Math.abs(factor)));
-  const dir       = factor >= 1 ? 1 : -1; // +1 = multiply (shift left), -1 = divide
-
-  // Animate: for each position shift, roll each drum to its new value
-  // We do positions passes, each time shifting the digit array by one place
-  let workDig = [...digits];
   for (let pass = 0; pass < Math.abs(positions); pass++) {
-    // What does the digit array look like after one ×10 or ÷10 shift?
-    let shiftedDig;
+    // Current digit array
+    const cur = Array.from({length:N}, (_,i) => digitOf(offsets[i]));
+    // After one ×10: digit at position i ← digit at position i+1 (shifted left),
+    // last drum ← 0.
+    // After one ÷10: digit at position i ← digit at position i-1 (shifted right),
+    // first drum ← 0.
+    let shifted;
     if (dir > 0) {
-      // ×10: each digit moves one column left (to higher value column)
-      // d[0] gets d[1], d[1] gets d[2], ..., d[8] = 0
-      shiftedDig = [...workDig.slice(1), 0];
+      shifted = [...cur.slice(1), 0]; // ×10
     } else {
-      // ÷10: each digit moves one column right (to lower value column)
-      // d[0] = 0, d[1] gets d[0], ..., d[8] gets d[7]
-      shiftedDig = [0, ...workDig.slice(0, 8)];
+      shifted = [0, ...cur.slice(0, N-1)]; // ÷10
     }
 
-    // Animate all drums simultaneously to their new values
+    // Animate all drums in parallel
     const anims = [];
-    for (let i = 0; i < 9; i++) {
-      if (workDig[i] !== shiftedDig[i]) {
-        anims.push(animateDrumToTarget(i, workDig[i], shiftedDig[i]));
+    for (let i = 0; i < N; i++) {
+      if (cur[i] !== shifted[i]) {
+        anims.push(animateDrumToTarget(i, cur[i], shifted[i]));
       }
     }
-    // update digits array so animateDrumToTarget can read it
-    digits = [...workDig];
+    // Temporarily set offsets so animateDrumToTarget reads correct current digit
+    // (animateDrumToTarget uses offsets[i] internally via digitOf)
     await Promise.all(anims);
-    digits  = [...shiftedDig];
-    workDig = [...shiftedDig];
-    await sleep(120);
+    await sleep(80);
   }
 
-  // Safety snap
-  setDigitsInstant(targetDig);
+  // Compute true target and snap
+  const curMicro    = getCurrentMicro();
+  // factor as BigInt fraction: ×10 → *10, ÷10 → /10
+  let targetMicro;
+  if (dir > 0) {
+    targetMicro = curMicro * BigInt(Math.round(factor));
+  } else {
+    // factor = 0.1, 0.01 etc → divide
+    const divisor = BigInt(Math.round(1 / factor));
+    targetMicro = curMicro / divisor;
+  }
+  setDigitsInstant(microToDigits(bigClamp(targetMicro, 0n, MICRO_MAX)));
 
-  setAllOpBtns(false);
+  setAllBtns(false);
   busy = false;
 }
 
-// Animate drum i directly from 'from' to 'to' (choosing shortest rotational path)
-function animateDrumToTarget(i, from, to) {
-  return new Promise(async resolve => {
-    if (from === to) { resolve(); return; }
-
-    // Determine shortest direction
-    const cwSteps  = (to - from + 10) % 10; // steps going +1
-    const ccwSteps = (from - to + 10) % 10; // steps going -1
-    const dir   = cwSteps <= ccwSteps ? 1 : -1;
-    const steps = Math.min(cwSteps, ccwSteps);
-
-    for (let s = 0; s < steps; s++) {
-      await animateDrum(i, dir);
-      await sleep(30);
-    }
-    resolve();
-  });
+// Animate drum i from digit 'from' to digit 'to', shortest rotational path
+async function animateDrumToTarget(i, from, to) {
+  if (from === to) return;
+  const cwSteps  = posmod(to - from, 10);
+  const ccwSteps = posmod(from - to, 10);
+  const animDir  = cwSteps <= ccwSteps ? 1 : -1;
+  const steps    = Math.min(cwSteps, ccwSteps);
+  for (let s = 0; s < steps; s++) {
+    await animateDrum(i, animDir);
+    await sleep(25);
+  }
 }
 
-// ── "Beräkna" field: step smallest place first, cascade naturally ─────────────
+// ── "Beräkna" field ───────────────────────────────────────────────────────────
 async function startCustomAdd() {
   if (busy) return;
   clearErr();
-  const raw   = document.getElementById('addInput').value.trim().replace(',', '.');
-  const delta = parseFloat(raw);
+  const raw   = document.getElementById('addInput').value;
+  const str   = raw.trim().replace(',', '.').replace(/\s/g,'');
+  const delta = parseFloat(str);
   if (isNaN(delta)) { showErr('Ange t.ex. +124 eller −50,5'); return; }
-  const deltaMilli = Math.round(delta * 1000);
-  if (deltaMilli === 0) return;
+
+  const deltaMicro = BigInt(Math.round(delta * 1e6));
+  if (deltaMicro === 0n) return;
 
   busy = true;
   document.getElementById('addBtn').disabled = true;
-  const sign      = deltaMilli > 0 ? 1 : -1;
-  const absMilli  = Math.abs(deltaMilli);
+  const sign      = deltaMicro > 0n ? 1 : -1;
+  const absMicro  = deltaMicro < 0n ? -deltaMicro : deltaMicro;
 
-  // Units per position in milli-space
-  const milliPerPlace = [100000000,10000000,1000000,100000,10000,1000,100,10,1];
-
-  // Step smallest-first (tusendel → hundratusental)
-  for (let i = 8; i >= 0; i--) {
-    const steps = Math.floor(absMilli / milliPerPlace[i]) % 10;
+  // Step smallest-first (pedagogical: units before tens)
+  for (let i = N - 1; i >= 0; i--) {
+    const steps = Number((absMicro / MICRO_PER_DRUM[i]) % 10n);
     for (let s = 0; s < steps; s++) {
       await cascadeStep(i, sign);
-      await sleep(50);
+      await sleep(45);
     }
   }
 
@@ -708,24 +759,23 @@ async function startCustomAdd() {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-function setAllOpBtns(disabled) {
+function setAllBtns(disabled) {
   document.querySelectorAll('.op-btn').forEach(b => b.disabled = disabled);
   document.getElementById('addBtn').disabled = disabled;
 }
 
 function applySet() {
   clearErr();
-  const val = document.getElementById('setInput').value;
-  const d   = parseToDigits(val);
+  const d = parseInput(document.getElementById('setInput').value);
   if (!d) { showErr('Ogiltigt tal, ange t.ex. 3456,78'); return; }
   setDigitsInstant(d);
 }
 
 function resetAll() {
   clearErr();
-  setDigitsInstant([0,0,0,0,0,0,0,0,0]);
-  document.getElementById('setInput').value = '';
-  document.getElementById('addInput').value = '';
+  setDigitsInstant(new Array(N).fill(0));
+  document.getElementById('setInput').value  = '';
+  document.getElementById('addInput').value  = '';
 }
 
 function showErr(msg) { document.getElementById('errorMsg').textContent = msg; }
@@ -734,7 +784,17 @@ function clearErr()   { document.getElementById('errorMsg').textContent = ''; }
 document.getElementById('setInput').addEventListener('keydown', e => { if (e.key==='Enter') applySet(); });
 document.getElementById('addInput').addEventListener('keydown', e => { if (e.key==='Enter') startCustomAdd(); });
 
+// ── Init ──────────────────────────────────────────────────────────────────────
+// Must set offsets before buildUI touches them
+offsets = new Array(N).fill(10); // digit 0 in middle rep for all drums
 buildUI();
+// After DOM is built, position all tapes
+for (let i = 0; i < N; i++) {
+  const tape = document.getElementById(`d${i}`).querySelector('.tape');
+  tape.style.transition = 'none';
+  tape.style.transform  = `translateY(${-offsets[i] * DH}px)`;
+  updateTapeLit(tape, offsets[i]);
+}
 </script>
 </body>
 </html>
