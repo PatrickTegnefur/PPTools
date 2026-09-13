@@ -47,6 +47,75 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   letter-spacing:.04em;text-transform:uppercase;
 }
 
+
+/* ── Active drum highlight ── */
+.drum.active-flash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(48,107,240,.6), inset 0 0 6px rgba(48,107,240,.15);
+  z-index: 5;
+  pointer-events: none;
+  animation: drumFlash 0.55s ease-out forwards;
+}
+@keyframes drumFlash {
+  0%   { opacity: 1; }
+  70%  { opacity: .8; }
+  100% { opacity: 0; }
+}
+
+/* ── Dim leading zeros ── */
+.tape-digit.lit.zero-dim { color: rgba(255,255,255,.20) !important; }
+
+/* ── Word display (togglable) ── */
+.word-display {
+  max-height: 0; overflow: hidden;
+  transition: max-height .25s ease;
+  width: 100%;
+}
+.word-display.visible { max-height: 44px; }
+.word-inner {
+  text-align: center;
+  font-family: 'Sora', sans-serif;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+  padding: 4px 8px 2px;
+  letter-spacing: .01em;
+  line-height: 1.4;
+}
+
+/* ── Shift-arrow overlay (spårläge) ── */
+.arrow-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 6;
+  overflow: hidden;
+  border-radius: 12px;
+}
+.shift-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #F4A261;
+  text-shadow: 0 0 8px rgba(244,162,97,.9);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+@keyframes arrowSlide {
+  0%   { opacity: 0; transform: translateY(-50%) translateX(0); }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-50%) translateX(var(--arrow-dx)); }
+}
+
+/* ── Glass card ── */
 .glass-card{
   position:relative;z-index:1;
   background:rgba(255,255,255,.58);
@@ -65,26 +134,74 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   border-radius:20px 20px 0 0;
 }
 
-.toggle-bar{display:flex;gap:6px;margin-bottom:2px;}
-.toggle-pill{
-  font-size:.65rem;font-weight:600;font-family:'Sora',sans-serif;
-  padding:3px 10px;border-radius:99px;
-  border:1.5px solid var(--border);
-  background:rgba(255,255,255,.6);color:var(--muted);
-  cursor:pointer;transition:all .15s;user-select:none;
+/* ── Toggle pills ── */
+/* ── Settings panel ── */
+.settings-panel {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,.52);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255,255,255,.68);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--shadow);
+  padding: .7rem 1rem;
+  width: 100%; max-width: 720px;
+  margin-bottom: .65rem;
 }
-.toggle-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-.toggle-pill:hover:not(.active){border-color:var(--accent);color:var(--accent);}
+.settings-title {
+  font-size: .6rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: .5rem;
+}
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 5px 12px;
+}
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 6px; border-radius: 8px;
+  transition: background .12s;
+  cursor: pointer; user-select: none;
+}
+.toggle-row:hover { background: rgba(48,107,240,.06); }
+.toggle-label {
+  font-size: .75rem; font-weight: 500; color: var(--text);
+  font-family: 'Sora', sans-serif;
+}
+/* Toggle switch */
+.switch {
+  position: relative; width: 34px; height: 18px; flex-shrink: 0;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; inset: 0;
+  background: var(--border); border-radius: 99px;
+  transition: background .2s;
+}
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  left: 3px; top: 3px;
+  background: #fff; border-radius: 50%;
+  transition: transform .2s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+input:checked + .slider { background: var(--accent); }
+input:checked + .slider::before { transform: translateX(16px); }
 
-/* Label rows */
-.label-row,.value-label-row{
+/* ── Label rows (togglable height) ── */
+.label-row,.value-label-row,.exp-label-row{
   display:flex;align-items:flex-end;
   max-height:0;overflow:hidden;
   transition:max-height .25s ease;
   flex-shrink:0;
 }
-.label-row.visible     { max-height:34px; }
+.label-row.visible      { max-height:34px; }
 .value-label-row.visible{ max-height:22px; }
+.exp-label-row.visible  { max-height:22px; }
+
 .place-lbl{
   width:var(--DW);text-align:center;
   font-size:.48rem;font-weight:600;color:var(--muted);
@@ -93,16 +210,43 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
 .place-lbl.dec{color:var(--accent2);}
 .place-val-lbl{
   width:var(--DW);text-align:center;
-  font-size:.55rem;font-weight:700;color:var(--accent);
+  font-size:.58rem;font-weight:700;color:var(--accent);
   font-family:'Montserrat',sans-serif;
 }
 .place-val-lbl.dec{color:var(--accent2);}
+.place-exp-lbl{
+  width:var(--DW);text-align:center;
+  font-size:.6rem;font-weight:600;color:#585078;
+  font-family:'Montserrat',sans-serif;
+  display:flex;align-items:flex-end;justify-content:center;gap:0;
+}
+.place-exp-lbl .base{font-size:.6rem;line-height:1;}
+.place-exp-lbl .exp {font-size:.45rem;line-height:1;margin-bottom:2px;}
+.place-exp-lbl.dec .base{color:var(--accent2);}
+.place-exp-lbl.dec .exp {color:var(--accent2);}
 .lbl-spacer{flex-shrink:0;}
+
+/* ── Drum visibility toggle ── */
+/* Each drum-col, sep-col, dot-col gets a data-group attr; hidden groups get max-width:0 */
+.drum-col, .sep-col-grp, .dot-col-grp {
+  transition: max-width .3s ease, opacity .3s ease;
+  overflow: hidden;
+}
+.drum-col        { max-width: calc(var(--DW) + 4px); }
+.sep-col-grp     { max-width: 4px; }
+.dot-col-grp     { max-width: 24px; }
+
+.drum-col.hidden, .sep-col-grp.hidden, .dot-col-grp.hidden {
+  max-width: 0 !important;
+  opacity: 0;
+}
+/* label cells also collapse */
+.lbl-cell { transition: max-width .3s ease, opacity .3s ease; overflow:hidden; }
+.lbl-cell.hidden { max-width:0!important; opacity:0; }
 
 /* +/- rows */
 .ctrl-row{display:flex;align-items:center;flex-shrink:0;}
 .drum-col{width:var(--DW);display:flex;justify-content:center;align-items:center;}
-.dot-col,.sep-col{flex-shrink:0;}
 .drum-btn{
   width:32px;height:22px;
   border:1.5px solid var(--border);background:rgba(255,255,255,.7);
@@ -116,12 +260,12 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
 .drum-btn.minus{color:var(--accent2);}
 .drum-btn.minus:hover{border-color:var(--accent2);}
 
-/* Odometer shell */
+/* ── Odometer shell ── */
 .drums-row{
   display:flex;align-items:center;
   background:#18131f;border-radius:12px;padding:5px 8px;
   box-shadow:inset 0 4px 16px rgba(0,0,0,.65),0 3px 12px rgba(0,0,0,.25);
-  position:relative;flex-shrink:0;
+  position:relative;flex-shrink:0;overflow:hidden;
 }
 .drums-row::after{
   content:'';position:absolute;left:8px;right:8px;top:50%;
@@ -137,15 +281,7 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
 .drum::before{top:0;   background:linear-gradient(to bottom,rgba(24,19,31,.93),transparent);}
 .drum::after {bottom:0;background:linear-gradient(to top,  rgba(24,19,31,.93),transparent);}
 
-/*
-  CYCLIC TAPE — contains 30 cells: digits repeated 3 times (0-9, 0-9, 0-9).
-  We track an absolute "offset" (integer, any value) and render:
-    translateY = -offset * DH
-  Increasing offset → tape moves up → larger digit shown (add direction).
-  Decreasing offset → tape moves down → smaller digit shown (subtract direction).
-  The digit shown = ((offset % 10) + 10) % 10.
-  We start at offset = digit (so digit 5 → offset 10+5=15, middle repetition).
-*/
+/* Cyclic tape: 30 cells */
 .tape{position:absolute;width:100%;will-change:transform;}
 .tape-digit{
   width:100%;height:var(--DH);
@@ -160,13 +296,17 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   width:20px;display:flex;align-items:center;justify-content:center;
   font-size:2.2rem;font-weight:700;color:#F4A261;
   flex-shrink:0;padding-bottom:3px;
+  transition:max-width .3s ease, opacity .3s ease;
+  overflow:hidden;
 }
 .drum-sep{
   width:1px;height:34px;background:rgba(255,255,255,.1);
   flex-shrink:0;align-self:center;
+  transition:max-width .3s ease, opacity .3s ease;
+  overflow:hidden;
 }
 
-/* Op panels */
+/* ── Op panels ── */
 .op-panels-row{
   display:flex;gap:.65rem;
   margin-bottom:.65rem;
@@ -182,7 +322,6 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   flex:1;
   display:flex;flex-direction:column;align-items:center;
 }
-.op-title{text-align:center;}
 .op-title{
   font-size:.6rem;font-weight:700;text-transform:uppercase;
   letter-spacing:.07em;color:var(--muted);margin-bottom:.5rem;
@@ -207,7 +346,7 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
 .op-btn.div{background:#fff4e5;color:#92400e;border-color:#f8d9a8;}
 .op-btn.div:hover:not(:disabled){background:#fdebc7;}
 
-/* Input panel */
+/* ── Input panel ── */
 .input-panel{
   position:relative;z-index:1;
   background:rgba(255,255,255,.52);
@@ -215,14 +354,16 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   -webkit-backdrop-filter:blur(16px) saturate(160%);
   border:1px solid rgba(255,255,255,.68);
   border-radius:16px;box-shadow:0 4px 20px var(--shadow);
-  padding:.55rem 1.1rem;
-  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:.7rem 1.2rem .65rem;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
 }
-.input-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.input-row{
+  display:flex;align-items:center;gap:7px;
+  justify-content:center;
+}
 .input-label{font-size:.7rem;color:var(--muted);font-weight:600;white-space:nowrap;}
-.divider-v{width:1px;height:20px;background:var(--border);margin:0 3px;flex-shrink:0;}
 input[type="text"]{
-  width:80px;height:26px;
+  width:78px;height:26px;
   border:1.5px solid var(--border);border-radius:7px;
   padding:0 .4rem;
   font-family:'Sora',sans-serif;font-size:.8rem;
@@ -230,18 +371,42 @@ input[type="text"]{
   outline:none;transition:border-color .15s;
 }
 input[type="text"]:focus{border-color:var(--accent);}
-.action-btn{
-  height:26px;padding:0 .65rem;
-  border:1.5px solid var(--accent);background:var(--accent);color:#fff;
+
+/* Three distinct button styles */
+.btn-set{
+  height:26px;padding:0 .7rem;
+  background:var(--accent);color:#fff;
+  border:1.5px solid var(--accent);
   border-radius:7px;font-family:'Sora',sans-serif;font-size:.7rem;font-weight:600;
   cursor:pointer;white-space:nowrap;transition:opacity .12s,transform .08s;
 }
-.action-btn:hover{opacity:.85;}
-.action-btn:active{transform:scale(.96);}
-.action-btn:disabled{opacity:.4;cursor:not-allowed;}
-.reset-btn{background:transparent;border-color:var(--border);color:var(--muted);}
-.reset-btn:hover{border-color:var(--accent2);color:var(--accent2);opacity:1;}
-.error-msg{font-size:.7rem;color:#e02020;min-height:1em;}
+.btn-set:hover{opacity:.85;}
+.btn-set:active{transform:scale(.96);}
+.btn-set:disabled{opacity:.4;cursor:not-allowed;}
+
+.btn-reset{
+  height:26px;padding:0 .7rem;
+  background:transparent;color:var(--muted);
+  border:1.5px solid var(--border);
+  border-radius:7px;font-family:'Sora',sans-serif;font-size:.7rem;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:all .12s;
+}
+.btn-reset:hover{border-color:var(--accent2);color:var(--accent2);}
+.btn-reset:active{transform:scale(.96);}
+
+.btn-calc{
+  height:26px;padding:0 .7rem;
+  background:var(--accent2);color:#fff;
+  border:1.5px solid var(--accent2);
+  border-radius:7px;font-family:'Sora',sans-serif;font-size:.7rem;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:opacity .12s,transform .08s;
+}
+.btn-calc:hover{opacity:.85;}
+.btn-calc:active{transform:scale(.96);}
+.btn-calc:disabled{opacity:.4;cursor:not-allowed;}
+
+.input-divider{width:1px;height:20px;background:var(--border);flex-shrink:0;}
+.error-msg{font-size:.7rem;color:#e02020;min-height:1em;text-align:center;}
 </style>
 </head>
 <body>
@@ -255,16 +420,37 @@ input[type="text"]:focus{border-color:var(--accent);}
 </header>
 
 <div class="glass-card">
-  <div class="toggle-bar">
-    <button class="toggle-pill" id="pillNames"  onclick="toggleNames()">Positionsnamn</button>
-    <button class="toggle-pill" id="pillValues" onclick="toggleValues()">Positionsvärden</button>
-  </div>
+
+  <div class="exp-label-row"   id="expLabelRow"></div>
   <div class="label-row"       id="labelRow"></div>
   <div class="value-label-row" id="valueLabelRow"></div>
   <div class="ctrl-row"  id="plusRow"></div>
   <div class="drums-row" id="drumsRow"></div>
   <div class="ctrl-row"  id="minusRow"></div>
+  <div class="word-display" id="wordDisplay"><div class="word-inner" id="wordInner"></div></div>
+  <div class="arrow-overlay" id="arrowOverlay"></div>
 </div>
+
+<div class="settings-panel">
+  <div class="settings-title">Inställningar</div>
+  <div class="settings-grid">
+    <label class="toggle-row"><span class="toggle-label">Stora tal</span>
+      <div class="switch"><input type="checkbox" id="swLarge" onchange="toggleLarge()"><span class="slider"></span></div></label>
+    <label class="toggle-row"><span class="toggle-label">Små decimaler</span>
+      <div class="switch"><input type="checkbox" id="swSmall" onchange="toggleSmall()"><span class="slider"></span></div></label>
+    <label class="toggle-row"><span class="toggle-label">Positionsnamn</span>
+      <div class="switch"><input type="checkbox" id="swNames" onchange="toggleNames()"><span class="slider"></span></div></label>
+    <label class="toggle-row"><span class="toggle-label">Positionsvärden</span>
+      <div class="switch"><input type="checkbox" id="swValues" onchange="toggleValues()"><span class="slider"></span></div></label>
+    <label class="toggle-row"><span class="toggle-label">Tiobas (10ⁿ)</span>
+      <div class="switch"><input type="checkbox" id="swExp" onchange="toggleExp()"><span class="slider"></span></div></label>
+    <label class="toggle-row"><span class="toggle-label">Tal i ord</span>
+      <div class="switch"><input type="checkbox" id="swWord" onchange="toggleWord()"><span class="slider"></span></div></label>
+    <label class="toggle-row"><span class="toggle-label">Spårläge (×÷)</span>
+      <div class="switch"><input type="checkbox" id="swTrack" onchange="toggleTrack()"><span class="slider"></span></div></label>
+  </div>
+</div>
+
 
 <div class="op-panels-row">
   <div class="op-section">
@@ -278,128 +464,280 @@ input[type="text"]:focus{border-color:var(--accent);}
     <div class="op-row" id="divRow"></div>
   </div>
 </div>
+
 <div class="input-panel">
   <div class="input-row">
     <span class="input-label">Ange tal:</span>
     <input type="text" id="setInput" autocomplete="off">
-    <button class="action-btn" onclick="applySet()">Sätt</button>
-    <button class="action-btn reset-btn" onclick="resetAll()">Nollställ</button>
-    <div class="divider-v"></div>
+    <button class="btn-set"   onclick="applySet()">Sätt</button>
+    <button class="btn-reset" onclick="resetAll()">Nollställ</button>
+  </div>
+  <div class="input-row">
     <span class="input-label">Beräkna:</span>
     <input type="text" id="addInput" autocomplete="off">
-    <button class="action-btn" id="addBtn" onclick="startCustomAdd()">Utför</button>
+    <button class="btn-calc" id="addBtn" onclick="startCustomAdd()">Utför</button>
   </div>
   <div class="error-msg" id="errorMsg"></div>
 </div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-//  LAYOUT DEFINITION
-//  15 drums: 8 integer positions + 6 decimal positions
-//  Groups of 3, separated by thin spacers; decimal dot before index 8
+//  DRUM DEFINITIONS  (index 0 = tiomiljoner, index 13 = miljondelar)
 // ═══════════════════════════════════════════════════════════════
 const DRUMS = [
-  // index, name, placeValue (as string for display), isDecimal
-  { name:'Tio\u00admiljoner',   pv:'10\u202f000\u202f000', dec:false },  // 0
-  { name:'Miljoner',            pv:'1\u202f000\u202f000',  dec:false },  // 1
-  { name:'Hundra\u00adtusental',pv:'100\u202f000',         dec:false },  // 2
-  { name:'Tio\u00adtusental',   pv:'10\u202f000',          dec:false },  // 3
-  { name:'Tusental',            pv:'1\u202f000',            dec:false },  // 4
-  { name:'Hundratal',           pv:'100',                  dec:false },  // 5
-  { name:'Tiotal',              pv:'10',                   dec:false },  // 6
-  { name:'Ental',               pv:'1',                    dec:false },  // 7
-  // decimal dot between 7 and 8
-  { name:'Tiondel',             pv:'0,1',                  dec:true  },  // 8
-  { name:'Hundradel',           pv:'0,01',                 dec:true  },  // 9
-  { name:'Tusendel',            pv:'0,001',                dec:true  },  // 10
-  { name:'Tiontusendel',        pv:'0,0001',               dec:true  },  // 11
-  { name:'Hundra\u00adtusendel',pv:'0,00001',              dec:true  },  // 12
-  { name:'Miljondelar',         pv:'0,000001',             dec:true  },  // 13
+  { name:'Tio\u00admiljoner',    pv:'10\u202f000\u202f000', exp:[10,7],  dec:false, group:'large' }, // 0
+  { name:'Miljoner',             pv:'1\u202f000\u202f000',  exp:[10,6],  dec:false, group:'large' }, // 1
+  { name:'Hundra\u00adtusental', pv:'100\u202f000',         exp:[10,5],  dec:false, group:'core'  }, // 2
+  { name:'Tio\u00adtusental',    pv:'10\u202f000',          exp:[10,4],  dec:false, group:'core'  }, // 3
+  { name:'Tusental',             pv:'1\u202f000',           exp:[10,3],  dec:false, group:'core'  }, // 4
+  { name:'Hundratal',            pv:'100',                  exp:[10,2],  dec:false, group:'core'  }, // 5
+  { name:'Tiotal',               pv:'10',                   exp:[10,1],  dec:false, group:'core'  }, // 6
+  { name:'Ental',                pv:'1',                    exp:[10,0],  dec:false, group:'core'  }, // 7
+  // decimal dot before index 8
+  { name:'Tiondel',              pv:'0,1',                  exp:[10,-1], dec:true,  group:'core'  }, // 8
+  { name:'Hundradel',            pv:'0,01',                 exp:[10,-2], dec:true,  group:'core'  }, // 9
+  { name:'Tusendel',             pv:'0,001',                exp:[10,-3], dec:true,  group:'core'  }, // 10
+  { name:'Tiontusendel',         pv:'0,0001',               exp:[10,-4], dec:true,  group:'core'  }, // 11
+  { name:'Hundra\u00adtusendel', pv:'0,00001',              exp:[10,-5], dec:true,  group:'small' }, // 12
+  { name:'Miljondelar',          pv:'0,000001',             exp:[10,-6], dec:true,  group:'small' }, // 13
 ];
 const N = DRUMS.length; // 14
-// Groups of 3 — separators inserted BEFORE these indices
-const SEP_BEFORE = new Set([2, 5, 9, 12]);   // thin separator — Swedish 3+3+2 grouping
-const DEC_DOT_BEFORE = 8;                     // decimal comma
 
-// Place values for arithmetic (index 0 = tio-miljoner)
-// All stored as milli-micro units: multiply by 10^9 to get micro-units
-// Easier: store as BigInt nano-units (×10^9) to keep integers.
-// Actually let's just use a fixed-point integer: store value * 10^6 (microunits).
-// tio-miljoner = 10_000_000 → micro = 10_000_000_000_000  — too big for Number.
-// Use BigInt for the accumulator.
+// Separators (thin visual dividers) inserted BEFORE these drum indices
+// Swedish grouping: 3+3+2 in integers; decimal dot at 8; groups of 3 in decimals
+const SEP_BEFORE    = new Set([2, 5, 9, 12]);
+const DEC_DOT_BEFORE = 8;
+
+// BigInt micro-units (value × 10^6)
 const MICRO_PER_DRUM = [
-  10000000000000n,  // 10 000 000      × 10^6
-   1000000000000n,  //  1 000 000
-    100000000000n,  //    100 000
-     10000000000n,  //     10 000
-      1000000000n,  //      1 000
-       100000000n,  //        100
-        10000000n,  //         10
-         1000000n,  //          1
-          100000n,  //          0.1
-           10000n,  //          0.01
-            1000n,  //          0.001
-             100n,  //          0.0001
-              10n,  //          0.00001
-               1n,  //          0.000001
+  10000000000000n, 1000000000000n, 100000000000n, 10000000000n,
+  1000000000n, 100000000n, 10000000n, 1000000n,
+  100000n, 10000n, 1000n, 100n, 10n, 1n,
 ];
-const MICRO_MAX = 99999999999999n; // 99 999 999.999999 in micro
+const MICRO_MAX = 99999999999999n;
 
-// ── State ────────────────────────────────────────────────────────────────────
-// offsets[i]: absolute integer offset for drum i.
-// The digit shown = posmod(offset, 10).
-// Tape contains 30 cells (3 repetitions of 0-9).
-// Physical y = -offset * DH  (mod-corrected into [0..30*DH) window).
-// We keep offset unbounded; before each animation we mod it into a safe window.
-let offsets = new Array(N).fill(0); // starts at digit 0
-let busy    = false;
-let showNames = false;
-let showVals  = false;
+// ── State ──────────────────────────────────────────────────────
+let offsets    = new Array(N).fill(10);
+let busy       = false;
+let showLarge  = false;
+let showSmall  = false;
+let showNames  = false;
+let showVals   = false;
+let showExp    = false;
+let showWord   = false;
+let showTrack  = false;
 
-const DH = 56; // px — must match --DH
-const TAPE_REPS = 3;
-const TAPE_CELLS = 10 * TAPE_REPS; // 30
+const DH = 56;
+const TAPE_CELLS = 30;
 
-// posmod: always-positive modulo
 function posmod(a, b) { return ((a % b) + b) % b; }
-// digit from offset
 function digitOf(off) { return posmod(off, 10); }
 
-// ── Toggle ───────────────────────────────────────────────────────────────────
-function toggleNames()  {
-  showNames = !showNames;
-  document.getElementById('pillNames').classList.toggle('active', showNames);
+// ── Group visibility ───────────────────────────────────────────
+// Elements with data-group="large" or "small" are hidden unless toggled
+function applyGroupVisibility() {
+  ['large','small'].forEach(grp => {
+    const show = grp === 'large' ? showLarge : showSmall;
+    document.querySelectorAll(`[data-group="${grp}"]`).forEach(el => {
+      el.classList.toggle('hidden', !show);
+    });
+  });
+}
+
+function syncSwitch(id, state) {
+  const el = document.getElementById(id);
+  if (el) el.checked = state;
+}
+function toggleLarge() {
+  showLarge = document.getElementById('swLarge').checked;
+  applyGroupVisibility();
+}
+function toggleSmall() {
+  showSmall = document.getElementById('swSmall').checked;
+  applyGroupVisibility();
+}
+function toggleNames() {
+  showNames = document.getElementById('swNames').checked;
   document.getElementById('labelRow').classList.toggle('visible', showNames);
 }
 function toggleValues() {
-  showVals = !showVals;
-  document.getElementById('pillValues').classList.toggle('active', showVals);
+  showVals = document.getElementById('swValues').checked;
   document.getElementById('valueLabelRow').classList.toggle('visible', showVals);
 }
+function toggleExp() {
+  showExp = document.getElementById('swExp').checked;
+  document.getElementById('expLabelRow').classList.toggle('visible', showExp);
+}
+function toggleWord() {
+  showWord = document.getElementById('swWord').checked;
+  document.getElementById('wordDisplay').classList.toggle('visible', showWord);
+  if (showWord) updateWordDisplay();
+}
+function toggleTrack() {
+  showTrack = document.getElementById('swTrack').checked;
+}
 
-// ── Build DOM ─────────────────────────────────────────────────────────────────
+// ── Build DOM ──────────────────────────────────────────────────
+
+// ── Flash active drum ──────────────────────────────────────────
+function flashDrum(i) {
+  const drum = document.getElementById(`d${i}`);
+  drum.classList.remove('active-flash');
+  void drum.offsetWidth;
+  drum.classList.add('active-flash');
+  setTimeout(() => drum.classList.remove('active-flash'), 580);
+}
+
+// ── Shift-arrow overlay animation ─────────────────────────────
+function animateShiftArrow(dir) {
+  if (!showTrack) return;
+  const overlay  = document.getElementById('arrowOverlay');
+  const drumsRow = document.getElementById('drumsRow');
+  const oRect    = overlay.getBoundingClientRect();
+  const dRect    = drumsRow.getBoundingClientRect();
+
+  const arrow = document.createElement('div');
+  arrow.className = 'shift-arrow';
+  const startX = dir > 0
+    ? (dRect.right  - oRect.left - 50)
+    : (dRect.left   - oRect.left + 10);
+  const dx = dir > 0 ? '-90px' : '90px';
+  arrow.textContent = dir > 0 ? '←' : '→';
+  arrow.style.cssText = `left:${startX}px; --arrow-dx:${dx}; animation: arrowSlide 0.7s ease-in-out forwards;`;
+  overlay.appendChild(arrow);
+  setTimeout(() => arrow.remove(), 750);
+}
+
+// ── Tal i ord ─────────────────────────────────────────────────
+const ONES_SV  = ['','ett','två','tre','fyra','fem','sex','sju','åtta','nio',
+                   'tio','elva','tolv','tretton','fjorton','femton','sexton',
+                   'sjutton','arton','nitton'];
+const TENS_SV  = ['','','tjugo','trettio','fyrtio','femtio','sextio','sjuttio','åttio','nittio'];
+
+function numToSwedish(n) {
+  if (n === 0) return 'noll';
+  if (n < 0)   return 'minus ' + numToSwedish(-n);
+  let r = '';
+  if (n >= 1000000) {
+    const m = Math.floor(n / 1000000); n %= 1000000;
+    r += numToSwedish(m) + ' ' + (m === 1 ? 'miljon' : 'miljoner') + ' ';
+  }
+  if (n >= 1000) {
+    const t = Math.floor(n / 1000); n %= 1000;
+    r += (t === 1 ? '' : numToSwedish(t) + ' ') + 'tusen ';
+  }
+  if (n >= 100) {
+    const h = Math.floor(n / 100); n %= 100;
+    r += (h === 1 ? '' : ONES_SV[h]) + 'hundra';
+  }
+  // Track position before adding tens/ones so we know if a tens-word was appended
+  const lenBefore = r.length;
+  if (n >= 20)      { r += TENS_SV[Math.floor(n/10)]; n %= 10; }
+  else if (n >= 10) { r += ONES_SV[n]; n = 0; }
+  if (n > 0) {
+    // "o" only when a tens-word (tjugo, trettio, ...) was just appended
+    const added = r.slice(lenBefore);
+    const hasTens = TENS_SV.slice(2).some(t => added === t);
+    r += (hasTens ? 'o' : '') + ONES_SV[n];
+  }
+  return r.trim();
+}
+
+function updateWordDisplay() {
+  if (!showWord) return;
+  const micro    = getCurrentMicro();
+  const intMicro = micro / 1000000n;
+  const fracMicro= micro % 1000000n;
+  let text = numToSwedish(Number(intMicro));
+  if (fracMicro > 0n) {
+    const fStr = fracMicro.toString().padStart(6,'0');
+    let lastNZ = 0;
+    for (let k = 0; k < 6; k++) if (fStr[k] !== '0') lastNZ = k;
+    const denom = [10,100,1000,10000,100000,1000000][lastNZ];
+    const numer = Number(fracMicro) / (1000000 / denom);
+
+    // All denominations are utrum (en-words) — miljondelar is plurale tantum
+    const DENOM = [
+      { sg:'tiondel',        pl:'tiondelar',          en:true  },
+      { sg:'hundradel',      pl:'hundradelär',   en:true  },
+      { sg:'tusendel',       pl:'tusendelär',    en:true  },
+      { sg:'tiontusendel',   pl:'tiontusendelär',en:true  },
+      { sg:'hundratusendel', pl:'hundratusendelär',en:true},
+      { sg:'miljondelar',    pl:'miljondelar',         en:false },
+    ];
+    const d = DENOM[lastNZ];
+    const denomWord = numer === 1 ? d.sg : d.pl;
+
+    // numToSwedish outputs "ett" for 1 — swap to "en" for utrum denominations
+    let numerWord = numToSwedish(numer);
+    if (d.en) numerWord = numerWord.replace(/\bett\b/g, 'en').replace(/\bEtt\b/g, 'En');
+
+    text += ' och ' + numerWord + ' ' + denomWord;
+  }
+  // Drop leading "noll" if there is a decimal part (e.g. 0,1 → "en tiondel")
+  text = text.replace(/^[Nn]oll och /, '');
+  text = text.charAt(0).toUpperCase() + text.slice(1);
+  document.getElementById('wordInner').textContent = text;
+}
+
+
 function buildUI() {
   buildLabelRows();
   buildDrumRows();
   buildOpButtons();
+  applyGroupVisibility();
 }
 
-function insertSpacer(parent, w) {
+function insertSpacer(parent, w, grp) {
   const el = document.createElement('div');
-  el.className = 'lbl-spacer';
-  el.style.width = w;
+  el.className = 'lbl-spacer lbl-cell' + (grp ? ` data-grp-${grp}` : '');
+  if (grp) el.dataset.group = grp;
+  el.style.cssText = `width:${w};flex-shrink:0;overflow:hidden;transition:max-width .3s ease,opacity .3s ease;max-width:${w};`;
   parent.appendChild(el);
 }
 
 function buildLabelRows() {
   const lr  = document.getElementById('labelRow');
   const vlr = document.getElementById('valueLabelRow');
+  const elr = document.getElementById('expLabelRow');
+
   for (let i = 0; i < N; i++) {
-    if (SEP_BEFORE.has(i)) { insertSpacer(lr,'1px'); insertSpacer(vlr,'1px'); }
-    if (i === DEC_DOT_BEFORE) { insertSpacer(lr,'20px'); insertSpacer(vlr,'20px'); }
-    const d = DRUMS[i];
-    lr.insertAdjacentHTML ('beforeend', `<div class="place-lbl${d.dec?' dec':''}">${d.name}</div>`);
-    vlr.insertAdjacentHTML('beforeend', `<div class="place-val-lbl${d.dec?' dec':''}">${d.pv}</div>`);
+    const d   = DRUMS[i];
+    const grp = d.group;
+    const isHideable = grp === 'large' || grp === 'small';
+
+    // Separator spacer
+    if (SEP_BEFORE.has(i)) {
+      [lr, vlr, elr].forEach(row => insertSpacer(row, '1px', null));
+    }
+    // Decimal dot spacer
+    if (i === DEC_DOT_BEFORE) {
+      [lr, vlr, elr].forEach(row => insertSpacer(row, '20px', null));
+    }
+
+    // Name label
+    const nl = document.createElement('div');
+    nl.className = 'place-lbl lbl-cell' + (d.dec ? ' dec' : '');
+    nl.style.cssText = `width:var(--DW);max-width:${isHideable?'calc(var(--DW) + 4px)':'none'};`;
+    nl.textContent = d.name;
+    if (isHideable) nl.dataset.group = grp;
+    lr.appendChild(nl);
+
+    // Value label
+    const vl = document.createElement('div');
+    vl.className = 'place-val-lbl lbl-cell' + (d.dec ? ' dec' : '');
+    vl.style.cssText = `width:var(--DW);max-width:${isHideable?'calc(var(--DW) + 4px)':'none'};`;
+    vl.textContent = d.pv;
+    if (isHideable) vl.dataset.group = grp;
+    vlr.appendChild(vl);
+
+    // Exponent label (10^n)
+    const expEl = document.createElement('div');
+    expEl.className = 'place-exp-lbl lbl-cell' + (d.dec ? ' dec' : '');
+    expEl.style.cssText = `width:var(--DW);max-width:${isHideable?'calc(var(--DW) + 4px)':'none'};`;
+    expEl.innerHTML = `<span class="base">10</span><span class="exp">${d.exp[1]}</span>`;
+    if (isHideable) expEl.dataset.group = grp;
+    elr.appendChild(expEl);
   }
 }
 
@@ -409,52 +747,68 @@ function buildDrumRows() {
   const minusRow = document.getElementById('minusRow');
 
   for (let i = 0; i < N; i++) {
-    // Separators
+    const d   = DRUMS[i];
+    const grp = d.group;
+
+    // Separator
     if (SEP_BEFORE.has(i)) {
-      ['plusRow','drumsRow','minusRow'].forEach(id => {
-        const el = document.createElement('div');
-        if (id === 'drumsRow') { el.className = 'drum-sep'; }
-        else { el.className = 'sep-col'; el.style.width = '1px'; }
-        document.getElementById(id).appendChild(el);
+      // drum row: actual 1px separator element
+      const sep = document.createElement('div');
+      sep.className = 'drum-sep';
+      drumsRow.appendChild(sep);
+      // ctrl rows: 1px invisible spacer (aligns with drum-sep)
+      [plusRow, minusRow].forEach(row => {
+        const sp = document.createElement('div');
+        sp.style.cssText = 'width:1px;flex-shrink:0;';
+        row.appendChild(sp);
       });
     }
+
     // Decimal dot
     if (i === DEC_DOT_BEFORE) {
       const dot = document.createElement('div');
-      dot.className = 'dec-dot'; dot.textContent = ',';
+      dot.className = 'dec-dot';
+      dot.textContent = ',';
       drumsRow.appendChild(dot);
-      ['plusRow','minusRow'].forEach(id => {
-        const el = document.createElement('div');
-        el.className = 'dot-col'; el.style.width = '20px';
-        document.getElementById(id).appendChild(el);
+      [plusRow, minusRow].forEach(row => {
+        const sp = document.createElement('div');
+        sp.style.cssText = 'width:20px;flex-shrink:0;';
+        row.appendChild(sp);
       });
     }
 
-    // + button
-    const pc = document.createElement('div'); pc.className = 'drum-col';
-    const pb = document.createElement('button'); pb.className = 'drum-btn plus'; pb.textContent = '+';
+    const isHideable = grp === 'large' || grp === 'small';
+
+    // + button col
+    const pc = document.createElement('div');
+    pc.className = 'drum-col' + (isHideable ? '' : '');
+    pc.style.cssText = `width:var(--DW);display:flex;justify-content:center;align-items:center;overflow:hidden;transition:max-width .3s ease,opacity .3s ease;max-width:calc(var(--DW) + 4px);`;
+    if (isHideable) pc.dataset.group = grp;
+    const pb = document.createElement('button');
+    pb.className = 'drum-btn plus'; pb.textContent = '+';
     pb.addEventListener('click', () => userStep(i, 1));
-    pc.appendChild(pb); plusRow.appendChild(pc);
+    pc.appendChild(pb);
+    plusRow.appendChild(pc);
 
     // drum
-    const drum = document.createElement('div'); drum.className = 'drum'; drum.id = `d${i}`;
+    const drum = document.createElement('div');
+    drum.className = 'drum';
+    drum.id = `d${i}`;
+    drum.style.cssText = `width:var(--DW);height:var(--DH);overflow:hidden;position:relative;transition:max-width .3s ease,opacity .3s ease;max-width:calc(var(--DW) + 4px);`;
+    if (isHideable) drum.dataset.group = grp;
     drum.appendChild(makeTape(0));
     drumsRow.appendChild(drum);
 
-    // − button
-    const mc = document.createElement('div'); mc.className = 'drum-col';
-    const mb = document.createElement('button'); mb.className = 'drum-btn minus'; mb.textContent = '−';
+    // − button col
+    const mc = document.createElement('div');
+    mc.style.cssText = `width:var(--DW);display:flex;justify-content:center;align-items:center;overflow:hidden;transition:max-width .3s ease,opacity .3s ease;max-width:calc(var(--DW) + 4px);`;
+    if (isHideable) mc.dataset.group = grp;
+    const mb = document.createElement('button');
+    mb.className = 'drum-btn minus'; mb.textContent = '−';
     mb.addEventListener('click', () => userStep(i, -1));
-    mc.appendChild(mb); minusRow.appendChild(mc);
+    mc.appendChild(mb);
+    minusRow.appendChild(mc);
   }
-}
-
-function makeBtn(cls, label, onClick) {
-  const btn = document.createElement('button');
-  btn.className = 'op-btn ' + cls;
-  btn.textContent = label;
-  btn.addEventListener('click', onClick);
-  return btn;
 }
 
 function buildOpButtons() {
@@ -463,25 +817,25 @@ function buildOpButtons() {
   const mulRow = document.getElementById('mulRow');
   const divRow = document.getElementById('divRow');
 
-  [{l:'+1 000',v:1000},{l:'+100',v:100},{l:'+10',v:10}]
-    .forEach(op => addRow.appendChild(makeBtn('add', op.l, () => runDelta(op.v))));
+  const mk = (cls, lbl, fn) => {
+    const b = document.createElement('button');
+    b.className = 'op-btn ' + cls; b.textContent = lbl;
+    b.addEventListener('click', fn);
+    return b;
+  };
 
-  [{l:'−1 000',v:-1000},{l:'−100',v:-100},{l:'−10',v:-10}]
-    .forEach(op => subRow.appendChild(makeBtn('sub', op.l, () => runDelta(op.v))));
-
-  [{l:'× 10',f:10},{l:'× 100',f:100},{l:'× 1 000',f:1000}]
-    .forEach(op => mulRow.appendChild(makeBtn('mul', op.l, () => runMultiply(op.f))));
-
-  [{l:'÷ 10',f:0.1},{l:'÷ 100',f:0.01},{l:'÷ 1 000',f:0.001}]
-    .forEach(op => divRow.appendChild(makeBtn('div', op.l, () => runMultiply(op.f))));
+  [{ l:'+1\u202f000',v:1000},{l:'+100',v:100},{l:'+10',v:10}]
+    .forEach(o => addRow.appendChild(mk('add', o.l, () => runDelta(o.v))));
+  [{l:'\u22121\u202f000',v:-1000},{l:'\u2212100',v:-100},{l:'\u221210',v:-10}]
+    .forEach(o => subRow.appendChild(mk('sub', o.l, () => runDelta(o.v))));
+  [{l:'\u00d7\u202f10',f:10},{l:'\u00d7\u202f100',f:100},{l:'\u00d7\u202f1\u202f000',f:1000}]
+    .forEach(o => mulRow.appendChild(mk('mul', o.l, () => runMultiply(o.f))));
+  [{l:'\u00f7\u202f10',f:0.1},{l:'\u00f7\u202f100',f:0.01},{l:'\u00f7\u202f1\u202f000',f:0.001}]
+    .forEach(o => divRow.appendChild(mk('div', o.l, () => runMultiply(o.f))));
 }
 
 // ═══════════════════════════════════════════════════════════════
 //  CYCLIC TAPE
-//  30 cells: 0,1,2,...,9, 0,1,...,9, 0,1,...,9
-//  Physical Y of cell k = k * DH
-//  Tape translateY = -offset * DH  (but we keep offset in [10..20)
-//  so the "lit" cell is always in the middle repetition, away from edges)
 // ═══════════════════════════════════════════════════════════════
 function makeTape(initialDigit) {
   const tape = document.createElement('div');
@@ -492,9 +846,7 @@ function makeTape(initialDigit) {
     cell.textContent = k % 10;
     tape.appendChild(cell);
   }
-  // Start offset in middle repetition: offset = 10 + digit
   const off = 10 + initialDigit;
-  offsets[0] = off; // will be overwritten by buildDrumRows caller
   tape.style.transition = 'none';
   tape.style.transform  = `translateY(${-off * DH}px)`;
   updateTapeLit(tape, off);
@@ -508,51 +860,41 @@ function updateTapeLit(tape, offset) {
   });
 }
 
-// Re-anchor offset into middle repetition (10..20) without moving the tape visually
 function reanchorOffset(i) {
   const tape = document.getElementById(`d${i}`).querySelector('.tape');
-  let off = offsets[i];
-  // Shift by multiples of 10 to land in [10, 20)
-  const mod = posmod(off, 10);
-  const target = 10 + mod; // always in [10,19]
-  // Apply difference
-  const diff = target - off;
-  if (diff !== 0) {
+  const mod    = posmod(offsets[i], 10);
+  const target = 10 + mod;
+  if (target !== offsets[i]) {
     offsets[i] = target;
     tape.style.transition = 'none';
     tape.style.transform  = `translateY(${-target * DH}px)`;
   }
 }
 
-// ── Animate one step on drum i in direction dir (+1 or -1) ───────────────────
-// dir +1 → offset increases → tape scrolls upward → next digit (mod 10) appears
-// dir -1 → offset decreases → tape scrolls downward → previous digit appears
-// ALWAYS consistent rotational direction: +1 always up, -1 always down.
 function animateDrum(i, dir) {
   return new Promise(resolve => {
     const drum = document.getElementById(`d${i}`);
     const tape = drum.querySelector('.tape');
-
-    // Reanchor so we have room in both directions
     reanchorOffset(i);
-
     const startOff = offsets[i];
     const endOff   = startOff + dir;
 
     tape.style.transition = 'none';
     tape.style.transform  = `translateY(${-startOff * DH}px)`;
     updateTapeLit(tape, startOff);
-
-    tape.getBoundingClientRect(); // reflow
-
+    tape.getBoundingClientRect();
     tape.style.transition = 'transform 0.19s cubic-bezier(0.22,0.8,0.3,1)';
     tape.style.transform  = `translateY(${-endOff * DH}px)`;
+
+    flashDrum(i);  // highlight active drum
 
     let done = false;
     const finish = () => {
       if (done) return; done = true;
       offsets[i] = endOff;
       updateTapeLit(tape, endOff);
+      applyZeroDim();
+      updateWordDisplay();
       resolve();
     };
     tape.addEventListener('transitionend', finish, { once: true });
@@ -560,241 +902,179 @@ function animateDrum(i, dir) {
   });
 }
 
-// ── Cascade: step drum i, carry to i-1 if it wrapped ─────────────────────────
+// Dim leading-zero integer drums (not decimals)
+function applyZeroDim() {
+  // Find leftmost non-zero integer drum
+  let firstNZ = 7; // ental index
+  for (let i = 0; i <= 7; i++) {
+    if (digitOf(offsets[i]) !== 0) { firstNZ = i; break; }
+  }
+  for (let i = 0; i <= 7; i++) {
+    const tape = document.getElementById(`d${i}`).querySelector('.tape');
+    const isLeadingZero = (i < firstNZ);
+    tape.querySelectorAll('.tape-digit.lit').forEach(el => {
+      el.classList.toggle('zero-dim', isLeadingZero);
+    });
+  }
+}
+
 async function cascadeStep(i, dir) {
   const before = digitOf(offsets[i]);
   await animateDrum(i, dir);
   const after  = digitOf(offsets[i]);
-  const wrappedUp   = dir === 1  && before === 9 && after === 0;
-  const wrappedDown = dir === -1 && before === 0 && after === 9;
-  if ((wrappedUp || wrappedDown) && i > 0) {
+  if (((dir===1 && before===9 && after===0)||(dir===-1 && before===0 && after===9)) && i>0)
     await cascadeStep(i - 1, dir);
-  }
 }
 
-// ── User drum-button press ────────────────────────────────────────────────────
 async function userStep(i, dir) {
   if (busy) return;
+  // Guard: don't go below zero
+  if (dir === -1 && getCurrentMicro() === 0n) { shakeDrum(i); return; }
   busy = true;
   await cascadeStep(i, dir);
   busy = false;
 }
 
+function shakeDrum(i) {
+  const drum = document.getElementById(`d${i}`);
+  drum.style.transition = 'transform 0.07s ease-in-out';
+  drum.style.transform  = 'translateX(-4px)';
+  setTimeout(() => { drum.style.transform = 'translateX(4px)'; }, 70);
+  setTimeout(() => { drum.style.transform = 'translateX(-3px)'; }, 140);
+  setTimeout(() => { drum.style.transform = 'translateX(0)'; drum.style.transition = ''; }, 210);
+}
+
 // ═══════════════════════════════════════════════════════════════
-//  ARITHMETIC — BigInt micro-units (value × 10^6)
+//  ARITHMETIC — BigInt micro-units
 // ═══════════════════════════════════════════════════════════════
 function getCurrentMicro() {
-  let total = 0n;
-  for (let i = 0; i < N; i++) {
-    total += BigInt(digitOf(offsets[i])) * MICRO_PER_DRUM[i];
-  }
-  return total;
+  let t = 0n;
+  for (let i=0;i<N;i++) t += BigInt(digitOf(offsets[i])) * MICRO_PER_DRUM[i];
+  return t;
 }
-
 function microToDigits(m) {
-  m = bigClamp(m, 0n, MICRO_MAX);
-  const d = [];
-  let rem = m;
-  for (let i = 0; i < N; i++) {
-    d.push(Number(rem / MICRO_PER_DRUM[i]));
-    rem = rem % MICRO_PER_DRUM[i];
-  }
+  m = m<0n?0n:m>MICRO_MAX?MICRO_MAX:m;
+  const d=[]; let rem=m;
+  for (let i=0;i<N;i++){d.push(Number(rem/MICRO_PER_DRUM[i]));rem=rem%MICRO_PER_DRUM[i];}
   return d;
 }
-
-function bigClamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
-
-// Set all drums instantly to given digit array
 function setDigitsInstant(digs) {
-  for (let i = 0; i < N; i++) {
-    const drum = document.getElementById(`d${i}`);
-    const tape = drum.querySelector('.tape');
-    const off  = 10 + digs[i]; // anchor in middle rep
-    offsets[i] = off;
-    tape.style.transition = 'none';
-    tape.style.transform  = `translateY(${-off * DH}px)`;
-    updateTapeLit(tape, off);
+  for (let i=0;i<N;i++){
+    const tape=document.getElementById(`d${i}`).querySelector('.tape');
+    const off=10+digs[i]; offsets[i]=off;
+    tape.style.transition='none';
+    tape.style.transform=`translateY(${-off*DH}px)`;
+    updateTapeLit(tape,off);
   }
+  applyZeroDim();
+  updateWordDisplay();
 }
-
-// ── Parse text → digit array ──────────────────────────────────────────────────
 function parseInput(str) {
-  str = str.trim().replace(',', '.').replace(/\s/g,'');
-  const n = parseFloat(str);
-  if (isNaN(n)) return null;
-  // Convert to micro BigInt
-  const micro = BigInt(Math.round(Math.max(0, n) * 1e6));
-  const clamped = bigClamp(micro, 0n, MICRO_MAX);
-  return microToDigits(clamped);
+  str=str.trim().replace(',','.').replace(/\s/g,'');
+  const n=parseFloat(str); if(isNaN(n)) return null;
+  const micro=BigInt(Math.round(Math.max(0,n)*1e6));
+  return microToDigits(micro<0n?0n:micro>MICRO_MAX?MICRO_MAX:micro);
 }
 
-// ── Add/Subtract fixed delta ──────────────────────────────────────────────────
 async function runDelta(delta) {
-  if (busy) return;
-  busy = true;
-  setAllBtns(true);
-
-  const deltaMicro  = BigInt(Math.round(delta * 1e6));
-  const curMicro    = getCurrentMicro();
-  const targetMicro = bigClamp(curMicro + deltaMicro, 0n, MICRO_MAX);
-  const targetDigs  = microToDigits(targetMicro);
-  const sign        = deltaMicro > 0n ? 1 : -1;
-
-  // Animate from smallest drum upward, each drum exactly the steps needed
-  for (let i = N - 1; i >= 0; i--) {
-    const cur = digitOf(offsets[i]);
-    const tgt = targetDigs[i];
-    let steps = sign > 0
-      ? posmod(tgt - cur, 10)
-      : posmod(cur - tgt, 10);
-    for (let s = 0; s < steps; s++) {
-      await animateDrum(i, sign);
-      await sleep(35);
-    }
+  if (busy) return; busy=true; setAllBtns(true);
+  const dM=BigInt(Math.round(delta*1e6));
+  const cur=getCurrentMicro();
+  const tgt=cur+dM<0n?0n:cur+dM>MICRO_MAX?MICRO_MAX:cur+dM;
+  const td=microToDigits(tgt);
+  const sign=dM>0n?1:-1;
+  for (let i=N-1;i>=0;i--){
+    const c=digitOf(offsets[i]),t=td[i];
+    const steps=sign>0?posmod(t-c,10):posmod(c-t,10);
+    for(let s=0;s<steps;s++){await animateDrum(i,sign);await sleep(35);}
   }
-
-  setDigitsInstant(targetDigs); // safety snap
-  setAllBtns(false);
-  busy = false;
+  setDigitsInstant(td); setAllBtns(false); busy=false;
 }
 
-// ── Multiply/Divide by power of ten ──────────────────────────────────────────
-// Mechanically: digits shift left (×10) or right (÷10) by 'positions' places.
-// Each pass: all drums animate simultaneously to their post-shift values.
 async function runMultiply(factor) {
-  if (busy) return;
-  busy = true;
-  setAllBtns(true);
+  if (busy) return; busy=true; setAllBtns(true);
 
-  const positions = Math.round(Math.log10(Math.abs(factor))); // 1,2,3,...
-  const dir       = factor >= 1 ? 1 : -1; // +1 shift left (×10), -1 shift right (÷10)
+  // Compute exact target BEFORE any animation touches offsets
+  const startMicro = getCurrentMicro();
+  const positions  = Math.round(Math.log10(Math.abs(factor)));
+  const dir        = factor >= 1 ? 1 : -1;
+  let tgtM;
+  if (dir > 0) { tgtM = startMicro * BigInt(Math.round(factor)); }
+  else         { tgtM = startMicro / BigInt(Math.round(1/factor)); }
+  tgtM = tgtM < 0n ? 0n : tgtM > MICRO_MAX ? MICRO_MAX : tgtM;
+  const targetDigs = microToDigits(tgtM);
 
+  // Animate: one visual shift per position (digits slide left or right)
   for (let pass = 0; pass < Math.abs(positions); pass++) {
-    // Current digit array
-    const cur = Array.from({length:N}, (_,i) => digitOf(offsets[i]));
-    // After one ×10: digit at position i ← digit at position i+1 (shifted left),
-    // last drum ← 0.
-    // After one ÷10: digit at position i ← digit at position i-1 (shifted right),
-    // first drum ← 0.
-    let shifted;
-    if (dir > 0) {
-      shifted = [...cur.slice(1), 0]; // ×10
-    } else {
-      shifted = [0, ...cur.slice(0, N-1)]; // ÷10
-    }
-
-    // Animate all drums in parallel
-    const anims = [];
-    for (let i = 0; i < N; i++) {
-      if (cur[i] !== shifted[i]) {
-        anims.push(animateDrumToTarget(i, cur[i], shifted[i]));
-      }
-    }
-    // Temporarily set offsets so animateDrumToTarget reads correct current digit
-    // (animateDrumToTarget uses offsets[i] internally via digitOf)
-    await Promise.all(anims);
+    animateShiftArrow(dir);
+    const cur     = Array.from({length:N}, (_, i) => digitOf(offsets[i]));
+    const shifted = dir > 0 ? [...cur.slice(1), 0] : [0, ...cur.slice(0, N-1)];
+    await Promise.all(Array.from({length:N}, (_, i) => animateDrumToTarget(i, cur[i], shifted[i])));
     await sleep(80);
   }
 
-  // Compute true target and snap
-  const curMicro    = getCurrentMicro();
-  // factor as BigInt fraction: ×10 → *10, ÷10 → /10
-  let targetMicro;
-  if (dir > 0) {
-    targetMicro = curMicro * BigInt(Math.round(factor));
-  } else {
-    // factor = 0.1, 0.01 etc → divide
-    const divisor = BigInt(Math.round(1 / factor));
-    targetMicro = curMicro / divisor;
-  }
-  setDigitsInstant(microToDigits(bigClamp(targetMicro, 0n, MICRO_MAX)));
-
-  setAllBtns(false);
-  busy = false;
+  // Safety snap to the mathematically correct target
+  setDigitsInstant(targetDigs);
+  setAllBtns(false); busy=false;
 }
 
-// Animate drum i from digit 'from' to digit 'to', shortest rotational path
-async function animateDrumToTarget(i, from, to) {
-  if (from === to) return;
-  const cwSteps  = posmod(to - from, 10);
-  const ccwSteps = posmod(from - to, 10);
-  const animDir  = cwSteps <= ccwSteps ? 1 : -1;
-  const steps    = Math.min(cwSteps, ccwSteps);
-  for (let s = 0; s < steps; s++) {
-    await animateDrum(i, animDir);
-    await sleep(25);
-  }
+async function animateDrumToTarget(i,from,to){
+  if(from===to)return;
+  const cw=posmod(to-from,10),ccw=posmod(from-to,10);
+  const d=cw<=ccw?1:-1,steps=Math.min(cw,ccw);
+  for(let s=0;s<steps;s++){await animateDrum(i,d);await sleep(25);}
 }
 
-// ── "Beräkna" field ───────────────────────────────────────────────────────────
 async function startCustomAdd() {
-  if (busy) return;
-  clearErr();
-  const raw   = document.getElementById('addInput').value;
-  const str   = raw.trim().replace(',', '.').replace(/\s/g,'');
-  const delta = parseFloat(str);
-  if (isNaN(delta)) { showErr('Ange t.ex. +124 eller −50,5'); return; }
-
-  const deltaMicro = BigInt(Math.round(delta * 1e6));
-  if (deltaMicro === 0n) return;
-
-  busy = true;
-  document.getElementById('addBtn').disabled = true;
-  const sign      = deltaMicro > 0n ? 1 : -1;
-  const absMicro  = deltaMicro < 0n ? -deltaMicro : deltaMicro;
-
-  // Step smallest-first (pedagogical: units before tens)
-  for (let i = N - 1; i >= 0; i--) {
-    const steps = Number((absMicro / MICRO_PER_DRUM[i]) % 10n);
-    for (let s = 0; s < steps; s++) {
-      await cascadeStep(i, sign);
-      await sleep(45);
-    }
+  if(busy)return; clearErr();
+  const str=document.getElementById('addInput').value.trim().replace(',','.').replace(/\s/g,'');
+  const delta=parseFloat(str);
+  if(isNaN(delta)){showErr('Ange t.ex. +124 eller −50,5');return;}
+  const dM=BigInt(Math.round(delta*1e6));
+  if(dM===0n)return;
+  busy=true; document.getElementById('addBtn').disabled=true;
+  const sign=dM>0n?1:-1;
+  const abs=dM<0n?-dM:dM;
+  for(let i=N-1;i>=0;i--){
+    const steps=Number((abs/MICRO_PER_DRUM[i])%10n);
+    for(let s=0;s<steps;s++){await cascadeStep(i,sign);await sleep(45);}
   }
-
-  busy = false;
-  document.getElementById('addBtn').disabled = false;
+  busy=false; document.getElementById('addBtn').disabled=false;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-function setAllBtns(disabled) {
-  document.querySelectorAll('.op-btn').forEach(b => b.disabled = disabled);
-  document.getElementById('addBtn').disabled = disabled;
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function setAllBtns(d){
+  document.querySelectorAll('.op-btn').forEach(b=>b.disabled=d);
+  document.getElementById('addBtn').disabled=d;
 }
-
-function applySet() {
+function applySet(){
   clearErr();
-  const d = parseInput(document.getElementById('setInput').value);
-  if (!d) { showErr('Ogiltigt tal, ange t.ex. 3456,78'); return; }
+  const d=parseInput(document.getElementById('setInput').value);
+  if(!d){showErr('Ogiltigt tal, ange t.ex. 3456,78');return;}
   setDigitsInstant(d);
 }
-
-function resetAll() {
+function resetAll(){
   clearErr();
   setDigitsInstant(new Array(N).fill(0));
-  document.getElementById('setInput').value  = '';
-  document.getElementById('addInput').value  = '';
+  document.getElementById('setInput').value='';
+  document.getElementById('addInput').value='';
 }
+function showErr(msg){document.getElementById('errorMsg').textContent=msg;}
+function clearErr()  {document.getElementById('errorMsg').textContent='';}
 
-function showErr(msg) { document.getElementById('errorMsg').textContent = msg; }
-function clearErr()   { document.getElementById('errorMsg').textContent = ''; }
+document.getElementById('setInput').addEventListener('keydown',e=>{if(e.key==='Enter')applySet();});
+document.getElementById('addInput').addEventListener('keydown',e=>{if(e.key==='Enter')startCustomAdd();});
 
-document.getElementById('setInput').addEventListener('keydown', e => { if (e.key==='Enter') applySet(); });
-document.getElementById('addInput').addEventListener('keydown', e => { if (e.key==='Enter') startCustomAdd(); });
-
-// ── Init ──────────────────────────────────────────────────────────────────────
-// Must set offsets before buildUI touches them
-offsets = new Array(N).fill(10); // digit 0 in middle rep for all drums
+// ── Init ───────────────────────────────────────────────────────
+offsets = new Array(N).fill(10);
 buildUI();
-// After DOM is built, position all tapes
-for (let i = 0; i < N; i++) {
-  const tape = document.getElementById(`d${i}`).querySelector('.tape');
-  tape.style.transition = 'none';
-  tape.style.transform  = `translateY(${-offsets[i] * DH}px)`;
-  updateTapeLit(tape, offsets[i]);
+for(let i=0;i<N;i++){
+  const tape=document.getElementById(`d${i}`).querySelector('.tape');
+  tape.style.transition='none';
+  tape.style.transform=`translateY(${-offsets[i]*DH}px)`;
+  updateTapeLit(tape,offsets[i]);
 }
+applyZeroDim();
 </script>
 </body>
 </html>
