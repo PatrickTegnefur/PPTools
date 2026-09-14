@@ -35,8 +35,9 @@ body{
 .blob-3{width:220px;height:220px;background:#EC6095;bottom:60px;left:60px;}
 
 header{
-  width:100%;height:52px;background:var(--gradient);
+  width:calc(100% + 2rem);height:52px;background:var(--gradient);
   display:flex;align-items:center;padding:0 1.4rem;
+  margin-left:-1rem;margin-right:-1rem;
   margin-bottom:1.4rem;position:relative;z-index:10;
   box-shadow:0 4px 20px rgba(0,0,0,.18);
 }
@@ -48,22 +49,57 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
 }
 
 
-/* ── Active drum highlight ── */
-.drum.active-flash::after {
-  content: '';
+
+/* ── Gear button + settings popup ── */
+.gear-btn {
   position: absolute;
-  inset: 0;
-  border: 2px solid var(--accent);
-  border-radius: 4px;
-  box-shadow: 0 0 8px rgba(48,107,240,.6), inset 0 0 6px rgba(48,107,240,.15);
-  z-index: 5;
-  pointer-events: none;
-  animation: drumFlash 0.55s ease-out forwards;
+  top: 10px; right: 12px;
+  width: 28px; height: 28px;
+  border: 1.5px solid var(--border);
+  background: rgba(255,255,255,.7);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  transition: background .12s, border-color .12s, transform .15s;
+  z-index: 20;
 }
-@keyframes drumFlash {
-  0%   { opacity: 1; }
-  70%  { opacity: .8; }
-  100% { opacity: 0; }
+.gear-btn:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+.gear-btn.open  { background: var(--surface2); border-color: var(--accent); color: var(--accent); transform: rotate(45deg); }
+
+.settings-popup {
+  position: fixed;
+  width: 220px;
+  background: rgba(255,255,255,.97);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(200,195,240,.8);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(48,107,240,.18), 0 2px 8px rgba(0,0,0,.08);
+  padding: .6rem .7rem;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+}
+.settings-popup.open { display: flex; }
+.settings-popup-title {
+  font-size: .6rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  padding: 2px 4px 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3px;
+}
+
+/* ── Active drum highlight ── */
+.drum.active-flash {
+  animation: drumGlow 0.55s ease-out forwards;
+}
+@keyframes drumGlow {
+  0%   { box-shadow: 0 0 0 2px rgba(48,107,240,.9), 0 0 12px rgba(48,107,240,.5); }
+  60%  { box-shadow: 0 0 0 2px rgba(48,107,240,.6), 0 0 8px rgba(48,107,240,.3); }
+  100% { box-shadow: none; }
 }
 
 /* ── Dim leading zeros ── */
@@ -96,23 +132,34 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   overflow: hidden;
   border-radius: 12px;
 }
-.shift-arrow {
+/* Per-drum arrows */
+.drum-arrow {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.3rem;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
   font-weight: 900;
   color: #F4A261;
-  text-shadow: 0 0 8px rgba(244,162,97,.9);
-  opacity: 0;
+  text-shadow: 0 0 10px rgba(244,162,97,1), 0 0 20px rgba(244,162,97,.6);
+  z-index: 10;
   pointer-events: none;
-  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(0);
+  transition: none;
 }
-@keyframes arrowSlide {
-  0%   { opacity: 0; transform: translateY(-50%) translateX(0); }
-  20%  { opacity: 1; }
-  80%  { opacity: 1; }
-  100% { opacity: 0; transform: translateY(-50%) translateX(var(--arrow-dx)); }
+.drum-arrow.drum-arrow-go {
+  opacity: 0;
+  transform: translateX(var(--arrow-dx));
+  transition: opacity 0.55s ease-out, transform 0.55s ease-out;
+  animation: drumArrowPulse 0.55s ease-out forwards;
+}
+@keyframes drumArrowPulse {
+  0%   { opacity: 0;   transform: translateX(0); }
+  15%  { opacity: 1;   transform: translateX(calc(var(--arrow-dx) * 0.1)); }
+  50%  { opacity: .95; transform: translateX(calc(var(--arrow-dx) * 0.5)); }
+  100% { opacity: 0;   transform: translateX(var(--arrow-dx)); }
 }
 
 /* ── Glass card ── */
@@ -123,7 +170,7 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
   -webkit-backdrop-filter:blur(20px) saturate(180%);
   border:1px solid rgba(255,255,255,.72);
   border-radius:20px;box-shadow:0 8px 40px var(--shadow);
-  padding:1.1rem 1.4rem .9rem;
+  padding:1.1rem 2rem .9rem;
   display:flex;flex-direction:column;align-items:center;gap:5px;
   margin-bottom:.9rem;
   max-width:100%;overflow-x:auto;
@@ -135,29 +182,7 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;col
 }
 
 /* ── Toggle pills ── */
-/* ── Settings panel ── */
-.settings-panel {
-  position: relative; z-index: 1;
-  background: rgba(255,255,255,.52);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid rgba(255,255,255,.68);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px var(--shadow);
-  padding: .7rem 1rem;
-  width: 100%; max-width: 720px;
-  margin-bottom: .65rem;
-}
-.settings-title {
-  font-size: .6rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .07em; color: var(--muted);
-  margin-bottom: .5rem;
-}
-.settings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 5px 12px;
-}
+
 .toggle-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: 4px 6px; border-radius: 8px;
@@ -307,28 +332,30 @@ input:checked + .slider::before { transform: translateX(16px); }
 }
 
 /* ── Op panels ── */
-.op-panels-row{
-  display:flex;gap:.65rem;
-  margin-bottom:.65rem;
+.input-group{display:flex;align-items:center;gap:6px;}
+.input-label{font-size:.7rem;color:var(--muted);font-weight:600;white-space:nowrap;min-width:68px;}
+.op-row{display:flex;gap:5px;justify-content:center;margin-bottom:4px;}
+.op-row:last-of-type{margin-bottom:0;}
+.btn-reset-standalone{align-self:flex-start;height:24px;padding:0 .6rem;font-size:.68rem;}
+.bottom-row{
+  display:flex;
+  gap:.65rem;
+  width:100%;max-width:720px;
+  align-items:stretch;
 }
-.op-section{
+.bottom-panel{
   position:relative;z-index:1;
   background:rgba(255,255,255,.52);
   backdrop-filter:blur(16px) saturate(160%);
   -webkit-backdrop-filter:blur(16px) saturate(160%);
   border:1px solid rgba(255,255,255,.68);
-  border-radius:16px;box-shadow:0 4px 20px var(--shadow);
-  padding:.75rem 1rem .7rem;
+  border-radius:16px;
+  box-shadow:0 4px 20px var(--shadow);
+  padding:.75rem 1rem;
+  display:flex;flex-direction:column;gap:5px;
   flex:1;
-  display:flex;flex-direction:column;align-items:center;
 }
-.op-title{
-  font-size:.6rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:.07em;color:var(--muted);margin-bottom:.5rem;
-  text-align:center;
-}
-.op-row{display:flex;gap:5px;margin-bottom:5px;justify-content:center;}
-.op-row:last-child{margin-bottom:0;}
+
 .op-btn{
   height:28px;padding:0 .7rem;border-radius:8px;
   font-family:'Sora',sans-serif;font-size:.75rem;font-weight:600;
@@ -347,21 +374,7 @@ input:checked + .slider::before { transform: translateX(16px); }
 .op-btn.div:hover:not(:disabled){background:#fdebc7;}
 
 /* ── Input panel ── */
-.input-panel{
-  position:relative;z-index:1;
-  background:rgba(255,255,255,.52);
-  backdrop-filter:blur(16px) saturate(160%);
-  -webkit-backdrop-filter:blur(16px) saturate(160%);
-  border:1px solid rgba(255,255,255,.68);
-  border-radius:16px;box-shadow:0 4px 20px var(--shadow);
-  padding:.7rem 1.2rem .65rem;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-}
-.input-row{
-  display:flex;align-items:center;gap:7px;
-  justify-content:center;
-}
-.input-label{font-size:.7rem;color:var(--muted);font-weight:600;white-space:nowrap;}
+.input-label{font-size:.7rem;color:var(--muted);font-weight:600;white-space:nowrap;min-width:68px;}
 input[type="text"]{
   width:78px;height:26px;
   border:1.5px solid var(--border);border-radius:7px;
@@ -419,6 +432,7 @@ input[type="text"]:focus{border-color:var(--accent);}
   <span class="header-chip">För läraren</span>
 </header>
 
+
 <div class="glass-card">
 
   <div class="exp-label-row"   id="expLabelRow"></div>
@@ -431,13 +445,25 @@ input[type="text"]:focus{border-color:var(--accent);}
   <div class="arrow-overlay" id="arrowOverlay"></div>
 </div>
 
-<div class="settings-panel">
-  <div class="settings-title">Inställningar</div>
-  <div class="settings-grid">
-    <label class="toggle-row"><span class="toggle-label">Stora tal</span>
-      <div class="switch"><input type="checkbox" id="swLarge" onchange="toggleLarge()"><span class="slider"></span></div></label>
-    <label class="toggle-row"><span class="toggle-label">Små decimaler</span>
-      <div class="switch"><input type="checkbox" id="swSmall" onchange="toggleSmall()"><span class="slider"></span></div></label>
+
+<div class="bottom-row">
+
+  <div class="bottom-panel">
+    <div class="input-group">
+      <span class="input-label">Ange tal:</span>
+      <input type="text" id="setInput" autocomplete="off">
+      <button class="btn-set" onclick="applySet()">Sätt</button>
+    </div>
+    <div class="input-group">
+      <span class="input-label">Beräkna:</span>
+      <input type="text" id="addInput" autocomplete="off">
+      <button class="btn-calc" id="addBtn" onclick="startCustomAdd()">Utför</button>
+    </div>
+    <button class="btn-reset btn-reset-standalone" onclick="resetAll()">Nollställ</button>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <div class="bottom-panel">
     <label class="toggle-row"><span class="toggle-label">Positionsnamn</span>
       <div class="switch"><input type="checkbox" id="swNames" onchange="toggleNames()"><span class="slider"></span></div></label>
     <label class="toggle-row"><span class="toggle-label">Positionsvärden</span>
@@ -446,38 +472,16 @@ input[type="text"]:focus{border-color:var(--accent);}
       <div class="switch"><input type="checkbox" id="swExp" onchange="toggleExp()"><span class="slider"></span></div></label>
     <label class="toggle-row"><span class="toggle-label">Tal i ord</span>
       <div class="switch"><input type="checkbox" id="swWord" onchange="toggleWord()"><span class="slider"></span></div></label>
-    <label class="toggle-row"><span class="toggle-label">Spårläge (×÷)</span>
-      <div class="switch"><input type="checkbox" id="swTrack" onchange="toggleTrack()"><span class="slider"></span></div></label>
   </div>
-</div>
 
-
-<div class="op-panels-row">
-  <div class="op-section">
-    <div class="op-title">Addera &amp; Subtrahera</div>
-    <div class="op-row" id="addRow"></div>
-    <div class="op-row" id="subRow"></div>
-  </div>
-  <div class="op-section">
-    <div class="op-title">Multiplicera &amp; Dividera</div>
+  <div class="bottom-panel">
     <div class="op-row" id="mulRow"></div>
     <div class="op-row" id="divRow"></div>
+    <label class="toggle-row" style="margin-top:auto;padding-top:6px;border-top:1px solid var(--border);">
+      <span class="toggle-label">Spårläge (⋅÷)</span>
+      <div class="switch"><input type="checkbox" id="swTrack" onchange="toggleTrack()"><span class="slider"></span></div></label>
   </div>
-</div>
 
-<div class="input-panel">
-  <div class="input-row">
-    <span class="input-label">Ange tal:</span>
-    <input type="text" id="setInput" autocomplete="off">
-    <button class="btn-set"   onclick="applySet()">Sätt</button>
-    <button class="btn-reset" onclick="resetAll()">Nollställ</button>
-  </div>
-  <div class="input-row">
-    <span class="input-label">Beräkna:</span>
-    <input type="text" id="addInput" autocomplete="off">
-    <button class="btn-calc" id="addBtn" onclick="startCustomAdd()">Utför</button>
-  </div>
-  <div class="error-msg" id="errorMsg"></div>
 </div>
 
 <script>
@@ -485,8 +489,8 @@ input[type="text"]:focus{border-color:var(--accent);}
 //  DRUM DEFINITIONS  (index 0 = tiomiljoner, index 13 = miljondelar)
 // ═══════════════════════════════════════════════════════════════
 const DRUMS = [
-  { name:'Tio\u00admiljoner',    pv:'10\u202f000\u202f000', exp:[10,7],  dec:false, group:'large' }, // 0
-  { name:'Miljoner',             pv:'1\u202f000\u202f000',  exp:[10,6],  dec:false, group:'large' }, // 1
+  { name:'Tio\u00admiljoner',    pv:'10\u202f000\u202f000', exp:[10,7],  dec:false, group:'core' }, // 0
+  { name:'Miljoner',             pv:'1\u202f000\u202f000',  exp:[10,6],  dec:false, group:'core' }, // 1
   { name:'Hundra\u00adtusental', pv:'100\u202f000',         exp:[10,5],  dec:false, group:'core'  }, // 2
   { name:'Tio\u00adtusental',    pv:'10\u202f000',          exp:[10,4],  dec:false, group:'core'  }, // 3
   { name:'Tusental',             pv:'1\u202f000',           exp:[10,3],  dec:false, group:'core'  }, // 4
@@ -498,8 +502,8 @@ const DRUMS = [
   { name:'Hundradel',            pv:'0,01',                 exp:[10,-2], dec:true,  group:'core'  }, // 9
   { name:'Tusendel',             pv:'0,001',                exp:[10,-3], dec:true,  group:'core'  }, // 10
   { name:'Tiontusendel',         pv:'0,0001',               exp:[10,-4], dec:true,  group:'core'  }, // 11
-  { name:'Hundra\u00adtusendel', pv:'0,00001',              exp:[10,-5], dec:true,  group:'small' }, // 12
-  { name:'Miljondelar',          pv:'0,000001',             exp:[10,-6], dec:true,  group:'small' }, // 13
+  { name:'Hundra\u00adtusendel', pv:'0,00001',              exp:[10,-5], dec:true,  group:'core' }, // 12
+  { name:'Miljondelar',          pv:'0,000001',             exp:[10,-6], dec:true,  group:'core' }, // 13
 ];
 const N = DRUMS.length; // 14
 
@@ -519,8 +523,6 @@ const MICRO_MAX = 99999999999999n;
 // ── State ──────────────────────────────────────────────────────
 let offsets    = new Array(N).fill(10);
 let busy       = false;
-let showLarge  = false;
-let showSmall  = false;
 let showNames  = false;
 let showVals   = false;
 let showExp    = false;
@@ -535,26 +537,10 @@ function digitOf(off) { return posmod(off, 10); }
 
 // ── Group visibility ───────────────────────────────────────────
 // Elements with data-group="large" or "small" are hidden unless toggled
-function applyGroupVisibility() {
-  ['large','small'].forEach(grp => {
-    const show = grp === 'large' ? showLarge : showSmall;
-    document.querySelectorAll(`[data-group="${grp}"]`).forEach(el => {
-      el.classList.toggle('hidden', !show);
-    });
-  });
-}
 
 function syncSwitch(id, state) {
   const el = document.getElementById(id);
   if (el) el.checked = state;
-}
-function toggleLarge() {
-  showLarge = document.getElementById('swLarge').checked;
-  applyGroupVisibility();
-}
-function toggleSmall() {
-  showSmall = document.getElementById('swSmall').checked;
-  applyGroupVisibility();
 }
 function toggleNames() {
   showNames = document.getElementById('swNames').checked;
@@ -591,21 +577,30 @@ function flashDrum(i) {
 // ── Shift-arrow overlay animation ─────────────────────────────
 function animateShiftArrow(dir) {
   if (!showTrack) return;
-  const overlay  = document.getElementById('arrowOverlay');
-  const drumsRow = document.getElementById('drumsRow');
-  const oRect    = overlay.getBoundingClientRect();
-  const dRect    = drumsRow.getBoundingClientRect();
+  const symbol = dir > 0 ? '←' : '→';
+  const dx     = dir > 0 ? '-24px' : '24px';
+  const dur    = 600; // ms
 
-  const arrow = document.createElement('div');
-  arrow.className = 'shift-arrow';
-  const startX = dir > 0
-    ? (dRect.right  - oRect.left - 50)
-    : (dRect.left   - oRect.left + 10);
-  const dx = dir > 0 ? '-90px' : '90px';
-  arrow.textContent = dir > 0 ? '←' : '→';
-  arrow.style.cssText = `left:${startX}px; --arrow-dx:${dx}; animation: arrowSlide 0.7s ease-in-out forwards;`;
-  overlay.appendChild(arrow);
-  setTimeout(() => arrow.remove(), 750);
+  // Place one arrow overlay per drum, all at once
+  for (let i = 0; i < N; i++) {
+    const drum = document.getElementById(`d${i}`);
+    if (!drum) continue;
+
+    const arrow = document.createElement('div');
+    arrow.className = 'drum-arrow';
+    arrow.textContent = symbol;
+    arrow.style.setProperty('--arrow-dx', dx);
+    drum.appendChild(arrow);
+
+    // Trigger animation on next frame
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        arrow.classList.add('drum-arrow-go');
+      });
+    });
+
+    setTimeout(() => arrow.remove(), dur + 100);
+  }
 }
 
 // ── Tal i ord ─────────────────────────────────────────────────
@@ -685,7 +680,6 @@ function buildUI() {
   buildLabelRows();
   buildDrumRows();
   buildOpButtons();
-  applyGroupVisibility();
 }
 
 function insertSpacer(parent, w, grp) {
@@ -704,7 +698,6 @@ function buildLabelRows() {
   for (let i = 0; i < N; i++) {
     const d   = DRUMS[i];
     const grp = d.group;
-    const isHideable = grp === 'large' || grp === 'small';
 
     // Separator spacer
     if (SEP_BEFORE.has(i)) {
@@ -718,25 +711,22 @@ function buildLabelRows() {
     // Name label
     const nl = document.createElement('div');
     nl.className = 'place-lbl lbl-cell' + (d.dec ? ' dec' : '');
-    nl.style.cssText = `width:var(--DW);max-width:${isHideable?'calc(var(--DW) + 4px)':'none'};`;
+    nl.style.cssText = `width:var(--DW);`;
     nl.textContent = d.name;
-    if (isHideable) nl.dataset.group = grp;
     lr.appendChild(nl);
 
     // Value label
     const vl = document.createElement('div');
     vl.className = 'place-val-lbl lbl-cell' + (d.dec ? ' dec' : '');
-    vl.style.cssText = `width:var(--DW);max-width:${isHideable?'calc(var(--DW) + 4px)':'none'};`;
+    vl.style.cssText = `width:var(--DW);`;
     vl.textContent = d.pv;
-    if (isHideable) vl.dataset.group = grp;
     vlr.appendChild(vl);
 
     // Exponent label (10^n)
     const expEl = document.createElement('div');
     expEl.className = 'place-exp-lbl lbl-cell' + (d.dec ? ' dec' : '');
-    expEl.style.cssText = `width:var(--DW);max-width:${isHideable?'calc(var(--DW) + 4px)':'none'};`;
+    expEl.style.cssText = `width:var(--DW);`;
     expEl.innerHTML = `<span class="base">10</span><span class="exp">${d.exp[1]}</span>`;
-    if (isHideable) expEl.dataset.group = grp;
     elr.appendChild(expEl);
   }
 }
@@ -777,13 +767,11 @@ function buildDrumRows() {
       });
     }
 
-    const isHideable = grp === 'large' || grp === 'small';
 
     // + button col
     const pc = document.createElement('div');
-    pc.className = 'drum-col' + (isHideable ? '' : '');
-    pc.style.cssText = `width:var(--DW);display:flex;justify-content:center;align-items:center;overflow:hidden;transition:max-width .3s ease,opacity .3s ease;max-width:calc(var(--DW) + 4px);`;
-    if (isHideable) pc.dataset.group = grp;
+    pc.className = 'drum-col';
+    pc.style.cssText = `width:var(--DW);display:flex;justify-content:center;align-items:center;`;
     const pb = document.createElement('button');
     pb.className = 'drum-btn plus'; pb.textContent = '+';
     pb.addEventListener('click', () => userStep(i, 1));
@@ -794,15 +782,13 @@ function buildDrumRows() {
     const drum = document.createElement('div');
     drum.className = 'drum';
     drum.id = `d${i}`;
-    drum.style.cssText = `width:var(--DW);height:var(--DH);overflow:hidden;position:relative;transition:max-width .3s ease,opacity .3s ease;max-width:calc(var(--DW) + 4px);`;
-    if (isHideable) drum.dataset.group = grp;
+    
     drum.appendChild(makeTape(0));
     drumsRow.appendChild(drum);
 
     // − button col
     const mc = document.createElement('div');
-    mc.style.cssText = `width:var(--DW);display:flex;justify-content:center;align-items:center;overflow:hidden;transition:max-width .3s ease,opacity .3s ease;max-width:calc(var(--DW) + 4px);`;
-    if (isHideable) mc.dataset.group = grp;
+    mc.style.cssText = `width:var(--DW);display:flex;justify-content:center;align-items:center;`;
     const mb = document.createElement('button');
     mb.className = 'drum-btn minus'; mb.textContent = '−';
     mb.addEventListener('click', () => userStep(i, -1));
@@ -812,26 +798,20 @@ function buildDrumRows() {
 }
 
 function buildOpButtons() {
-  const addRow = document.getElementById('addRow');
-  const subRow = document.getElementById('subRow');
   const mulRow = document.getElementById('mulRow');
   const divRow = document.getElementById('divRow');
-
   const mk = (cls, lbl, fn) => {
     const b = document.createElement('button');
     b.className = 'op-btn ' + cls; b.textContent = lbl;
     b.addEventListener('click', fn);
     return b;
   };
-
-  [{ l:'+1\u202f000',v:1000},{l:'+100',v:100},{l:'+10',v:10}]
-    .forEach(o => addRow.appendChild(mk('add', o.l, () => runDelta(o.v))));
-  [{l:'\u22121\u202f000',v:-1000},{l:'\u2212100',v:-100},{l:'\u221210',v:-10}]
-    .forEach(o => subRow.appendChild(mk('sub', o.l, () => runDelta(o.v))));
-  [{l:'\u00d7\u202f10',f:10},{l:'\u00d7\u202f100',f:100},{l:'\u00d7\u202f1\u202f000',f:1000}]
-    .forEach(o => mulRow.appendChild(mk('mul', o.l, () => runMultiply(o.f))));
-  [{l:'\u00f7\u202f10',f:0.1},{l:'\u00f7\u202f100',f:0.01},{l:'\u00f7\u202f1\u202f000',f:0.001}]
-    .forEach(o => divRow.appendChild(mk('div', o.l, () => runMultiply(o.f))));
+  [
+    {l:'⋅ 10',f:10},{l:'⋅ 100',f:100},{l:'⋅ 1 000',f:1000}
+  ].forEach(o => mulRow.appendChild(mk('mul', o.l, () => runMultiply(o.f))));
+  [
+    {l:'÷ 10',f:0.1},{l:'÷ 100',f:0.01},{l:'÷ 1 000',f:0.001}
+  ].forEach(o => divRow.appendChild(mk('div', o.l, () => runMultiply(o.f))));
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1007,6 +987,7 @@ async function runMultiply(factor) {
   // Animate: one visual shift per position (digits slide left or right)
   for (let pass = 0; pass < Math.abs(positions); pass++) {
     animateShiftArrow(dir);
+    await sleep(200); // let arrows appear before drums roll
     const cur     = Array.from({length:N}, (_, i) => digitOf(offsets[i]));
     const shifted = dir > 0 ? [...cur.slice(1), 0] : [0, ...cur.slice(0, N-1)];
     await Promise.all(Array.from({length:N}, (_, i) => animateDrumToTarget(i, cur[i], shifted[i])));
@@ -1041,6 +1022,8 @@ async function startCustomAdd() {
   }
   busy=false; document.getElementById('addBtn').disabled=false;
 }
+
+
 
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function setAllBtns(d){
