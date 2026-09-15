@@ -105,6 +105,9 @@
     padding:7px 12px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; font-size:.8rem;
   }
   .ws-sidebar-actions button:hover{ opacity:.88; }
+  .ws-sidebar-actions button.wc-pill-btn{
+    background:transparent; border-color:var(--border); color:var(--muted);
+  }
   .wc-spacer{ flex:1 1 auto; min-width:4px; }
 
   .ws-table{ padding:10px 12px 24px; display:flex; flex-direction:column; gap:14px; }
@@ -116,20 +119,9 @@
     padding:9px 12px; background:rgba(48,107,240,.07); border-bottom:1.5px solid var(--border);
   }
   .ws-table-group-label{ font-size:.86rem; font-weight:800; color:var(--text); }
-  .ws-neg-toggle{ font-size:.76rem !important; }
-  .ws-switch-label{ position:relative; display:inline-flex; align-items:center; gap:7px; cursor:pointer; }
-  .ws-switch-input{ position:absolute; top:0; left:0; width:34px; height:19px; opacity:0; margin:0; cursor:pointer; z-index:1; }
-  .ws-switch-track{
-    position:relative; width:34px; height:19px; background:var(--border); border-radius:999px;
-    transition:background .15s; flex-shrink:0; display:inline-block;
-  }
-  .ws-switch-knob{
-    position:absolute; top:2px; left:2px; width:15px; height:15px; background:#fff; border-radius:50%;
-    box-shadow:0 1px 3px rgba(16,14,40,.3); transition:transform .15s;
-  }
-  .ws-switch-input:checked + .ws-switch-track{ background:var(--accent); }
-  .ws-switch-input:checked + .ws-switch-track .ws-switch-knob{ transform:translateX(15px); }
-  .ws-switch-input:focus-visible + .ws-switch-track{ outline:2px solid var(--accent); outline-offset:2px; }
+  .ws-neg-level{ display:flex; align-items:center; gap:6px; }
+  .ws-neg-level-label{ font-size:.72rem; color:var(--muted); font-weight:700; white-space:nowrap; }
+  .ws-neg-toggle .ws-mode-btn{ padding:4px 8px; font-size:.7rem; }
   .ws-table-row{
     display:flex; flex-direction:column; padding:9px 12px; border-top:1px solid var(--border);
   }
@@ -189,6 +181,10 @@
   }
   body.ws-focus-mode .ws-sidebar{ display:none; }
   .worksheet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px 48px; }
+  .ws-empty-state{
+    grid-column:1 / -1; text-align:center; padding:60px 20px; color:var(--muted);
+    font-size:1rem; border:1.5px dashed var(--border); border-radius:14px;
+  }
   .worksheet-grid.ws-grid-single{ grid-template-columns:1fr; max-width:700px; margin:0 auto; }
   .worksheet-problem{
     display:flex; align-items:baseline; gap:8px; font-size:1.15rem; font-weight:600;
@@ -316,6 +312,7 @@
       <button id="wsRegenerate">🔄 Nytt</button>
       <button id="wsPrint">🖨️ Skriv ut</button>
       <button id="wsCheck" style="display:none;">✅ Rätta</button>
+      <button type="button" id="wsResetAll" class="wc-pill-btn" title="Avmarkerar alla val och tömmer arbetsbladet">🗑️ Nollställ</button>
     </div>
     <div id="wsScore" class="ws-score-line" style="display:none;"></div>
 
@@ -323,11 +320,11 @@
       <div class="ws-table-group">
         <div class="ws-table-grouphead">
           <span class="ws-table-group-label">Heltal</span>
-          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsIntNegative" class="ws-switch-input"><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa tal</label>
+          <div class="ws-neg-level"><span class="ws-neg-level-label">Negativa tal</span><div class="ws-mode-toggle ws-neg-toggle"><button type="button" class="ws-mode-btn ws-int-neg-btn active" data-level="inga">Inga</button><button type="button" class="ws-mode-btn ws-int-neg-btn" data-level="ett">Ett</button><button type="button" class="ws-mode-btn ws-int-neg-btn" data-level="flera">Flera</button></div></div>
         </div>
         <div class="ws-table-row" data-row="intAddSub">
           <div class="ws-row-top">
-            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intAddSub" checked> Addition och subtraktion</label>
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intAddSub"> Addition och subtraktion</label>
             <input type="number" class="ws-row-count" data-cat="intAddSub" min="0" max="60" value="15">
           </div>
           <div class="ws-row-controls-wrap">
@@ -380,7 +377,7 @@
       <div class="ws-table-group">
         <div class="ws-table-grouphead">
           <span class="ws-table-group-label">Bråk</span>
-          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsFracNegative" class="ws-switch-input"><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa bråk</label>
+          <div class="ws-neg-level"><span class="ws-neg-level-label">Negativa tal</span><div class="ws-mode-toggle ws-neg-toggle"><button type="button" class="ws-mode-btn ws-frac-neg-btn active" data-level="inga">Inga</button><button type="button" class="ws-mode-btn ws-frac-neg-btn" data-level="ett">Ett</button><button type="button" class="ws-mode-btn ws-frac-neg-btn" data-level="flera">Flera</button></div></div>
         </div>
         <div class="ws-table-row" data-row="fracAddSub">
           <div class="ws-row-top">
@@ -394,6 +391,7 @@
               <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="2" title="T.ex. 1/2 + 1/4">Multipel</button>
               <button type="button" class="ws-mode-btn ws-frac-rel-btn" data-level="3" title="T.ex. 1/7 + 1/3">Relativt prima</button>
             </div>
+            <label><input type="checkbox" id="wsFracAdvanced"> Avancerad (3–4 termer)</label>
           </div>
           </div>
         </div>
@@ -408,7 +406,7 @@
                 <button type="button" class="ws-mode-btn ws-frac-mag-btn active" data-level="1">Nivå 1</button>
                 <button type="button" class="ws-mode-btn ws-frac-mag-btn" data-level="2">Nivå 2</button>
               </div>
-              <label title="T.ex. 7/25 × 5/49 → 1/5 × 1/7"><input type="checkbox" id="wsFracMulCancel"> Förkortningsbara</label>
+              <label title="T.ex. 7/25 · 5/49 → 1/5 · 1/7"><input type="checkbox" id="wsFracMulCancel"> Förkortningsbara</label>
             </div>
           </div>
         </div>
@@ -432,7 +430,7 @@
       <div class="ws-table-group">
         <div class="ws-table-grouphead">
           <span class="ws-table-group-label">Decimaltal</span>
-          <label class="ws-neg-toggle ws-switch-label"><input type="checkbox" id="wsDecNegative" class="ws-switch-input"><span class="ws-switch-track"><span class="ws-switch-knob"></span></span> Negativa decimaltal</label>
+          <div class="ws-neg-level"><span class="ws-neg-level-label">Negativa tal</span><div class="ws-mode-toggle ws-neg-toggle"><button type="button" class="ws-mode-btn ws-dec-neg-btn active" data-level="inga">Inga</button><button type="button" class="ws-mode-btn ws-dec-neg-btn" data-level="ett">Ett</button><button type="button" class="ws-mode-btn ws-dec-neg-btn" data-level="flera">Flera</button></div></div>
         </div>
         <div class="ws-table-row" data-row="decAddSub">
           <div class="ws-row-top">
@@ -575,31 +573,39 @@ function wsRandNonZero(lo, hi) {
 }
 
 // Delad av alla Heltal-generatorer: respekterar "Negativa tal"-kryssrutan.
-// Avstängd ger bara positiva tal (aldrig 0); påslagen (standard) ger samma
-// spridning som tidigare, ±1..maxAbs.
-function wsIntTerm(maxAbs) {
-  const mag = wsRandNonZero(1, maxAbs);
-  return (wsIntNegative.checked && Math.random() < 0.5) ? -mag : mag;
+// Delad hjälpare för alla tre domäner (Heltal/Bråk/Decimal): tar en lista med
+// POSITIVA storlekar och en nivå ('inga'|'ett'|'flera'), och returnerar dem
+// med tecken enligt nivån:
+//  - 'inga'  : alla positiva
+//  - 'ett'   : exakt EN slumpmässig term blir negativ, resten positiva
+//  - 'flera' : varje term slantsinglas oberoende (kan bli 0 upp till alla negativa)
+function wsApplyNegLevel(mags, level) {
+  if (level === 'inga') return mags.slice();
+  if (level === 'ett') {
+    const idx = wsRandInt(0, mags.length - 1);
+    return mags.map((m, i) => (i === idx) ? -m : m);
+  }
+  return mags.map(m => (Math.random() < 0.5) ? -m : m);
 }
-// Samma sak, men utesluter ental (1/-1) — används för nämnare/divisorer och
-// multiplikationsfaktorer, så vi undviker triviala uppgifter som "5/1" eller "1 × 7".
-function wsIntTermNoUnit(maxAbs) {
-  const mag = wsRandInt(2, Math.max(2, maxAbs));
-  return (wsIntNegative.checked && Math.random() < 0.5) ? -mag : mag;
-}
+// Ren magnitud (aldrig 0), respektive magnitud som utesluter ental (1) —
+// används för nämnare/divisorer/multiplikationsfaktorer så vi undviker
+// triviala uppgifter som "5/1" eller "1 × 7".
+function wsIntMag(maxAbs) { return wsRandNonZero(1, maxAbs); }
+function wsIntMagNoUnit(maxAbs) { return wsRandInt(2, Math.max(2, maxAbs)); }
 
 function genWorksheetProblem(advanced) {
   const big = (wsIntAddSubLevel === 2);
   const t1Max = big ? 200 : 10, termMax = big ? 99 : 9;
-  const t1 = wsIntTerm(t1Max);
-  let total = t1;
-  const parts = [fmtNum(t1)];
-  const termCount = advanced ? wsRandInt(3, 4) : 2; // totalt antal termer, inkl. t1
+  const termCount = advanced ? wsRandInt(3, 4) : 2; // totalt antal termer
+  const mags = [wsIntMag(t1Max)];
+  for (let i = 1; i < termCount; i++) mags.push(wsIntMag(termMax));
+  const signed = wsApplyNegLevel(mags, wsIntNegLevel);
+  let total = signed[0];
+  const parts = [fmtNum(signed[0])];
   for (let i = 1; i < termCount; i++) {
     const op = Math.random() < 0.5 ? '+' : '−';
-    let t = wsIntTerm(termMax);
-    total += (op === '+') ? t : -t;
-    parts.push(op, fmtNum(t));
+    total += (op === '+') ? signed[i] : -signed[i];
+    parts.push(op, fmtNum(signed[i]));
   }
   return { text: parts.join(' '), answer: total, isFraction: false };
 }
@@ -622,42 +628,45 @@ function genWorksheetProblem(advanced) {
 
 function genIntDivisionKort(level) {
   if (level === 1) {
-    const d = wsIntTermNoUnit(9);
-    const q = wsIntTerm(9);
+    const [d, q] = wsApplyNegLevel([wsIntMagNoUnit(9), wsIntMag(9)], wsIntNegLevel);
     const n = d * q;
     return { num: fmtNum(n), den: fmtNum(d), answer: q, isFraction: true };
   }
   if (level === 2) {
     for (let i = 0; i < 60; i++) {
-      const a = wsIntTerm(6), b = wsIntTerm(6);
-      const c = wsIntTermNoUnit(5), d = wsIntTermNoUnit(5);
+      const [a, b, c, d] = wsApplyNegLevel([wsIntMag(6), wsIntMag(6), wsIntMagNoUnit(5), wsIntMagNoUnit(5)], wsIntNegLevel);
       const N = a * b, D = c * d;
       if (D !== 0 && N % D === 0) {
-        return { num: `${fmtNum(a)} × ${fmtNum(b)}`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: N / D, isFraction: true };
+        return { num: `${fmtNum(a)} · ${fmtNum(b)}`, den: `${fmtNum(c)} · ${fmtNum(d)}`, answer: N / D, isFraction: true };
       }
     }
     // Garanterat jämnt fallback om slumpen inte gav en delbar kombination
-    const c = wsIntTermNoUnit(5), d = wsIntTermNoUnit(5);
-    const q = wsIntTerm(6);
+    const c = wsIntMagNoUnit(5), d = wsIntMagNoUnit(5);
+    const q = wsIntMag(6);
     const D = c * d;
-    return { num: `${fmtNum(D * q)} × 1`, den: `${fmtNum(c)} × ${fmtNum(d)}`, answer: q, isFraction: true };
+    return { num: `${fmtNum(D * q)} · 1`, den: `${fmtNum(c)} · ${fmtNum(d)}`, answer: q, isFraction: true };
   }
   // level 3: täljare och/eller nämnare är en summa/differens som måste
   // räknas ut innan själva divisionen utförs.
   for (let i = 0; i < 100; i++) {
-    const n1 = wsIntTerm(9), n2 = wsIntTerm(9);
+    const singleDen = Math.random() < 0.5;
+    const rawMags = singleDen
+      ? [wsIntMag(9), wsIntMag(9), wsIntMagNoUnit(6)]
+      : [wsIntMag(9), wsIntMag(9), wsIntMag(6), wsIntMag(6)];
+    const signed = wsApplyNegLevel(rawMags, wsIntNegLevel);
+    const n1 = signed[0], n2 = signed[1];
     const nOp = Math.random() < 0.5 ? '+' : '−';
     const N = (nOp === '+') ? n1 + n2 : n1 - n2;
 
     let denText, D;
-    if (Math.random() < 0.5) {
-      const d1 = wsIntTerm(6), d2 = wsIntTerm(6);
+    if (singleDen) {
+      D = signed[2];
+      denText = fmtNum(D);
+    } else {
+      const d1 = signed[2], d2 = signed[3];
       const dOp = Math.random() < 0.5 ? '+' : '−';
       D = (dOp === '+') ? d1 + d2 : d1 - d2;
       denText = `${fmtNum(d1)} ${dOp} ${fmtNum(d2)}`;
-    } else {
-      D = wsIntTermNoUnit(6);
-      denText = fmtNum(D);
     }
     if (D !== 0 && Math.abs(D) !== 1 && N !== 0 && N % D === 0) {
       return { num: `${fmtNum(n1)} ${nOp} ${fmtNum(n2)}`, den: denText, answer: N / D, isFraction: true };
@@ -665,7 +674,7 @@ function genIntDivisionKort(level) {
   }
   // Garanterat jämnt fallback
   const d = wsRandInt(2, 6);
-  const q = wsIntTerm(6);
+  const q = wsIntMag(6);
   const n1 = wsRandInt(1, 5);
   const n2 = d * q - n1;
   return { num: `${fmtNum(n1)} + ${fmtNum(n2)}`, den: fmtNum(d), answer: q, isFraction: true };
@@ -674,7 +683,7 @@ function genIntDivisionKort(level) {
 // "Uppdelning i delar": kvoten är alltid ett tvåsiffrigt tal (tiotal +
 // ental), så täljaren går att dela upp rent, t.ex. 91 ÷ 7 = 70÷7 + 21÷7.
 // Metoden handlar om positiva tals platsvärde, så negativa tal kopplas
-// bort här oavsett "Negativa tal"-läget.
+// bort här oavsett negativ-nivå.
 function genIntDivisionDelning() {
   const d = wsRandInt(2, 9);
   const tens = wsRandInt(1, 9), ones = wsRandInt(1, 9);
@@ -714,21 +723,16 @@ function genIntDivision(level) {
 // Multiplikation — egen rad, egen nivåskala (oberoende av divisionens Nivå/Metod).
 // Nivå 1: två faktorer. Nivå 2: tre faktorer. Nivå 3: fyra faktorer.
 function genIntMultiplication(level) {
-  if (level === 1) {
-    const a = wsIntTermNoUnit(9), b = wsIntTermNoUnit(9);
-    return { text: `${fmtNum(a)} × ${fmtNum(b)}`, answer: a * b, isFraction: false };
-  }
-  if (level === 2) {
-    const a = wsIntTermNoUnit(6), b = wsIntTermNoUnit(6), c = wsIntTermNoUnit(6);
-    return { text: `${fmtNum(a)} × ${fmtNum(b)} × ${fmtNum(c)}`, answer: a * b * c, isFraction: false };
-  }
-  const a = wsIntTermNoUnit(5), b = wsIntTermNoUnit(5), c = wsIntTermNoUnit(5), d = wsIntTermNoUnit(5);
-  return { text: `${fmtNum(a)} × ${fmtNum(b)} × ${fmtNum(c)} × ${fmtNum(d)}`, answer: a * b * c * d, isFraction: false };
+  const counts = { 1: 2, 2: 3, 3: 4 };
+  const maxAbs = { 1: 9, 2: 6, 3: 5 }[level];
+  const mags = Array.from({ length: counts[level] }, () => wsIntMagNoUnit(maxAbs));
+  const signed = wsApplyNegLevel(mags, wsIntNegLevel);
+  return { text: signed.map(fmtNum).join(' · '), answer: signed.reduce((a, b) => a * b, 1), isFraction: false };
 }
 
 // ═══════════════════════════════════════════════════════════════════
 //  DECIMALTAL — multiplikation, division.
-//  wsDecLevel (1|2) och wsDecNegative delas av båda kategorierna.
+//  wsDecLevel (1|2) och wsDecNegLevel delas av alla tre kategorierna.
 //
 //  Tal representeras internally som {n: heltal, dp: antal decimaler}
 //  (n / 10^dp) istället för JS-flyttal, för att undvika
@@ -755,9 +759,7 @@ function genDecimalAddSub() {
   const twoDp = (wsDecAddSubLevel === 2);
   const dp = twoDp ? wsRandInt(1, 2) : 1;
   const coreMax = twoDp ? 999 : 99;
-  let n1 = wsRandNonZero(1, coreMax), n2 = wsRandNonZero(1, coreMax);
-  if (wsDecNegative.checked && Math.random() < 0.5) n1 = -n1;
-  if (wsDecNegative.checked && Math.random() < 0.5) n2 = -n2;
+  const [n1, n2] = wsApplyNegLevel([wsRandNonZero(1, coreMax), wsRandNonZero(1, coreMax)], wsDecNegLevel);
   const op = Math.random() < 0.5 ? '+' : '−';
   const total = (op === '+') ? n1 + n2 : n1 - n2;
   return {
@@ -777,15 +779,13 @@ function genDecimalMul() {
   const dp1 = wsRandInt(1, 2);
   const dp2 = bothDecimal ? wsRandInt(1, 2) : 0;
   const roundFactor = bothDecimal ? 1 : Math.pow(10, wsRandInt(2, 4)); // gör faktor 2 rund, t.ex. 30 000
-  let n1 = c1, n2 = c2 * roundFactor;
-  if (wsDecNegative.checked && Math.random() < 0.5) n1 = -n1;
-  if (wsDecNegative.checked && Math.random() < 0.5) n2 = -n2;
+  const [n1, n2] = wsApplyNegLevel([c1, c2 * roundFactor], wsDecNegLevel);
   const rawProduct = n1 * n2;
   const totalDp = dp1 + dp2;
   return {
     parts: [
       { t: 'txt', text: intToDecimalStr(n1, dp1, true) },
-      { t: 'txt', text: '×' },
+      { t: 'txt', text: '·' },
       { t: 'txt', text: intToDecimalStr(n2, dp2, true) },
     ],
     answerKind: 'decimal', answer: { value: rawProduct, dp: totalDp },
@@ -800,9 +800,8 @@ function genDecimalDiv() {
   const dividendInt = divisorInt * q;
   const p = (wsDecLevel === 2) ? wsRandInt(1, 2) : 1;  // antal decimaler i den presenterade uppgiften
 
-  let n1 = dividendInt, n2 = divisorInt, sign = 1;
-  if (wsDecNegative.checked && Math.random() < 0.5) { n1 = -n1; sign *= -1; }
-  if (wsDecNegative.checked && Math.random() < 0.5) { n2 = -n2; sign *= -1; }
+  const [n1, n2] = wsApplyNegLevel([dividendInt, divisorInt], wsDecNegLevel);
+  const sign = (n1 < 0 ? -1 : 1) * (n2 < 0 ? -1 : 1);
 
   return {
     // Bråkform — samma stapelbråks-utseende (täljare/nämnare) som Bråk +/−,
@@ -814,7 +813,7 @@ function genDecimalDiv() {
 
 // ═══════════════════════════════════════════════════════════════════
 //  BRÅKFORM — addition/subtraktion, multiplikation, division.
-//  wsFracNegative styr om täljarna får bli negativa (samma tema som
+//  wsFracNegLevel styr om täljarna får bli negativa (samma tema som
 //  heltalsdelen: negativa tal ska inte vara ett specialfall utan en
 //  naturlig del av träningen).
 //
@@ -826,24 +825,22 @@ function genDecimalDiv() {
 //  gemensam-nämnare-steg, så där styr wsFracMagLevel (talens storlek)
 //  precis som tidigare. Därför två separata nivå-variabler.
 // ═══════════════════════════════════════════════════════════════════
-function genFracNum(maxAbs) {
-  let n = wsRandNonZero(1, maxAbs);
-  if (wsFracNegative.checked && Math.random() < 0.5) n = -n;
-  return n;
+function genFracMag(maxAbs) {
+  return wsRandNonZero(1, maxAbs);
 }
 
 // Nivå 1 (relation): samma nämnare — enklast, ingen omskalning alls.
 function genFracPairSameDen() {
   const den = wsRandInt(4, 10);
-  return { a: { num: genFracNum(den + 2), den }, b: { num: genFracNum(den + 2), den } };
+  return { a: { num: genFracMag(den + 2), den }, b: { num: genFracMag(den + 2), den } };
 }
 // Nivå 2 (relation): en nämnare är en multipel av den andra — bara ETT
 // av bråken behöver skalas om för att få gemensam nämnare.
 function genFracPairMultiple() {
   const denSmall = wsRandInt(2, 6);
   const denBig = denSmall * wsRandInt(2, 3);
-  const small = { num: genFracNum(denSmall), den: denSmall };
-  const big   = { num: genFracNum(denBig), den: denBig };
+  const small = { num: genFracMag(denSmall), den: denSmall };
+  const big   = { num: genFracMag(denBig), den: denBig };
   return (Math.random() < 0.5) ? { a: small, b: big } : { a: big, b: small };
 }
 // Nivå 3 (relation): nämnare utan gemensam faktor — BÅDA måste skalas
@@ -851,29 +848,72 @@ function genFracPairMultiple() {
 function genFracPairCoprime() {
   let den1, den2;
   do { den1 = wsRandInt(2, 9); den2 = wsRandInt(2, 9); } while (wsGcd(den1, den2) !== 1);
-  return { a: { num: genFracNum(den1), den: den1 }, b: { num: genFracNum(den2), den: den2 } };
+  return { a: { num: genFracMag(den1), den: den1 }, b: { num: genFracMag(den2), den: den2 } };
+}
+// "Avancerad": en kedja av 3–4 termer istället för ett par. Nämnarrelationen
+// (Nivå 1/2/3) tillämpas genom hela kedjan på samma sätt som för paren ovan.
+function genFracTermsChain(count) {
+  if (wsFracRelLevel === 1) {
+    const den = wsRandInt(4, 10);
+    return Array.from({ length: count }, () => ({ num: genFracMag(den + 2), den }));
+  }
+  if (wsFracRelLevel === 2) {
+    let den = wsRandInt(2, 6);
+    const terms = [{ num: genFracMag(den), den }];
+    for (let i = 1; i < count; i++) {
+      den = den * wsRandInt(2, 3);
+      terms.push({ num: genFracMag(den), den });
+    }
+    return terms;
+  }
+  const dens = [];
+  while (dens.length < count) {
+    const cand = wsRandInt(2, 9);
+    if (dens.every(d => wsGcd(d, cand) === 1)) dens.push(cand);
+  }
+  return dens.map(den => ({ num: genFracMag(den), den }));
 }
 
 // Används av × och ÷, där bara storleken (inte nämnarrelationen) spelar roll.
 function genFractionTerm(denMax) {
-  return { num: genFracNum(denMax), den: wsRandInt(2, denMax) };
+  return { num: genFracMag(denMax), den: wsRandInt(2, denMax) };
 }
 
 function genFractionAddSub() {
+  if (wsFracAdvanced.checked) return genFractionAddSubAdvanced();
   const { a, b } = (wsFracRelLevel === 1) ? genFracPairSameDen()
                   : (wsFracRelLevel === 2) ? genFracPairMultiple()
                   : genFracPairCoprime();
+  const [aNum, bNum] = wsApplyNegLevel([a.num, b.num], wsFracNegLevel);
   const op = Math.random() < 0.5 ? '+' : '−';
-  const an = a.num * b.den, bn = b.num * a.den, commonDen = a.den * b.den;
+  const an = aNum * b.den, bn = bNum * a.den, commonDen = a.den * b.den;
   const answer = simplifyFrac(op === '+' ? an + bn : an - bn, commonDen);
   return {
     parts: [
-      { t: 'frac', num: fmtNum(a.num), den: String(a.den) },
+      { t: 'frac', num: fmtNum(aNum), den: String(a.den) },
       { t: 'txt', text: op },
-      { t: 'frac', num: fmtNum(b.num), den: String(b.den) },
+      { t: 'frac', num: fmtNum(bNum), den: String(b.den) },
     ],
     answerKind: 'fraction', answer,
   };
+}
+
+// 3–4 termer i kedja, kombinerade med gemensam nämnare = produkten av
+// samtliga (enklast, om än inte alltid den minsta gemensamma nämnaren).
+function genFractionAddSubAdvanced() {
+  const terms = genFracTermsChain(wsRandInt(3, 4));
+  const signed = wsApplyNegLevel(terms.map(t => t.num), wsFracNegLevel);
+  const commonDen = terms.reduce((p, t) => p * t.den, 1);
+  let totalNum = signed[0] * (commonDen / terms[0].den);
+  const parts = [{ t: 'frac', num: fmtNum(signed[0]), den: String(terms[0].den) }];
+  for (let i = 1; i < terms.length; i++) {
+    const op = Math.random() < 0.5 ? '+' : '−';
+    const scaled = signed[i] * (commonDen / terms[i].den);
+    totalNum += (op === '+') ? scaled : -scaled;
+    parts.push({ t: 'txt', text: op }, { t: 'frac', num: fmtNum(signed[i]), den: String(terms[i].den) });
+  }
+  const answer = simplifyFrac(totalNum, commonDen);
+  return { parts, answerKind: 'fraction', answer };
 }
 
 function genFractionMul() {
@@ -885,27 +925,26 @@ function genFractionMul() {
     const primes = [2, 3, 5, 7, 11];
     let p, q;
     do { p = primes[wsRandInt(0, primes.length - 1)]; q = primes[wsRandInt(0, primes.length - 1)]; } while (p === q);
-    let xNum = p, yNum = q;
-    if (wsFracNegative.checked && Math.random() < 0.5) xNum = -xNum;
-    if (wsFracNegative.checked && Math.random() < 0.5) yNum = -yNum;
+    const [xNum, yNum] = wsApplyNegLevel([p, q], wsFracNegLevel);
     const x = { num: xNum, den: q * q }, y = { num: yNum, den: p * p };
     const answer = simplifyFrac(x.num * y.num, x.den * y.den);
     return {
       parts: [
         { t: 'frac', num: fmtNum(x.num), den: String(x.den) },
-        { t: 'txt', text: '×' },
+        { t: 'txt', text: '·' },
         { t: 'frac', num: fmtNum(y.num), den: String(y.den) },
       ],
       answerKind: 'fraction', answer,
     };
   }
   const a = genFractionTerm(denMax), b = genFractionTerm(denMax);
-  const answer = simplifyFrac(a.num * b.num, a.den * b.den);
+  const [aNum, bNum] = wsApplyNegLevel([a.num, b.num], wsFracNegLevel);
+  const answer = simplifyFrac(aNum * bNum, a.den * b.den);
   return {
     parts: [
-      { t: 'frac', num: fmtNum(a.num), den: String(a.den) },
-      { t: 'txt', text: '×' },
-      { t: 'frac', num: fmtNum(b.num), den: String(b.den) },
+      { t: 'frac', num: fmtNum(aNum), den: String(a.den) },
+      { t: 'txt', text: '·' },
+      { t: 'frac', num: fmtNum(bNum), den: String(b.den) },
     ],
     answerKind: 'fraction', answer,
   };
@@ -920,42 +959,46 @@ function fracOrIntParts(num, den) {
 
 function genFractionDiv() {
   const denMax = (wsFracMagLevel === 1) ? 6 : 12;
-  const nested = wsFracDivNested.checked;
-  let topVal, topParts;
 
-  if (nested) {
+  if (wsFracDivNested.checked) {
     // "Nästlad täljare": täljaren i det stora bråkstrecket är själv en
     // multiplikation av två bråk som måste räknas ut innan man kan utföra
     // själva divisionen.
-    const x = genFractionTerm(Math.min(denMax, 9)), y = genFractionTerm(Math.min(denMax, 9));
-    topVal = simplifyFrac(x.num * y.num, x.den * y.den);
-    topParts = [
-      { t: 'frac', num: fmtNum(x.num), den: String(x.den) },
-      { t: 'txt', text: '×' },
-      { t: 'frac', num: fmtNum(y.num), den: String(y.den) },
+    const xTerm = genFractionTerm(Math.min(denMax, 9)), yTerm = genFractionTerm(Math.min(denMax, 9));
+    const bTerm = genFractionTerm(denMax);
+    const [xNum, yNum, bNum] = wsApplyNegLevel([xTerm.num, yTerm.num, bTerm.num], wsFracNegLevel);
+    const topVal = simplifyFrac(xNum * yNum, xTerm.den * yTerm.den);
+    const topParts = [
+      { t: 'frac', num: fmtNum(xNum), den: String(xTerm.den) },
+      { t: 'txt', text: '·' },
+      { t: 'frac', num: fmtNum(yNum), den: String(yTerm.den) },
     ];
-  } else if (Math.random() < 0.4) {
-    // Innehållsdivision-vänligt specialfall: heltal ÷ enkelt bråk, t.ex. 3 ÷ 1/2
-    // ("hur många halvor får plats i 3 hela?").
-    topVal = { num: genFracNum(9), den: 1 };
-    topParts = fracOrIntParts(topVal.num, topVal.den);
-  } else {
-    topVal = genFractionTerm(denMax);
-    topParts = fracOrIntParts(topVal.num, topVal.den);
+    const answer = simplifyFrac(topVal.num * bTerm.den, topVal.den * bNum);
+    return {
+      parts: [{ t: 'bigfrac', top: topParts, bottom: fracOrIntParts(bNum, bTerm.den) }],
+      answerKind: 'fraction', answer,
+    };
   }
 
-  // Enkla-heltalsfallet ovan ("3 ÷ 1/2") vill ha en enkel enhetsnämnare i b;
-  // annars ett vanligt bråk. Vid nästlad täljare gäller alltid det vanliga fallet.
-  const wantsUnitFraction = !nested && topParts.length === 1 && topVal.den === 1;
-  const b = wantsUnitFraction
-    ? { num: (wsFracNegative.checked && Math.random() < 0.5) ? -1 : 1, den: wsRandInt(2, 5) }
-    : genFractionTerm(denMax);
+  if (Math.random() < 0.4) {
+    // Innehållsdivision-vänligt specialfall: heltal ÷ enkelt bråk, t.ex. 3 ÷ 1/2
+    // ("hur många halvor får plats i 3 hela?").
+    const [topNum, bNum] = wsApplyNegLevel([genFracMag(9), 1], wsFracNegLevel);
+    const bDen = wsRandInt(2, 5);
+    const answer = simplifyFrac(topNum * bDen, bNum);
+    return {
+      parts: [{ t: 'bigfrac', top: fracOrIntParts(topNum, 1), bottom: fracOrIntParts(bNum, bDen) }],
+      answerKind: 'fraction', answer,
+    };
+  }
 
-  const answer = simplifyFrac(topVal.num * b.den, topVal.den * b.num);
+  const aTerm = genFractionTerm(denMax), bTerm = genFractionTerm(denMax);
+  const [aNum, bNum] = wsApplyNegLevel([aTerm.num, bTerm.num], wsFracNegLevel);
+  const answer = simplifyFrac(aNum * bTerm.den, aTerm.den * bNum);
   return {
     // Stort vågrätt bråkstreck istället för ÷ eller snedstreck, enligt önskemål —
     // tydlig täljare (bråk, heltal eller ett uttryck) dividerad med tydlig nämnare.
-    parts: [{ t: 'bigfrac', top: topParts, bottom: fracOrIntParts(b.num, b.den) }],
+    parts: [{ t: 'bigfrac', top: fracOrIntParts(aNum, aTerm.den), bottom: fracOrIntParts(bNum, bTerm.den) }],
     answerKind: 'fraction', answer,
   };
 }
@@ -978,16 +1021,16 @@ function adaptLegacy(p) {
 // ═══════════════════════════════════════════════════════════════════
 const CATEGORIES = {
   intAddSub:  { label: 'Heltal +/−',        group: 'Heltal',  gen: () => adaptLegacy(genWorksheetProblem(wsAdvanced.checked)) },
-  intMul:     { label: 'Heltal ×',          group: 'Heltal',  gen: () => adaptLegacy(genIntMultiplication(wsIntMulLevel)) },
+  intMul:     { label: 'Heltal ·',          group: 'Heltal',  gen: () => adaptLegacy(genIntMultiplication(wsIntMulLevel)) },
   intDiv:     { label: 'Heltal division',       group: 'Heltal',  gen: () => adaptLegacy(genIntDivision(wsIntDivLevel)) },
   fracAddSub: { label: 'Bråk +/−',          group: 'Bråk',    gen: genFractionAddSub },
-  fracMul:    { label: 'Bråk ×',            group: 'Bråk',    gen: genFractionMul },
+  fracMul:    { label: 'Bråk ·',            group: 'Bråk',    gen: genFractionMul },
   fracDiv:    { label: 'Bråk division',         group: 'Bråk',    gen: genFractionDiv },
   decAddSub:  { label: 'Decimaltal +/−',    group: 'Decimal', gen: genDecimalAddSub },
-  decMul:     { label: 'Decimaltal ×',      group: 'Decimal', gen: genDecimalMul },
+  decMul:     { label: 'Decimaltal ·',      group: 'Decimal', gen: genDecimalMul },
   decDiv:     { label: 'Decimaltal division',   group: 'Decimal', gen: genDecimalDiv },
 };
-let wsActiveCategories = new Set(['intAddSub']);
+let wsActiveCategories = new Set();
 
 const worksheetGrid       = document.getElementById('worksheetGrid');
 const worksheetAnswerGrid = document.getElementById('worksheetAnswerGrid');
@@ -1004,31 +1047,36 @@ const wsModePrint       = document.getElementById('wsModePrint');
 const wsModeInteractive = document.getElementById('wsModeInteractive');
 const wsNumlineLabel    = document.getElementById('wsNumlineLabel');
 const wsNumlineToggle   = document.getElementById('wsNumlineToggle');
-const wsIntNegative    = document.getElementById('wsIntNegative');
+const wsIntNegBtns = Array.from(document.querySelectorAll('.ws-int-neg-btn'));
 const wsIntAddSubLevelBtns = Array.from(document.querySelectorAll('.ws-int-addsub-level-btn'));
 const wsIntMulLevelBtns    = Array.from(document.querySelectorAll('.ws-int-mul-level-btn'));
 const wsIntDivLevelBtns    = Array.from(document.querySelectorAll('.ws-int-div-level-btn'));
 const wsIntMethodBtns = Array.from(document.querySelectorAll('.ws-int-method-btn'));
+const wsFracAdvanced  = document.getElementById('wsFracAdvanced');
 const wsFracRelBtns   = Array.from(document.querySelectorAll('.ws-frac-rel-btn'));
 const wsFracMagBtns   = Array.from(document.querySelectorAll('.ws-frac-mag-btn'));
 const wsFracMulCancel = document.getElementById('wsFracMulCancel');
 const wsFracDivNested = document.getElementById('wsFracDivNested');
-const wsFracNegative  = document.getElementById('wsFracNegative');
+const wsFracNegBtns  = Array.from(document.querySelectorAll('.ws-frac-neg-btn'));
 const wsDecAddSubLevelBtns = Array.from(document.querySelectorAll('.ws-dec-addsub-level-btn'));
 const wsDecLevelBtns   = Array.from(document.querySelectorAll('.ws-dec-level-btn'));
-const wsDecNegative  = document.getElementById('wsDecNegative');
+const wsDecNegBtns  = Array.from(document.querySelectorAll('.ws-dec-neg-btn'));
 const wsNumlineTypeGroup = document.getElementById('wsNumlineTypeToggle');
 const wsNumlineTypeBtns  = Array.from(document.querySelectorAll('.ws-numline-type-btn'));
 const wsRowToggles = Array.from(document.querySelectorAll('.ws-row-toggle'));
 const wsRowCounts  = Array.from(document.querySelectorAll('.ws-row-count'));
 const wsTotalCountEl = document.getElementById('wsTotalCount');
 const wsPrintBtn = document.getElementById('wsPrint');
+const wsResetAll = document.getElementById('wsResetAll');
 const wsGlassToggle = document.getElementById('wsGlassToggle');
 const wsFontSelect = document.getElementById('wsFontSelect');
 const wsCheckBtn = document.getElementById('wsCheck');
 const wsScoreEl  = document.getElementById('wsScore');
 
 let wsMode  = 'print';  // 'print' | 'interactive' | 'numline'
+let wsIntNegLevel = 'inga';  // 'inga' | 'ett' | 'flera' — Heltal
+let wsFracNegLevel = 'inga'; // 'inga' | 'ett' | 'flera' — Bråk
+let wsDecNegLevel = 'inga';  // 'inga' | 'ett' | 'flera' — Decimaltal
 let wsIntAddSubLevel = 1; // 1 | 2 — talens storlek, endast Heltal +/−
 let wsIntMulLevel = 1;    // 1 | 2 | 3 — endast Heltal ×
 let wsIntDivLevel = 1;    // 1 | 2 | 3 — endast Heltal ÷ (bara vid Metod=Kort)
@@ -1146,7 +1194,7 @@ function buildProblemSet() {
     [list[i], list[j]] = [list[j], list[i]];
   }
   if (wsMode === 'numline' && list.length > 20) list = list.slice(0, 20);
-  return list.length ? list : [genOneProblem()]; // ytterst defensiv fallback om alla rutor råkar stå på 0
+  return list;
 }
 
 function renderWorksheet() {
@@ -1154,6 +1202,13 @@ function renderWorksheet() {
   wsScoreEl.textContent = '';
   document.querySelectorAll('.ws-score-display').forEach(el => { el.textContent = ''; });
   worksheetGrid.classList.toggle('ws-grid-single', wsMode === 'numline');
+
+  if (wsProblems.length === 0) {
+    worksheetGrid.innerHTML = `<div class="ws-empty-state">Välj minst ett räknesätt i panelen till vänster för att fylla arbetsbladet.</div>`;
+    worksheetAnswerGrid.innerHTML = '';
+    worksheetAnswerPage.style.display = 'none';
+    return;
+  }
 
   if (wsMode === 'interactive') {
     worksheetAnswerPage.style.display = 'none'; // facit ska inte synas direkt i interaktivt läge
@@ -1303,12 +1358,66 @@ function updateAllRowStates() {
 // hamnar istället i en fotnot längst ner på sidan.
 function updateTitle() {
   const ids = Array.from(wsActiveCategories);
-  wsFootnote.textContent = 'Tränar på: ' + ids.map(id => CATEGORIES[id].label).join(' · ');
+  wsFootnote.textContent = ids.length
+    ? 'Tränar på: ' + ids.map(id => CATEGORIES[id].label).join(', ')
+    : '';
 }
 function syncTitlePrint() {
   wsTitlePrint.textContent = wsTitle.value.trim() || '\u00A0';
 }
 wsTitle.addEventListener('input', syncTitlePrint);
+
+// Sätter en pill-knappsgrupp tillbaka till sitt första (standard-)alternativ
+// och returnerar den knappen, så anroparen kan läsa av dataset-värdet.
+function resetButtonGroup(btns) {
+  btns.forEach((b, i) => b.classList.toggle('active', i === 0));
+  return btns[0];
+}
+
+function resetAllSettings() {
+  // Kategorier: allt avmarkerat, arbetsbladet blir tomt igen
+  wsRowToggles.forEach(cb => { cb.checked = false; });
+  wsActiveCategories.clear();
+  updateAllRowStates();
+
+  // Antal per rad tillbaka till ursprungsvärdena
+  const defaultCounts = { intAddSub: 15, intMul: 10, intDiv: 10, fracAddSub: 10, fracMul: 10, fracDiv: 10, decAddSub: 10, decMul: 10, decDiv: 10 };
+  wsRowCounts.forEach(inp => { inp.value = defaultCounts[inp.dataset.cat] ?? 10; });
+
+  // Svårighetsgrader och metoder tillbaka till första alternativet
+  wsIntAddSubLevel = 1; resetButtonGroup(wsIntAddSubLevelBtns);
+  wsIntMulLevel = 1; resetButtonGroup(wsIntMulLevelBtns);
+  wsIntDivLevel = 1; resetButtonGroup(wsIntDivLevelBtns);
+  wsIntMethod = 'kort'; resetButtonGroup(wsIntMethodBtns);
+  wsFracRelLevel = 1; resetButtonGroup(wsFracRelBtns);
+  wsFracMagLevel = 1; resetButtonGroup(wsFracMagBtns);
+  wsDecAddSubLevel = 1; resetButtonGroup(wsDecAddSubLevelBtns);
+  wsDecLevel = 1; resetButtonGroup(wsDecLevelBtns);
+  wsNumlineType = 'graderad'; resetButtonGroup(wsNumlineTypeBtns);
+
+  // Negativ-nivåer tillbaka till "Inga"
+  wsIntNegLevel = 'inga'; resetButtonGroup(wsIntNegBtns);
+  wsFracNegLevel = 'inga'; resetButtonGroup(wsFracNegBtns);
+  wsDecNegLevel = 'inga'; resetButtonGroup(wsDecNegBtns);
+
+  // Övriga kryssrutor
+  wsAdvanced.checked = false;
+  wsFracAdvanced.checked = false;
+  wsFracMulCancel.checked = false;
+  wsFracDivNested.checked = false;
+  wsAnswerKey.checked = true;
+  wsNumlineToggle.checked = false;
+
+  // Rubrik tillbaka till tom platshållare
+  wsTitle.value = '';
+  syncTitlePrint();
+
+  updateNumlineAvailability();
+  updateTotalCount();
+  updateTitle();
+  renderWorksheet();
+}
+wsResetAll.addEventListener('click', resetAllSettings);
 
 document.getElementById('wsRegenerate').addEventListener('click', renderWorksheet);
 function updateGlassToggleUI() {
@@ -1330,7 +1439,13 @@ wsAnswerKey.addEventListener('change', () => {
 wsModePrint.addEventListener('click', applyPrintFamilyMode);
 wsNumlineToggle.addEventListener('change', applyPrintFamilyMode);
 wsModeInteractive.addEventListener('click', () => setWorksheetMode('interactive'));
-wsIntNegative.addEventListener('change', renderWorksheet);
+wsIntNegBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsIntNegLevel = btn.dataset.level;
+    wsIntNegBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
 wsIntAddSubLevelBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     wsIntAddSubLevel = parseInt(btn.dataset.level, 10);
@@ -1373,7 +1488,14 @@ wsFracMagBtns.forEach(btn => {
     renderWorksheet();
   });
 });
-wsFracNegative.addEventListener('change', renderWorksheet);
+wsFracNegBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsFracNegLevel = btn.dataset.level;
+    wsFracNegBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
+wsFracAdvanced.addEventListener('change', renderWorksheet);
 wsFracMulCancel.addEventListener('change', renderWorksheet);
 wsFracDivNested.addEventListener('change', renderWorksheet);
 wsDecAddSubLevelBtns.forEach(btn => {
@@ -1390,7 +1512,13 @@ wsDecLevelBtns.forEach(btn => {
     renderWorksheet();
   });
 });
-wsDecNegative.addEventListener('change', renderWorksheet);
+wsDecNegBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsDecNegLevel = btn.dataset.level;
+    wsDecNegBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
 wsNumlineTypeBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     wsNumlineType = btn.dataset.type;
@@ -1401,9 +1529,6 @@ wsNumlineTypeBtns.forEach(btn => {
 wsRowToggles.forEach(cb => {
   cb.addEventListener('change', () => {
     const cat = cb.dataset.cat;
-    if (!cb.checked && wsActiveCategories.size === 1 && wsActiveCategories.has(cat)) {
-      cb.checked = true; return; // minst en rad måste alltid vara aktiv
-    }
     if (cb.checked) wsActiveCategories.add(cat); else wsActiveCategories.delete(cat);
     updateRowEnabledState(cb.closest('.ws-table-row'));
     updateNumlineAvailability();
