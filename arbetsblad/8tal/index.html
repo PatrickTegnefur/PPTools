@@ -187,12 +187,18 @@
   }
   .worksheet-grid.ws-grid-single{ grid-template-columns:1fr; max-width:700px; margin:0 auto; }
   .worksheet-problem{
-    display:flex; align-items:baseline; gap:8px; font-size:1.15rem; font-weight:600;
+    display:flex; align-items:center; gap:8px; font-size:1.15rem; font-weight:600;
     border-bottom:1.5px dotted #ccc5f0; padding-bottom:11px; flex-wrap:nowrap; min-width:0;
   }
+  .worksheet-problem.ws-has-workspace{ display:block; }
+  .wproblem-line{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; min-width:0; }
   .worksheet-problem .wnum{ font-weight:700; color:#585078; min-width:22px; flex-shrink:0; }
   .worksheet-problem .wexpr{ white-space:nowrap; flex-shrink:0; }
-  .worksheet-problem .wanswer-line{ flex:1 1 auto; border-bottom:1.5px solid #100e28; min-width:16px; align-self:stretch; }
+  .worksheet-problem .wanswer-line{ flex:0 0 auto; width:60px; border-bottom:1.5px solid #100e28; align-self:flex-end; margin-bottom:3px; }
+  .ws-work-space{
+    margin-top:10px; min-height:72px; border:1.5px dashed var(--border); border-radius:8px;
+    background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 19px, #e4e0f7 20px, #e4e0f7 21.5px, transparent 21.5px);
+  }
   .ws-numline-row{ flex-direction:column; align-items:stretch; gap:2px; padding-bottom:22px; margin-bottom:6px; }
   .ws-numline{ width:100%; max-width:640px; height:auto; display:block; margin-top:6px; }
   .worksheet-answerkey{ page-break-before:always; }
@@ -303,6 +309,7 @@
         <button type="button" class="ws-mode-btn ws-numline-type-btn active" data-type="graderad" title="Omärkta streck, bara 0:an utsatt">Graderad</button>
         <button type="button" class="ws-mode-btn ws-numline-type-btn" data-type="oppen" title="Tom linje med pilar — eleven placerar själv sina markeringar">Öppen</button>
       </div>
+      <label id="wsWorkSpaceLabel" title="Lägger till ett linjerat fält under varje uppgift för stödberäkningar — färre uppgifter får då plats per utskrift"><input type="checkbox" id="wsWorkSpace"> 📝 Utrymme för uträkningar</label>
     </div>
 
     <div class="ws-sidebar-actions">
@@ -1047,6 +1054,7 @@ const wsModePrint       = document.getElementById('wsModePrint');
 const wsModeInteractive = document.getElementById('wsModeInteractive');
 const wsNumlineLabel    = document.getElementById('wsNumlineLabel');
 const wsNumlineToggle   = document.getElementById('wsNumlineToggle');
+const wsWorkSpace = document.getElementById('wsWorkSpace');
 const wsIntNegBtns = Array.from(document.querySelectorAll('.ws-int-neg-btn'));
 const wsIntAddSubLevelBtns = Array.from(document.querySelectorAll('.ws-int-addsub-level-btn'));
 const wsIntMulLevelBtns    = Array.from(document.querySelectorAll('.ws-int-mul-level-btn'));
@@ -1240,7 +1248,16 @@ function renderWorksheet() {
       `<div><b>${i + 1}.</b> ${wsAnswerHTML(p)}</div>`).join('');
     worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
   } else {
-    worksheetGrid.innerHTML = wsProblems.map((p, i) => `
+    const showWork = wsWorkSpace.checked;
+    worksheetGrid.innerHTML = wsProblems.map((p, i) => showWork ? `
+      <div class="worksheet-problem ws-has-workspace">
+        <div class="wproblem-line">
+          <span class="wnum">${i + 1}.</span>
+          ${wsProblemHTML(p)}<span>&nbsp;=</span>
+          <span class="wanswer-line"></span>
+        </div>
+        <div class="ws-work-space"></div>
+      </div>` : `
       <div class="worksheet-problem">
         <span class="wnum">${i + 1}.</span>
         ${wsProblemHTML(p)}<span>&nbsp;=</span>
@@ -1407,6 +1424,7 @@ function resetAllSettings() {
   wsFracDivNested.checked = false;
   wsAnswerKey.checked = true;
   wsNumlineToggle.checked = false;
+  wsWorkSpace.checked = false;
 
   // Rubrik tillbaka till tom platshållare
   wsTitle.value = '';
@@ -1438,6 +1456,7 @@ wsAnswerKey.addEventListener('change', () => {
 });
 wsModePrint.addEventListener('click', applyPrintFamilyMode);
 wsNumlineToggle.addEventListener('change', applyPrintFamilyMode);
+wsWorkSpace.addEventListener('change', renderWorksheet);
 wsModeInteractive.addEventListener('click', () => setWorksheetMode('interactive'));
 wsIntNegBtns.forEach(btn => {
   btn.addEventListener('click', () => {
