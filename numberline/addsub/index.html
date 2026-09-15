@@ -688,6 +688,8 @@
       <button class="lt-btn play lt-full" id="ltBtnPlay" title="Animera"><span>▶</span></button>
       <button class="lt-btn" id="ltBtnRandom" title="Slumpa uttryck"><span>🎲</span></button>
       <button class="lt-btn" id="ltBtnSave" title="Spara uttryck"><span>★</span></button>
+      <button class="lt-btn" id="canvasBtnExprToggle" title="Visa/dölj uttrycket">𝑓</button>
+      <button class="lt-btn" id="canvasBtnReveal" title="Visa lösning">👁</button>
     </div>
     <div class="lt-sep"></div>
 
@@ -774,11 +776,9 @@
     <button class="pearl-nav-btn bridge-play" id="canvasBtnPlay" title="Animera">▶</button>
     <button class="pearl-nav-btn bridge-reset" id="canvasBtnReset" title="Återställ uttrycket">↺</button>
 
-    <!-- klunga vid uttrycksrutan: visa/dölj, växla tecken, visa lösning -->
-    <button class="pearl-nav-btn" id="canvasBtnExprToggle" title="Visa/dölj uttrycket">𝑓</button>
-    <button class="pearl-nav-btn invert-right" id="canvasBtnInvert" title="Växla räknesätt + / −">+</button>
-    <button class="pearl-nav-btn" id="canvasBtnT2Sign" title="Växla tecken på andra termen (t.ex. 5 + 2 ↔ 5 + (−2))">±</button>
-    <button class="pearl-nav-btn" id="canvasBtnReveal" title="Visa lösning">👁</button>
+    <!-- klunga vid uttrycksrutan: växla räknesätt, växla termtecken, näbb — visa/dölj-uttryck och visa lösning flyttade till vänstermenyns Uttryck-kort -->
+    <button class="pearl-nav-btn pearl-nav-btn-lg invert-right" id="canvasBtnInvert" title="Växla räknesätt + / −">+</button>
+    <button class="pearl-nav-btn pearl-nav-btn-lg" id="canvasBtnT2Sign" title="Växla tecken på andra termen (t.ex. 5 + 2 ↔ 5 + (−2))">±</button>
     <button class="pearl-nav-btn pearl-nav-btn-lg" id="canvasBtnBeak" title="Visa/dölj näbben (riktningen)">👃</button>
   </div>
 
@@ -1193,12 +1193,12 @@ const S = {
   revealedPositions:[],
   facingRight:false,
   isDragging:false,     // true while the robot is being dragged
-  lockRange:false,      // when true, number line is fixed at LOCKED_RANGE (-12..12), no pan/zoom animation
-  placementMode:true,   // when true, the robot is hidden on every new expression until manually placed + given a direction
+  lockRange:true,       // when true, number line is fixed at LOCKED_RANGE (-12..12), no pan/zoom animation
+  placementMode:false,  // when true, the robot is hidden on every new expression until manually placed + given a direction
   needsPlacement:false, // true = robot hidden, waiting for a click on the number line to set its start position
   needsDirection:false, // true = robot placed but facing is neutral, waiting for a click to choose left/right
-  hideDirArrow:true,    // when true, the arrow above the head is skipped (usable in any mode, not just placeringsläge)
-  showBeak:true,        // when true, the head-nose/beak triangle reinforces facing direction (independent of the arrow)
+  hideDirArrow:false,   // when true, the arrow above the head is skipped (usable in any mode, not just placeringsläge)
+  showBeak:false,       // when true, the head-nose/beak triangle reinforces facing direction (independent of the arrow)
   smallSteps:true,      // when true, each hop is split into unit-sized steps ("små kliv") instead of one big sweep
   smallStepArcs:[],     // the little unit-arcs drawn when smallSteps is on (completedArcs stays per-leg for the total-label)
 };
@@ -1833,7 +1833,7 @@ function drawUtterance() {
 //  Clicking a dot sets the next preset in that category.
 // ═══════════════════════════════════════════════════════════════════
 const PEARL_COLORS = ['#18a348','#306BF0','#F4A261','#7c3aed','#EC6095'];
-const PEARL_Y = CH - 10;       // preset pearls near bottom
+const PEARL_Y = 292;           // preset pearls — några steg längre ner än start-etiketten (som ligger vid y≈264)
 const PEARL_R = 6;             // dot radius
 const PEARL_GAP = 10;           // gap between dots within a group
 const PEARL_GROUP_GAP = 25;    // gap between groups
@@ -2735,17 +2735,17 @@ function updateLeftToolbar() {
   // Expr toggle
   const exprActive = S.showExpr;
   btnToggleExpr.classList.toggle('active', exprActive);
-  ltBtnExpr.classList.toggle('expr-active', exprActive);
+  ltBtnExpr.classList.toggle('active', exprActive);
 
   // Invert operator
   updateInvertButton();   // updates btnInvertOp in float toolbar
   const facingRight = S.op === '+';
-  ltBtnInvert.className = 'pearl-nav-btn ' + (facingRight ? 'invert-right' : 'invert-left');
+  ltBtnInvert.className = 'pearl-nav-btn pearl-nav-btn-lg ' + (facingRight ? 'invert-right' : 'invert-left');
   ltBtnInvert.textContent = facingRight ? '+' : '−';
 
   // Andra termens tecken — samma teal/rosa-princip, men oberoende av räknesättet
   const t2Positive = S.t2 >= 0;
-  ltBtnT2Sign.className = 'pearl-nav-btn ' + (t2Positive ? 'invert-right' : 'invert-left');
+  ltBtnT2Sign.className = 'pearl-nav-btn pearl-nav-btn-lg ' + (t2Positive ? 'invert-right' : 'invert-left');
   ltBtnT2Sign.title = t2Positive
     ? 'Gör andra termen negativ (just nu ' + fmtNum(S.t2) + ')'
     : 'Gör andra termen positiv (just nu ' + fmtNum(S.t2) + ')';
@@ -3144,7 +3144,7 @@ document.getElementById('upbAdd').addEventListener('click', () => {
 });
 
 // Draw user saved pearls below the preset pearl band
-const USER_PEARL_Y = CH - 28;
+const USER_PEARL_Y = 274;      // egna pärlor — samma 18px-avstånd till PEARL_Y som förut
 let userPearlCanvasRects = [];
 
 function drawUserPearlBand() {
@@ -3934,10 +3934,14 @@ function positionPearlNavButtons() {
     btn.style.top  = y + 'px';
   });
 
-  // Klunga vid uttrycksrutan: visa/dölj, växla räknesätt, växla termtecken, visa lösning, näbb
-  const ey  = canvasOffsetTop + (exprBoxRect.y + exprBoxRect.h + 18) * sy;
-  const exs = [exprBoxRect.x + 14, exprBoxRect.x + 44, exprBoxRect.x + 74, exprBoxRect.x + 104, exprBoxRect.x + 140];
-  [ltBtnExpr, ltBtnInvert, ltBtnT2Sign, ltBtnReveal, ltBtnBeak].forEach((btn, i) => {
+  // Klunga vid uttrycksrutan: växla räknesätt, växla termtecken, näbb —
+  // centrerad under rutan (oavsett hur brett uttrycket råkar vara) med
+  // tätare avstånd så de känns hopsamlade.
+  const ey = canvasOffsetTop + (exprBoxRect.y + exprBoxRect.h + 20) * sy;
+  const clusterCx = exprBoxRect.x + exprBoxRect.w / 2;
+  const gap = 34;
+  const exs = [clusterCx - gap, clusterCx, clusterCx + gap];
+  [ltBtnInvert, ltBtnT2Sign, ltBtnBeak].forEach((btn, i) => {
     btn.style.left = (canvasOffsetLeft + exs[i] * sx) + 'px';
     btn.style.top  = ey + 'px';
   });
@@ -4564,7 +4568,7 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
 // ═══════════════════════════════════════════════════════════════════
 //  INSTÄLLNINGAR — sparas i localStorage så de finns kvar mellan sessioner
 // ═══════════════════════════════════════════════════════════════════
-const SETTINGS_KEY = 'tallinjeNegSettings_v2'; // v2: nya standardvärden (2026) — se INIT-kommentar
+const SETTINGS_KEY = 'tallinjeNegSettings_v3'; // v3: bara "små kliv" + "lås tallinje" aktiverade från start
 const SETTINGS_BOOL_KEYS = [
   'kangMode','lockRange','placementMode','hideDirArrow','showExpr',
   'showColorNumbers','showHints','showStepChain','showTotal',
