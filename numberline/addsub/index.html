@@ -113,6 +113,10 @@
   .pearl-nav-btn.invert-right:hover{ background:#66C7C2; color:#fff; }
   .pearl-nav-btn.invert-left{ color:#EC6095; border-color:#EC6095; background:#fff; }
   .pearl-nav-btn.invert-left:hover{ background:#EC6095; color:#fff; }
+  .pearl-nav-btn.term-positive{ color:#306BF0; border-color:#306BF0; background:#fff; }
+  .pearl-nav-btn.term-positive:hover{ background:#306BF0; color:#fff; }
+  .pearl-nav-btn.term-negative{ color:#E5484D; border-color:#E5484D; background:#fff; }
+  .pearl-nav-btn.term-negative:hover{ background:#E5484D; color:#fff; }
   .pearl-nav-btn.expr-active{ background:var(--accent2); border-color:var(--accent2); color:#fff; }
   .pearl-nav-btn.reveal-ready{ background:var(--accent2); border-color:var(--accent2); color:#fff; }
   .pearl-nav-btn.reveal-full{ background:#8B5CF6; border-color:#8B5CF6; color:#fff; }
@@ -777,6 +781,7 @@
     <button class="pearl-nav-btn bridge-reset" id="canvasBtnReset" title="Återställ uttrycket">↺</button>
 
     <!-- klunga vid uttrycksrutan: växla räknesätt, växla termtecken, näbb — visa/dölj-uttryck och visa lösning flyttade till vänstermenyns Uttryck-kort -->
+    <button class="pearl-nav-btn pearl-nav-btn-lg" id="canvasBtnT1Sign" title="Växla tecken på starttalet (t.ex. 5 ↔ −5)">±</button>
     <button class="pearl-nav-btn pearl-nav-btn-lg invert-right" id="canvasBtnInvert" title="Växla räknesätt + / −">+</button>
     <button class="pearl-nav-btn pearl-nav-btn-lg" id="canvasBtnT2Sign" title="Växla tecken på andra termen (t.ex. 5 + 2 ↔ 5 + (−2))">±</button>
     <button class="pearl-nav-btn pearl-nav-btn-lg" id="canvasBtnBeak" title="Visa/dölj näbben (riktningen)">👃</button>
@@ -914,6 +919,7 @@
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">S</kbd><span style="font-size:.82rem;color:var(--muted);">Små/stora kliv</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">N</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj näbben</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">T</kbd><span style="font-size:.82rem;color:var(--muted);">Växla tecken på andra termen</span>
+        <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">F</kbd><span style="font-size:.82rem;color:var(--muted);">Växla tecken på starttalet</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">+ / −</kbd><span style="font-size:.82rem;color:var(--muted);">Växla operator</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">U</kbd><span style="font-size:.82rem;color:var(--muted);">Uttalat uttryck</span>
         <kbd style="background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:.8rem;font-weight:700;box-shadow:0 2px 0 var(--border);">E</kbd><span style="font-size:.82rem;color:var(--muted);">Visa/dölj uttrycket</span>
@@ -2484,6 +2490,17 @@ function invertT2Sign() {
 const ltBtnT2Sign = document.getElementById('canvasBtnT2Sign');
 ltBtnT2Sign.addEventListener('click', invertT2Sign);
 
+// Växlar tecknet på STARTTALET (t1) — samma idé, men visar att
+// startpunkten kan variera fritt medan räknesätt och andra termen (och
+// alltså själva förflyttningen) hålls oförändrade. Extra tydligt ihop
+// med låst tallinje.
+function invertT1Sign() {
+  if (S.animating) return;
+  setExpr(-S.t1, S.op, S.t2, false);
+}
+const ltBtnT1Sign = document.getElementById('canvasBtnT1Sign');
+ltBtnT1Sign.addEventListener('click', invertT1Sign);
+
 function openExprEditor() {
   if (S.animating) return;
   const { sx, sy } = getCanvasScale();
@@ -2743,9 +2760,16 @@ function updateLeftToolbar() {
   ltBtnInvert.className = 'pearl-nav-btn pearl-nav-btn-lg ' + (facingRight ? 'invert-right' : 'invert-left');
   ltBtnInvert.textContent = facingRight ? '+' : '−';
 
-  // Andra termens tecken — samma teal/rosa-princip, men oberoende av räknesättet
+  // Termernas tecken — blå/röd (positiv/negativ), medvetet en annan färgprincip
+  // än räknesättets teal/rosa, så de tre knapparna inte smälter ihop visuellt.
+  const t1Positive = S.t1 >= 0;
+  ltBtnT1Sign.className = 'pearl-nav-btn pearl-nav-btn-lg ' + (t1Positive ? 'term-positive' : 'term-negative');
+  ltBtnT1Sign.title = t1Positive
+    ? 'Gör starttalet negativt (just nu ' + fmtNum(S.t1) + ')'
+    : 'Gör starttalet positivt (just nu ' + fmtNum(S.t1) + ')';
+
   const t2Positive = S.t2 >= 0;
-  ltBtnT2Sign.className = 'pearl-nav-btn pearl-nav-btn-lg ' + (t2Positive ? 'invert-right' : 'invert-left');
+  ltBtnT2Sign.className = 'pearl-nav-btn pearl-nav-btn-lg ' + (t2Positive ? 'term-positive' : 'term-negative');
   ltBtnT2Sign.title = t2Positive
     ? 'Gör andra termen negativ (just nu ' + fmtNum(S.t2) + ')'
     : 'Gör andra termen positiv (just nu ' + fmtNum(S.t2) + ')';
@@ -3934,14 +3958,14 @@ function positionPearlNavButtons() {
     btn.style.top  = y + 'px';
   });
 
-  // Klunga vid uttrycksrutan: växla räknesätt, växla termtecken, näbb —
-  // centrerad under rutan (oavsett hur brett uttrycket råkar vara) med
-  // tätare avstånd så de känns hopsamlade.
+  // Klunga vid uttrycksrutan: växla starttalets tecken, växla räknesätt,
+  // växla andra termens tecken, näbb — centrerad under rutan (oavsett hur
+  // brett uttrycket råkar vara) med tätare avstånd så de känns hopsamlade.
   const ey = canvasOffsetTop + (exprBoxRect.y + exprBoxRect.h + 20) * sy;
   const clusterCx = exprBoxRect.x + exprBoxRect.w / 2;
   const gap = 34;
-  const exs = [clusterCx - gap, clusterCx, clusterCx + gap];
-  [ltBtnInvert, ltBtnT2Sign, ltBtnBeak].forEach((btn, i) => {
+  const exs = [clusterCx - 1.5*gap, clusterCx - 0.5*gap, clusterCx + 0.5*gap, clusterCx + 1.5*gap];
+  [ltBtnT1Sign, ltBtnInvert, ltBtnT2Sign, ltBtnBeak].forEach((btn, i) => {
     btn.style.left = (canvasOffsetLeft + exs[i] * sx) + 'px';
     btn.style.top  = ey + 'px';
   });
@@ -4553,6 +4577,8 @@ cardModeC.addEventListener('click', () => { QZ.mode = 'C'; showScreen('level'); 
         e.preventDefault(); if (S.op !== '−') invertOperator(); break;
       case 't': case 'T':
         e.preventDefault(); invertT2Sign(); break;
+      case 'f': case 'F':
+        e.preventDefault(); invertT1Sign(); break;
       case 'u': case 'U':
         e.preventDefault();
         if (!S.showUtterance) { S.showUtterance=true; S.showFullUtterance=false; }
