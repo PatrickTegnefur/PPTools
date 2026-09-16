@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Bråktavla — Tegnefurs Matte</title>
 <meta name="description" content="Interaktiv bråktavla — utforska ekvivalenta bråk genom att klicka och dra rader.">
+<link rel="icon" type="image/jpeg" href="/brand/pt_logo.jpg">
+<link rel="apple-touch-icon" href="/brand/pt_logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Sora:wght@400;500;600&display=swap');
@@ -380,7 +382,7 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
   }
 
   function attachDrag(row, grip){
-    var pointerId = null, placeholder = null, startRect = null, startClientY = 0;
+    var pointerId = null, placeholder = null, startRect = null, cardRect = null, startClientY = 0;
 
     grip.addEventListener('pointerdown', function(e){
       e.preventDefault();
@@ -388,15 +390,19 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
       grip.setPointerCapture(pointerId);
       startClientY = e.clientY;
       startRect = row.getBoundingClientRect();
+      cardRect = wallCard.getBoundingClientRect();
 
       placeholder = document.createElement('div');
       placeholder.className = 'row-placeholder';
       placeholder.style.height = startRect.height + 'px';
       row.parentNode.insertBefore(placeholder, row);
 
-      row.style.position = 'fixed';
-      row.style.top = startRect.top + 'px';
-      row.style.left = startRect.left + 'px';
+      // OBS: position:fixed hade blivit fel här, eftersom panelens backdrop-filter
+      // gör panelen till "containing block" för fixed-positionerade barn (en CSS-särart).
+      // position:absolute mot den redan position:relative-satta panelen ger korrekt koordinater.
+      row.style.position = 'absolute';
+      row.style.top = (startRect.top - cardRect.top) + 'px';
+      row.style.left = (startRect.left - cardRect.left) + 'px';
       row.style.width = startRect.width + 'px';
       row.style.zIndex = '300';
       row.classList.add('dragging');
@@ -406,7 +412,7 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
     grip.addEventListener('pointermove', function(e){
       if(pointerId===null) return;
       var dy = e.clientY - startClientY;
-      row.style.top = (startRect.top + dy) + 'px';
+      row.style.top = (startRect.top - cardRect.top + dy) + 'px';
       repositionPlaceholder(e.clientY);
     });
 
