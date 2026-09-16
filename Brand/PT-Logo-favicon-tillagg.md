@@ -13,8 +13,8 @@ d.v.s. i en mapp `brand/` som ligger i roten av `patricktegnefur.github.io` (bre
 Klistras in i varje sidas/verktygs `<head>`, tillsammans med övriga meta-taggar:
 
 ```html
-<link rel="icon" type="image/jpeg" href="/brand/pt_logo.jpg">
-<link rel="apple-touch-icon" href="/brand/pt_logo.jpg">
+<link rel="icon" type="image/jpeg" href="/brand/pt_logo.ico">
+<link rel="apple-touch-icon" href="/brand/pt_logo.ico">
 ```
 
 - `rel="icon"` → flikikonen i webbläsaren
