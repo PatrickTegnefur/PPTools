@@ -196,7 +196,7 @@
   .worksheet-problem .wexpr{ white-space:nowrap; flex-shrink:0; }
   .worksheet-problem .wanswer-line{ flex:0 0 auto; width:60px; border-bottom:1.5px solid #100e28; align-self:flex-end; margin-bottom:3px; }
   .ws-work-space{
-    margin-top:10px; min-height:72px; border:1.5px dashed var(--border); border-radius:8px;
+    margin-top:10px; border:1.5px dashed var(--border); border-radius:8px;
     background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 19px, #e4e0f7 20px, #e4e0f7 21.5px, transparent 21.5px);
   }
   .ws-numline-row{ flex-direction:column; align-items:stretch; gap:2px; padding-bottom:22px; margin-bottom:6px; }
@@ -310,6 +310,11 @@
         <button type="button" class="ws-mode-btn ws-numline-type-btn" data-type="oppen" title="Tom linje med pilar — eleven placerar själv sina markeringar">Öppen</button>
       </div>
       <label id="wsWorkSpaceLabel" title="Lägger till ett linjerat fält under varje uppgift för stödberäkningar — färre uppgifter får då plats per utskrift"><input type="checkbox" id="wsWorkSpace"> 📝 Utrymme för uträkningar</label>
+      <div class="ws-mode-toggle" id="wsWorkSpaceSizeToggle" style="display:none;" title="Skalar utrymmet — varje uppgift får ändå automatiskt lite extra utifrån hur komplex den ser ut">
+        <button type="button" class="ws-mode-btn ws-work-size-btn" data-size="liten">Liten</button>
+        <button type="button" class="ws-mode-btn ws-work-size-btn active" data-size="mellan">Mellan</button>
+        <button type="button" class="ws-mode-btn ws-work-size-btn" data-size="stor">Stor</button>
+      </div>
     </div>
 
     <div class="ws-sidebar-actions">
@@ -1055,6 +1060,9 @@ const wsModeInteractive = document.getElementById('wsModeInteractive');
 const wsNumlineLabel    = document.getElementById('wsNumlineLabel');
 const wsNumlineToggle   = document.getElementById('wsNumlineToggle');
 const wsWorkSpace = document.getElementById('wsWorkSpace');
+const wsWorkSpaceSizeToggle = document.getElementById('wsWorkSpaceSizeToggle');
+const wsWorkSizeBtns = Array.from(document.querySelectorAll('.ws-work-size-btn'));
+let wsWorkSpaceSize = 'mellan'; // 'liten' | 'mellan' | 'stor' — övergripande skala ovanpå den automatiska komplexitetsanpassningen
 const wsIntNegBtns = Array.from(document.querySelectorAll('.ws-int-neg-btn'));
 const wsIntAddSubLevelBtns = Array.from(document.querySelectorAll('.ws-int-addsub-level-btn'));
 const wsIntMulLevelBtns    = Array.from(document.querySelectorAll('.ws-int-mul-level-btn'));
@@ -1205,6 +1213,26 @@ function buildProblemSet() {
   return list;
 }
 
+// Uppskattar hur mycket skrivutrymme en uppgift rimligen behöver, utifrån
+// hur många "delar" uttrycket faktiskt består av — fler termer, bråk och
+// särskilt nästlade uttryck (stort bråkstreck) väger tyngre än en enkel
+// heltalsaddition. wsWorkSpaceSize (Liten/Mellan/Stor) skalar sedan detta
+// som en övergripande justering ovanpå den automatiska anpassningen.
+function wsEstimateComplexity(parts) {
+  let score = 0;
+  parts.forEach(part => {
+    if (part.t === 'bigfrac') { score += 2.5; score += wsEstimateComplexity(part.top); score += wsEstimateComplexity(part.bottom); }
+    else if (part.t === 'frac') { score += 1.2; }
+    else { score += 0.6; }
+  });
+  return score;
+}
+function wsWorkSpaceHeight(p) {
+  const scale = { liten: 0.7, mellan: 1, stor: 1.5 }[wsWorkSpaceSize] || 1;
+  const base = 46 + wsEstimateComplexity(p.parts) * 13;
+  return Math.round(Math.max(46, Math.min(170, base)) * scale);
+}
+
 function renderWorksheet() {
   wsProblems = buildProblemSet();
   wsScoreEl.textContent = '';
@@ -1256,7 +1284,7 @@ function renderWorksheet() {
           ${wsProblemHTML(p)}<span>&nbsp;=</span>
           <span class="wanswer-line"></span>
         </div>
-        <div class="ws-work-space"></div>
+        <div class="ws-work-space" style="min-height:${wsWorkSpaceHeight(p)}px"></div>
       </div>` : `
       <div class="worksheet-problem">
         <span class="wnum">${i + 1}.</span>
@@ -1425,6 +1453,8 @@ function resetAllSettings() {
   wsAnswerKey.checked = true;
   wsNumlineToggle.checked = false;
   wsWorkSpace.checked = false;
+  wsWorkSpaceSizeToggle.style.display = 'none';
+  wsWorkSpaceSize = 'mellan'; resetButtonGroup(wsWorkSizeBtns);
 
   // Rubrik tillbaka till tom platshållare
   wsTitle.value = '';
@@ -1456,7 +1486,17 @@ wsAnswerKey.addEventListener('change', () => {
 });
 wsModePrint.addEventListener('click', applyPrintFamilyMode);
 wsNumlineToggle.addEventListener('change', applyPrintFamilyMode);
-wsWorkSpace.addEventListener('change', renderWorksheet);
+wsWorkSpace.addEventListener('change', () => {
+  wsWorkSpaceSizeToggle.style.display = wsWorkSpace.checked ? '' : 'none';
+  renderWorksheet();
+});
+wsWorkSizeBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    wsWorkSpaceSize = btn.dataset.size;
+    wsWorkSizeBtns.forEach(b => b.classList.toggle('active', b === btn));
+    renderWorksheet();
+  });
+});
 wsModeInteractive.addEventListener('click', () => setWorksheetMode('interactive'));
 wsIntNegBtns.forEach(btn => {
   btn.addEventListener('click', () => {
