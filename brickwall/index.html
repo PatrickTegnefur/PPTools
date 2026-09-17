@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Bråktavla — Tegnefurs Matte</title>
 <meta name="description" content="Interaktiv bråktavla — utforska ekvivalenta bråk genom att klicka och dra rader.">
-<link rel="icon" type="image/icon" href="/brand/pt_logo.ico">
-<link rel="apple-touch-icon" href="/brand/pt_logo.ico">
+<link rel="icon" type="image/jpeg" href="/brand/pt_logo.jpg">
+<link rel="apple-touch-icon" href="/brand/pt_logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Sora:wght@400;500;600&display=swap');
@@ -85,7 +85,7 @@ main{ position:relative; z-index:1; max-width: 1180px; margin: 0 auto; padding: 
 .wall-card{ padding: 22px 64px 26px 26px; position:relative; }
 
 .trace-line{ position:absolute; width:2px; z-index:5; pointer-events:none;
-  background: repeating-linear-gradient(to bottom, var(--accent) 0 7px, transparent 7px 14px);
+  background: repeating-linear-gradient(to bottom, var(--marker-color, var(--accent)) 0 7px, transparent 7px 14px);
   opacity:0.55; }
 
 /* Stående bråk */
@@ -99,11 +99,12 @@ main{ position:relative; z-index:1; max-width: 1180px; margin: 0 auto; padding: 
 .vfrac.vfrac-lg{ font-size:1.15rem; }
 .vfrac.vfrac-md{ font-size:0.95rem; }
 
-.toolbar{ display:flex; justify-content:flex-end; gap:8px; margin-bottom:18px; }
-.iconbtn{ width:40px; height:40px; border-radius:var(--radius-sm); border:1.5px solid var(--border);
-  background:var(--surface2); color:var(--accent); font-size:1.05rem; font-weight:700; cursor:pointer;
-  display:flex; align-items:center; justify-content:center; transition: transform 0.15s, box-shadow 0.15s; }
-.iconbtn:hover{ box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+.toolbar{ display:flex; justify-content:center; flex-wrap:wrap; gap:8px;
+  margin-top:20px; padding-top:16px; border-top:1.5px solid var(--border); }
+.iconbtn{ width:36px; height:36px; border-radius:var(--radius-sm); border:1.5px solid var(--border);
+  background:var(--surface2); color:var(--muted); font-size:0.98rem; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition: transform 0.15s, box-shadow 0.15s, color 0.15s; }
+.iconbtn:hover{ box-shadow: var(--shadow-sm); transform: translateY(-1px); color:var(--accent); }
 .iconbtn:active{ transform: translateY(0); }
 .iconbtn[aria-pressed="true"]{ background:var(--accent); color:#fff; border-color:var(--accent); }
 
@@ -134,14 +135,17 @@ main{ position:relative; z-index:1; max-width: 1180px; margin: 0 auto; padding: 
 
 .nl-marker{ position:absolute; top:50px; transform:translateX(-50%); transition: left 0.35s ease; }
 .nl-marker .nl-dot{ position:absolute; top:-8px; left:50%; transform:translate(-50%,0); width:17px; height:17px;
-  border-radius:50%; background:var(--accent); border:3px solid #fff; box-shadow: 0 2px 10px rgba(48,107,240,0.5); }
+  border-radius:50%; background:var(--marker-color, var(--accent)); border:3px solid #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
 .nl-marker .nl-tag{ position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
-  background:var(--surface); border:1.5px solid var(--accent); border-radius:var(--radius-sm);
+  background:var(--surface); border:1.5px solid var(--marker-color, var(--accent)); border-radius:var(--radius-sm);
   padding:8px 14px; display:flex; align-items:center; gap:10px; white-space:nowrap;
   box-shadow: var(--shadow-sm); }
-.nl-marker .nl-tag .nl-dec{ font-size:0.92rem; color:var(--muted); font-weight:600; }
+.nl-marker .nl-tag .nl-vals{ display:flex; flex-direction:column; gap:1px; }
+.nl-marker .nl-tag .nl-dec{ font-size:0.88rem; color:var(--muted); font-weight:600; }
+.nl-marker .nl-tag .nl-pct{ font-size:0.82rem; color:var(--marker-color, var(--accent)); font-weight:700; }
 .nl-marker .nl-tag::after{ content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
-  border:7px solid transparent; border-top-color:var(--accent); }
+  border:7px solid transparent; border-top-color:var(--marker-color, var(--accent)); }
 
 /* Bråktavlan */
 .wall{ display:flex; flex-direction:column; gap:6px; }
@@ -156,6 +160,8 @@ main{ position:relative; z-index:1; max-width: 1180px; margin: 0 auto; padding: 
 .tile:hover{ transform: translateY(-1px); }
 .tile.selected{ background: var(--accent); border-color: var(--accent); color:#fff;
   box-shadow: 0 3px 14px rgba(48,107,240,0.4); }
+.tile.selected.own-color{ background: var(--row-accent, var(--accent)); border-color: var(--row-accent, var(--accent));
+  box-shadow: 0 3px 14px rgba(0,0,0,0.3); }
 .tile.equivalent{ background: var(--accent2); border-color: var(--accent2); color:#fff;
   box-shadow: 0 3px 14px rgba(236,96,149,0.4); animation: pulse 0.9s ease-in-out infinite alternate; }
 @keyframes pulse{ from{ filter:brightness(1);} to{ filter:brightness(1.12);} }
@@ -174,10 +180,13 @@ dialog::backdrop{ background: rgba(16,14,40,0.38); backdrop-filter: blur(3px); }
 .dialog-card strong{ color:var(--text); }
 
 .gloss-table{ width:100%; border-collapse:separate; border-spacing:0 6px; }
-.gloss-table td{ background: var(--surface); padding:8px 14px; }
-.gloss-table td:first-child{ border-radius: var(--radius-sm) 0 0 var(--radius-sm); border-left:5px solid var(--row-color, var(--border)); width:64px; }
-.gloss-table td:last-child{ border-radius: 0 var(--radius-sm) var(--radius-sm) 0; text-align:right; }
-.gloss-table .dec{ font-weight:700; color:var(--accent); font-size:0.98rem; }
+.gloss-table td{ background: var(--surface); padding:8px 10px; vertical-align:middle; }
+.gloss-table td.frac-cell{ border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  border-left:5px solid var(--row-color, var(--border)); padding-left:12px; }
+.gloss-table td.eq{ color:var(--muted); font-weight:700; text-align:center; padding:8px 2px; }
+.gloss-table td.pct-cell{ border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding-right:14px; }
+.gloss-table .dec{ font-weight:700; color:var(--accent); font-size:0.98rem; white-space:nowrap; }
+.gloss-table .pct{ font-weight:700; color:var(--accent2); font-size:0.98rem; white-space:nowrap; }
 
 @media (max-width: 640px){
   .row-label{ width:78px; padding:5px 8px; }
@@ -202,15 +211,6 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
 
 <main>
   <section class="glass wall-card">
-    <div class="toolbar">
-      <button class="iconbtn" id="themeBtn" type="button" title="Växla mörkt bakgrundstema (PT Mörk)" aria-label="Växla mörkt bakgrundstema" aria-pressed="false">🌙</button>
-      <button class="iconbtn" id="helpBtn" type="button" title="Så här funkar bråktavlan" aria-label="Visa hjälp om hur bråktavlan funkar">?</button>
-      <button class="iconbtn" id="glossaryBtn" type="button" title="Stambråk & decimalform" aria-label="Visa lista över stambråk och deras decimalform" aria-pressed="false">🔢</button>
-      <button class="iconbtn" id="facitBtn" type="button" title="Facit: visar alla likvärdiga bråk automatiskt (klicka för övningsläge)" aria-label="Växla mellan facit och övningsläge" aria-pressed="true">🎯</button>
-      <button class="iconbtn" id="clearBtn" type="button" title="Nollställ markering" aria-label="Nollställ markering">✕</button>
-      <button class="iconbtn" id="resetOrderBtn" type="button" title="Återställ ordning" aria-label="Återställ ordning på raderna">↺</button>
-    </div>
-
     <div class="row nl-row" aria-hidden="true">
       <div class="row-tools" style="visibility:hidden"></div>
       <div class="row-label" style="visibility:hidden"></div>
@@ -224,6 +224,15 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
 
     <div id="traceLines"></div>
     <div class="wall" id="wall"></div>
+
+    <div class="toolbar">
+      <button class="iconbtn" id="themeBtn" type="button" title="Växla mörkt bakgrundstema (PT Mörk)" aria-label="Växla mörkt bakgrundstema" aria-pressed="false">🌙</button>
+      <button class="iconbtn" id="helpBtn" type="button" title="Så här funkar bråktavlan" aria-label="Visa hjälp om hur bråktavlan funkar">?</button>
+      <button class="iconbtn" id="glossaryBtn" type="button" title="Stambråk & decimalform" aria-label="Visa lista över stambråk och deras decimalform" aria-pressed="false">🔢</button>
+      <button class="iconbtn" id="facitBtn" type="button" title="Facit: visar alla likvärdiga bråk automatiskt (klicka för övningsläge)" aria-label="Växla mellan facit och övningsläge" aria-pressed="true">🎯</button>
+      <button class="iconbtn" id="clearBtn" type="button" title="Nollställ markering" aria-label="Nollställ markering">✕</button>
+      <button class="iconbtn" id="resetOrderBtn" type="button" title="Återställ ordning" aria-label="Återställ ordning på raderna">↺</button>
+    </div>
   </section>
 
   <footer>Tegnefurs Matte · PT Verktyg</footer>
@@ -306,6 +315,32 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
     return { text:'≈0,'+digits2+'…', exact:false };
   }
 
+  function percentInfo(k,n){
+    var g = gcd(k,n); k = k/g; n = n/g;
+    var numP = k*100;
+    var g2 = gcd(numP, n);
+    var pNum = numP/g2, pDen = n/g2;
+    if(pDen===1) return { text: pNum + ' %', exact:true };
+    var r2 = factorOut(pDen,2);
+    var r5 = factorOut(r2.n,5);
+    if(r5.n===1){
+      var maxPow = Math.max(r2.count, r5.count);
+      var mul2 = maxPow - r2.count, mul5 = maxPow - r5.count;
+      var scaled = pNum * Math.pow(2,mul2) * Math.pow(5,mul5);
+      var pow10 = Math.pow(10,maxPow);
+      var whole = Math.floor(scaled/pow10);
+      var fracPart = scaled - whole*pow10;
+      if(fracPart===0) return { text: whole+' %', exact:true };
+      var digits = String(fracPart);
+      while(digits.length < maxPow) digits = '0'+digits;
+      return { text: whole+','+digits+' %', exact:true };
+    }
+    var approxPct = (k/n)*100;
+    var truncated = Math.floor(approxPct*10)/10;
+    var parts = truncated.toFixed(1).split('.');
+    return { text:'≈'+parts[0]+','+parts[1]+' %', exact:false };
+  }
+
   function animateReorder(mutate){
     var rows = Array.prototype.slice.call(wallEl.querySelectorAll('.frow:not(.dragging)'));
     var first = {};
@@ -334,6 +369,7 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
     var t = (n-1)/(DENOMS.length-1);
     var base = gradientColor(t);
     var tint = lighten(base, 0.82);
+    row.style.setProperty('--row-accent', base);
 
     var tools = document.createElement('div');
     tools.className = 'row-tools';
@@ -486,7 +522,7 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
 
     rows.forEach(function(r){
       r.querySelectorAll('.tile').forEach(function(tile){
-        tile.classList.remove('selected','equivalent');
+        tile.classList.remove('selected','equivalent','own-color');
         tile.setAttribute('aria-pressed','false');
       });
     });
@@ -502,6 +538,7 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
             var tiles = r.querySelectorAll('.tile');
             for(var idx=0; idx<k; idx++){
               tiles[idx].classList.add(isOrigin ? 'selected' : 'equivalent');
+              if(isOrigin && !facitMode) tiles[idx].classList.add('own-color');
               tiles[idx].setAttribute('aria-pressed','true');
             }
           }
@@ -528,19 +565,24 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
       var tileEl = row.querySelectorAll('.tile')[sel.k-1];
       var tileRect = tileEl.getBoundingClientRect();
       var dec = decimalInfo(sel.k, sel.n);
+      var pctVal = percentInfo(sel.k, sel.n);
+      var rowColor = row.style.getPropertyValue('--row-accent');
 
       var pct = ((tileRect.right - zoneRect.left) / zoneRect.width) * 100;
 
       var marker = document.createElement('div');
       marker.className = 'nl-marker';
       marker.style.left = pct + '%';
+      if(!facitMode) marker.style.setProperty('--marker-color', rowColor);
       marker.innerHTML = '<div class="nl-tag">' + vfracHTML(sel.k, sel.n, 'vfrac-lg') +
-        '<span class="nl-dec">' + dec.text + '</span></div><div class="nl-dot"></div>';
+        '<span class="nl-vals"><span class="nl-dec">' + dec.text + '</span>' +
+        '<span class="nl-pct">' + pctVal.text + '</span></span></div><div class="nl-dot"></div>';
       nlMarkersEl.appendChild(marker);
 
       var x = tileRect.right - cardRect.left;
       var trace = document.createElement('div');
       trace.className = 'trace-line';
+      if(!facitMode) trace.style.setProperty('--marker-color', rowColor);
       trace.style.left = x + 'px';
       trace.style.top = dotY + 'px';
       trace.style.height = Math.max(0, bottomY - dotY) + 'px';
@@ -567,10 +609,16 @@ footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 2
     var html = '<tbody>';
     DENOMS.forEach(function(n){
       var dec = decimalInfo(1,n);
+      var pctVal = percentInfo(1,n);
       var t = (n-1)/(DENOMS.length-1);
       var base = gradientColor(t);
-      html += '<tr style="--row-color:'+base+'"><td>'+vfracHTML(1,n,'vfrac-md')+
-              '</td><td class="dec">'+dec.text+'</td></tr>';
+      html += '<tr style="--row-color:'+base+'">' +
+              '<td class="frac-cell">'+vfracHTML(1,n,'vfrac-md')+'</td>' +
+              '<td class="eq">=</td>' +
+              '<td class="dec">'+dec.text+'</td>' +
+              '<td class="eq">=</td>' +
+              '<td class="pct-cell pct">'+pctVal.text+'</td>' +
+              '</tr>';
     });
     html += '</tbody>';
     table.innerHTML = html;
