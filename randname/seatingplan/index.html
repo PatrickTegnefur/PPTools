@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Klassrumsplacering — PT Verktyg</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Sora:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #f6f4ff;
+      --surface:   #ffffff;
+      --surface2:  #eae6ff;
+      --border:    #ccc5f0;
+      --text:      #100e28;
+      --muted:     #585078;
+      --accent:    #306BF0;
+      --accent2:   #EC6095;
+      --gradient:  linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+      --correct:   #18a348;
+      --wrong:     #e02020;
+      --shadow:    rgba(48, 107, 240, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --cat: #3aada8;
+      --cat-dark: #2a827e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .ambient span { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.32; }
+    .ambient span:nth-child(1) { width: 420px; height: 420px; background: #66C7C2; top: -120px; left: -100px; }
+    .ambient span:nth-child(2) { width: 380px; height: 380px; background: #F4A261; top: 40%; right: -140px; }
+    .ambient span:nth-child(3) { width: 420px; height: 420px; background: #EC6095; bottom: -160px; left: 15%; }
+
+    header {
+      background: var(--gradient);
+      min-height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+    }
+    .back-link { color: #ffffff; text-decoration: none; font-size: 0.85rem; font-weight: 600; opacity: 0.9; }
+    .back-link:hover { opacity: 1; }
+    .nav-divider { width: 1.5px; height: 24px; background: rgba(255,255,255,0.35); border-radius: 2px; }
+    .nav-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: #ffffff; }
+    .nav-title span { font-size: 1.3rem; margin-right: 4px; }
+
+    main {
+      flex: 1;
+      padding: 32px 20px 56px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    button { font-family: 'Sora', sans-serif; cursor: pointer; border: none; }
+    button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn { border-radius: var(--radius-sm); padding: 10px 18px; font-size: 0.85rem; font-weight: 600; transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s; }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-primary { background: var(--cat); color: #fff; }
+    .btn-secondary { background: rgba(255,255,255,0.7); color: var(--text); border: 1.5px solid var(--border); }
+    .btn-ghost { background: transparent; color: var(--muted); padding: 8px 12px; font-size: 0.8rem; }
+    .btn-ghost:hover { color: var(--text); }
+    .btn-sm { padding: 8px 12px; font-size: 0.78rem; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    /* ── Topbar ── */
+    .topbar {
+      display: flex; align-items: stretch; gap: 10px;
+      background: rgba(255,255,255,0.5); backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.7); border-radius: var(--radius-md);
+      padding: 10px 14px; flex-wrap: wrap;
+    }
+    .select-group { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 120px; }
+    .select-group .eyebrow { font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+    .select-group select {
+      width: 100%; font-family: 'Sora', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--text);
+      background: rgba(255,255,255,0.9); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      padding: 8px 10px; cursor: pointer;
+    }
+    #settingsBtn { flex-shrink: 0; align-self: flex-end; }
+
+    /* ── Lägesväljare ── */
+    .mode-tabs {
+      display: flex; gap: 6px; background: rgba(255,255,255,0.5);
+      padding: 4px; border-radius: var(--radius-md); border: 1px solid var(--border);
+    }
+    .mode-tab {
+      flex: 1; text-align: center; padding: 11px 6px; border-radius: calc(var(--radius-md) - 3px);
+      font-size: 0.85rem; font-weight: 600; color: var(--muted); background: transparent;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    }
+    .mode-tab.active { background: var(--cat); color: #fff; box-shadow: 0 4px 14px rgba(58,173,168,0.35); }
+
+    .room-hint { font-size: 0.76rem; color: var(--muted); text-align: center; }
+
+    /* ── Arbetsyta: canvas + sidopanel ── */
+    .workspace { display: flex; gap: 16px; align-items: flex-start; }
+    .side-panel { width: 290px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 84px; }
+    @media (max-width: 900px) {
+      .workspace { flex-direction: column; }
+      .side-panel { width: 100%; position: static; }
+    }
+
+    .canvas-wrap {
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 10px 32px var(--shadow);
+      padding: 16px;
+      overflow: auto;
+      flex: 1;
+      min-width: 0;
+      max-height: 78vh;
+    }
+    .room-canvas {
+      position: relative;
+      background-image: radial-gradient(circle, var(--border) 1.5px, transparent 1.6px);
+      border-radius: var(--radius-md);
+    }
+    .room-empty { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 40px 12px; }
+
+    /* ── Bänkar ── */
+    .desk-el {
+      position: absolute;
+      width: 64px; height: 64px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      box-shadow: 0 2px 8px var(--shadow);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; color: var(--text);
+      text-align: center; line-height: 1.1; padding: 3px;
+      user-select: none; touch-action: none;
+    }
+    .desk-el .desk-chair {
+      position: absolute;
+      background: var(--cat-dark); border: 2px solid var(--surface);
+      box-shadow: 0 3px 6px rgba(16,14,40,0.25);
+      pointer-events: none; z-index: 1;
+    }
+    .desk-el.editable { cursor: grab; }
+    .desk-el.editable:active { cursor: grabbing; }
+    .desk-el.placeable { cursor: pointer; }
+    .desk-el.occupied { background: var(--surface2); }
+    .desk-el.armed-target { box-shadow: 0 0 0 3px var(--cat); }
+    .desk-el .desk-name { font-size: 0.68rem; word-break: break-word; }
+    .desk-el .desk-placeholder { color: var(--muted); font-weight: 400; font-size: 0.72rem; }
+
+    /* ── Markörer ── */
+    .marker-el { position: absolute; display: flex; align-items: center; justify-content: center; user-select: none; touch-action: none; }
+    .marker-visual { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+    .marker-text { font-size: 0.66rem; font-weight: 700; text-align: center; padding: 0 4px; }
+
+    .marker-whiteboard { background: #ffffff; border: 3px solid #b7bfc9; border-radius: 6px; box-shadow: 0 2px 6px var(--shadow); }
+    .marker-whiteboard .marker-text { color: var(--muted); }
+
+    .marker-clevertouch { background: #3c3f47; border: 3px solid #22242a; border-radius: 6px; }
+    .marker-clevertouch .marker-text { color: #e8e8ec; }
+    .marker-clevertouch::after { content: ''; position: absolute; inset: 5px; border: 1.5px solid #6c7078; border-radius: 3px; pointer-events: none; }
+
+    .marker-kateder { background: var(--cat); border: 3px solid var(--cat-dark); border-radius: 13px; box-shadow: 0 2px 8px var(--shadow); }
+    .marker-kateder .marker-text { color: #fff; }
+
+    .marker-dorr { background: transparent; }
+    .door-leaf { position: absolute; left: 2px; bottom: 2px; width: 6px; height: 78%; background: #a9744f; border-radius: 3px; }
+    .door-arc { position: absolute; left: 2px; bottom: 2px; width: 78%; height: 78%; border: 2px dashed var(--muted); border-left: none; border-bottom: none; border-radius: 0 100% 0 0; }
+
+    .marker-fonster { background: #dbeeff; border: 3px solid #7fb3e0; border-radius: 5px; }
+    .window-mullion { position: absolute; top: 2px; bottom: 2px; left: 50%; width: 2px; background: #7fb3e0; transform: translateX(-50%); }
+
+    .delete-badge, .rotate-badge {
+      position: absolute; width: 18px; height: 18px; color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; line-height: 1; z-index: 5; cursor: pointer;
+    }
+    .delete-badge { top: -7px; right: -7px; background: var(--wrong); }
+    .rotate-badge { top: -7px; left: -7px; background: var(--accent); }
+
+    /* ── Sidopanel: byggverktyg (redigeringsläge) ── */
+    .tool-panel, .pool-panel {
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 10px 32px var(--shadow);
+      padding: 16px 18px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .cluster-stepper { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+    .cluster-stepper .label { font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+    .cluster-stepper .controls { display: flex; align-items: center; gap: 6px; }
+    .cluster-stepper button {
+      width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.85);
+      border: 1.5px solid var(--border); font-weight: 700; color: var(--cat-dark);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cluster-stepper .value { font-family: 'Montserrat', sans-serif; font-weight: 700; min-width: 18px; text-align: center; font-size: 0.88rem; }
+
+    .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tool-card {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 10px 6px; border-radius: 12px; border: 1.5px solid var(--border);
+      background: rgba(255,255,255,0.75); transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .tool-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px var(--shadow); }
+    .tool-card .icon { font-size: 1.35rem; line-height: 1; }
+    .tool-card .swatch { width: 20px; height: 20px; border-radius: 6px; border-width: 2px; border-style: solid; }
+    .tool-card .label { font-size: 0.66rem; font-weight: 700; text-align: center; color: var(--text); }
+
+    /* ── Sidopanel: håll-banner + elevpool (placeringsläge) ── */
+    .armed-banner {
+      display: none; flex-direction: column; gap: 8px;
+      background: var(--surface2); border: 1.5px solid var(--cat); border-radius: var(--radius-md);
+      padding: 10px 12px; font-size: 0.82rem;
+    }
+    .armed-banner.show { display: flex; }
+    .armed-banner b { font-family: 'Montserrat', sans-serif; }
+    .armed-banner .cancel-row { display: flex; justify-content: flex-end; }
+
+    .pool-title { display: flex; justify-content: space-between; align-items: baseline; }
+    .pool-title .title { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.9rem; }
+    .pool-title .count { font-size: 0.76rem; color: var(--muted); }
+    .pool-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pool-chip {
+      font-size: 0.82rem; font-weight: 600; padding: 8px 14px; border-radius: 999px;
+      background: var(--surface2); border: 1.5px solid var(--border); color: var(--text);
+      cursor: pointer; user-select: none; transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s, background 0.12s, color 0.12s;
+    }
+    .pool-chip:hover { border-color: var(--cat); }
+    .pool-chip.armed { background: var(--cat); color: #fff; border-color: var(--cat); box-shadow: 0 4px 12px rgba(58,173,168,0.4); transform: translateY(-1px); }
+    .pool-empty-hint { font-size: 0.82rem; color: var(--muted); }
+    .pool-footer { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── Inställningsdrawer ── */
+    .drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(16, 14, 40, 0.32); z-index: 180; }
+    .drawer-backdrop.open { display: block; }
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; width: min(360px, 88vw);
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(20px);
+      box-shadow: -12px 0 40px rgba(16,14,40,0.2); z-index: 190; padding: 22px;
+      overflow-y: auto; transform: translateX(100%); transition: transform 0.28s ease;
+    }
+    .drawer-backdrop.open .drawer { transform: translateX(0); }
+    .drawer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .drawer-header h2 { font-family: 'Montserrat', sans-serif; font-size: 1.05rem; }
+    .drawer-close { background: transparent; font-size: 1.1rem; color: var(--muted); padding: 4px 8px; }
+    .panel-title { font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; color: var(--muted); margin: 18px 0 8px; }
+    .panel-title:first-of-type { margin-top: 0; }
+
+    .student-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip {
+      font-size: 0.82rem; font-weight: 600; padding: 7px 14px; border-radius: 999px;
+      background: rgba(255,255,255,0.8); border: 1.5px solid var(--border); color: var(--text);
+      cursor: pointer; user-select: none; transition: opacity 0.15s, border-color 0.15s;
+    }
+    .chip:hover { border-color: var(--cat); }
+    .chip.absent { opacity: 0.45; text-decoration: line-through; background: transparent; }
+    .chip-hint { font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
+    .empty-hint { color: var(--muted); font-size: 0.85rem; }
+
+    /* ── Modaler ── */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(16, 14, 40, 0.35); backdrop-filter: blur(4px);
+      z-index: 200; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+      border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.9);
+      padding: 26px; width: 100%; max-width: 420px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(16,14,40,0.25);
+    }
+    .modal h2 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; margin-bottom: 4px; }
+    .modal p.hint { color: var(--muted); font-size: 0.8rem; margin-bottom: 16px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .field input[type="text"], .field textarea {
+      width: 100%; font-family: 'Sora', sans-serif; font-size: 0.9rem; padding: 10px 12px;
+      border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: #fff; color: var(--text);
+    }
+    .field textarea { min-height: 130px; resize: vertical; line-height: 1.5; }
+    .saved-list { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .saved-list-title { font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+    .saved-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: var(--radius-sm); font-size: 0.85rem; }
+    .saved-item:hover { background: var(--surface2); }
+    .saved-item-actions { display: flex; gap: 4px; }
+    .icon-btn { background: transparent; font-size: 0.9rem; padding: 4px 7px; border-radius: 6px; }
+    .icon-btn:hover { background: rgba(0,0,0,0.06); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+    footer { text-align: center; padding: 22px; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pool-chip, .btn, .desk-el, .tool-card { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient"><span></span><span></span><span></span></div>
+
+  <header>
+    <a class="back-link" href="../index.html">← Verktygsbanken</a>
+    <div class="nav-divider"></div>
+    <div class="nav-title"><span>🪑</span>Klassrumsplacering</div>
+  </header>
+
+  <main>
+    <div class="topbar">
+      <div class="select-group">
+        <span class="eyebrow">Klass</span>
+        <select id="classSelect"></select>
+      </div>
+      <div class="select-group">
+        <span class="eyebrow">Rum</span>
+        <select id="roomSelect"></select>
+      </div>
+      <button class="btn btn-secondary" id="exportBtn" title="Exportera som bild">🖼️ Exportera</button>
+      <button class="btn btn-secondary" id="settingsBtn">⚙️</button>
+    </div>
+
+    <div class="mode-tabs">
+      <button type="button" class="mode-tab active" id="modeEditBtn">🛠 Redigera rum</button>
+      <button type="button" class="mode-tab" id="modePlaceBtn">🧑‍🎓 Placera elever</button>
+    </div>
+    <p class="room-hint">Dra ett föremål för att flytta det på det finmaskiga rutnätet. Rotera bänkar, dörrar, fönster m.m. med ⟳-knappen — bänkens stol flyttar sig runt bänken så att namnet alltid går att läsa rakt.</p>
+
+    <div class="workspace">
+      <div class="side-panel">
+        <div class="tool-panel" id="toolPanel">
+          <button class="btn btn-secondary" id="standardLayoutBtn" style="width:100%;">📐 Standardlayout (3×2, 5 rader)</button>
+          <div class="cluster-stepper">
+            <span class="label">Klusterstorlek</span>
+            <div class="controls">
+              <button type="button" id="clusterDown">−</button>
+              <span class="value" id="clusterValue">2</span>
+              <button type="button" id="clusterUp">+</button>
+            </div>
+          </div>
+          <div class="tool-grid" id="toolGrid"></div>
+        </div>
+
+        <div class="pool-panel" id="poolPanel" style="display:none;">
+          <div class="armed-banner" id="armedBanner">
+            <span>🖐️ Håller: <b id="armedName"></b> — klicka på en bänk.</span>
+            <div class="cancel-row"><button class="btn btn-ghost btn-sm" id="cancelArmBtn">✕ Avbryt</button></div>
+          </div>
+          <div class="pool-title">
+            <span class="title">Att placera</span>
+            <span class="count" id="poolCount"></span>
+          </div>
+          <div class="pool-chips" id="poolChips"></div>
+          <p class="pool-empty-hint" id="poolEmptyHint" style="display:none;"></p>
+          <div class="pool-footer">
+            <button class="btn btn-primary" id="randomizeBtn">🎲 Slumpa placering</button>
+            <button class="btn btn-secondary" id="clearSeatingBtn">Rensa placering</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="canvas-wrap">
+        <div class="room-canvas" id="roomCanvas"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>Patrick Tegnefur · PT Verktyg</footer>
+
+  <div class="drawer-backdrop" id="drawerBackdrop">
+    <div class="drawer" id="drawer" role="dialog" aria-label="Klass, rum och närvaro">
+      <div class="drawer-header">
+        <h2>Klass, rum &amp; närvaro</h2>
+        <button class="drawer-close" id="drawerClose">✕</button>
+      </div>
+
+      <div class="panel-title">KLASS</div>
+      <button class="btn btn-secondary" id="manageClassBtn" style="width:100%;">Hantera klasser</button>
+
+      <div class="panel-title">NÄRVARO IDAG</div>
+      <div id="studentSection">
+        <div class="student-chips" id="studentChips"></div>
+        <p class="chip-hint" id="chipHint" style="display:none;">Klicka på en elev för att markera som frånvarande idag (påverkar bara elevpoolen, inte sparade placeringar).</p>
+      </div>
+      <p class="empty-hint" id="noClassHint">Ingen klass vald ännu.</p>
+
+      <div class="panel-title">RUM</div>
+      <button class="btn btn-secondary" id="manageRoomBtn" style="width:100%;">Hantera rum</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="classModalBackdrop">
+    <div class="modal">
+      <h2 id="classModalHeading">Ny klass</h2>
+      <p class="hint">Ett namn per rad i listan nedan.</p>
+      <div class="field">
+        <label for="classNameInput">Klassnamn</label>
+        <input type="text" id="classNameInput" placeholder="t.ex. 7A" />
+      </div>
+      <div class="field">
+        <label for="classStudentsInput">Elever</label>
+        <textarea id="classStudentsInput" placeholder="Anna&#10;Erik&#10;Fatima&#10;..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="cancelClassEditBtn">Avbryt</button>
+        <button class="btn btn-primary" id="saveClassBtn">Spara klass</button>
+      </div>
+      <div class="saved-list">
+        <div class="saved-list-title">SPARADE KLASSER</div>
+        <div id="savedClassesList"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="closeClassModalBtn">Klar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="roomModalBackdrop">
+    <div class="modal">
+      <h2>Hantera rum</h2>
+      <p class="hint">Ett rum innehåller bänkarnas layout. Samma rum kan återanvändas för flera klasser.</p>
+      <div class="field">
+        <label for="roomNameInput" id="roomNameLabel">Nytt rum</label>
+        <input type="text" id="roomNameInput" placeholder="t.ex. Sal 214" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="cancelRoomEditBtn" style="display:none;">Avbryt</button>
+        <button class="btn btn-primary" id="createRoomBtn">Skapa rum</button>
+      </div>
+      <div class="saved-list">
+        <div class="saved-list-title">SPARADE RUM</div>
+        <div id="savedRoomsList"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="closeRoomModalBtn">Klar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="confirmModalBackdrop">
+    <div class="modal" style="max-width:360px;">
+      <h2>Bekräfta</h2>
+      <p class="hint" id="confirmModalText" style="margin-bottom:20px;"></p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="confirmModalCancel">Avbryt</button>
+        <button class="btn btn-primary" id="confirmModalOk" style="background:var(--wrong);">Ta bort</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'pt-klasslistor';
+    const ACTIVE_KEY = 'pt-aktiv-klass-id';
+    const ROOMS_KEY = 'pt-klassrum-rum';
+    const ACTIVE_ROOM_KEY = 'pt-aktiv-rum-id';
+    const SEATINGS_KEY = 'pt-klassrum-placeringar';
+
+    const DESK = 64;        // bänkens/kateders sida i px
+    const SNAP = 16;        // rutnätets finhet i px (både bakgrundsprickar och dragsnäpp)
+    const CANVAS_W = 2200;  // rummets totala bredd i px
+    const CANVAS_H = 1150;  // rummets totala höjd i px
+    const GROUP_COLORS = ['#306BF0', '#EC6095', '#F4A261', '#8b5cf6', '#14b8a6', '#e0a800'];
+    const STANDARD_COLOR = '#7c8494';
+
+    const MARKER_SIZE = {
+      whiteboard:  { w: DESK * 2.1,  h: DESK * 0.42 },
+      clevertouch: { w: DESK * 2.35, h: DESK * 0.38 },
+      kateder:     { w: DESK,        h: DESK },
+      dorr:        { w: DESK * 0.85, h: DESK * 0.85 },
+      fonster:     { w: DESK * 1.3,  h: DESK * 0.32 },
+    };
+    const MARKER_LABEL = { whiteboard: 'Whiteboard', clevertouch: 'Clevertouch', kateder: 'Kateder' };
+    const ROTATABLE_MARKER = { dorr: true, fonster: true, whiteboard: true, clevertouch: true };
+
+    const TOOL_DEFS = [
+      { key: 'desk',        label: 'Enskild bänk', icon: '🪑',  swatch: 'var(--surface)',  border: 'var(--border)' },
+      { key: 'cluster',     label: 'Bänkkluster',  icon: '🪑',  swatch: 'var(--surface)',  border: GROUP_COLORS[0] },
+      { key: 'kateder',     label: 'Kateder',      icon: '🧑‍🏫', swatch: 'var(--cat)',      border: 'var(--cat-dark)' },
+      { key: 'whiteboard',  label: 'Whiteboard',   icon: '📝',  swatch: '#ffffff',         border: '#b7bfc9' },
+      { key: 'clevertouch', label: 'Clevertouch',  icon: '🖥️',  swatch: '#3c3f47',         border: '#22242a' },
+      { key: 'dorr',        label: 'Dörr',         icon: '🚪',  swatch: '#a9744f',         border: '#8a5c3d' },
+      { key: 'fonster',     label: 'Fönster',      icon: '🪟',  swatch: '#dbeeff',         border: '#7fb3e0' },
+    ];
+
+    function loadJSON(key, fallback) {
+      try { const v = JSON.parse(localStorage.getItem(key)); return v || fallback; }
+      catch (e) { return fallback; }
+    }
+    function saveJSON(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+    function nyttId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+    // Egen bekräftelsedialog istället för webbläsarens confirm() — fungerar pålitligt
+    // oavsett var sidan är inbäddad (native dialoger kan annars blockeras tyst).
+    let confirmCallback = null;
+    const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
+    const confirmModalText = document.getElementById('confirmModalText');
+    function showConfirm(text, onOk) {
+      confirmModalText.textContent = text;
+      confirmCallback = onOk;
+      confirmModalBackdrop.classList.add('open');
+    }
+    document.getElementById('confirmModalCancel').addEventListener('click', () => {
+      confirmModalBackdrop.classList.remove('open'); confirmCallback = null;
+    });
+    document.getElementById('confirmModalOk').addEventListener('click', () => {
+      confirmModalBackdrop.classList.remove('open');
+      const cb = confirmCallback; confirmCallback = null;
+      if (cb) cb();
+    });
+    confirmModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === confirmModalBackdrop) { confirmModalBackdrop.classList.remove('open'); confirmCallback = null; }
+    });
+
+    let klasser = loadJSON(STORAGE_KEY, []);
+    let aktivKlassId = localStorage.getItem(ACTIVE_KEY) || (klasser[0] && klasser[0].id) || null;
+    let franvarande = new Set();
+    let redigerarKlassId = null;
+
+    let rum = loadJSON(ROOMS_KEY, []);
+    let aktivRumId = localStorage.getItem(ACTIVE_ROOM_KEY) || (rum[0] && rum[0].id) || null;
+    let placeringar = loadJSON(SEATINGS_KEY, []);
+
+    let mode = 'edit';
+    let clusterSize = 2;
+    let armed = null;
+
+    function saveKlasser() { saveJSON(STORAGE_KEY, klasser); }
+    function saveRum() { saveJSON(ROOMS_KEY, rum); }
+    function savePlaceringar() { saveJSON(SEATINGS_KEY, placeringar); }
+
+    function aktivKlass() { return klasser.find(k => k.id === aktivKlassId) || null; }
+    function aktivRum() { return rum.find(r => r.id === aktivRumId) || null; }
+    function narvarandeElever() {
+      const k = aktivKlass();
+      if (!k) return [];
+      return k.elever.filter(e => !franvarande.has(e.id));
+    }
+
+    function currentSeatingEntry() {
+      return placeringar.find(p => p.roomId === aktivRumId && p.klassId === aktivKlassId) || null;
+    }
+    function currentAssignments() {
+      const s = currentSeatingEntry();
+      return s ? s.assignments : {};
+    }
+    function mutateAssignments(fn) {
+      let s = currentSeatingEntry();
+      if (!s) { s = { id: nyttId(), roomId: aktivRumId, klassId: aktivKlassId, assignments: {} }; placeringar.push(s); }
+      fn(s.assignments);
+      savePlaceringar();
+    }
+
+    const classSelect = document.getElementById('classSelect');
+    const roomSelect = document.getElementById('roomSelect');
+    const modeEditBtn = document.getElementById('modeEditBtn');
+    const modePlaceBtn = document.getElementById('modePlaceBtn');
+    const toolPanel = document.getElementById('toolPanel');
+    const toolGrid = document.getElementById('toolGrid');
+    const clusterValue = document.getElementById('clusterValue');
+    const armedBanner = document.getElementById('armedBanner');
+    const armedName = document.getElementById('armedName');
+    const roomCanvas = document.getElementById('roomCanvas');
+    const poolPanel = document.getElementById('poolPanel');
+    const poolChips = document.getElementById('poolChips');
+    const poolCount = document.getElementById('poolCount');
+    const poolEmptyHint = document.getElementById('poolEmptyHint');
+
+    const studentChips = document.getElementById('studentChips');
+    const chipHint = document.getElementById('chipHint');
+    const noClassHint = document.getElementById('noClassHint');
+
+    function renderClassSelect() {
+      classSelect.innerHTML = '';
+      if (klasser.length === 0) {
+        const opt = document.createElement('option');
+        opt.textContent = 'Inga klasser sparade';
+        classSelect.appendChild(opt); classSelect.disabled = true; return;
+      }
+      classSelect.disabled = false;
+      klasser.forEach(k => {
+        const opt = document.createElement('option');
+        opt.value = k.id; opt.textContent = `${k.namn} (${k.elever.length})`;
+        if (k.id === aktivKlassId) opt.selected = true;
+        classSelect.appendChild(opt);
+      });
+    }
+    function renderRoomSelect() {
+      roomSelect.innerHTML = '';
+      if (rum.length === 0) {
+        const opt = document.createElement('option');
+        opt.textContent = 'Inga rum sparade';
+        roomSelect.appendChild(opt); roomSelect.disabled = true; return;
+      }
+      roomSelect.disabled = false;
+      rum.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id; opt.textContent = `${r.namn} (${r.desks.length} bänkar)`;
+        if (r.id === aktivRumId) opt.selected = true;
+        roomSelect.appendChild(opt);
+      });
+    }
+
+    classSelect.addEventListener('change', () => {
+      aktivKlassId = classSelect.value;
+      localStorage.setItem(ACTIVE_KEY, aktivKlassId);
+      franvarande.clear(); armed = null;
+      renderStudentChips(); renderAll();
+    });
+    roomSelect.addEventListener('change', () => {
+      aktivRumId = roomSelect.value;
+      localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId);
+      armed = null; renderAll();
+    });
+
+    modeEditBtn.addEventListener('click', () => { mode = 'edit'; armed = null; syncModeUI(); renderAll(); });
+    modePlaceBtn.addEventListener('click', () => { mode = 'place'; syncModeUI(); renderAll(); });
+    function syncModeUI() {
+      modeEditBtn.classList.toggle('active', mode === 'edit');
+      modePlaceBtn.classList.toggle('active', mode === 'place');
+      toolPanel.style.display = mode === 'edit' ? 'flex' : 'none';
+      poolPanel.style.display = mode === 'place' ? 'flex' : 'none';
+    }
+
+    document.getElementById('clusterDown').addEventListener('click', () => {
+      clusterSize = Math.max(2, clusterSize - 1); clusterValue.textContent = clusterSize;
+    });
+    document.getElementById('clusterUp').addEventListener('click', () => {
+      clusterSize = Math.min(8, clusterSize + 1); clusterValue.textContent = clusterSize;
+    });
+
+    /* ── Bygg verktygsgridet ── */
+    function renderToolGrid() {
+      toolGrid.innerHTML = '';
+      TOOL_DEFS.forEach(def => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'tool-card';
+        card.innerHTML = `
+          <span class="icon">${def.icon}</span>
+          <span class="swatch" style="background:${def.swatch};border-color:${def.border};"></span>
+          <span class="label">${def.label}</span>`;
+        card.addEventListener('click', () => handleToolClick(def.key));
+        toolGrid.appendChild(card);
+      });
+    }
+    function handleToolClick(key) {
+      if (key === 'desk') addDesk();
+      else if (key === 'cluster') addCluster();
+      else addMarker(key);
+    }
+
+    /* ── Placera nya föremål: kaskad i övre vänstra hörnet ── */
+    function nextSpawnPoint(r) {
+      const idx = (r.desks.length + r.markers.length) % 9;
+      const perRow = 3;
+      const col = idx % perRow, row = Math.floor(idx / perRow);
+      const x = 45 + col * 42;
+      const y = 45 + row * 42;
+      return { x, y };
+    }
+
+    function addDesk() {
+      const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      const p = nextSpawnPoint(r);
+      r.desks.push({ id: nyttId(), x: p.x, y: p.y, rot: 0, clusterId: null });
+      saveRum(); renderCanvas(); renderRoomSelect();
+    }
+    function addCluster() {
+      const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      const p = nextSpawnPoint(r);
+      const existing = new Set(r.desks.filter(d => d.clusterId).map(d => d.clusterId));
+      const color = GROUP_COLORS[existing.size % GROUP_COLORS.length];
+      const clusterId = nyttId();
+      for (let i = 0; i < clusterSize; i++) {
+        r.desks.push({ id: nyttId(), x: Math.min(p.x + i * 74, CANVAS_W - DESK), y: p.y, rot: 0, clusterId, color });
+      }
+      saveRum(); renderCanvas(); renderRoomSelect();
+    }
+    function addMarker(typ) {
+      const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      const p = nextSpawnPoint(r);
+      r.markers.push({ id: nyttId(), x: p.x, y: p.y, typ, rot: 0 });
+      saveRum(); renderCanvas();
+    }
+
+    // Standardlayout: 3 kolumner med bänkpar, upprepat över 5 rader (30 bänkar totalt).
+    // Alla bänkar får en och samma neutrala, solida gråton för bästa läsbarhet.
+    function applyStandardLayout() {
+      const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      const build = () => {
+        const gapInPair = 8, colGap = 50, rowGap = 36;
+        const pairW = DESK * 2 + gapInPair;
+        const x0 = 220, y0 = 200;
+        const desks = [];
+        for (let row = 0; row < 5; row++) {
+          for (let col = 0; col < 3; col++) {
+            const clusterId = nyttId();
+            const colX = x0 + col * (pairW + colGap);
+            const y = y0 + row * (DESK + rowGap);
+            desks.push({ id: nyttId(), x: colX + DESK / 2, y, rot: 0, clusterId, color: STANDARD_COLOR });
+            desks.push({ id: nyttId(), x: colX + DESK + gapInPair + DESK / 2, y, rot: 0, clusterId, color: STANDARD_COLOR });
+          }
+        }
+        r.desks = desks;
+        saveRum();
+        placeringar.forEach(p => { if (p.roomId === aktivRumId) p.assignments = {}; });
+        savePlaceringar();
+        renderCanvas(); renderRoomSelect(); renderPool();
+      };
+      if (r.desks.length > 0) {
+        showConfirm('Det här ersätter alla bänkar i rummet med standardlayouten (3 kolumner × 5 rader, bänkar i par). Fortsätta?', build);
+      } else {
+        build();
+      }
+    }
+    document.getElementById('standardLayoutBtn').addEventListener('click', applyStandardLayout);
+
+    function deleteDesk(deskId) {
+      const r = aktivRum(); if (!r) return;
+      r.desks = r.desks.filter(d => d.id !== deskId);
+      saveRum();
+      placeringar.forEach(p => { if (p.roomId === aktivRumId) delete p.assignments[deskId]; });
+      savePlaceringar();
+      renderCanvas(); renderRoomSelect(); renderPool();
+    }
+    function deleteMarker(markerId) {
+      const r = aktivRum(); if (!r) return;
+      r.markers = r.markers.filter(m => m.id !== markerId);
+      saveRum(); renderCanvas();
+    }
+
+    function makeDraggable(el, item, boxW, boxH, onDrop) {
+      el.addEventListener('pointerdown', (e) => {
+        if (mode !== 'edit') return;
+        if (e.target.closest('.delete-badge') || e.target.closest('.rotate-badge')) return;
+        e.preventDefault();
+        el.setPointerCapture(e.pointerId);
+        const rect = roomCanvas.getBoundingClientRect();
+        let x = item.x, y = item.y;
+        function onMove(ev) {
+          const px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+          x = Math.max(boxW / 2, Math.min(CANVAS_W - boxW / 2, Math.round(px / SNAP) * SNAP));
+          y = Math.max(boxH / 2, Math.min(CANVAS_H - boxH / 2, Math.round(py / SNAP) * SNAP));
+          el.style.left = (x - boxW / 2) + 'px';
+          el.style.top = (y - boxH / 2) + 'px';
+        }
+        function onUp() {
+          el.releasePointerCapture(e.pointerId);
+          el.removeEventListener('pointermove', onMove);
+          el.removeEventListener('pointerup', onUp);
+          item.x = x; item.y = y;
+          onDrop();
+        }
+        el.addEventListener('pointermove', onMove);
+        el.addEventListener('pointerup', onUp);
+      });
+    }
+
+    // Stolens läge runt bänken beroende på rotation — själva bänken roterar aldrig,
+    // så namnet på den är alltid rakt och läsbart.
+    function applyChairStyle(chair, rot) {
+      chair.style.left = chair.style.right = chair.style.top = chair.style.bottom = 'auto';
+      if (rot === 90) {
+        Object.assign(chair.style, { right: '-11px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '32px', borderRadius: '0 10px 10px 0' });
+      } else if (rot === 180) {
+        Object.assign(chair.style, { left: '50%', top: '-11px', transform: 'translateX(-50%)', width: '32px', height: '16px', borderRadius: '10px 10px 0 0' });
+      } else if (rot === 270) {
+        Object.assign(chair.style, { left: '-11px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '32px', borderRadius: '10px 0 0 10px' });
+      } else {
+        Object.assign(chair.style, { left: '50%', bottom: '-11px', transform: 'translateX(-50%)', width: '32px', height: '16px', borderRadius: '0 0 10px 10px' });
+      }
+    }
+
+    function renderCanvas() {
+      roomCanvas.innerHTML = '';
+      const r = aktivRum();
+      if (!r) {
+        roomCanvas.style.width = '100%'; roomCanvas.style.height = '160px'; roomCanvas.style.backgroundSize = '';
+        roomCanvas.innerHTML = '<div class="room-empty">Inget rum skapat än — öppna ⚙️ och skapa ett under "Hantera rum".</div>';
+        return;
+      }
+      roomCanvas.style.width = CANVAS_W + 'px';
+      roomCanvas.style.height = CANVAS_H + 'px';
+      roomCanvas.style.backgroundSize = SNAP + 'px ' + SNAP + 'px';
+
+      const assignments = currentAssignments();
+      const klass = aktivKlass();
+
+      r.markers.forEach(m => {
+        const size = MARKER_SIZE[m.typ];
+        const el = document.createElement('div');
+        el.className = 'marker-el';
+        el.style.width = size.w + 'px'; el.style.height = size.h + 'px';
+        el.style.left = (m.x - size.w / 2) + 'px'; el.style.top = (m.y - size.h / 2) + 'px';
+
+        const visual = document.createElement('div');
+        visual.className = 'marker-visual marker-' + m.typ;
+        visual.style.transform = `rotate(${m.rot || 0}deg)`;
+        if (m.typ === 'dorr') visual.innerHTML = '<div class="door-leaf"></div><div class="door-arc"></div>';
+        else if (m.typ === 'fonster') visual.innerHTML = '<div class="window-mullion"></div>';
+        else visual.innerHTML = `<span class="marker-text">${MARKER_LABEL[m.typ] || ''}</span>`;
+        el.appendChild(visual);
+
+        if (mode === 'edit') {
+          const del = document.createElement('div');
+          del.className = 'delete-badge'; del.textContent = '✕';
+          del.addEventListener('pointerdown', e => e.stopPropagation());
+          del.addEventListener('click', e => { e.stopPropagation(); deleteMarker(m.id); });
+          el.appendChild(del);
+          if (ROTATABLE_MARKER[m.typ]) {
+            const rot = document.createElement('div');
+            rot.className = 'rotate-badge'; rot.textContent = '⟳';
+            rot.addEventListener('pointerdown', e => e.stopPropagation());
+            rot.addEventListener('click', e => { e.stopPropagation(); m.rot = ((m.rot || 0) + 90) % 360; saveRum(); renderCanvas(); });
+            el.appendChild(rot);
+          }
+          makeDraggable(el, m, size.w, size.h, () => saveRum());
+        }
+        roomCanvas.appendChild(el);
+      });
+
+      r.desks.forEach(d => {
+        const elevId = assignments[d.id];
+        const elev = elevId && klass ? klass.elever.find(e => e.id === elevId) : null;
+        const el = document.createElement('div');
+        el.className = 'desk-el' + (elev ? ' occupied' : '') +
+          (mode === 'edit' ? ' editable' : '') + (mode === 'place' ? ' placeable' : '');
+        if (armed && armed.source !== 'desk' && !elev) el.classList.add('armed-target');
+        el.style.left = (d.x - DESK / 2) + 'px'; el.style.top = (d.y - DESK / 2) + 'px';
+        if (d.color) {
+          el.style.borderColor = 'rgba(255,255,255,0.75)';
+          el.style.borderWidth = '2px';
+          el.style.background = d.color;
+        } else {
+          el.style.borderColor = 'var(--border)';
+          el.style.borderWidth = '2px';
+        }
+
+        const chair = document.createElement('div');
+        chair.className = 'desk-chair';
+        applyChairStyle(chair, d.rot || 0);
+        el.appendChild(chair);
+
+        const content = document.createElement('div');
+        if (elev) { content.className = 'desk-name'; content.textContent = elev.namn; }
+        else { content.className = 'desk-placeholder'; content.textContent = '—'; }
+        if (d.color) content.style.color = '#ffffff';
+        el.appendChild(content);
+
+        if (mode === 'edit') {
+          const del = document.createElement('div');
+          del.className = 'delete-badge'; del.textContent = '✕';
+          del.addEventListener('pointerdown', e => e.stopPropagation());
+          del.addEventListener('click', e => { e.stopPropagation(); deleteDesk(d.id); });
+          el.appendChild(del);
+
+          const rot = document.createElement('div');
+          rot.className = 'rotate-badge'; rot.textContent = '⟳';
+          rot.addEventListener('pointerdown', e => e.stopPropagation());
+          rot.addEventListener('click', e => { e.stopPropagation(); d.rot = ((d.rot || 0) + 90) % 360; saveRum(); renderCanvas(); });
+          el.appendChild(rot);
+
+          makeDraggable(el, d, DESK, DESK, () => saveRum());
+        } else {
+          el.addEventListener('click', () => handleDeskClick(d.id));
+        }
+        roomCanvas.appendChild(el);
+      });
+    }
+
+    function handleDeskClick(deskId) {
+      mutateAssignments(a => {
+        const occupant = a[deskId];
+        if (!armed) {
+          if (occupant) { armed = { source: 'desk', deskId, elevId: occupant }; delete a[deskId]; }
+        } else if (armed.source === 'desk' && armed.deskId === deskId) {
+          a[deskId] = armed.elevId; armed = null;
+        } else if (!occupant) {
+          a[deskId] = armed.elevId; armed = null;
+        } else {
+          const displaced = occupant;
+          a[deskId] = armed.elevId;
+          armed = { source: 'swap', elevId: displaced };
+        }
+      });
+      renderAll();
+    }
+
+    function currentPool() {
+      const elever = narvarandeElever();
+      const assignments = currentAssignments();
+      const seated = new Set(Object.values(assignments));
+      return elever.filter(e => !seated.has(e.id));
+    }
+
+    function renderPool() {
+      const pool = currentPool();
+      poolChips.innerHTML = '';
+      poolCount.textContent = aktivKlass() ? `${pool.length} kvar att placera` : '';
+      poolEmptyHint.style.display = 'none';
+
+      if (!aktivKlass()) { poolEmptyHint.style.display = 'block'; poolEmptyHint.textContent = 'Ingen klass vald.'; }
+      else if (!aktivRum()) { poolEmptyHint.style.display = 'block'; poolEmptyHint.textContent = 'Inget rum valt.'; }
+      else if (pool.length === 0) { poolEmptyHint.style.display = 'block'; poolEmptyHint.textContent = 'Alla närvarande elever är placerade. 🎉'; }
+
+      pool.forEach(elev => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'pool-chip' + (armed && armed.elevId === elev.id && armed.source !== 'desk' ? ' armed' : '');
+        chip.textContent = elev.namn;
+        chip.addEventListener('click', () => {
+          if (armed && armed.elevId === elev.id) armed = null;
+          else armed = { source: 'pool', elevId: elev.id };
+          renderAll();
+        });
+        poolChips.appendChild(chip);
+      });
+
+      if (armed) {
+        const klass = aktivKlass();
+        const namn = klass ? (klass.elever.find(e => e.id === armed.elevId) || {}).namn : '';
+        armedName.textContent = namn || '';
+        armedBanner.classList.add('show');
+      } else {
+        armedBanner.classList.remove('show');
+      }
+    }
+
+    document.getElementById('cancelArmBtn').addEventListener('click', () => {
+      if (armed && armed.source === 'desk') mutateAssignments(a => { a[armed.deskId] = armed.elevId; });
+      armed = null; renderAll();
+    });
+
+    document.getElementById('randomizeBtn').addEventListener('click', () => {
+      const r = aktivRum();
+      if (!r || !aktivKlass()) return;
+      const assignments = currentAssignments();
+      const emptyDesks = r.desks.filter(d => !assignments[d.id]);
+      const poolStudents = currentPool();
+      const shuffledDesks = shuffle(emptyDesks);
+      const shuffledStudents = shuffle(poolStudents);
+      const k = Math.min(shuffledDesks.length, shuffledStudents.length);
+      mutateAssignments(a => { for (let i = 0; i < k; i++) a[shuffledDesks[i].id] = shuffledStudents[i].id; });
+      armed = null; renderAll();
+      if (shuffledStudents.length > k) alert(`${shuffledStudents.length - k} elev(er) fick inte plats — lägg till fler bänkar i redigeringsläget.`);
+    });
+
+    document.getElementById('clearSeatingBtn').addEventListener('click', () => {
+      if (!currentSeatingEntry()) return;
+      showConfirm('Rensa hela placeringen för denna klass i detta rum?', () => {
+        mutateAssignments(a => { Object.keys(a).forEach(k => delete a[k]); });
+        armed = null; renderAll();
+      });
+    });
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+      return a;
+    }
+
+    /* ── Export: rita rummet till en beskuren PNG, redo för A4-utskrift eller bildspel ── */
+    function roundRectPath(ctx, x, y, w, h, rad) {
+      ctx.beginPath();
+      ctx.moveTo(x + rad, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rad);
+      ctx.arcTo(x + w, y + h, x, y + h, rad);
+      ctx.arcTo(x, y + h, x, y, rad);
+      ctx.arcTo(x, y, x + w, y, rad);
+      ctx.closePath();
+    }
+
+    function exportRoomImage() {
+      const r = aktivRum();
+      if (!r) { alert('Inget rum valt.'); return; }
+      if (r.desks.length === 0 && r.markers.length === 0) { alert('Rummet är tomt — lägg till bänkar eller möbler innan du exporterar.'); return; }
+
+      const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+      fontsReady.then(() => {
+        const items = [];
+        r.desks.forEach(d => items.push({ x: d.x, y: d.y, w: DESK, h: DESK }));
+        r.markers.forEach(m => { const s = MARKER_SIZE[m.typ]; items.push({ x: m.x, y: m.y, w: s.w, h: s.h }); });
+
+        const pad = 46;
+        const minX = Math.min(...items.map(i => i.x - i.w / 2)) - pad;
+        const maxX = Math.max(...items.map(i => i.x + i.w / 2)) + pad;
+        const minY = Math.min(...items.map(i => i.y - i.h / 2)) - pad;
+        const maxY = Math.max(...items.map(i => i.y + i.h / 2)) + pad;
+        const contentW = maxX - minX, contentH = maxY - minY;
+
+        const targetLongEdge = 2200;
+        const scale = Math.min(3, targetLongEdge / Math.max(contentW, contentH));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = contentW * scale;
+        canvas.height = contentH * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(scale, scale);
+        ctx.translate(-minX, -minY);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(minX, minY, contentW, contentH);
+
+        const klass = aktivKlass();
+        const assignments = currentAssignments();
+
+        // Markörer
+        r.markers.forEach(m => {
+          const s = MARKER_SIZE[m.typ];
+          ctx.save();
+          ctx.translate(m.x, m.y);
+          ctx.rotate((m.rot || 0) * Math.PI / 180);
+          if (m.typ === 'whiteboard') {
+            ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#b7bfc9'; ctx.lineWidth = 3;
+            roundRectPath(ctx, -s.w / 2, -s.h / 2, s.w, s.h, 6); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#585078'; ctx.font = 'bold 11px Sora, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('Whiteboard', 0, 0);
+          } else if (m.typ === 'clevertouch') {
+            ctx.fillStyle = '#3c3f47'; ctx.strokeStyle = '#22242a'; ctx.lineWidth = 3;
+            roundRectPath(ctx, -s.w / 2, -s.h / 2, s.w, s.h, 6); ctx.fill(); ctx.stroke();
+            ctx.strokeStyle = '#6c7078'; ctx.lineWidth = 1.5;
+            roundRectPath(ctx, -s.w / 2 + 5, -s.h / 2 + 5, s.w - 10, s.h - 10, 3); ctx.stroke();
+            ctx.fillStyle = '#e8e8ec'; ctx.font = 'bold 10px Sora, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('Clevertouch', 0, 0);
+          } else if (m.typ === 'kateder') {
+            ctx.fillStyle = '#3aada8'; ctx.strokeStyle = '#2a827e'; ctx.lineWidth = 3;
+            roundRectPath(ctx, -s.w / 2, -s.h / 2, s.w, s.h, 9); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Sora, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('Kateder', 0, 0);
+          } else if (m.typ === 'dorr') {
+            ctx.strokeStyle = '#585078'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(-s.w / 2, s.h / 2, s.w * 0.78, -Math.PI / 2, 0); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#a9744f'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(-s.w / 2, s.h / 2); ctx.lineTo(-s.w / 2, s.h / 2 - s.h * 0.78); ctx.stroke();
+          } else if (m.typ === 'fonster') {
+            ctx.fillStyle = '#dbeeff'; ctx.strokeStyle = '#7fb3e0'; ctx.lineWidth = 3;
+            roundRectPath(ctx, -s.w / 2, -s.h / 2, s.w, s.h, 4); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, -s.h / 2); ctx.lineTo(0, s.h / 2); ctx.stroke();
+          }
+          ctx.restore();
+        });
+
+        // Bänkar
+        r.desks.forEach(d => {
+          const elevId = assignments[d.id];
+          const elev = elevId && klass ? klass.elever.find(e => e.id === elevId) : null;
+          const rot = d.rot || 0;
+          ctx.save();
+          ctx.translate(d.x, d.y);
+
+          // Stol
+          let cx = 0, cy = 0, cw = 24, ch = 12;
+          if (rot === 90) { cx = DESK / 2 + 7; cy = 0; cw = 12; ch = 24; }
+          else if (rot === 180) { cx = 0; cy = -DESK / 2 - 7; cw = 24; ch = 12; }
+          else if (rot === 270) { cx = -DESK / 2 - 7; cy = 0; cw = 12; ch = 24; }
+          else { cx = 0; cy = DESK / 2 + 7; cw = 24; ch = 12; }
+          ctx.fillStyle = '#2a827e';
+          roundRectPath(ctx, cx - cw / 2, cy - ch / 2, cw, ch, 5); ctx.fill();
+
+          // Bänk
+          ctx.fillStyle = d.color || '#ffffff';
+          ctx.strokeStyle = d.color ? 'rgba(255,255,255,0.85)' : '#ccc5f0';
+          ctx.lineWidth = 2;
+          roundRectPath(ctx, -DESK / 2, -DESK / 2, DESK, DESK, 8); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = d.color ? '#ffffff' : (elev ? '#100e28' : '#9891ab');
+          ctx.font = (elev ? 'bold ' : '') + '10px Sora, sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          const text = elev ? elev.namn : '—';
+          ctx.fillText(text, 0, 0, DESK - 8);
+          ctx.restore();
+        });
+
+        // Sidfot: klass + rum
+        ctx.fillStyle = '#585078';
+        ctx.font = '11px Sora, sans-serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        const footerText = `${r.namn}${klass ? ' · ' + klass.namn : ''}`;
+        ctx.fillText(footerText, minX + 4, maxY - 18);
+
+        canvas.toBlob(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          const safe = s => (s || '').replace(/[^a-zA-Z0-9åäöÅÄÖ]+/g, '_');
+          a.download = `Klassrumsplacering_${safe(r.namn)}${klass ? '_' + safe(klass.namn) : ''}.png`;
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 4000);
+        }, 'image/png');
+      });
+    }
+    document.getElementById('exportBtn').addEventListener('click', exportRoomImage);
+
+    function renderStudentChips() {
+      const klass = aktivKlass();
+      studentChips.innerHTML = '';
+      if (!klass || klass.elever.length === 0) {
+        noClassHint.style.display = 'block';
+        noClassHint.textContent = klass ? 'Den här klassen har inga elever ännu.' : 'Ingen klass vald ännu.';
+        chipHint.style.display = 'none';
+        return;
+      }
+      noClassHint.style.display = 'none'; chipHint.style.display = 'block';
+      klass.elever.forEach(elev => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip' + (franvarande.has(elev.id) ? ' absent' : '');
+        chip.textContent = elev.namn;
+        chip.addEventListener('click', () => {
+          if (franvarande.has(elev.id)) franvarande.delete(elev.id); else franvarande.add(elev.id);
+          renderStudentChips(); armed = null; renderCanvas(); renderPool();
+        });
+        studentChips.appendChild(chip);
+      });
+    }
+
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    document.getElementById('settingsBtn').addEventListener('click', () => drawerBackdrop.classList.add('open'));
+    document.getElementById('drawerClose').addEventListener('click', () => drawerBackdrop.classList.remove('open'));
+    drawerBackdrop.addEventListener('click', (e) => { if (e.target === drawerBackdrop) drawerBackdrop.classList.remove('open'); });
+
+    const classModalBackdrop = document.getElementById('classModalBackdrop');
+    const classModalHeading = document.getElementById('classModalHeading');
+    const classNameInput = document.getElementById('classNameInput');
+    const classStudentsInput = document.getElementById('classStudentsInput');
+    const savedClassesList = document.getElementById('savedClassesList');
+
+    document.getElementById('manageClassBtn').addEventListener('click', () => {
+      redigerarKlassId = null; classModalHeading.textContent = 'Ny klass';
+      classNameInput.value = ''; classStudentsInput.value = '';
+      renderSavedClassesList(); classModalBackdrop.classList.add('open');
+    });
+    document.getElementById('closeClassModalBtn').addEventListener('click', () => classModalBackdrop.classList.remove('open'));
+    document.getElementById('cancelClassEditBtn').addEventListener('click', () => {
+      redigerarKlassId = null; classNameInput.value = ''; classStudentsInput.value = ''; classModalHeading.textContent = 'Ny klass';
+    });
+    classModalBackdrop.addEventListener('click', (e) => { if (e.target === classModalBackdrop) classModalBackdrop.classList.remove('open'); });
+
+    function renderSavedClassesList() {
+      savedClassesList.innerHTML = '';
+      if (klasser.length === 0) { savedClassesList.innerHTML = '<p class="empty-hint">Inga klasser sparade ännu.</p>'; return; }
+      klasser.forEach(k => {
+        const row = document.createElement('div'); row.className = 'saved-item';
+        const label = document.createElement('span'); label.textContent = `${k.namn} (${k.elever.length})`;
+        const actions = document.createElement('div'); actions.className = 'saved-item-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'icon-btn'; editBtn.title = 'Redigera'; editBtn.textContent = '✏️';
+        editBtn.addEventListener('click', () => {
+          redigerarKlassId = k.id; classModalHeading.textContent = `Redigera ${k.namn}`;
+          classNameInput.value = k.namn; classStudentsInput.value = k.elever.map(e => e.namn).join('\n');
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'icon-btn'; delBtn.title = 'Ta bort'; delBtn.textContent = '🗑️';
+        delBtn.addEventListener('click', () => {
+          showConfirm(`Ta bort klassen "${k.namn}"? Det går inte att ångra.`, () => {
+            klasser = klasser.filter(kk => kk.id !== k.id); saveKlasser();
+            if (aktivKlassId === k.id) {
+              aktivKlassId = klasser[0] ? klasser[0].id : null;
+              localStorage.setItem(ACTIVE_KEY, aktivKlassId || ''); franvarande.clear();
+            }
+            renderSavedClassesList(); renderClassSelect(); renderStudentChips(); armed = null; renderAll();
+          });
+        });
+
+        actions.append(editBtn, delBtn); row.append(label, actions); savedClassesList.appendChild(row);
+      });
+    }
+
+    document.getElementById('saveClassBtn').addEventListener('click', () => {
+      const namn = classNameInput.value.trim();
+      const rader = classStudentsInput.value.split('\n').map(s => s.trim()).filter(Boolean);
+      if (!namn) { alert('Ge klassen ett namn.'); return; }
+      if (rader.length === 0) { alert('Lägg till minst en elev.'); return; }
+
+      if (redigerarKlassId) {
+        const k = klasser.find(kk => kk.id === redigerarKlassId);
+        const gamla = new Map(k.elever.map(e => [e.namn, e.id]));
+        k.namn = namn;
+        k.elever = rader.map(n => ({ id: gamla.get(n) || nyttId(), namn: n }));
+      } else {
+        const nyKlass = { id: nyttId(), namn, elever: rader.map(n => ({ id: nyttId(), namn: n })) };
+        klasser.push(nyKlass); aktivKlassId = nyKlass.id; localStorage.setItem(ACTIVE_KEY, aktivKlassId);
+      }
+      saveKlasser();
+      redigerarKlassId = null; classNameInput.value = ''; classStudentsInput.value = ''; classModalHeading.textContent = 'Ny klass';
+      renderSavedClassesList(); renderClassSelect(); franvarande.clear(); renderStudentChips(); armed = null; renderAll();
+    });
+
+    const roomModalBackdrop = document.getElementById('roomModalBackdrop');
+    const roomNameInput = document.getElementById('roomNameInput');
+    const roomNameLabel = document.getElementById('roomNameLabel');
+    const cancelRoomEditBtn = document.getElementById('cancelRoomEditBtn');
+    const createRoomBtn = document.getElementById('createRoomBtn');
+    const savedRoomsList = document.getElementById('savedRoomsList');
+    let redigerarRumId = null;
+
+    function resetRoomForm() {
+      redigerarRumId = null;
+      roomNameInput.value = '';
+      roomNameLabel.textContent = 'Nytt rum';
+      createRoomBtn.textContent = 'Skapa rum';
+      cancelRoomEditBtn.style.display = 'none';
+    }
+    cancelRoomEditBtn.addEventListener('click', resetRoomForm);
+
+    document.getElementById('manageRoomBtn').addEventListener('click', () => {
+      resetRoomForm(); renderSavedRoomsList(); roomModalBackdrop.classList.add('open');
+    });
+    document.getElementById('closeRoomModalBtn').addEventListener('click', () => { roomModalBackdrop.classList.remove('open'); resetRoomForm(); });
+    roomModalBackdrop.addEventListener('click', (e) => { if (e.target === roomModalBackdrop) { roomModalBackdrop.classList.remove('open'); resetRoomForm(); } });
+
+    createRoomBtn.addEventListener('click', () => {
+      const namn = roomNameInput.value.trim();
+      if (!namn) { alert('Ge rummet ett namn.'); return; }
+      if (redigerarRumId) {
+        const r = rum.find(rr => rr.id === redigerarRumId);
+        if (r) { r.namn = namn; saveRum(); }
+      } else {
+        const nyttRum = { id: nyttId(), namn, desks: [], markers: [] };
+        rum.push(nyttRum); aktivRumId = nyttRum.id; localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId); saveRum();
+      }
+      resetRoomForm();
+      renderSavedRoomsList(); renderRoomSelect(); armed = null; renderAll();
+    });
+
+    function renderSavedRoomsList() {
+      savedRoomsList.innerHTML = '';
+      if (rum.length === 0) { savedRoomsList.innerHTML = '<p class="empty-hint">Inga rum sparade ännu.</p>'; return; }
+      rum.forEach(r => {
+        const row = document.createElement('div'); row.className = 'saved-item';
+        const label = document.createElement('span'); label.textContent = `${r.namn} (${r.desks.length} bänkar)`;
+        const actions = document.createElement('div'); actions.className = 'saved-item-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'icon-btn'; editBtn.title = 'Byt namn'; editBtn.textContent = '✏️';
+        editBtn.addEventListener('click', () => {
+          redigerarRumId = r.id;
+          roomNameInput.value = r.namn;
+          roomNameLabel.textContent = `Byt namn på "${r.namn}"`;
+          createRoomBtn.textContent = 'Spara namn';
+          cancelRoomEditBtn.style.display = '';
+          roomNameInput.focus();
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'icon-btn'; delBtn.title = 'Ta bort'; delBtn.textContent = '🗑️';
+        delBtn.addEventListener('click', () => {
+          showConfirm(`Ta bort rummet "${r.namn}"? Sparade placeringar i detta rum försvinner också. Det går inte att ångra.`, () => {
+            rum = rum.filter(rr => rr.id !== r.id);
+            placeringar = placeringar.filter(p => p.roomId !== r.id);
+            saveRum(); savePlaceringar();
+            if (aktivRumId === r.id) { aktivRumId = rum[0] ? rum[0].id : null; localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId || ''); }
+            if (redigerarRumId === r.id) resetRoomForm();
+            renderSavedRoomsList(); renderRoomSelect(); armed = null; renderAll();
+          });
+        });
+
+        actions.append(editBtn, delBtn); row.append(label, actions); savedRoomsList.appendChild(row);
+      });
+    }
+
+    function renderAll() { renderCanvas(); renderPool(); }
+    renderClassSelect(); renderRoomSelect(); renderStudentChips(); renderToolGrid(); syncModeUI(); renderAll();
+  </script>
+</body>
+</html>
