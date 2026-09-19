@@ -204,6 +204,41 @@
     .delete-badge { top: -7px; right: -7px; background: var(--wrong); }
     .rotate-badge { top: -7px; left: -7px; background: var(--accent); }
 
+    .desk-el.selected, .marker-el.selected {
+      outline: 3px solid var(--accent); outline-offset: 2px;
+    }
+    .selection-box {
+      position: absolute; border: 1.5px dashed var(--accent);
+      background: rgba(48, 107, 240, 0.08); pointer-events: none; z-index: 50;
+    }
+    .selection-status {
+      display: none; flex-direction: column; gap: 8px;
+      background: var(--surface2); border: 1.5px solid var(--accent); border-radius: var(--radius-sm);
+      padding: 8px 10px; font-size: 0.8rem; font-weight: 700; color: var(--text);
+    }
+    .selection-status-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .selection-actions { display: flex; gap: 4px; }
+    .selection-colors { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .selection-colors-label { font-size: 0.72rem; font-weight: 600; color: var(--muted); }
+    .color-swatch-btn {
+      width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.9);
+      box-shadow: 0 0 0 1.5px var(--border); cursor: pointer;
+    }
+    .color-swatch-btn.none { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--muted); }
+
+    .wall-el {
+      position: absolute; height: 6px; background: #4a4a55; border-radius: 3px;
+      transform-origin: left center; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+      touch-action: none; z-index: 2;
+    }
+    .wall-el.editable { cursor: grab; }
+    .wall-el.editable:active { cursor: grabbing; }
+    .wall-handle {
+      position: absolute; width: 14px; height: 14px; border-radius: 50%;
+      background: #ffffff; border: 2.5px solid #4a4a55; z-index: 6; cursor: grab; touch-action: none;
+    }
+    .wall-handle:active { cursor: grabbing; }
+
     /* ── Sidopanel: byggverktyg (redigeringsläge) ── */
     .tool-panel, .pool-panel {
       background: rgba(255, 255, 255, 0.55);
@@ -357,6 +392,19 @@
     <div class="workspace">
       <div class="side-panel">
         <div class="tool-panel" id="toolPanel">
+          <div class="selection-status" id="selectionStatus">
+            <div class="selection-status-row">
+              <span id="selectionCount"></span>
+              <div class="selection-actions">
+                <button class="btn btn-ghost btn-sm" id="clearSelectionBtn">Avmarkera</button>
+                <button class="btn btn-ghost btn-sm" id="deleteSelectedBtn" style="color:var(--wrong);">🗑 Ta bort</button>
+              </div>
+            </div>
+            <div class="selection-colors" id="selectionColors">
+              <span class="selection-colors-label">Färg:</span>
+            </div>
+          </div>
+          <p class="room-hint" style="text-align:left;margin:0;">Dra i tom yta för att markera flera bänkar/föremål — dra sedan i ett av de markerade för att flytta hela gruppen tillsammans. Kortkommandon: R roterar, D duplicerar, Delete tar bort.</p>
           <button class="btn btn-secondary" id="standardLayoutBtn" style="width:100%;">📐 Standardlayout (3×2, 5 rader)</button>
           <div class="cluster-stepper">
             <span class="label">Klusterstorlek</span>
@@ -508,6 +556,7 @@
       { key: 'clevertouch', label: 'Clevertouch',  icon: '🖥️',  swatch: '#3c3f47',         border: '#22242a' },
       { key: 'dorr',        label: 'Dörr',         icon: '🚪',  swatch: '#a9744f',         border: '#8a5c3d' },
       { key: 'fonster',     label: 'Fönster',      icon: '🪟',  swatch: '#dbeeff',         border: '#7fb3e0' },
+      { key: 'vagg',        label: 'Vägg',         icon: '🧱',  swatch: '#4a4a55',         border: '#2f2f38' },
     ];
 
     function loadJSON(key, fallback) {
@@ -545,12 +594,14 @@
     let redigerarKlassId = null;
 
     let rum = loadJSON(ROOMS_KEY, []);
+    rum.forEach(r => { if (!r.walls) r.walls = []; });
     let aktivRumId = localStorage.getItem(ACTIVE_ROOM_KEY) || (rum[0] && rum[0].id) || null;
     let placeringar = loadJSON(SEATINGS_KEY, []);
 
     let mode = 'edit';
     let clusterSize = 2;
     let armed = null;
+    let selected = new Set(); // markerade föremål i redigeringsläget, nycklar "desk:ID" / "marker:ID"
 
     function saveKlasser() { saveJSON(STORAGE_KEY, klasser); }
     function saveRum() { saveJSON(ROOMS_KEY, rum); }
@@ -637,11 +688,11 @@
     roomSelect.addEventListener('change', () => {
       aktivRumId = roomSelect.value;
       localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId);
-      armed = null; renderAll();
+      armed = null; selected.clear(); renderAll();
     });
 
     modeEditBtn.addEventListener('click', () => { mode = 'edit'; armed = null; syncModeUI(); renderAll(); });
-    modePlaceBtn.addEventListener('click', () => { mode = 'place'; syncModeUI(); renderAll(); });
+    modePlaceBtn.addEventListener('click', () => { mode = 'place'; selected.clear(); syncModeUI(); renderAll(); });
     function syncModeUI() {
       modeEditBtn.classList.toggle('active', mode === 'edit');
       modePlaceBtn.classList.toggle('active', mode === 'place');
@@ -674,12 +725,13 @@
     function handleToolClick(key) {
       if (key === 'desk') addDesk();
       else if (key === 'cluster') addCluster();
+      else if (key === 'vagg') addWall();
       else addMarker(key);
     }
 
     /* ── Placera nya föremål: kaskad i övre vänstra hörnet ── */
     function nextSpawnPoint(r) {
-      const idx = (r.desks.length + r.markers.length) % 9;
+      const idx = (r.desks.length + r.markers.length + r.walls.length) % 9;
       const perRow = 3;
       const col = idx % perRow, row = Math.floor(idx / perRow);
       const x = 45 + col * 42;
@@ -710,6 +762,13 @@
       r.markers.push({ id: nyttId(), x: p.x, y: p.y, typ, rot: 0 });
       saveRum(); renderCanvas();
     }
+    function addWall() {
+      const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      const p = nextSpawnPoint(r);
+      const length = 140;
+      r.walls.push({ id: nyttId(), x1: p.x, y1: p.y, x2: Math.min(p.x + length, CANVAS_W), y2: p.y });
+      saveRum(); renderCanvas();
+    }
 
     // Standardlayout: 3 kolumner med bänkpar, upprepat över 5 rader (30 bänkar totalt).
     // Alla bänkar får en och samma neutrala, solida gråton för bästa läsbarhet.
@@ -733,6 +792,7 @@
         saveRum();
         placeringar.forEach(p => { if (p.roomId === aktivRumId) p.assignments = {}; });
         savePlaceringar();
+        selected.clear();
         renderCanvas(); renderRoomSelect(); renderPool();
       };
       if (r.desks.length > 0) {
@@ -749,40 +809,328 @@
       saveRum();
       placeringar.forEach(p => { if (p.roomId === aktivRumId) delete p.assignments[deskId]; });
       savePlaceringar();
+      selected.delete('desk:' + deskId);
       renderCanvas(); renderRoomSelect(); renderPool();
     }
     function deleteMarker(markerId) {
       const r = aktivRum(); if (!r) return;
       r.markers = r.markers.filter(m => m.id !== markerId);
+      saveRum();
+      selected.delete('marker:' + markerId);
+      renderCanvas();
+    }
+    function deleteWall(wallId) {
+      const r = aktivRum(); if (!r) return;
+      r.walls = r.walls.filter(w => w.id !== wallId);
       saveRum(); renderCanvas();
     }
 
-    function makeDraggable(el, item, boxW, boxH, onDrop) {
+    function itemBoxSize(key) {
+      if (key.startsWith('desk:')) return { w: DESK, h: DESK };
+      const r = aktivRum();
+      const m = r && r.markers.find(mm => 'marker:' + mm.id === key);
+      return m ? MARKER_SIZE[m.typ] : { w: DESK, h: DESK };
+    }
+    function itemRef(key) {
+      const r = aktivRum(); if (!r) return null;
+      if (key.startsWith('desk:')) return r.desks.find(d => 'desk:' + d.id === key) || null;
+      return r.markers.find(m => 'marker:' + m.id === key) || null;
+    }
+
+    function makeDraggable(el, item, boxW, boxH, onDrop, selKey) {
       el.addEventListener('pointerdown', (e) => {
         if (mode !== 'edit') return;
         if (e.target.closest('.delete-badge') || e.target.closest('.rotate-badge')) return;
         e.preventDefault();
         el.setPointerCapture(e.pointerId);
         const rect = roomCanvas.getBoundingClientRect();
+
+        const groupDrag = selKey && selected.has(selKey) && selected.size > 1;
+        let groupEntries = null;
+        if (groupDrag) {
+          groupEntries = [...selected].map(key => {
+            const ref = itemRef(key);
+            const size = itemBoxSize(key);
+            const domEl = roomCanvas.querySelector(`[data-sel-key="${key}"]`);
+            return ref ? { ref, domEl, size, startX: ref.x, startY: ref.y, curX: ref.x, curY: ref.y } : null;
+          }).filter(Boolean);
+        } else {
+          selected.clear();
+        }
+
+        const originX = item.x, originY = item.y;
         let x = item.x, y = item.y;
+
         function onMove(ev) {
           const px = ev.clientX - rect.left, py = ev.clientY - rect.top;
           x = Math.max(boxW / 2, Math.min(CANVAS_W - boxW / 2, Math.round(px / SNAP) * SNAP));
           y = Math.max(boxH / 2, Math.min(CANVAS_H - boxH / 2, Math.round(py / SNAP) * SNAP));
           el.style.left = (x - boxW / 2) + 'px';
           el.style.top = (y - boxH / 2) + 'px';
+
+          if (groupEntries) {
+            const dx = x - originX, dy = y - originY;
+            groupEntries.forEach(g => {
+              if (g.ref === item) return; // dragna föremålet redan uppdaterat ovan
+              const nx = Math.max(g.size.w / 2, Math.min(CANVAS_W - g.size.w / 2, g.startX + dx));
+              const ny = Math.max(g.size.h / 2, Math.min(CANVAS_H - g.size.h / 2, g.startY + dy));
+              g.curX = nx; g.curY = ny;
+              if (g.domEl) { g.domEl.style.left = (nx - g.size.w / 2) + 'px'; g.domEl.style.top = (ny - g.size.h / 2) + 'px'; }
+            });
+          }
         }
         function onUp() {
           el.releasePointerCapture(e.pointerId);
           el.removeEventListener('pointermove', onMove);
           el.removeEventListener('pointerup', onUp);
           item.x = x; item.y = y;
+          if (groupEntries) groupEntries.forEach(g => { if (g.ref !== item) { g.ref.x = g.curX; g.ref.y = g.curY; } });
           onDrop();
         }
         el.addEventListener('pointermove', onMove);
         el.addEventListener('pointerup', onUp);
       });
     }
+
+    function syncWallDOM(w) {
+      const dx = w.x2 - w.x1, dy = w.y2 - w.y1;
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      const body = roomCanvas.querySelector(`.wall-el[data-wall-id="${w.id}"]`);
+      if (body) { body.style.left = w.x1 + 'px'; body.style.top = w.y1 + 'px'; body.style.width = length + 'px'; body.style.transform = `rotate(${angle}deg)`; }
+      const h1 = roomCanvas.querySelector(`.wall-handle[data-wall-id="${w.id}"][data-end="1"]`);
+      const h2 = roomCanvas.querySelector(`.wall-handle[data-wall-id="${w.id}"][data-end="2"]`);
+      if (h1) { h1.style.left = (w.x1 - 7) + 'px'; h1.style.top = (w.y1 - 7) + 'px'; }
+      if (h2) { h2.style.left = (w.x2 - 7) + 'px'; h2.style.top = (w.y2 - 7) + 'px'; }
+      const del = roomCanvas.querySelector(`.wall-delete[data-wall-id="${w.id}"]`);
+      if (del) { const midX = (w.x1 + w.x2) / 2, midY = (w.y1 + w.y2) / 2; del.style.left = (midX - 9) + 'px'; del.style.top = (midY - 9) + 'px'; }
+    }
+
+    function makeWallBodyDraggable(body, w) {
+      body.addEventListener('pointerdown', (e) => {
+        if (mode !== 'edit') return;
+        e.preventDefault();
+        body.setPointerCapture(e.pointerId);
+        const rect = roomCanvas.getBoundingClientRect();
+        const startPX = e.clientX - rect.left, startPY = e.clientY - rect.top;
+        const ox1 = w.x1, oy1 = w.y1, ox2 = w.x2, oy2 = w.y2;
+        function onMove(ev) {
+          const px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+          const dx = Math.round((px - startPX) / SNAP) * SNAP, dy = Math.round((py - startPY) / SNAP) * SNAP;
+          w.x1 = Math.max(0, Math.min(CANVAS_W, ox1 + dx)); w.y1 = Math.max(0, Math.min(CANVAS_H, oy1 + dy));
+          w.x2 = Math.max(0, Math.min(CANVAS_W, ox2 + dx)); w.y2 = Math.max(0, Math.min(CANVAS_H, oy2 + dy));
+          syncWallDOM(w);
+        }
+        function onUp() {
+          body.releasePointerCapture(e.pointerId);
+          body.removeEventListener('pointermove', onMove);
+          body.removeEventListener('pointerup', onUp);
+          saveRum();
+        }
+        body.addEventListener('pointermove', onMove);
+        body.addEventListener('pointerup', onUp);
+      });
+    }
+
+    function makeWallHandleDraggable(handle, w, kx, ky) {
+      handle.addEventListener('pointerdown', (e) => {
+        if (mode !== 'edit') return;
+        e.preventDefault(); e.stopPropagation();
+        handle.setPointerCapture(e.pointerId);
+        const rect = roomCanvas.getBoundingClientRect();
+        function onMove(ev) {
+          const px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+          w[kx] = Math.max(0, Math.min(CANVAS_W, Math.round(px / SNAP) * SNAP));
+          w[ky] = Math.max(0, Math.min(CANVAS_H, Math.round(py / SNAP) * SNAP));
+          syncWallDOM(w);
+        }
+        function onUp() {
+          handle.releasePointerCapture(e.pointerId);
+          handle.removeEventListener('pointermove', onMove);
+          handle.removeEventListener('pointerup', onUp);
+          saveRum();
+        }
+        handle.addEventListener('pointermove', onMove);
+        handle.addEventListener('pointerup', onUp);
+      });
+    }
+
+    function rectIntersectsItem(box, cx, cy, w, h) {
+      const ix1 = cx - w / 2, ix2 = cx + w / 2, iy1 = cy - h / 2, iy2 = cy + h / 2;
+      return !(ix2 < box.l || ix1 > box.l + box.w || iy2 < box.t || iy1 > box.t + box.h);
+    }
+
+    const SWATCH_COLORS = [...GROUP_COLORS, STANDARD_COLOR];
+    function renderSelectionColors() {
+      const wrap = document.getElementById('selectionColors');
+      wrap.querySelectorAll('.color-swatch-btn').forEach(b => b.remove());
+      SWATCH_COLORS.forEach(c => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'color-swatch-btn'; b.style.background = c;
+        b.title = 'Färglägg markerade bänkar';
+        b.addEventListener('click', () => setSelectedDeskColor(c));
+        wrap.appendChild(b);
+      });
+      const clearBtn = document.createElement('button');
+      clearBtn.type = 'button'; clearBtn.className = 'color-swatch-btn none'; clearBtn.textContent = '✕';
+      clearBtn.title = 'Ta bort färg';
+      clearBtn.addEventListener('click', () => setSelectedDeskColor(null));
+      wrap.appendChild(clearBtn);
+    }
+    function setSelectedDeskColor(color) {
+      const r = aktivRum(); if (!r) return;
+      let changed = false;
+      selected.forEach(key => {
+        if (!key.startsWith('desk:')) return;
+        const d = r.desks.find(x => x.id === key.slice(5));
+        if (d) { d.color = color; changed = true; }
+      });
+      if (changed) { saveRum(); renderCanvas(); }
+    }
+
+    function renderSelectionStatus() {
+      const box = document.getElementById('selectionStatus');
+      const countEl = document.getElementById('selectionCount');
+      if (selected.size > 0) {
+        box.style.display = 'flex';
+        countEl.textContent = selected.size + (selected.size === 1 ? ' föremål markerat' : ' föremål markerade');
+      } else {
+        box.style.display = 'none';
+      }
+    }
+    renderSelectionColors();
+    document.getElementById('clearSelectionBtn').addEventListener('click', () => {
+      selected.clear(); renderCanvas(); renderSelectionStatus();
+    });
+
+    function deleteSelected() {
+      if (selected.size === 0) return;
+      const r = aktivRum(); if (!r) return;
+      const deskIds = [...selected].filter(k => k.startsWith('desk:')).map(k => k.slice(5));
+      const markerIds = [...selected].filter(k => k.startsWith('marker:')).map(k => k.slice(7));
+      const count = selected.size;
+      showConfirm(`Ta bort ${count} markerade föremål?`, () => {
+        r.desks = r.desks.filter(d => !deskIds.includes(d.id));
+        r.markers = r.markers.filter(m => !markerIds.includes(m.id));
+        saveRum();
+        deskIds.forEach(id => { placeringar.forEach(p => { if (p.roomId === aktivRumId) delete p.assignments[id]; }); });
+        savePlaceringar();
+        selected.clear();
+        renderCanvas(); renderRoomSelect(); renderPool();
+      });
+    }
+    document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelected);
+
+    function duplicateSelected() {
+      if (selected.size === 0) return;
+      const r = aktivRum(); if (!r) return;
+      const OFFSET = 30;
+      const newKeys = new Set();
+      selected.forEach(key => {
+        if (key.startsWith('desk:')) {
+          const d = r.desks.find(x => x.id === key.slice(5));
+          if (d) {
+            const nd = {
+              id: nyttId(),
+              x: Math.max(DESK / 2, Math.min(CANVAS_W - DESK / 2, d.x + OFFSET)),
+              y: Math.max(DESK / 2, Math.min(CANVAS_H - DESK / 2, d.y + OFFSET)),
+              rot: d.rot || 0, clusterId: d.clusterId || null, color: d.color || null
+            };
+            r.desks.push(nd);
+            newKeys.add('desk:' + nd.id);
+          }
+        } else if (key.startsWith('marker:')) {
+          const m = r.markers.find(x => x.id === key.slice(7));
+          if (m) {
+            const s = MARKER_SIZE[m.typ];
+            const nm = {
+              id: nyttId(),
+              x: Math.max(s.w / 2, Math.min(CANVAS_W - s.w / 2, m.x + OFFSET)),
+              y: Math.max(s.h / 2, Math.min(CANVAS_H - s.h / 2, m.y + OFFSET)),
+              typ: m.typ, rot: m.rot || 0
+            };
+            r.markers.push(nm);
+            newKeys.add('marker:' + nm.id);
+          }
+        }
+      });
+      if (newKeys.size === 0) return;
+      saveRum();
+      selected = newKeys;
+      renderCanvas(); renderRoomSelect();
+    }
+
+    function rotateSelected() {
+      if (selected.size === 0) return;
+      const r = aktivRum(); if (!r) return;
+      let changed = false;
+      selected.forEach(key => {
+        if (key.startsWith('desk:')) {
+          const d = r.desks.find(x => x.id === key.slice(5));
+          if (d) { d.rot = ((d.rot || 0) + 90) % 360; changed = true; }
+        } else if (key.startsWith('marker:')) {
+          const m = r.markers.find(x => x.id === key.slice(7));
+          if (m && ROTATABLE_MARKER[m.typ]) { m.rot = ((m.rot || 0) + 90) % 360; changed = true; }
+        }
+      });
+      if (changed) { saveRum(); renderCanvas(); }
+    }
+
+    // Kortkommandon i redigeringsläget: R roterar markeringen, D duplicerar, Delete/Backspace tar bort.
+    document.addEventListener('keydown', (e) => {
+      if (mode !== 'edit') return;
+      const tag = document.activeElement && document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (document.querySelector('.modal-backdrop.open')) return;
+      if (selected.size === 0) return;
+      if (e.key === 'r' || e.key === 'R') { rotateSelected(); }
+      else if (e.key === 'd' || e.key === 'D') { e.preventDefault(); duplicateSelected(); }
+      else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSelected(); }
+    });
+
+    // Rubber-band-markering: dra i tom yta i rummet för att markera flera föremål på en gång.
+    roomCanvas.addEventListener('pointerdown', (e) => {
+      if (mode !== 'edit') return;
+      if (e.target !== roomCanvas) return;
+      e.preventDefault();
+      roomCanvas.setPointerCapture(e.pointerId);
+      const rect = roomCanvas.getBoundingClientRect();
+      const startX = e.clientX - rect.left, startY = e.clientY - rect.top;
+
+      const box = document.createElement('div');
+      box.className = 'selection-box';
+      roomCanvas.appendChild(box);
+
+      function draw(x2, y2) {
+        const l = Math.min(startX, x2), t = Math.min(startY, y2);
+        const w = Math.abs(x2 - startX), h = Math.abs(y2 - startY);
+        box.style.left = l + 'px'; box.style.top = t + 'px';
+        box.style.width = w + 'px'; box.style.height = h + 'px';
+        return { l, t, w, h };
+      }
+      draw(startX, startY);
+
+      function onMove(ev) { draw(ev.clientX - rect.left, ev.clientY - rect.top); }
+      function onUp(ev) {
+        roomCanvas.releasePointerCapture(e.pointerId);
+        roomCanvas.removeEventListener('pointermove', onMove);
+        roomCanvas.removeEventListener('pointerup', onUp);
+        const final = draw(ev.clientX - rect.left, ev.clientY - rect.top);
+        box.remove();
+
+        const r = aktivRum();
+        if (final.w < 4 && final.h < 4) {
+          selected.clear();
+        } else if (r) {
+          selected.clear();
+          r.desks.forEach(d => { if (rectIntersectsItem(final, d.x, d.y, DESK, DESK)) selected.add('desk:' + d.id); });
+          r.markers.forEach(m => { const s = MARKER_SIZE[m.typ]; if (rectIntersectsItem(final, m.x, m.y, s.w, s.h)) selected.add('marker:' + m.id); });
+        }
+        renderCanvas(); renderSelectionStatus();
+      }
+      roomCanvas.addEventListener('pointermove', onMove);
+      roomCanvas.addEventListener('pointerup', onUp);
+    });
 
     // Stolens läge runt bänken beroende på rotation — själva bänken roterar aldrig,
     // så namnet på den är alltid rakt och läsbart.
@@ -805,6 +1153,7 @@
       if (!r) {
         roomCanvas.style.width = '100%'; roomCanvas.style.height = '160px'; roomCanvas.style.backgroundSize = '';
         roomCanvas.innerHTML = '<div class="room-empty">Inget rum skapat än — öppna ⚙️ och skapa ett under "Hantera rum".</div>';
+        selected.clear(); renderSelectionStatus();
         return;
       }
       roomCanvas.style.width = CANVAS_W + 'px';
@@ -814,10 +1163,48 @@
       const assignments = currentAssignments();
       const klass = aktivKlass();
 
+      (r.walls || []).forEach(w => {
+        const dx = w.x2 - w.x1, dy = w.y2 - w.y1;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const body = document.createElement('div');
+        body.className = 'wall-el' + (mode === 'edit' ? ' editable' : '');
+        body.dataset.wallId = w.id;
+        body.style.left = w.x1 + 'px'; body.style.top = w.y1 + 'px';
+        body.style.width = length + 'px';
+        body.style.transform = `rotate(${angle}deg)`;
+        roomCanvas.appendChild(body);
+
+        if (mode === 'edit') {
+          makeWallBodyDraggable(body, w);
+
+          const midX = (w.x1 + w.x2) / 2, midY = (w.y1 + w.y2) / 2;
+          const del = document.createElement('div');
+          del.className = 'delete-badge wall-delete';
+          del.dataset.wallId = w.id;
+          del.style.left = (midX - 9) + 'px'; del.style.top = (midY - 9) + 'px';
+          del.textContent = '✕';
+          del.addEventListener('pointerdown', e => e.stopPropagation());
+          del.addEventListener('click', e => { e.stopPropagation(); deleteWall(w.id); });
+          roomCanvas.appendChild(del);
+
+          [['x1', 'y1', '1'], ['x2', 'y2', '2']].forEach(([kx, ky, endTag]) => {
+            const handle = document.createElement('div');
+            handle.className = 'wall-handle';
+            handle.dataset.wallId = w.id; handle.dataset.end = endTag;
+            handle.style.left = (w[kx] - 7) + 'px'; handle.style.top = (w[ky] - 7) + 'px';
+            roomCanvas.appendChild(handle);
+            makeWallHandleDraggable(handle, w, kx, ky);
+          });
+        }
+      });
+
       r.markers.forEach(m => {
         const size = MARKER_SIZE[m.typ];
+        const selKey = 'marker:' + m.id;
         const el = document.createElement('div');
-        el.className = 'marker-el';
+        el.className = 'marker-el' + (selected.has(selKey) ? ' selected' : '');
+        el.dataset.selKey = selKey;
         el.style.width = size.w + 'px'; el.style.height = size.h + 'px';
         el.style.left = (m.x - size.w / 2) + 'px'; el.style.top = (m.y - size.h / 2) + 'px';
 
@@ -842,7 +1229,7 @@
             rot.addEventListener('click', e => { e.stopPropagation(); m.rot = ((m.rot || 0) + 90) % 360; saveRum(); renderCanvas(); });
             el.appendChild(rot);
           }
-          makeDraggable(el, m, size.w, size.h, () => saveRum());
+          makeDraggable(el, m, size.w, size.h, () => saveRum(), selKey);
         }
         roomCanvas.appendChild(el);
       });
@@ -850,9 +1237,12 @@
       r.desks.forEach(d => {
         const elevId = assignments[d.id];
         const elev = elevId && klass ? klass.elever.find(e => e.id === elevId) : null;
+        const selKey = 'desk:' + d.id;
         const el = document.createElement('div');
         el.className = 'desk-el' + (elev ? ' occupied' : '') +
-          (mode === 'edit' ? ' editable' : '') + (mode === 'place' ? ' placeable' : '');
+          (mode === 'edit' ? ' editable' : '') + (mode === 'place' ? ' placeable' : '') +
+          (selected.has(selKey) ? ' selected' : '');
+        el.dataset.selKey = selKey;
         if (armed && armed.source !== 'desk' && !elev) el.classList.add('armed-target');
         el.style.left = (d.x - DESK / 2) + 'px'; el.style.top = (d.y - DESK / 2) + 'px';
         if (d.color) {
@@ -888,12 +1278,13 @@
           rot.addEventListener('click', e => { e.stopPropagation(); d.rot = ((d.rot || 0) + 90) % 360; saveRum(); renderCanvas(); });
           el.appendChild(rot);
 
-          makeDraggable(el, d, DESK, DESK, () => saveRum());
+          makeDraggable(el, d, DESK, DESK, () => saveRum(), selKey);
         } else {
           el.addEventListener('click', () => handleDeskClick(d.id));
         }
         roomCanvas.appendChild(el);
       });
+      renderSelectionStatus();
     }
 
     function handleDeskClick(deskId) {
@@ -1001,13 +1392,14 @@
     function exportRoomImage() {
       const r = aktivRum();
       if (!r) { alert('Inget rum valt.'); return; }
-      if (r.desks.length === 0 && r.markers.length === 0) { alert('Rummet är tomt — lägg till bänkar eller möbler innan du exporterar.'); return; }
+      if (r.desks.length === 0 && r.markers.length === 0 && (!r.walls || r.walls.length === 0)) { alert('Rummet är tomt — lägg till bänkar eller möbler innan du exporterar.'); return; }
 
       const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
       fontsReady.then(() => {
         const items = [];
         r.desks.forEach(d => items.push({ x: d.x, y: d.y, w: DESK, h: DESK }));
         r.markers.forEach(m => { const s = MARKER_SIZE[m.typ]; items.push({ x: m.x, y: m.y, w: s.w, h: s.h }); });
+        (r.walls || []).forEach(w => { items.push({ x: w.x1, y: w.y1, w: 0, h: 0 }); items.push({ x: w.x2, y: w.y2, w: 0, h: 0 }); });
 
         const pad = 46;
         const minX = Math.min(...items.map(i => i.x - i.w / 2)) - pad;
@@ -1031,6 +1423,12 @@
 
         const klass = aktivKlass();
         const assignments = currentAssignments();
+
+        // Väggar (ritas bakom möblerna)
+        ctx.strokeStyle = '#4a4a55'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+        (r.walls || []).forEach(w => {
+          ctx.beginPath(); ctx.moveTo(w.x1, w.y1); ctx.lineTo(w.x2, w.y2); ctx.stroke();
+        });
 
         // Markörer
         r.markers.forEach(m => {
@@ -1247,7 +1645,7 @@
         const r = rum.find(rr => rr.id === redigerarRumId);
         if (r) { r.namn = namn; saveRum(); }
       } else {
-        const nyttRum = { id: nyttId(), namn, desks: [], markers: [] };
+        const nyttRum = { id: nyttId(), namn, desks: [], markers: [], walls: [] };
         rum.push(nyttRum); aktivRumId = nyttRum.id; localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId); saveRum();
       }
       resetRoomForm();
@@ -1282,6 +1680,7 @@
             saveRum(); savePlaceringar();
             if (aktivRumId === r.id) { aktivRumId = rum[0] ? rum[0].id : null; localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId || ''); }
             if (redigerarRumId === r.id) resetRoomForm();
+            selected.clear();
             renderSavedRoomsList(); renderRoomSelect(); armed = null; renderAll();
           });
         });
