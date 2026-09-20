@@ -2,16 +2,12 @@
 <html lang="sv">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Bråktavla — Tegnefurs Matte</title>
-<meta name="description" content="Interaktiv bråktavla — utforska ekvivalenta bråk genom att klicka och dra rader.">
-<link rel="icon" type="image/jpeg" href="/brand/pt_logo.jpg">
-<link rel="apple-touch-icon" href="/brand/pt_logo.jpg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bråkbrickor — Tegnefurs Matte</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Sora:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Sora:wght@400;500;600;700&display=swap');
 
-:root{
+:root {
   --bg:        #f6f4ff;
   --surface:   #ffffff;
   --surface2:  #eae6ff;
@@ -21,661 +17,2824 @@
   --accent:    #306BF0;
   --accent2:   #EC6095;
   --gradient:  linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+  --ak7:       #66C7C2;
+  --ak8:       #F4A261;
+  --ak9:       #EC6095;
   --correct:   #18a348;
   --wrong:     #e02020;
   --shadow:    rgba(48, 107, 240, 0.12);
-
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 28px;
-
   --shadow-sm: 0 2px 8px var(--shadow);
   --shadow-md: 0 4px 20px var(--shadow);
   --shadow-lg: 0 8px 40px var(--shadow);
-
-  --glass-bg:     rgba(255,255,255,0.72);
-  --glass-border: rgba(255,255,255,0.9);
-
-  --bg-dark:      #14122b;
 }
 
-*{ box-sizing: border-box; }
+* { box-sizing: border-box; }
 
-html{ background: var(--bg); color-scheme: light; }
-html.pt-mork{ background: var(--bg-dark); color-scheme: dark; }
-body{ margin:0; padding:0; color: var(--text); font-family: 'Sora', sans-serif;
-  -webkit-tap-highlight-color: transparent; min-height:100vh; overflow-x:hidden; position:relative; }
-
-*:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
-
-/* Ambient bakgrund — i mörkt läge (PT Mörk) glöder klotarna starkare mot den mörka botten;
-   panelerna nedan förblir oförändrat ljusa/frostade, PT Ljus rakt av. */
-.ambient{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
-.ambient span{ position:absolute; border-radius:50%; filter:blur(70px); transition: opacity 0.3s ease; }
-.ambient span.b1{ width:440px; height:440px; background:#66C7C2; opacity:0.5; top:-120px; left:-130px; }
-.ambient span.b2{ width:480px; height:480px; background:#F4A261; opacity:0.48; top:38%; right:-160px; }
-.ambient span.b3{ width:420px; height:420px; background:#EC6095; opacity:0.5; bottom:-150px; left:14%; }
-html.pt-mork .ambient span.b1{ opacity:0.62; }
-html.pt-mork .ambient span.b2{ opacity:0.6; }
-html.pt-mork .ambient span.b3{ opacity:0.62; }
-
-header{
-  background: var(--gradient); min-height:64px; position:sticky; top:0; z-index:10;
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  padding: 10px 22px; box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-}
-header a.back{
-  color:#ffffff; text-decoration:none; font-weight:600; font-size:0.92rem;
-  display:flex; align-items:center; gap:6px; opacity:0.9;
-  padding:9px 12px; border-radius:var(--radius-sm);
-}
-header a.back:hover{ background:rgba(255,255,255,0.16); opacity:1; }
-header h1{ margin:0; color:#ffffff; font-family:'Playfair Display', serif; font-weight:700;
-  font-size:1.55rem; text-align:center; flex:1; }
-header .spacer{ width:84px; }
-
-main{ position:relative; z-index:1; max-width: 1180px; margin: 0 auto; padding: 24px 18px 56px;
-  display:flex; flex-direction:column; gap:20px; }
-
-.glass{ background: var(--glass-bg); backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%); border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 22px 26px; }
-
-.wall-card{ padding: 22px 64px 26px 26px; position:relative; }
-
-.trace-line{ position:absolute; width:2px; z-index:5; pointer-events:none;
-  background: repeating-linear-gradient(to bottom, var(--marker-color, var(--accent)) 0 7px, transparent 7px 14px);
-  opacity:0.55; }
-
-/* Stående bråk */
-.vfrac{ display:inline-flex; flex-direction:column; align-items:center; line-height:1;
-  font-family:'Montserrat', sans-serif; font-weight:700; color:inherit; }
-.vfrac .num{ padding-bottom:3px; border-bottom:2px solid currentColor; min-width:1em; text-align:center; }
-.vfrac .den{ padding-top:3px; min-width:1em; text-align:center; }
-.vfrac.vfrac-sm{ font-size:0.8rem; }
-.vfrac.vfrac-sm .num{ border-bottom-width:1.6px; padding-bottom:2px; }
-.vfrac.vfrac-sm .den{ padding-top:2px; }
-.vfrac.vfrac-lg{ font-size:1.15rem; }
-.vfrac.vfrac-md{ font-size:0.95rem; }
-
-.toolbar{ display:flex; justify-content:center; flex-wrap:wrap; gap:8px;
-  margin-top:20px; padding-top:16px; border-top:1.5px solid var(--border); }
-.iconbtn{ width:36px; height:36px; border-radius:var(--radius-sm); border:1.5px solid var(--border);
-  background:var(--surface2); color:var(--muted); font-size:0.98rem; font-weight:700; cursor:pointer;
-  display:flex; align-items:center; justify-content:center; transition: transform 0.15s, box-shadow 0.15s, color 0.15s; }
-.iconbtn:hover{ box-shadow: var(--shadow-sm); transform: translateY(-1px); color:var(--accent); }
-.iconbtn:active{ transform: translateY(0); }
-.iconbtn[aria-pressed="true"]{ background:var(--accent); color:#fff; border-color:var(--accent); }
-
-/* En "rad" (delas av tallinjen och bråkraderna, för garanterad kant-i-kant) */
-.row{ display:flex; align-items:stretch; gap:8px; }
-.row-tools{ display:flex; align-items:center; justify-content:center; width:30px; flex:none; }
-.grip{ width:26px; height:32px; border-radius:7px; border:1px solid var(--border); background:var(--surface);
-  color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:grab;
-  font-size:13px; user-select:none; touch-action:none; }
-.grip:active{ cursor:grabbing; }
-.row-label{ flex:none; width:128px; display:flex; align-items:center;
-  background: var(--surface); border:1.5px solid var(--border); border-radius: var(--radius-sm);
-  padding: 6px 12px; }
-.row-label .name{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:0.86rem; color:var(--text); line-height:1.15; }
-
-/* Tallinjen (samma kolumnbredder som raderna, för perfekt kantjustering) */
-.nl-row{ margin-bottom:10px; }
-.nl-zone{ flex:1; position:relative; height:108px; }
-.nl-line{ position:absolute; left:-20px; right:-38px; top:50px; height:3px; background:var(--text); }
-.nl-arrow{ position:absolute; right:-49px; top:43px; width:0; height:0;
-  border-top:7px solid transparent; border-bottom:7px solid transparent; border-left:13px solid var(--text); }
-.nl-tick{ position:absolute; top:50px; width:0; }
-.nl-tick .stem{ position:absolute; left:0; top:0; width:2px; height:11px; background:var(--text); transform:translateX(-1px); }
-.nl-tick .lbl{ position:absolute; left:0; top:16px; transform:translateX(-50%); font-size:0.78rem; color:var(--muted);
-  font-weight:600; white-space:nowrap; }
-.nl-tick.major .stem{ height:14px; }
-.nl-tick.major .lbl{ font-size:0.9rem; color:var(--text); font-weight:700; }
-
-.nl-marker{ position:absolute; top:50px; transform:translateX(-50%); transition: left 0.35s ease; }
-.nl-marker .nl-dot{ position:absolute; top:-8px; left:50%; transform:translate(-50%,0); width:17px; height:17px;
-  border-radius:50%; background:var(--marker-color, var(--accent)); border:3px solid #fff;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-.nl-marker .nl-tag{ position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
-  background:var(--surface); border:1.5px solid var(--marker-color, var(--accent)); border-radius:var(--radius-sm);
-  padding:8px 14px; display:flex; align-items:center; gap:10px; white-space:nowrap;
-  box-shadow: var(--shadow-sm); }
-.nl-marker .nl-tag .nl-vals{ display:flex; flex-direction:column; gap:1px; }
-.nl-marker .nl-tag .nl-dec{ font-size:0.88rem; color:var(--muted); font-weight:600; }
-.nl-marker .nl-tag .nl-pct{ font-size:0.82rem; color:var(--marker-color, var(--accent)); font-weight:700; }
-.nl-marker .nl-tag::after{ content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
-  border:7px solid transparent; border-top-color:var(--marker-color, var(--accent)); }
-
-/* Bråktavlan */
-.wall{ display:flex; flex-direction:column; gap:6px; }
-.frow.dragging{ box-shadow: var(--shadow-lg); border-radius: var(--radius-sm); opacity:0.96; }
-.row-placeholder{ border:2px dashed var(--accent); border-radius:8px; background:rgba(48,107,240,0.06); }
-
-.tiles{ flex:1; display:flex; gap:4px; min-height:48px; }
-.tile{ flex:1; min-width:0; border-radius: 7px; border: 1.5px solid var(--tile-border, var(--border));
-  background: var(--tile-bg, var(--surface)); color: var(--tile-text, var(--muted));
-  display:flex; align-items:center; justify-content:center; cursor:pointer; padding:2px;
-  transition: background 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s; }
-.tile:hover{ transform: translateY(-1px); }
-.tile.selected{ background: var(--accent); border-color: var(--accent); color:#fff;
-  box-shadow: 0 3px 14px rgba(48,107,240,0.4); }
-.tile.selected.own-color{ background: var(--row-accent, var(--accent)); border-color: var(--row-accent, var(--accent));
-  box-shadow: 0 3px 14px rgba(0,0,0,0.3); }
-.tile.equivalent{ background: var(--accent2); border-color: var(--accent2); color:#fff;
-  box-shadow: 0 3px 14px rgba(236,96,149,0.4); animation: pulse 0.9s ease-in-out infinite alternate; }
-@keyframes pulse{ from{ filter:brightness(1);} to{ filter:brightness(1.12);} }
-
-/* Dialoger (popup-rutor) */
-dialog{ padding:0; max-width: min(90vw, 460px); }
-dialog::backdrop{ background: rgba(16,14,40,0.38); backdrop-filter: blur(3px); }
-.dialog-card{ background: var(--glass-bg); backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%); border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 24px 26px; position:relative; }
-.dialog-close{ position:absolute; top:14px; right:14px; width:34px; height:34px; }
-.dialog-title{ margin:0 0 16px; font-family:'Montserrat', sans-serif; font-weight:700; font-size:1.1rem;
-  padding-right: 36px; }
-.dialog-card p{ margin:0 0 10px; color:var(--muted); font-size:0.94rem; line-height:1.55; }
-.dialog-card p:last-child{ margin-bottom:0; }
-.dialog-card strong{ color:var(--text); }
-
-.gloss-table{ width:100%; border-collapse:separate; border-spacing:0 6px; }
-.gloss-table td{ background: var(--surface); padding:8px 10px; vertical-align:middle; }
-.gloss-table td.frac-cell{ border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-  border-left:5px solid var(--row-color, var(--border)); padding-left:12px; }
-.gloss-table td.eq{ color:var(--muted); font-weight:700; text-align:center; padding:8px 2px; }
-.gloss-table td.pct-cell{ border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding-right:14px; }
-.gloss-table .dec{ font-weight:700; color:var(--accent); font-size:0.98rem; white-space:nowrap; }
-.gloss-table .pct{ font-weight:700; color:var(--accent2); font-size:0.98rem; white-space:nowrap; }
-
-@media (max-width: 640px){
-  .row-label{ width:78px; padding:5px 8px; }
-  .row-label .name{ font-size:0.72rem; }
-  header h1{ font-size:1.18rem; }
-  header .spacer{ width:0; }
-  .wall-card{ padding-right:56px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Sora', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-footer{ text-align:center; color:var(--muted); font-size:0.8rem; padding:8px 0 24px; }
+header {
+  background: var(--gradient);
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+header h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.header-text { display: flex; flex-direction: column; }
+
+.reset-btn {
+  background: rgba(255,255,255,0.22);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 44px;
+}
+.reset-btn:hover { background: rgba(255,255,255,0.34); }
+.reset-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+main {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 16px 24px 60px;
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: 52px;
+  display: flex;
+  flex-direction: column;
+}
+
+.board-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- Verktygsrad (tunn rad ovanför spelplanen) ---------- */
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 8px 12px;
+}
+
+.switch-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.switch-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+}
+
+.switch-icon {
+  font-size: 0.9rem;
+  width: 16px;
+  text-align: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.switch-text {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+/* Skjutreglage */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.switch-track::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.18s;
+  box-shadow: 0 1px 3px rgba(16,14,40,0.3);
+}
+.switch input:checked + .switch-track { background: var(--accent); }
+.switch input:checked + .switch-track::before { transform: translateX(14px); }
+.switch input:focus-visible + .switch-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.toolbar-sep {
+  width: 1.5px;
+  height: 22px;
+  background: var(--border);
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.icon-btn {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text);
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+  white-space: nowrap;
+}
+.icon-btn:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); }
+.icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.icon-btn.help-btn { color: var(--accent); }
+
+/* Kontextuella brickknappar (dela/duplicera/ta bort markerad) */
+.tile-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.tile-actions .op-btn {
+  padding: 8px 14px;
+  min-height: 38px;
+  font-size: 0.85rem;
+}
+
+.op-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s, opacity 0.15s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.op-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+.op-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.op-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.op-btn.danger { color: var(--wrong); border-color: #f3c9c9; }
+.op-btn.danger:hover:not(:disabled) { border-color: var(--wrong); }
+
+/* ---------- Hjälppanel ---------- */
+.help-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(16,14,40,0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 20px;
+}
+.help-panel.open { display: flex; }
+.help-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 26px;
+  max-width: 420px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.help-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+}
+.help-card dl { margin: 0; }
+.help-card dt {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--accent);
+  margin-top: 14px;
+}
+.help-card dt:first-child { margin-top: 0; }
+.help-card dd {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.help-close {
+  width: 100%;
+  margin-top: 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
+.help-close:hover { opacity: 0.9; }
+
+/* ---------- Upplägg (spara/ladda/exportera) ---------- */
+.saves-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+.saves-new-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.saves-new-row input {
+  flex: 1;
+  height: 44px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--surface2);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-width: 0;
+}
+.saves-new-row input:hover { border-color: var(--accent); }
+.saves-new-row input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(48,107,240,0.15);
+}
+.saves-new-row .op-confirm {
+  flex-shrink: 0;
+  width: auto;
+  padding: 0 18px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+}
+
+.saves-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 14px 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.saves-empty {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 16px 0;
+}
+.save-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.save-item-name {
+  flex: 1;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.save-item-name:hover { color: var(--accent); }
+.save-item button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.95rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+}
+.save-item button:hover { background: var(--surface); color: var(--text); }
+.save-item button.save-delete:hover { color: var(--wrong); }
+
+.saves-file-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-top: 1.5px solid var(--border);
+  padding-top: 14px;
+}
+.saves-file-row .icon-btn {
+  flex: 1;
+  height: 38px;
+}
+
+/* ---------- Spelplan ---------- */
+.board-wrap {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 14px;
+}
+
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.board-header h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+}
+
+.board-hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* ---------- Talrad ovanför spelplanen ---------- */
+.numberline-wrap {
+  position: relative;
+  height: 38px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+.numberline-label {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--text);
+}
+.numberline-tick {
+  position: absolute;
+  bottom: 8px;
+  width: 1px;
+  background: var(--border);
+}
+.numberline-tick.major {
+  background: var(--muted);
+  width: 1px;
+}
+.numberline-axis {
+  position: absolute;
+  bottom: 8px;
+  height: 1px;
+  background: var(--muted);
+}
+
+#board {
+  position: relative;
+  background-image: radial-gradient(rgba(48,107,240,0.16) 1.3px, transparent 1.3px);
+  background-size: 22px 22px;
+  background-position: 4px 4px;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-md);
+  height: 420px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  touch-action: none;
+}
+
+.guide-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.align-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent2);
+  z-index: 30;
+  display: none;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgba(236, 96, 149, 0.6);
+}
+
+/* Jämförelselinje: stabil vertikal linje vid den markerade brickans högerkant,
+   för att förstärka jämförelsen mot andra brickor på spelplanen. */
+.compare-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent2);
+  z-index: 25;
+  display: none;
+  pointer-events: none;
+  opacity: 0.85;
+}
+.compare-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent2);
+}
+
+.tile {
+  position: absolute;
+  height: 37px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #fff;
+  cursor: grab;
+  user-select: none;
+  box-shadow: 0 3px 10px rgba(16,14,40,0.18);
+  border: 1.5px solid rgba(255,255,255,0.55);
+  transition: box-shadow 0.12s, border-color 0.12s;
+  font-size: 0.72rem;
+  letter-spacing: 0.01em;
+}
+.tile:active { cursor: grabbing; }
+.tile.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--text), 0 3px 10px rgba(16,14,40,0.28);
+}
+.tile.co-selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--accent2), 0 3px 10px rgba(16,14,40,0.28);
+}
+.tile .frac-label { pointer-events: none; text-align: center; line-height: 1.1; white-space: nowrap; }
+.tile .frac-label small { display: block; font-size: 0.65em; font-weight: 500; opacity: 0.85; }
+
+.tile.whole {
+  background: var(--text);
+  height: 41px;
+}
+
+/* Segment-linjer inuti en delad bricka */
+.tile .seg-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255,255,255,0.65);
+}
+
+/* ---------- Snabbmeny på markerad bricka ---------- */
+.quick-menu {
+  position: absolute;
+  display: flex;
+  gap: 3px;
+  background: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  white-space: nowrap;
+}
+.quick-menu button {
+  background: none;
+  border: none;
+  color: #fff;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s;
+}
+.quick-menu button:hover { background: rgba(255,255,255,0.18); }
+.quick-menu button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.quick-menu button.danger:hover { background: var(--wrong); }
+.quick-menu::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 16px;
+  border: 6px solid transparent;
+  border-top-color: var(--text);
+  border-bottom: 0;
+}
+
+/* ---------- Operationsknapp (visas när två brickor är markerade) ---------- */
+.op-fab {
+  position: absolute;
+  display: flex;
+  gap: 3px;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 4px;
+  box-shadow: var(--shadow-md);
+  z-index: 60;
+  transform: translate(-50%, -50%);
+}
+.op-fab button {
+  background: rgba(255,255,255,0.16);
+  border: none;
+  color: #fff;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s;
+}
+.op-fab button:hover { background: rgba(255,255,255,0.32); }
+.op-fab button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+
+/* ---------- Operationsdialog (bekräfta addition/subtraktion) ---------- */
+.op-dialog-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(16,14,40,0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 20px;
+}
+.op-dialog-panel.open { display: flex; }
+.op-dialog-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 26px;
+  max-width: 380px;
+  width: 100%;
+}
+.op-dialog-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+}
+.op-dialog-card p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0 0 16px;
+}
+.op-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--text);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.op-preview .op-symbol { color: var(--accent); font-size: 1.5rem; }
+.op-dialog-buttons {
+  display: flex;
+  gap: 10px;
+}
+.op-dialog-buttons button {
+  flex: 1;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  border: 1.5px solid var(--border);
+  transition: transform 0.12s, box-shadow 0.12s, opacity 0.12s, border-color 0.12s;
+}
+.op-confirm { background: var(--accent); color: #fff; border: none !important; box-shadow: 0 2px 8px rgba(48,107,240,0.3); }
+.op-confirm:hover { opacity: 1; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(48,107,240,0.4); }
+.op-confirm:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+.op-dialog-cancel { background: none; color: var(--muted); }
+.op-dialog-cancel:hover { border-color: var(--muted); color: var(--text); }
+
+/* ---------- Steg i räkneoperations-dialogen ---------- */
+.op-step-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.op-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.op-choices button {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 6px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  min-height: 50px;
+  color: var(--text);
+  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s, color 0.12s, background 0.12s;
+}
+.op-choices button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+.op-choices button:active { transform: translateY(0); }
+.op-choices button.wrong-flash {
+  border-color: var(--wrong);
+  color: var(--wrong);
+  background: #fdeaea;
+  animation: op-shake 0.3s;
+}
+@keyframes op-shake {
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+.op-freeinput-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 14px;
+  transition: gap 0.15s;
+}
+.op-freeinput-link:hover { gap: 7px; text-decoration: underline; }
+
+.op-free-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.op-free-row input {
+  width: 76px;
+  height: 46px;
+  text-align: center;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text);
+  background: var(--surface2);
+  padding: 0;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -moz-appearance: textfield;
+}
+.op-free-row input::-webkit-outer-spin-button,
+.op-free-row input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.op-free-row input:hover { border-color: var(--accent); }
+.op-free-row input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(48,107,240,0.15);
+}
+.op-free-row button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0 18px;
+  height: 46px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(48,107,240,0.3);
+  transition: transform 0.12s, box-shadow 0.12s, opacity 0.12s;
+}
+.op-free-row button:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(48,107,240,0.38);
+}
+.op-free-row button:active { transform: translateY(0); }
+
+/* Rad 1 i steg 2: bråket som det ursprungligen skrevs, t.ex. (1/5) + (1/6) */
+.op-echo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+/* Rad 2: samma uppställning, med redigerbara täljare och given gemensam nämnare */
+.op-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.op-input-frac {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.op-input-frac input {
+  width: 56px;
+  height: 44px;
+  text-align: center;
+  text-align-last: center;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text);
+  background: var(--surface2);
+  padding: 0;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  -moz-appearance: textfield;
+}
+.op-input-frac input::-webkit-outer-spin-button,
+.op-input-frac input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.op-input-frac input:hover { border-color: var(--accent); }
+.op-input-frac input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(48,107,240,0.15);
+}
+.op-input-bar {
+  width: 32px;
+  height: 2px;
+  background: var(--text);
+}
+.op-input-frac .op-den-fixed {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--muted);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Kontrollera-knappen i stegdialogen — matchar accentfärgen, med ikon */
+.op-check-btn {
+  width: 100%;
+  height: 46px;
+  border-radius: var(--radius-md) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  background: var(--accent) !important;
+  box-shadow: 0 2px 8px rgba(48,107,240,0.3);
+  transition: transform 0.12s, box-shadow 0.12s, opacity 0.12s;
+}
+.op-check-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(48,107,240,0.4);
+  opacity: 1;
+}
+.op-check-btn:active { transform: translateY(0); }
+.op-check-icon {
+  font-size: 0.95em;
+  transition: transform 0.15s;
+}
+.op-check-btn:hover .op-check-icon {
+  transform: translateX(2px);
+}
+
+.op-feedback {
+  font-size: 0.82rem;
+  min-height: 1.3em;
+  margin-bottom: 10px;
+}
+.op-feedback.error { color: var(--wrong); }
+.op-feedback.hint { color: var(--accent); background: var(--surface2); border-radius: var(--radius-sm); padding: 8px 10px; }
+
+/* Subtraktions-overlay: den mindre brickan täcker den större halvgenomskinligt */
+.tile.subtract-overlay {
+  opacity: 0.55;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255,255,255,0.35) 0px,
+    rgba(255,255,255,0.35) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  border-style: dashed;
+  z-index: 40;
+}
+
+/* ---------- Bricklåda (tray) ---------- */
+.tray-wrap {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 8px;
+}
+
+/* Liten panel under bricklådan i sidebaren, för Hjälp och framtida knappar */
+.side-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 8px;
+  margin-top: 10px;
+}
+.side-actions .icon-btn {
+  width: 100%;
+}
+
+.tray-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+}
+
+.tray-tile {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 4px;
+  text-align: center;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.76rem;
+  color: #fff;
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(16,14,40,0.14);
+}
+.tray-tile:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: var(--shadow-sm); }
+.tray-tile:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.tray-tile.whole-tray {
+  background: var(--text);
+  grid-column: 1 / -1;
+  min-height: 32px;
+  font-size: 0.8rem;
+}
+
+.tray-sep {
+  height: 1.5px;
+  width: auto;
+  grid-column: 1 / -1;
+  background: var(--border);
+  margin: 2px 0;
+}
+
+/* ---------- Anpassad bricka (i samma panel, under separatorlinjen) ---------- */
+.custom-frac {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-frac-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+.custom-frac-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.custom-frac-inputs input {
+  width: 42px;
+  height: 28px;
+  text-align: center;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--surface2);
+  padding: 0;
+  -moz-appearance: textfield;
+}
+.custom-frac-inputs input::-webkit-outer-spin-button,
+.custom-frac-inputs input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.custom-frac-inputs input:focus-visible { outline: 2px solid var(--accent); border-color: var(--accent); }
+
+.custom-frac-bar {
+  width: 28px;
+  height: 2px;
+  background: var(--text);
+  margin: 3px 0;
+}
+
+.custom-frac-add {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0 14px;
+  height: 30px;
+  width: 100%;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.custom-frac-add:hover { opacity: 0.88; }
+.custom-frac-add:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+.custom-frac-error {
+  color: var(--wrong);
+  font-size: 0.76rem;
+  min-height: 1.1em;
+}
+
+/* ---------- Split-panel ---------- */
+.split-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(16,14,40,0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+.split-panel.open { display: flex; }
+.split-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 26px;
+  max-width: 340px;
+  width: 100%;
+}
+.split-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+}
+.split-card p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0 0 16px;
+}
+.split-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.split-options button {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 0;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 46px;
+  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s, color 0.12s;
+}
+.split-options button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.split-options button:active { transform: translateY(0); }
+.split-cancel {
+  width: 100%;
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 20px;
+}
+
+/* ---------- Radsumma (döljs bakom toggle) ---------- */
+.row-sum {
+  position: absolute;
+  right: 12px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  white-space: nowrap;
+  z-index: 20;
+}
+.row-sum.over-whole { color: var(--wrong); border-color: var(--wrong); background: #fdeaea; }
+.row-sum.exact-whole { color: var(--correct); border-color: var(--correct); background: #e9f7ee; }
+
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  #board { height: 400px; }
+  .tray-grid { grid-template-columns: repeat(3, 1fr); }
+}
 </style>
 </head>
 <body>
 
-<div class="ambient"><span class="b1"></span><span class="b2"></span><span class="b3"></span></div>
-
 <header>
-  <a class="back" href="../index.html">← Verktyg</a>
-  <h1>Bråktavla</h1>
-  <div class="spacer"></div>
+  <div class="header-text">
+    <h1>Bråkbrickor</h1>
+  </div>
 </header>
 
 <main>
-  <section class="glass wall-card">
-    <div class="row nl-row" aria-hidden="true">
-      <div class="row-tools" style="visibility:hidden"></div>
-      <div class="row-label" style="visibility:hidden"></div>
-      <div class="nl-zone" id="nlZone">
-        <div class="nl-line"></div>
-        <div class="nl-arrow"></div>
-        <div id="nlTicks"></div>
-        <div id="nlMarkers"></div>
+
+  <div class="sidebar">
+    <div class="tray-wrap">
+      <div class="tray-grid" id="tray">
+        <!-- Brickknappar och eget bråk fylls i av JS, färgkodade som på spelplanen -->
+        <div class="tray-sep" id="traySep"></div>
+        <div class="custom-frac">
+          <span class="custom-frac-label">Eget bråk:</span>
+          <div class="custom-frac-inputs">
+            <input type="number" id="customNum" min="1" max="99" value="4" aria-label="Täljare">
+            <div class="custom-frac-bar"></div>
+            <input type="number" id="customDen" min="1" max="99" value="7" aria-label="Nämnare">
+          </div>
+          <button class="custom-frac-add" id="customAddBtn">Lägg till</button>
+          <div class="custom-frac-error" id="customError"></div>
+        </div>
       </div>
     </div>
 
-    <div id="traceLines"></div>
-    <div class="wall" id="wall"></div>
+    <div class="side-actions">
+      <button class="icon-btn" id="savesBtn" title="Spara, ladda eller exportera upplägg för spelplanen">💾 Upplägg</button>
+      <button class="icon-btn help-btn" id="helpBtn" title="Öppna hjälp och förklaringar för alla funktioner">ⓘ Hjälp</button>
+    </div>
+  </div>
+
+  <div class="board-col">
+    <div class="board-wrap">
+      <div class="numberline-wrap" id="numberline"></div>
+      <div id="board">
+        <div class="compare-line" id="compareLine"></div>
+        <div class="quick-menu" id="quickMenu" style="display:none;">
+          <button id="qmSplit" title="Dela upp">✂</button>
+          <button id="qmDup" title="Duplicera">⧉</button>
+          <button id="qmDelete" class="danger" title="Ta bort">✕</button>
+        </div>
+        <div class="op-fab" id="opFab" style="display:none;">
+          <button id="opAdd" title="Addera de två markerade brickorna">+</button>
+          <button id="opSub" title="Subtrahera den mindre från den större">−</button>
+        </div>
+      </div>
+    </div>
 
     <div class="toolbar">
-      <button class="iconbtn" id="themeBtn" type="button" title="Växla mörkt bakgrundstema (PT Mörk)" aria-label="Växla mörkt bakgrundstema" aria-pressed="false">🌙</button>
-      <button class="iconbtn" id="helpBtn" type="button" title="Så här funkar bråktavlan" aria-label="Visa hjälp om hur bråktavlan funkar">?</button>
-      <button class="iconbtn" id="glossaryBtn" type="button" title="Stambråk & decimalform" aria-label="Visa lista över stambråk och deras decimalform" aria-pressed="false">🔢</button>
-      <button class="iconbtn" id="facitBtn" type="button" title="Facit: visar alla likvärdiga bråk automatiskt (klicka för övningsläge)" aria-label="Växla mellan facit och övningsläge" aria-pressed="true">🎯</button>
-      <button class="iconbtn" id="clearBtn" type="button" title="Nollställ markering" aria-label="Nollställ markering">✕</button>
-      <button class="iconbtn" id="resetOrderBtn" type="button" title="Återställ ordning" aria-label="Återställ ordning på raderna">↺</button>
-    </div>
-  </section>
+      <label class="switch-item" title="Visa de tunna linjerna som markerar delarna inuti en bricka, t.ex. de fyra sjundedelarna i en 4/7-bricka. Bra för att visa förlängning.">
+        <span class="switch-icon">▤</span>
+        <span class="switch-text">Delar i brickan</span>
+        <span class="switch">
+          <input type="checkbox" id="segToggle">
+          <span class="switch-track"></span>
+        </span>
+      </label>
 
-  <footer>Tegnefurs Matte · PT Verktyg</footer>
+      <label class="switch-item" title="Visa den graderade talraden (0–2) ovanför spelplanen, med tiondelsstreck.">
+        <span class="switch-icon">↔</span>
+        <span class="switch-text">Talrad</span>
+        <span class="switch">
+          <input type="checkbox" id="numlineToggle" checked>
+          <span class="switch-track"></span>
+        </span>
+      </label>
+
+      <label class="switch-item" title="Visa försiktiga vertikala färgstrålar rakt ner genom spelplanen vid talen 0, 1 och 2, som hjälp för ögat.">
+        <span class="switch-icon">┆</span>
+        <span class="switch-text">Hjälplinjer</span>
+        <span class="switch">
+          <input type="checkbox" id="guideToggle" checked>
+          <span class="switch-track"></span>
+        </span>
+      </label>
+
+      <label class="switch-item" title="Visa summan av bråken på varje rad, förenklad till enklaste form — grön om den är exakt 1, röd om den är större än 1.">
+        <span class="switch-icon">Σ</span>
+        <span class="switch-text">Summa per rad</span>
+        <span class="switch">
+          <input type="checkbox" id="sumToggle">
+          <span class="switch-track"></span>
+        </span>
+      </label>
+
+      <label class="switch-item" title="Rita en vertikal linje genom hela spelplanen vid den markerade brickans högerkant, för att förstärka jämförelsen mot andra brickor — t.ex. skillnaden mellan 1/7 och 1/8.">
+        <span class="switch-icon">⊦</span>
+        <span class="switch-text">Jämförelselinje</span>
+        <span class="switch">
+          <input type="checkbox" id="compareToggle">
+          <span class="switch-track"></span>
+        </span>
+      </label>
+
+      <label class="switch-item" title="Styr räkneoperationer. På: eleven leds genom gemensam nämnare, förlängda täljare och svaret i tre steg. Av: additionen/subtraktionen utförs direkt utan frågor — bra för snabba demonstrationer.">
+        <span class="switch-icon">🎓</span>
+        <span class="switch-text">Guidat läge</span>
+        <span class="switch">
+          <input type="checkbox" id="guidedToggle" checked>
+          <span class="switch-track"></span>
+        </span>
+      </label>
+
+      <div class="toolbar-sep"></div>
+
+      <div class="toolbar-actions">
+        <button class="icon-btn" id="resetBtn" title="Ta bort alla brickor och börja om från en tom spelplan">🗑 Rensa</button>
+      </div>
+    </div>
+  </div>
+
 </main>
 
-<dialog id="helpDialog">
-  <div class="dialog-card">
-    <button class="iconbtn dialog-close" type="button" data-close aria-label="Stäng hjälp">✕</button>
-    <h2 class="dialog-title">Så här funkar bråktavlan</h2>
-    <p><strong>Klicka</strong> på en bit i tavlan för att markera bråket från vänster kant. Rader med exakt samma värde lyser upp i en annan färg — ett sätt att <em>se</em> att bråk kan skrivas på flera sätt.</p>
-    <p><strong>Dra</strong> i handtaget ⋮⋮ för att flytta rader upp och ner — lägg till exempel fjärdedelar och åttondelar bredvid varandra för att jämföra dem extra tydligt. Handtaget kan även flyttas med piltangenterna när det är fokuserat.</p>
+<div class="split-panel" id="splitPanel">
+  <div class="split-card">
+    <h3>Dela upp bricka</h3>
+    <p>Hur många lika stora delar vill du dela upp den i?</p>
+    <div class="split-options" id="splitOptions"></div>
+    <button class="split-cancel" id="splitCancel">Avbryt</button>
   </div>
-</dialog>
+</div>
 
-<dialog id="glossaryDialog">
-  <div class="dialog-card">
-    <button class="iconbtn dialog-close" type="button" data-close aria-label="Stäng listan">✕</button>
-    <h2 class="dialog-title">Stambråk & decimalform</h2>
-    <table class="gloss-table" id="glossTable"></table>
+<div class="op-dialog-panel" id="opDialogPanel">
+  <div class="op-dialog-card">
+    <h3 id="opDialogTitle">Räkneoperation</h3>
+    <div class="op-step-label" id="opStepLabel" style="display:none;"></div>
+    <p id="opDialogDesc"></p>
+    <div class="op-preview" id="opPreview"></div>
+    <div id="opStepBody"></div>
+    <div class="op-feedback" id="opFeedback"></div>
+    <div class="op-dialog-buttons">
+      <button class="op-dialog-cancel" id="opDialogCancel">Avbryt</button>
+      <button class="op-confirm" id="opDialogConfirm" style="display:none;">Bekräfta</button>
+    </div>
   </div>
-</dialog>
+</div>
+
+<div class="help-panel" id="helpPanel">
+  <div class="help-card">
+    <h3>Hjälp</h3>
+    <dl>
+      <dt>Lägga till brickor</dt>
+      <dd>Klicka på en bricka i panelen längst ner för att lägga till den på spelplanen. Under separatorlinjen kan du även skriva in ett eget bråk (valfri täljare och nämnare).</dd>
+      <dt>Flytta och jämföra</dt>
+      <dd>Dra en bricka i sidled — den snappar mot vänsterkanten eller mot kanten av en annan bricka, så du enkelt kan lägga bråk sida vid sida eller efter varandra på samma rad för att jämföra längder eller summor. Brickor kan aldrig hamna ovanpå varandra.</dd>
+      <dt>Verktyg på en markerad bricka</dt>
+      <dd>Klicka en gång till på en redan markerad bricka för att fälla ut en liten meny med Dela upp, Duplicera och Ta bort — eller slå på reglaget "Verktyg vid markering" ovan för att alltid visa den direkt.</dd>
+      <dt>Dela upp en bricka</dt>
+      <dd>Ger dig valet att dela brickan i fler, mindre lika stora delar (t.ex. tredjedelar → niondelar), vilket visar förlängning. Om täljaren är större än 1 (t.ex. 4/7) erbjuds även "bryt ner i enskilda delar" — det ger fyra separata sjundedels-brickor, praktiskt för att jämföra icke-stambråk mot varandra.</dd>
+      <dt>Visa delar i brickan</dt>
+      <dd>Styr om de tunna linjerna som visar delarna inuti en bricka syns. Avstängt som standard, så en bricka som 4/7 ser ut som en egen sammanhållen enhet.</dd>
+      <dt>Talrad</dt>
+      <dd>Visar en graderad tallinje (0–2, med tiondelsstreck) ovanför spelplanen. En hel-bricka är exakt lika bred som sträckan 0–1, så bråk som 5/3 syns tydligt sträcka sig förbi 1.</dd>
+      <dt>Hjälplinjer</dt>
+      <dd>Tre försiktiga färgstrålar rakt ner genom spelplanen vid talen 0, 1 och 2, som gör det lättare att se var brickorna börjar och slutar i förhållande till talraden.</dd>
+      <dt>Summa per rad</dt>
+      <dd>Visar summan av alla brickor på varje rad, förenklad till enklaste form. Bra att slå på när ni vill se facit efter att ha resonerat er fram visuellt.</dd>
+      <dt>Jämförelselinje</dt>
+      <dd>Ritar en vertikal linje genom hela spelplanen vid den markerade brickans högerkant. Förstärker små skillnader mellan bråk — markera t.ex. 1/7 och se tydligt hur långt ifrån 1/8 den ligger.</dd>
+      <dt>Addera och subtrahera</dt>
+      <dd>Markera en bricka, håll sedan ned Skift och klicka på en till (eller dra en bricka in i en annan) för att markera två brickor samtidigt. En +/−-knapp dyker upp mellan dem. I guidat läge leds ni genom gemensam nämnare, förlängda täljare och svaret i tre steg. Med guidat läge avstängt utförs operationen direkt.</dd>
+      <dt>Guidat läge</dt>
+      <dd>På: eleven får själv resonera fram gemensam nämnare och räkna ut svaret i tre steg innan resultatet visas — bra för undervisning. Av: additionen eller subtraktionen utförs direkt utan frågor, användbart för snabba demonstrationer på tavlan.</dd>
+      <dt>Upplägg</dt>
+      <dd>Spara aktuell spelplan under ett namn för att snabbt kunna öppna den igen senare. Sparas i den här webbläsaren. Du kan även exportera ett upplägg till en fil för att ta med det till en annan dator, och importera en fil du fått eller sparat tidigare.</dd>
+    </dl>
+    <button class="help-close" id="helpClose">Stäng</button>
+  </div>
+</div>
+
+<div class="help-panel" id="savesPanel">
+  <div class="help-card">
+    <h3>Upplägg</h3>
+    <p class="saves-hint">Spara det aktuella läget på spelplanen under ett namn, eller öppna ett tidigare sparat upplägg.</p>
+
+    <div class="saves-new-row">
+      <input type="text" id="saveNameInput" placeholder="Namn på upplägget, t.ex. Åk 7 sjundedelar" maxlength="60">
+      <button class="op-confirm" id="saveNowBtn">Spara</button>
+    </div>
+    <div class="custom-frac-error" id="saveError"></div>
+
+    <div class="saves-list" id="savesList">
+      <!-- Fylls i av JS -->
+    </div>
+
+    <div class="saves-file-row">
+      <button class="icon-btn" id="exportBtn" title="Ladda ner aktuell spelplan som en fil">⬇ Exportera aktuell</button>
+      <button class="icon-btn" id="importBtn" title="Läs in ett upplägg från en fil">⬆ Importera fil</button>
+      <input type="file" id="importFileInput" accept="application/json" style="display:none;">
+    </div>
+  </div>
+</div>
+
+<footer>Tegnefurs Matte · PT Ljus</footer>
+
 
 <script>
-(function(){
-  "use strict";
+(function () {
+  const board = document.getElementById('board');
+  const tray = document.getElementById('tray');
+  const traySep = document.getElementById('traySep');
+  const resetBtn = document.getElementById('resetBtn');
+  const helpBtn = document.getElementById('helpBtn');
+  const helpPanel = document.getElementById('helpPanel');
+  const helpClose = document.getElementById('helpClose');
+  const savesBtn = document.getElementById('savesBtn');
+  const savesPanel = document.getElementById('savesPanel');
+  const saveNameInput = document.getElementById('saveNameInput');
+  const saveNowBtn = document.getElementById('saveNowBtn');
+  const saveError = document.getElementById('saveError');
+  const savesList = document.getElementById('savesList');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const importFileInput = document.getElementById('importFileInput');
+  const splitPanel = document.getElementById('splitPanel');
+  const splitOptions = document.getElementById('splitOptions');
+  const splitCancel = document.getElementById('splitCancel');
+  const quickMenu = document.getElementById('quickMenu');
+  const compareLine = document.getElementById('compareLine');
+  const compareToggle = document.getElementById('compareToggle');
+  const qmSplit = document.getElementById('qmSplit');
+  const qmDup = document.getElementById('qmDup');
+  const qmDelete = document.getElementById('qmDelete');
+  const customNum = document.getElementById('customNum');
+  const customDen = document.getElementById('customDen');
+  const customAddBtn = document.getElementById('customAddBtn');
+  const customError = document.getElementById('customError');
+  const segToggle = document.getElementById('segToggle');
 
-  var NAMES = {
-    1:"En hel", 2:"Halvor", 3:"Tredjedelar", 4:"Fjärdedelar", 5:"Femtedelar",
-    6:"Sjättedelar", 7:"Sjundedelar", 8:"Åttondelar", 9:"Niondedelar",
-    10:"Tiondedelar", 11:"Elftedelar", 12:"Tolftedelar"
-  };
-  var DENOMS = [1,2,3,4,5,6,7,8,9,10,11,12];
+  const sumToggle = document.getElementById('sumToggle');
+  const guidedToggle = document.getElementById('guidedToggle');
+  const numlineToggle = document.getElementById('numlineToggle');
+  const guideToggle = document.getElementById('guideToggle');
+  const opFab = document.getElementById('opFab');
+  const opAdd = document.getElementById('opAdd');
+  const opSub = document.getElementById('opSub');
+  const opDialogPanel = document.getElementById('opDialogPanel');
+  const opDialogTitle = document.getElementById('opDialogTitle');
+  const opDialogDesc = document.getElementById('opDialogDesc');
+  const opPreview = document.getElementById('opPreview');
+  const opDialogCancel = document.getElementById('opDialogCancel');
+  const opDialogConfirm = document.getElementById('opDialogConfirm');
 
-  var wallEl = document.getElementById('wall');
-  var nlZone = document.getElementById('nlZone');
-  var nlTicks = document.getElementById('nlTicks');
-  var nlMarkersEl = document.getElementById('nlMarkers');
-  var wallCard = document.querySelector('.wall-card');
-  var traceLinesEl = document.getElementById('traceLines');
+  // Talraden går 0–2. WHOLE_PERCENT är bredden av EN enhet (talet 1) i procent
+  // av spelplanens bredd — en 1/1-bricka blir alltså exakt lika bred som
+  // sträckan 0–1 på talraden. TILE_LEFT är var på spelplanen talet 0 sitter.
+  const NUMLINE_MAX = 2;
+  const WHOLE_PERCENT = 40; // 2 × 40% = 80% av bredden upptas av talraden 0–2, resten är marginal
+  const TILE_LEFT = 3;      // procent — avstånd från spelplanens vänsterkant till talet 0
+  const ROW_HEIGHT = 52;    // pixlar per rad
+  const TILE_HEIGHT = 37;
+  const WHOLE_HEIGHT = 41;  // hel-brickans höjd, något högre än övriga
+  const MAX_ROW = 10;       // fler rader tillgängliga för att stapla summor mot en helhet
+  const SNAP_MARGIN = 2.2;  // procent — avstånd inom vilket brickor snappar mot varandra/talraden
 
-  var selectedList = []; // array of { n, k } -> value k/n, k tiles filled from the left
-  var facitMode = true; // false = övningsläge: likvärdiga bråk lyser inte upp automatiskt, flera bråk kan markeras samtidigt
-
-  function gcd(a,b){ return b===0 ? a : gcd(b, a%b); }
-
-  function hexToRgb(hex){ var v=parseInt(hex.slice(1),16); return [(v>>16)&255,(v>>8)&255,v&255]; }
-  function rgbToHex(r,g,b){
-    function h(c){ c=Math.max(0,Math.min(255,Math.round(c))); var s=c.toString(16); return s.length<2?'0'+s:s; }
-    return '#'+h(r)+h(g)+h(b);
+  // Bredden (i procent av spelplanen) av en bricka
+  function tileWidth(t) {
+    return t.isWhole ? WHOLE_PERCENT : WHOLE_PERCENT * (t.num / t.den);
   }
-  function mix(hexA,hexB,t){ var a=hexToRgb(hexA), b=hexToRgb(hexB);
-    return rgbToHex(a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t); }
-  function gradientColor(t){
-    if(t<=0.5) return mix('#66C7C2','#F4A261', t/0.5);
-    return mix('#F4A261','#EC6095',(t-0.5)/0.5);
-  }
-  function lighten(hex, amount){ return mix(hex,'#ffffff',amount); }
 
-  function vfracHTML(num, den, sizeClass){
-    return '<span class="vfrac '+(sizeClass||'')+'"><span class="num">'+num+'</span><span class="den">'+den+'</span></span>';
-  }
+  // Max tillåtet t.x + bredd (relativt talet 0) — generös gräns så brickor som
+  // sträcker sig förbi 2 på talraden (t.ex. 5/3, som går till x ≈ 1.67) ändå får plats.
+  const MAX_TILE_RIGHT = 96 - TILE_LEFT;
 
-  function factorOut(n,p){ var count=0; while(n % p === 0){ n = n/p; count++; } return { n:n, count:count }; }
+  // ---------- Talrad 0–2, graderad med tiondelar ----------
+  const numberlineEl = document.getElementById('numberline');
+  function renderNumberline() {
+    numberlineEl.innerHTML = '';
+    const steps = NUMLINE_MAX * 10; // tiondelssteg
+    for (let i = 0; i <= steps; i++) {
+      const value = i / 10;
+      const xPercent = TILE_LEFT + value * WHOLE_PERCENT;
+      const isMajor = (i % 5 === 0); // helhet eller halv
+      const tick = document.createElement('div');
+      tick.className = 'numberline-tick' + (isMajor ? ' major' : '');
+      tick.style.left = xPercent + '%';
+      tick.style.height = isMajor ? '16px' : '9px';
+      numberlineEl.appendChild(tick);
 
-  function decimalInfo(k,n){
-    var g = gcd(k,n); k = k/g; n = n/g;
-    if(n===1) return { text:String(k), exact:true };
-    var r2 = factorOut(n,2);
-    var r5 = factorOut(r2.n,5);
-    if(r5.n===1){
-      var maxPow = Math.max(r2.count, r5.count);
-      var mul2 = maxPow - r2.count, mul5 = maxPow - r5.count;
-      var scaled = k * Math.pow(2,mul2) * Math.pow(5,mul5);
-      var digits = String(scaled);
-      while(digits.length < maxPow) digits = '0'+digits;
-      return { text:'0,'+digits, exact:true };
+      if (i % 5 === 0) {
+        const label = document.createElement('div');
+        label.className = 'numberline-label';
+        label.style.left = xPercent + '%';
+        label.textContent = (value % 1 === 0) ? value : value.toString().replace('.', ',');
+        numberlineEl.appendChild(label);
+      }
     }
-    var approx = Math.floor((k/n)*1000)/1000;
-    var digits2 = approx.toFixed(3).split('.')[1];
-    return { text:'≈0,'+digits2+'…', exact:false };
-  }
 
-  function percentInfo(k,n){
-    var g = gcd(k,n); k = k/g; n = n/g;
-    var numP = k*100;
-    var g2 = gcd(numP, n);
-    var pNum = numP/g2, pDen = n/g2;
-    if(pDen===1) return { text: pNum + ' %', exact:true };
-    var r2 = factorOut(pDen,2);
-    var r5 = factorOut(r2.n,5);
-    if(r5.n===1){
-      var maxPow = Math.max(r2.count, r5.count);
-      var mul2 = maxPow - r2.count, mul5 = maxPow - r5.count;
-      var scaled = pNum * Math.pow(2,mul2) * Math.pow(5,mul5);
-      var pow10 = Math.pow(10,maxPow);
-      var whole = Math.floor(scaled/pow10);
-      var fracPart = scaled - whole*pow10;
-      if(fracPart===0) return { text: whole+' %', exact:true };
-      var digits = String(fracPart);
-      while(digits.length < maxPow) digits = '0'+digits;
-      return { text: whole+','+digits+' %', exact:true };
+    // Själva linjen som binder ihop alla streck (som en linjal, utan pil)
+    const axis = document.createElement('div');
+    axis.className = 'numberline-axis';
+    axis.style.left = TILE_LEFT + '%';
+    axis.style.width = (NUMLINE_MAX * WHOLE_PERCENT) + '%';
+    numberlineEl.appendChild(axis);
+  }
+  renderNumberline();
+
+  // Försiktiga vertikala färgstrålar rakt ner genom spelplanen vid talen 0, 1, 2
+  function renderGuideLines() {
+    Array.from(board.querySelectorAll('.guide-line')).forEach(el => el.remove());
+    for (let value = 0; value <= NUMLINE_MAX; value++) {
+      const line = document.createElement('div');
+      line.className = 'guide-line';
+      line.style.left = (TILE_LEFT + value * WHOLE_PERCENT) + '%';
+      board.appendChild(line);
     }
-    var approxPct = (k/n)*100;
-    var truncated = Math.floor(approxPct*10)/10;
-    var parts = truncated.toFixed(1).split('.');
-    return { text:'≈'+parts[0]+','+parts[1]+' %', exact:false };
+  }
+  renderGuideLines();
+
+  let tiles = []; // {id, num, den, x(%), row, color}
+  let nextId = 1;
+  let selectedId = null;
+  let dragState = null;
+  let showSegments = false;  // toggle: visa delningslinjer inuti brickor (av som standard — brickan ska se hel ut)
+  let showRowSums = false;   // toggle: visa summan av brickorna på varje rad
+  let showCompareLine = false; // toggle: vertikal linje vid markerad brickas högerkant
+  let guidedMode = true;     // toggle: räkneoperationer leds i tre steg (av: utförs direkt)
+  let menuVisibleForId = null; // vilken bricka som just nu visar snabbmenyn (klick nr 2)
+  let coSelectedId = null;   // andra markerade brickan (skift-klick), för addition/subtraktion
+  let pendingOp = null;      // {kind: 'add'|'sub', aId, bId} — väntar på bekräftelse i dialogen
+
+  const gradientColors = ['#66C7C2', '#F4A261', '#EC6095', '#306BF0'];
+  function colorFor(den) {
+    // Ger varje unikt nämnarvärde en konsekvent färg ur paletten
+    const palette = ['#306BF0', '#66C7C2', '#F4A261', '#EC6095', '#8B6FEA', '#3aada8', '#d4813a', '#c43d75'];
+    return palette[(den - 1) % palette.length];
   }
 
-  function animateReorder(mutate){
-    var rows = Array.prototype.slice.call(wallEl.querySelectorAll('.frow:not(.dragging)'));
-    var first = {};
-    rows.forEach(function(r){ first[r.dataset.n] = r.getBoundingClientRect().top; });
-    mutate();
-    var rows2 = Array.prototype.slice.call(wallEl.querySelectorAll('.frow:not(.dragging)'));
-    rows2.forEach(function(r){
-      var last = r.getBoundingClientRect().top;
-      var delta = first[r.dataset.n] - last;
-      if(delta){
-        r.style.transition = 'none';
-        r.style.transform = 'translateY('+delta+'px)';
-        requestAnimationFrame(function(){
-          r.style.transition = 'transform 0.22s ease';
-          r.style.transform = '';
+  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+  function lcm(a, b) { return (a / gcd(a, b)) * b; }
+  function simplify(num, den) {
+    const g = gcd(num, den);
+    return [num / g, den / g];
+  }
+
+  // ---------- Bygg bricklådan ----------
+  const trayDefs = [
+    { label: '1', sub: 'hel', num: 1, den: 1, whole: true },
+    { num: 1, den: 2 }, { num: 1, den: 3 }, { num: 1, den: 4 },
+    { num: 1, den: 5 }, { num: 1, den: 6 }, { num: 1, den: 7 },
+    { num: 1, den: 8 }, { num: 1, den: 9 }, { num: 1, den: 10 },
+    { num: 1, den: 12 }
+  ];
+
+  trayDefs.forEach(def => {
+    const btn = document.createElement('button');
+    btn.className = 'tray-tile' + (def.whole ? ' whole-tray' : '');
+    btn.style.background = def.whole ? 'var(--text)' : colorFor(def.den);
+    btn.innerHTML = def.whole
+      ? '1 <span style="font-weight:500;font-size:0.8em;margin-left:4px;">(hel)</span>'
+      : fracHTML(def.num, def.den);
+    btn.title = def.whole ? 'Lägg till en hel' : `Lägg till ${def.num}/${def.den}`;
+    btn.addEventListener('click', () => addTile(def.num, def.den, def.whole));
+    tray.insertBefore(btn, traySep);
+  });
+
+  function fracHTML(num, den) {
+    if (den === 1) return num.toString();
+    return `<span style="display:inline-flex;flex-direction:column;align-items:center;line-height:1;font-size:0.95em;">
+      <span>${num}</span>
+      <span style="width:100%;border-top:2px solid currentColor;margin:2px 0;"></span>
+      <span>${den}</span>
+    </span>`;
+  }
+
+  // ---------- Lägg till bricka ----------
+  function addTile(num, den, isWhole) {
+    const row = findFreeRow();
+    const t = {
+      id: nextId++,
+      num, den,
+      isWhole: !!isWhole,
+      x: 0, // procent, relativt talet 0 på talraden
+      row,
+      color: isWhole ? null : colorFor(den)
+    };
+    tiles.push(t);
+    render();
+    select(t.id);
+  }
+
+  function findFreeRow() {
+    const usedRows = new Set(tiles.map(t => t.row));
+    let r = 0;
+    while (usedRows.has(r) && r < MAX_ROW) r++;
+    return r;
+  }
+
+  // ---------- Rendera ----------
+  function render() {
+    // rensa allt utom guide-linjen
+    Array.from(board.querySelectorAll('.tile')).forEach(el => el.remove());
+
+    const boardWidth = board.clientWidth;
+
+    tiles.forEach(t => {
+      const el = document.createElement('div');
+      el.className = 'tile' + (t.isWhole ? ' whole' : '') + (t.id === selectedId ? ' selected' : '') + (t.id === coSelectedId ? ' co-selected' : '');
+      el.dataset.id = t.id;
+
+      const widthPercent = tileWidth(t);
+      el.style.width = widthPercent + '%';
+      el.style.left = (TILE_LEFT + t.x) + '%';
+      el.style.top = (12 + t.row * ROW_HEIGHT) + 'px';
+      el.style.height = (t.isWhole ? WHOLE_HEIGHT : TILE_HEIGHT) + 'px';
+      if (!t.isWhole) el.style.background = t.color;
+
+      const [sn, sd] = simplify(t.num, t.den);
+      const displayNum = t.num, displayDen = t.den;
+      const label = document.createElement('div');
+      label.className = 'frac-label';
+      if (t.isWhole) {
+        label.innerHTML = '1 <small>hel</small>';
+      } else if (t.den <= 20 || widthPercent > 6) {
+        label.innerHTML = fracHTML(displayNum, displayDen);
+      }
+      el.appendChild(label);
+      el.title = t.isWhole ? '1 (hel)' : `${displayNum}/${displayDen}`;
+
+      // Segmentlinjer om täljaren > 1 (visar delarna inuti — kan döljas via toggle
+      // så brickan "andas" som en egen enhet)
+      if (showSegments && !t.isWhole && t.num > 1) {
+        for (let i = 1; i < t.num; i++) {
+          const seg = document.createElement('div');
+          seg.className = 'seg-line';
+          seg.style.left = (i / t.num * 100) + '%';
+          el.appendChild(seg);
+        }
+      }
+
+      el.addEventListener('pointerdown', (e) => onPointerDown(e, t.id));
+      board.appendChild(el);
+    });
+
+    // Radsummor (döljs bakom "Visa summa per rad"-toggle)
+    Array.from(board.querySelectorAll('.row-sum')).forEach(el => el.remove());
+    if (showRowSums) {
+      const rows = new Set(tiles.map(t => t.row));
+      rows.forEach(row => {
+        const rowTiles = tiles.filter(t => t.row === row);
+        if (rowTiles.length === 0) return;
+        let sumNum = 0, sumDen = 1;
+        rowTiles.forEach(t => {
+          const n = t.isWhole ? 1 : t.num;
+          const d = t.isWhole ? 1 : t.den;
+          const newDen = lcm(sumDen, d);
+          sumNum = sumNum * (newDen / sumDen) + n * (newDen / d);
+          sumDen = newDen;
         });
+        const [simpNum, simpDen] = simplify(sumNum, sumDen);
+        const label = document.createElement('div');
+        label.className = 'row-sum';
+        if (simpNum === simpDen) label.classList.add('exact-whole');
+        else if (simpNum > simpDen) label.classList.add('over-whole');
+        label.textContent = 'Summa: ' + (simpDen === 1 ? simpNum : simpNum + '/' + simpDen);
+        // Centrera chippet vertikalt mot radens bricka (samma höjd som en hel om det finns en, annars vanlig brickhöjd)
+        const rowTileHeight = rowTiles.some(t => t.isWhole) ? WHOLE_HEIGHT : TILE_HEIGHT;
+        label.style.top = (12 + row * ROW_HEIGHT + rowTileHeight / 2 - 12) + 'px';
+        board.appendChild(label);
+      });
+    }
+
+    positionQuickMenu();
+    positionCompareLine();
+    positionOpFab();
+  }
+
+  function select(id, shiftKey) {
+    if (shiftKey && selectedId !== null && id !== selectedId) {
+      // Skift-klick på en andra bricka: markera den som co-selected för +/-
+      coSelectedId = id;
+      menuVisibleForId = null; // döljer ensam-bricka-menyn när två är valda
+    } else if (id === selectedId) {
+      // Klick nummer två på redan markerad bricka. För helheten (1) går man
+      // rakt till delnings-dialogen — det är den vanligaste åtgärden på den,
+      // och en genväg direkt på startbrickan var efterfrågad. Övriga brickor
+      // fäller ut snabbmenyn (✂ ⧉ ✕) som vanligt.
+      const t = tiles.find(t => t.id === id);
+      if (t && t.isWhole) {
+        coSelectedId = null;
+        menuVisibleForId = null;
+        render();
+        positionQuickMenu();
+        positionCompareLine();
+        positionOpFab();
+        handleOpenSplit();
+        return;
       }
-    });
-  }
-
-  function buildRow(n){
-    var row = document.createElement('div');
-    row.className = 'row frow';
-    row.dataset.n = n;
-
-    var t = (n-1)/(DENOMS.length-1);
-    var base = gradientColor(t);
-    var tint = lighten(base, 0.82);
-    row.style.setProperty('--row-accent', base);
-
-    var tools = document.createElement('div');
-    tools.className = 'row-tools';
-
-    var grip = document.createElement('div');
-    grip.className='grip'; grip.textContent='⋮⋮';
-    grip.tabIndex = 0;
-    grip.setAttribute('role','button');
-    grip.setAttribute('aria-label','Flytta raden ' + NAMES[n] + '. Dra, eller använd piltangenterna upp och ner.');
-    tools.appendChild(grip);
-
-    var label = document.createElement('div');
-    label.className='row-label';
-    label.style.borderColor = base;
-    var nameEl = document.createElement('div');
-    nameEl.className='name'; nameEl.textContent = NAMES[n];
-    label.appendChild(nameEl);
-
-    var tiles = document.createElement('div');
-    tiles.className='tiles';
-    for(var i=0;i<n;i++){
-      var tile = document.createElement('button');
-      tile.type='button'; tile.className='tile';
-      tile.style.setProperty('--tile-bg', tint);
-      tile.style.setProperty('--tile-border', base);
-      tile.style.setProperty('--tile-text', '#3a3560');
-      tile.innerHTML = vfracHTML(1, n, 'vfrac-sm');
-      tile.dataset.k = i+1;
-      tile.setAttribute('aria-label', '1/'+n);
-      tile.addEventListener('click', onTileClick.bind(null, n, i+1));
-      tiles.appendChild(tile);
-    }
-
-    row.appendChild(tools);
-    row.appendChild(label);
-    row.appendChild(tiles);
-
-    attachDrag(row, grip);
-
-    grip.addEventListener('keydown', function(e){
-      if(e.key==='ArrowUp'){ e.preventDefault(); moveRow(row,-1); grip.focus(); }
-      else if(e.key==='ArrowDown'){ e.preventDefault(); moveRow(row,1); grip.focus(); }
-    });
-
-    return row;
-  }
-
-  function attachDrag(row, grip){
-    var pointerId = null, placeholder = null, startRect = null, cardRect = null, startClientY = 0;
-
-    grip.addEventListener('pointerdown', function(e){
-      e.preventDefault();
-      pointerId = e.pointerId;
-      grip.setPointerCapture(pointerId);
-      startClientY = e.clientY;
-      startRect = row.getBoundingClientRect();
-      cardRect = wallCard.getBoundingClientRect();
-
-      placeholder = document.createElement('div');
-      placeholder.className = 'row-placeholder';
-      placeholder.style.height = startRect.height + 'px';
-      row.parentNode.insertBefore(placeholder, row);
-
-      // OBS: position:fixed hade blivit fel här, eftersom panelens backdrop-filter
-      // gör panelen till "containing block" för fixed-positionerade barn (en CSS-särart).
-      // position:absolute mot den redan position:relative-satta panelen ger korrekt koordinater.
-      row.style.position = 'absolute';
-      row.style.top = (startRect.top - cardRect.top) + 'px';
-      row.style.left = (startRect.left - cardRect.left) + 'px';
-      row.style.width = startRect.width + 'px';
-      row.style.zIndex = '300';
-      row.classList.add('dragging');
-      document.body.style.userSelect = 'none';
-    });
-
-    grip.addEventListener('pointermove', function(e){
-      if(pointerId===null) return;
-      var dy = e.clientY - startClientY;
-      row.style.top = (startRect.top - cardRect.top + dy) + 'px';
-      repositionPlaceholder(e.clientY);
-    });
-
-    function repositionPlaceholder(clientY){
-      var rows = Array.prototype.slice.call(wallEl.querySelectorAll('.frow')).filter(function(r){ return r!==row; });
-      var target = null;
-      for(var i=0;i<rows.length;i++){
-        var rct = rows[i].getBoundingClientRect();
-        var mid = rct.top + rct.height/2;
-        if(clientY < mid){ target = rows[i]; break; }
-      }
-      if(target){
-        if(placeholder.nextElementSibling !== target){
-          animateReorder(function(){ wallEl.insertBefore(placeholder, target); });
-        }
-      } else {
-        if(wallEl.lastElementChild !== placeholder){
-          animateReorder(function(){ wallEl.appendChild(placeholder); });
-        }
-      }
-    }
-
-    function endDrag(){
-      if(pointerId===null) return;
-      wallEl.insertBefore(row, placeholder);
-      placeholder.remove();
-      row.style.position = ''; row.style.top = ''; row.style.left = '';
-      row.style.width = ''; row.style.zIndex = '';
-      row.classList.remove('dragging');
-      document.body.style.userSelect = '';
-      pointerId = null; placeholder = null; startRect = null;
-    }
-
-    grip.addEventListener('pointerup', endDrag);
-    grip.addEventListener('pointercancel', endDrag);
-  }
-
-  function moveRow(row, dir){
-    animateReorder(function(){
-      if(dir<0){ var prev = row.previousElementSibling; if(prev) wallEl.insertBefore(row, prev); }
-      else { var next = row.nextElementSibling; if(next) wallEl.insertBefore(next, row); }
-    });
-  }
-
-  function selectionIndex(n,k){
-    for(var i=0;i<selectedList.length;i++){
-      if(selectedList[i].n===n && selectedList[i].k===k) return i;
-    }
-    return -1;
-  }
-
-  function onTileClick(n, k){
-    if(facitMode){
-      var idx = selectionIndex(n,k);
-      selectedList = (idx>=0) ? [] : [{ n:n, k:k }];
+      menuVisibleForId = id;
+      coSelectedId = null;
     } else {
-      var rowIdx = -1;
-      for(var i=0;i<selectedList.length;i++){ if(selectedList[i].n===n){ rowIdx = i; break; } }
-      if(rowIdx>=0){
-        if(selectedList[rowIdx].k===k){ selectedList.splice(rowIdx,1); } // samma bricka igen -> avmarkera
-        else { selectedList[rowIdx] = { n:n, k:k }; } // annan bricka i samma rad -> ersätt (max en stråle per bråktyp)
-      } else {
-        selectedList.push({ n:n, k:k });
-      }
+      selectedId = id;
+      coSelectedId = null;
+      menuVisibleForId = null;
     }
     render();
+    positionQuickMenu();
+    positionCompareLine();
+    positionOpFab();
   }
 
-  function render(){
-    var rows = wallEl.querySelectorAll('.frow');
+  function positionOpFab() {
+    if (selectedId === null || coSelectedId === null) {
+      opFab.style.display = 'none';
+      return;
+    }
+    const a = tiles.find(t => t.id === selectedId);
+    const b = tiles.find(t => t.id === coSelectedId);
+    if (!a || !b) { opFab.style.display = 'none'; return; }
+    const aWidth = tileWidth(a);
+    const bWidth = tileWidth(b);
+    const aCenterX = TILE_LEFT + a.x + aWidth / 2;
+    const bCenterX = TILE_LEFT + b.x + bWidth / 2;
+    const aCenterY = 12 + a.row * ROW_HEIGHT + (a.isWhole ? WHOLE_HEIGHT / 2 : TILE_HEIGHT / 2);
+    const bCenterY = 12 + b.row * ROW_HEIGHT + (b.isWhole ? WHOLE_HEIGHT / 2 : TILE_HEIGHT / 2);
+    opFab.style.left = ((aCenterX + bCenterX) / 2) + '%';
+    opFab.style.top = ((aCenterY + bCenterY) / 2) + 'px';
+    opFab.style.display = 'flex';
+  }
 
-    rows.forEach(function(r){
-      r.querySelectorAll('.tile').forEach(function(tile){
-        tile.classList.remove('selected','equivalent','own-color');
-        tile.setAttribute('aria-pressed','false');
-      });
-    });
+  function positionQuickMenu() {
+    const shouldShow = selectedId !== null && menuVisibleForId === selectedId;
+    if (!shouldShow) {
+      quickMenu.style.display = 'none';
+      return;
+    }
+    const t = tiles.find(t => t.id === selectedId);
+    if (!t) { quickMenu.style.display = 'none'; return; }
+    const top = 12 + t.row * ROW_HEIGHT - 36;
+    quickMenu.style.left = (TILE_LEFT + t.x) + '%';
+    quickMenu.style.top = Math.max(0, top) + 'px';
+    quickMenu.style.display = 'flex';
+  }
 
-    selectedList.forEach(function(sel){
-      rows.forEach(function(r){
-        var n = parseInt(r.dataset.n,10);
-        var isOrigin = (n===sel.n);
-        if(!isOrigin && !facitMode) return; // övningsläge: bara den klickade raden
-        if((sel.k * n) % sel.n === 0){
-          var k = (sel.k * n) / sel.n;
-          if(k>=1 && k<=n){
-            var tiles = r.querySelectorAll('.tile');
-            for(var idx=0; idx<k; idx++){
-              tiles[idx].classList.add(isOrigin ? 'selected' : 'equivalent');
-              if(isOrigin && !facitMode) tiles[idx].classList.add('own-color');
-              tiles[idx].setAttribute('aria-pressed','true');
-            }
+  function positionCompareLine() {
+    if (!showCompareLine || selectedId === null) {
+      compareLine.style.display = 'none';
+      return;
+    }
+    const t = tiles.find(t => t.id === selectedId);
+    if (!t) { compareLine.style.display = 'none'; return; }
+    const rightEdge = TILE_LEFT + t.x + tileWidth(t);
+    compareLine.style.left = rightEdge + '%';
+    compareLine.style.display = 'block';
+  }
+
+  // ---------- Drag ----------
+  function onPointerDown(e, id) {
+    const wasShiftPair = e.shiftKey && selectedId !== null && id !== selectedId;
+    select(id, e.shiftKey);
+    // Ett skift-klick parar ihop två brickor för addition/subtraktion — det ska
+    // inte samtidigt starta ett drag på den nyss tillagda brickan.
+    if (wasShiftPair) { e.preventDefault(); return; }
+
+    const t = tiles.find(t => t.id === id);
+    const boardRect = board.getBoundingClientRect();
+    dragState = {
+      id,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: t.x,
+      origRow: t.row,
+      boardWidth: boardRect.width
+    };
+    // Capture på spelplanen, inte på själva brickan — brickans DOM-element
+    // byts ut vid varje render(), vilket annars skulle avbryta pekar-capturen.
+    board.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  }
+
+  board.addEventListener('pointermove', onPointerMove);
+  board.addEventListener('pointerup', onPointerUp);
+  board.addEventListener('pointercancel', onPointerUp);
+
+  // Ser till att en bricka aldrig kan släppas ovanpå en annan på samma rad.
+  // Om önskad position (x, x+width) överlappar en annan bricka, knuffas den
+  // till den kant av den brickan som ligger närmast — vänster eller höger.
+  function resolveRowCollision(id, row, x, width) {
+    const others = tiles.filter(o => o.id !== id && o.row === row);
+    let guard = 0;
+    let changed = true;
+    while (changed && guard < others.length + 2) {
+      changed = false;
+      guard++;
+      for (const o of others) {
+        const oWidth = o.isWhole ? WHOLE_PERCENT : WHOLE_PERCENT * (o.num / o.den);
+        const overlaps = x < o.x + oWidth && x + width > o.x;
+        if (!overlaps) continue;
+
+        const leftOption = o.x - width;       // lägg brickan precis till vänster om o
+        const rightOption = o.x + oWidth;     // lägg brickan precis till höger om o
+        const distLeft = Math.abs(x - leftOption);
+        const distRight = Math.abs(x - rightOption);
+
+        x = (distLeft <= distRight) ? leftOption : rightOption;
+        x = Math.max(0, Math.min(MAX_TILE_RIGHT - width, x));
+        changed = true;
+      }
+    }
+    return x;
+  }
+
+  // Tillfällig vertikal hjälplinje som visar att en bricka just fått samma
+  // startposition som en annan bricka (eller talet 0), för tydlig jämförelse.
+  function showAlignLine(x) {
+    let line = document.getElementById('alignLine');
+    if (!line) {
+      line = document.createElement('div');
+      line.id = 'alignLine';
+      line.className = 'align-line';
+      board.appendChild(line);
+    }
+    line.style.left = (TILE_LEFT + x) + '%';
+    line.style.display = 'block';
+  }
+  function hideAlignLine() {
+    const line = document.getElementById('alignLine');
+    if (line) line.style.display = 'none';
+  }
+
+  function onPointerMove(e) {
+    if (!dragState) return;
+    const t = tiles.find(t => t.id === dragState.id);
+    if (!t) return;
+    const dxPercent = ((e.clientX - dragState.startX) / dragState.boardWidth) * 100;
+    let newX = dragState.origX + dxPercent;
+
+    const dyRow = Math.round((e.clientY - dragState.startY) / ROW_HEIGHT);
+    let newRow = dragState.origRow + dyRow;
+    newRow = Math.max(0, Math.min(MAX_ROW, newRow));
+
+    const widthPercent = tileWidth(t);
+    let alignLine = null; // om satt: en hjälplinje ritas vid detta x (relativt talet 0)
+
+    // Snappa mot talet 0, 1 eller 2 på talraden — antingen med brickans
+    // vänsterkant eller dess högerkant, så man t.ex. kan se att två brickor
+    // tillsammans fyller ut exakt till 1.
+    const numlineMarks = [0, 1, 2];
+    let snappedToNumline = false;
+    for (const mark of numlineMarks) {
+      const markX = mark * WHOLE_PERCENT;
+      if (Math.abs(newX - markX) < SNAP_MARGIN) {
+        newX = markX;
+        alignLine = markX;
+        snappedToNumline = true;
+        break;
+      }
+      if (Math.abs(newX + widthPercent - markX) < SNAP_MARGIN) {
+        newX = markX - widthPercent;
+        alignLine = markX;
+        snappedToNumline = true;
+        break;
+      }
+    }
+
+    if (snappedToNumline) {
+      // redan snäppt mot talraden, hoppa över övrig snap-logik
+    } else {
+      // Snappa mot högerkanten av andra brickor på samma rad, så man kan
+      // kedja t.ex. 1/2 + 1/3 efter varandra och se summan mot en helhet
+      const sameRow = tiles.filter(o => o.id !== t.id && o.row === newRow);
+      let matched = false;
+      for (const o of sameRow) {
+        const oWidth = tileWidth(o);
+        const oRightEdge = o.x + oWidth;
+        if (Math.abs(newX - oRightEdge) < SNAP_MARGIN) {
+          newX = oRightEdge;
+          matched = true;
+          break;
+        }
+        if (Math.abs(newX + widthPercent - o.x) < SNAP_MARGIN) {
+          newX = o.x - widthPercent;
+          matched = true;
+          break;
+        }
+      }
+
+      // Om ingen kant-mot-kant-matchning: snappa mot STARTPOSITIONEN för en
+      // bricka på VILKEN SOM HELST annan rad, så flera fritt liggande brickor
+      // kan dela samma startpunkt och jämföras direkt mot varandra.
+      if (!matched) {
+        const others = tiles.filter(o => o.id !== t.id);
+        for (const o of others) {
+          if (Math.abs(newX - o.x) < SNAP_MARGIN) {
+            newX = o.x;
+            alignLine = o.x;
+            matched = true;
+            break;
           }
         }
-      });
-    });
-
-    renderMarkers();
-  }
-
-  function renderMarkers(){
-    nlMarkersEl.innerHTML = '';
-    traceLinesEl.innerHTML = '';
-    if(selectedList.length===0) return;
-
-    var zoneRect = nlZone.getBoundingClientRect();
-    var cardRect = wallCard.getBoundingClientRect();
-    var wallRect = wallEl.getBoundingClientRect();
-    var dotY = zoneRect.top + 50 - cardRect.top; // 50 matchar .nl-line top i CSS
-    var bottomY = wallRect.bottom - cardRect.top;
-
-    selectedList.forEach(function(sel){
-      var row = wallEl.querySelector('.frow[data-n="'+sel.n+'"]');
-      var tileEl = row.querySelectorAll('.tile')[sel.k-1];
-      var tileRect = tileEl.getBoundingClientRect();
-      var dec = decimalInfo(sel.k, sel.n);
-      var pctVal = percentInfo(sel.k, sel.n);
-      var rowColor = row.style.getPropertyValue('--row-accent');
-
-      var pct = ((tileRect.right - zoneRect.left) / zoneRect.width) * 100;
-
-      var marker = document.createElement('div');
-      marker.className = 'nl-marker';
-      marker.style.left = pct + '%';
-      if(!facitMode) marker.style.setProperty('--marker-color', rowColor);
-      marker.innerHTML = '<div class="nl-tag">' + vfracHTML(sel.k, sel.n, 'vfrac-lg') +
-        '<span class="nl-vals"><span class="nl-dec">' + dec.text + '</span>' +
-        '<span class="nl-pct">' + pctVal.text + '</span></span></div><div class="nl-dot"></div>';
-      nlMarkersEl.appendChild(marker);
-
-      var x = tileRect.right - cardRect.left;
-      var trace = document.createElement('div');
-      trace.className = 'trace-line';
-      if(!facitMode) trace.style.setProperty('--marker-color', rowColor);
-      trace.style.left = x + 'px';
-      trace.style.top = dotY + 'px';
-      trace.style.height = Math.max(0, bottomY - dotY) + 'px';
-      traceLinesEl.appendChild(trace);
-    });
-  }
-
-  window.addEventListener('resize', function(){ if(selectedList.length) renderMarkers(); });
-
-  function buildNumberline(){
-    var html = '';
-    for(var i=0;i<=10;i++){
-      var pct = i*10;
-      var major = (i===0 || i===10);
-      var label = i===0 ? '0' : (i===10 ? '1' : '0,'+i);
-      html += '<div class="nl-tick'+(major?' major':'')+'" style="left:'+pct+'%">'+
-                '<div class="stem"></div><div class="lbl">'+label+'</div></div>';
+      }
     }
-    nlTicks.innerHTML = html;
-  }
 
-  function buildGlossary(){
-    var table = document.getElementById('glossTable');
-    var html = '<tbody>';
-    DENOMS.forEach(function(n){
-      var dec = decimalInfo(1,n);
-      var pctVal = percentInfo(1,n);
-      var t = (n-1)/(DENOMS.length-1);
-      var base = gradientColor(t);
-      html += '<tr style="--row-color:'+base+'">' +
-              '<td class="frac-cell">'+vfracHTML(1,n,'vfrac-md')+'</td>' +
-              '<td class="eq">=</td>' +
-              '<td class="dec">'+dec.text+'</td>' +
-              '<td class="eq">=</td>' +
-              '<td class="pct-cell pct">'+pctVal.text+'</td>' +
-              '</tr>';
+    newX = Math.max(0, Math.min(MAX_TILE_RIGHT - widthPercent, newX));
+
+    // Genväg för addition/subtraktion: om brickan medvetet dras in djupt (>40%
+    // av dess egen bredd) i en annan bricka på samma rad, kom ihåg det som ett
+    // förslag på räkneoperation — men knuffa ändå undan visuellt som vanligt.
+    const collisionCandidate = tiles.find(o => {
+      if (o.id === t.id || o.row !== newRow) return false;
+      const oWidth = tileWidth(o);
+      const overlapStart = Math.max(newX, o.x);
+      const overlapEnd = Math.min(newX + widthPercent, o.x + oWidth);
+      const overlap = overlapEnd - overlapStart;
+      return overlap > widthPercent * 0.4;
     });
-    html += '</tbody>';
-    table.innerHTML = html;
+    dragState.collisionTarget = collisionCandidate ? collisionCandidate.id : null;
+
+    // Kollisionsspärr: brickor får aldrig överlappa varandra på samma rad.
+    // Om positionen (efter snapping) ändå skär en annan bricka, knuffas den
+    // till närmaste lediga kant — vänster om eller höger om den brickan.
+    newX = resolveRowCollision(t.id, newRow, newX, widthPercent);
+
+    t.row = newRow;
+    t.x = newX;
+
+    // Lättviktig uppdatering: flytta bara det aktuella elementet istället för
+    // att göra en full render() (som skulle byta ut DOM-noden och avbryta draget).
+    const el = board.querySelector('.tile[data-id="' + t.id + '"]');
+    if (el) {
+      el.style.left = (TILE_LEFT + t.x) + '%';
+      el.style.top = (12 + t.row * ROW_HEIGHT) + 'px';
+    }
+    positionQuickMenu();
+    positionCompareLine();
+
+    // Visa en tillfällig vertikal hjälplinje när brickan just snappat till en
+    // annan bricka eller talraden (vänsterkant ELLER högerkant), för att
+    // tydligt visa "samma punkt".
+    const matchesLeft = alignLine !== null && Math.abs(newX - alignLine) < 0.01;
+    const matchesRight = alignLine !== null && Math.abs(newX + widthPercent - alignLine) < 0.01;
+    if (matchesLeft || matchesRight) {
+      showAlignLine(alignLine);
+    } else {
+      hideAlignLine();
+    }
   }
 
-  var themeBtn = document.getElementById('themeBtn');
-  function applyTheme(dark){
-    document.documentElement.classList.toggle('pt-mork', dark);
-    themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
-    themeBtn.textContent = dark ? '☀️' : '🌙';
-    themeBtn.title = dark ? 'Växla till ljust bakgrundstema (PT Ljus)' : 'Växla mörkt bakgrundstema (PT Mörk)';
+  function onPointerUp(e) {
+    if (!dragState) return;
+    const id = dragState.id;
+    const collisionTarget = dragState.collisionTarget;
+    dragState = null;
+    hideAlignLine();
+    try { board.releasePointerCapture(e.pointerId); } catch (err) {}
+    // En enda full render vid drag-slut, för att synka allt (t.ex. snapping-resultat)
+    render();
+
+    // Om brickan medvetet drogs in i en annan: föreslå räkneoperation som genväg
+    if (collisionTarget) {
+      selectedId = id;
+      coSelectedId = collisionTarget;
+      render();
+      positionOpFab();
+    }
   }
-  var savedTheme = null;
-  try{ savedTheme = localStorage.getItem('pt-theme'); }catch(e){}
-  applyTheme(savedTheme === 'mork');
-  themeBtn.addEventListener('click', function(){
-    var dark = !document.documentElement.classList.contains('pt-mork');
-    applyTheme(dark);
-    try{ localStorage.setItem('pt-theme', dark ? 'mork' : 'ljus'); }catch(e){}
+
+  // Klick på tom yta avmarkerar
+  board.addEventListener('pointerdown', (e) => {
+    if (e.target === board) {
+      selectedId = null;
+      coSelectedId = null;
+      menuVisibleForId = null;
+      render();
+      positionQuickMenu();
+    positionCompareLine();
+      positionOpFab();
+    }
   });
 
-  document.getElementById('facitBtn').addEventListener('click', function(){
-    facitMode = !facitMode;
-    selectedList = [];
-    var btn = document.getElementById('facitBtn');
-    btn.setAttribute('aria-pressed', facitMode ? 'true' : 'false');
-    btn.title = facitMode
-      ? 'Facit: visar alla likvärdiga bråk automatiskt (klicka för övningsläge)'
-      : 'Övningsläge: markera flera bråk själv, inget facit visas automatiskt (klicka för facit)';
+  // ---------- Verktygsknappar (delas mellan toolbar och snabbmeny) ----------
+  function handleDelete() {
+    if (selectedId === null) return;
+    tiles = tiles.filter(t => t.id !== selectedId);
+    selectedId = null;
+    render();
+  }
+
+  function handleDuplicate() {
+    if (selectedId === null) return;
+    const orig = tiles.find(t => t.id === selectedId);
+    if (!orig) return;
+    const origWidth = orig.isWhole ? WHOLE_PERCENT : WHOLE_PERCENT * (orig.num / orig.den);
+    let newX = orig.x + origWidth;
+    // Om det inte får plats till höger, lägg strax nedanför istället i en ny rad
+    let newRow = orig.row;
+    if (newX + origWidth > 100) {
+      newX = 0.5;
+      newRow = findFreeRow();
+    }
+    const copy = Object.assign({}, orig, { id: nextId++, x: newX, row: newRow });
+    tiles.push(copy);
+    select(copy.id);
+  }
+
+  function handleOpenSplit() {
+    if (selectedId === null) return;
+    const t = tiles.find(t => t.id === selectedId);
+    if (!t) return;
+
+    splitOptions.innerHTML = '';
+    const origNum = t.isWhole ? 1 : t.num;
+
+    // Om täljaren > 1: erbjud "bryt ner till enskilda delar" som förstahandsval —
+    // det är kärnan i att jämföra icke-stambråk (ex. 4/7 -> fyra 1/7-brickor)
+    if (origNum > 1) {
+      const b = document.createElement('button');
+      b.style.gridColumn = '1 / -1';
+      b.style.background = 'var(--surface2)';
+      b.style.color = 'var(--accent)';
+      b.textContent = `Bryt ner i ${origNum} enskilda ${ordinalDen(t.den)}delar`;
+      b.addEventListener('click', () => doBreakIntoUnits());
+      splitOptions.appendChild(b);
+    }
+
+    [2, 3, 4, 5, 6, 8, 10, 12].forEach(n => {
+      const b = document.createElement('button');
+      b.textContent = '× ' + n;
+      b.addEventListener('click', () => doSplit(n));
+      splitOptions.appendChild(b);
+    });
+    splitPanel.classList.add('open');
+  }
+
+  qmSplit.addEventListener('click', handleOpenSplit);
+  qmDup.addEventListener('click', handleDuplicate);
+  qmDelete.addEventListener('click', handleDelete);
+  quickMenu.addEventListener('pointerdown', (e) => e.stopPropagation());
+  opFab.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+  resetBtn.addEventListener('click', () => {
+    tiles = [];
+    selectedId = null;
     render();
   });
-  document.getElementById('clearBtn').addEventListener('click', function(){ selectedList=[]; render(); });
-  document.getElementById('resetOrderBtn').addEventListener('click', function(){
-    animateReorder(function(){
-      DENOMS.forEach(function(n){
-        var row = wallEl.querySelector('.frow[data-n="'+n+'"]');
-        wallEl.appendChild(row);
+
+  helpBtn.addEventListener('click', () => helpPanel.classList.add('open'));
+  helpClose.addEventListener('click', () => helpPanel.classList.remove('open'));
+  helpPanel.addEventListener('click', (e) => {
+    if (e.target === helpPanel) helpPanel.classList.remove('open');
+  });
+
+  // ---------- Upplägg: spara/ladda/exportera/importera ----------
+  const SAVES_STORAGE_KEY = 'braakbrickor_upplagg_v1';
+
+  function loadAllSaves() {
+    try {
+      const raw = localStorage.getItem(SAVES_STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function writeAllSaves(list) {
+    try {
+      localStorage.setItem(SAVES_STORAGE_KEY, JSON.stringify(list));
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  // Endast själva brickorna sparas — UI-toggles (segment, talrad m.m.) är
+  // visningsval, inte en del av uppgiften, och sparas därför inte.
+  function serializeBoard() {
+    return {
+      tiles: tiles.map(t => ({
+        num: t.num, den: t.den, isWhole: !!t.isWhole,
+        x: t.x, row: t.row, color: t.color
+      }))
+    };
+  }
+
+  function applySavedBoard(data) {
+    if (!data || !Array.isArray(data.tiles)) return false;
+    tiles = data.tiles.map(t => ({
+      id: nextId++,
+      num: Number(t.num) || 1,
+      den: Number(t.den) || 1,
+      isWhole: !!t.isWhole,
+      x: Number(t.x) || 0,
+      row: Number(t.row) || 0,
+      color: t.color || null
+    }));
+    selectedId = null;
+    coSelectedId = null;
+    menuVisibleForId = null;
+    render();
+    positionQuickMenu();
+    positionCompareLine();
+    positionOpFab();
+    return true;
+  }
+
+  function renderSavesList() {
+    const saves = loadAllSaves();
+    savesList.innerHTML = '';
+    if (saves.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'saves-empty';
+      empty.textContent = 'Inga sparade upplägg än.';
+      savesList.appendChild(empty);
+      return;
+    }
+    saves.slice().reverse().forEach(save => {
+      const item = document.createElement('div');
+      item.className = 'save-item';
+
+      const name = document.createElement('span');
+      name.className = 'save-item-name';
+      name.textContent = save.name;
+      name.title = 'Öppna "' + save.name + '"';
+      name.addEventListener('click', () => {
+        applySavedBoard(save.data);
+        savesPanel.classList.remove('open');
       });
+      item.appendChild(name);
+
+      const exportOne = document.createElement('button');
+      exportOne.textContent = '⬇';
+      exportOne.title = 'Exportera "' + save.name + '" som fil';
+      exportOne.addEventListener('click', (e) => {
+        e.stopPropagation();
+        downloadSaveAsFile(save.name, save.data);
+      });
+      item.appendChild(exportOne);
+
+      const del = document.createElement('button');
+      del.className = 'save-delete';
+      del.textContent = '✕';
+      del.title = 'Ta bort "' + save.name + '"';
+      del.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const remaining = loadAllSaves().filter(s => s.id !== save.id);
+        writeAllSaves(remaining);
+        renderSavesList();
+      });
+      item.appendChild(del);
+
+      savesList.appendChild(item);
+    });
+  }
+
+  function downloadSaveAsFile(name, data) {
+    const blob = new Blob([JSON.stringify({ name, data }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeName = (name || 'upplagg').replace(/[^a-zA-Z0-9åäöÅÄÖ _-]/g, '').trim() || 'upplagg';
+    a.download = safeName + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  savesBtn.addEventListener('click', () => {
+    saveNameInput.value = '';
+    saveError.textContent = '';
+    renderSavesList();
+    savesPanel.classList.add('open');
+  });
+  savesPanel.addEventListener('click', (e) => {
+    if (e.target === savesPanel) savesPanel.classList.remove('open');
+  });
+
+  saveNowBtn.addEventListener('click', () => {
+    const name = saveNameInput.value.trim();
+    if (!name) {
+      saveError.textContent = 'Skriv ett namn på upplägget innan du sparar.';
+      return;
+    }
+    const saves = loadAllSaves();
+    const entry = { id: 'save_' + Date.now(), name, data: serializeBoard() };
+    saves.push(entry);
+    if (!writeAllSaves(saves)) {
+      saveError.textContent = 'Kunde inte spara — webbläsarens lagring är kanske full.';
+      return;
+    }
+    saveError.textContent = '';
+    saveNameInput.value = '';
+    renderSavesList();
+  });
+  saveNameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') saveNowBtn.click();
+  });
+
+  exportBtn.addEventListener('click', () => {
+    const name = saveNameInput.value.trim() || 'Bråkbrickor upplägg';
+    downloadSaveAsFile(name, serializeBoard());
+  });
+
+  importBtn.addEventListener('click', () => importFileInput.click());
+  importFileInput.addEventListener('change', () => {
+    const file = importFileInput.files && importFileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (!parsed || !parsed.data) throw new Error('bad format');
+        // Sparas automatiskt i listan också, så den finns kvar nästa gång
+        const saves = loadAllSaves();
+        const importedName = parsed.name || file.name.replace(/\.json$/i, '');
+        saves.push({ id: 'save_' + Date.now(), name: importedName, data: parsed.data });
+        writeAllSaves(saves);
+        applySavedBoard(parsed.data);
+        renderSavesList();
+        savesPanel.classList.remove('open');
+      } catch (err) {
+        saveError.textContent = 'Kunde inte läsa filen — är det verkligen ett exporterat upplägg?';
+        savesPanel.classList.add('open');
+      }
+    };
+    reader.readAsText(file);
+    importFileInput.value = '';
+  });
+
+  splitCancel.addEventListener('click', () => splitPanel.classList.remove('open'));
+  splitPanel.addEventListener('click', (e) => {
+    if (e.target === splitPanel) splitPanel.classList.remove('open');
+  });
+
+  // Enkla ordnamn för delningsdialogens text (bara vanliga nämnare behöver vara snygga)
+  function ordinalDen(den) {
+    const names = { 2:'halv', 3:'tredje', 4:'fjärde', 5:'femte', 6:'sjätte', 7:'sjunde',
+      8:'åttonde', 9:'nionde', 10:'tionde', 11:'elfte', 12:'tolfte' };
+    return names[den] ? names[den] + '-' : (den + ':e-');
+  }
+
+  // Delar en bricka i n LIKA STORA delar (nämnaren multipliceras med n).
+  // Fungerar för äkta och oäkta bråk, och för helheten.
+  function doSplit(n) {
+    splitPanel.classList.remove('open');
+    const t = tiles.find(t => t.id === selectedId);
+    if (!t) return;
+
+    const isWhole = t.isWhole;
+    const origNum = isWhole ? 1 : t.num;
+    const origDen = isWhole ? 1 : t.den;
+
+    const newDen = origDen * n;
+    const totalWidthPercent = t.isWhole ? WHOLE_PERCENT : WHOLE_PERCENT * (origNum / origDen);
+    const pieceWidthPercent = totalWidthPercent / n;
+
+    tiles = tiles.filter(tile => tile.id !== t.id);
+
+    let xCursor = t.x;
+    const row = t.row;
+    let lastId = null;
+    for (let i = 0; i < n; i++) {
+      const piece = {
+        id: nextId++,
+        num: origNum,
+        den: newDen,
+        isWhole: false,
+        x: xCursor,
+        row: row,
+        color: colorFor(newDen)
+      };
+      tiles.push(piece);
+      lastId = piece.id;
+      xCursor += pieceWidthPercent;
+    }
+    selectedId = lastId;
+    render();
+  }
+
+  // Bryter en bricka med täljare > 1 (t.ex. 4/7) ner i sina enskilda enhetsbråk
+  // (fyra separata 1/7-brickor), så de kan jämföras en och en mot andra bråk.
+  function doBreakIntoUnits() {
+    splitPanel.classList.remove('open');
+    const t = tiles.find(t => t.id === selectedId);
+    if (!t) return;
+
+    const origNum = t.isWhole ? 1 : t.num;
+    const origDen = t.isWhole ? 1 : t.den;
+    if (origNum <= 1) return;
+
+    const totalWidthPercent = t.isWhole ? WHOLE_PERCENT : WHOLE_PERCENT * (origNum / origDen);
+    const pieceWidthPercent = totalWidthPercent / origNum;
+
+    tiles = tiles.filter(tile => tile.id !== t.id);
+
+    let xCursor = t.x;
+    const row = t.row;
+    let lastId = null;
+    for (let i = 0; i < origNum; i++) {
+      const piece = {
+        id: nextId++,
+        num: 1,
+        den: origDen,
+        isWhole: false,
+        x: xCursor,
+        row: row,
+        color: colorFor(origDen)
+      };
+      tiles.push(piece);
+      lastId = piece.id;
+      xCursor += pieceWidthPercent;
+    }
+    selectedId = lastId;
+    render();
+  }
+
+  // ---------- Eget bråk ----------
+  function validateCustomFraction() {
+    const num = parseInt(customNum.value, 10);
+    const den = parseInt(customDen.value, 10);
+
+    if (!Number.isInteger(num) || !Number.isInteger(den) || num < 1 || den < 1) {
+      return { error: 'Ange hela tal, minst 1.' };
+    }
+    if (den > 99 || num > 99) {
+      return { error: 'Håll täljare och nämnare under 100.' };
+    }
+    if (num > den * 3) {
+      return { error: 'Bråket blir för stort för spelplanen (max ca 3 helheter).' };
+    }
+    return { num, den };
+  }
+
+  customAddBtn.addEventListener('click', () => {
+    const result = validateCustomFraction();
+    if (result.error) {
+      customError.textContent = result.error;
+      return;
+    }
+    customError.textContent = '';
+    addTile(result.num, result.den, false);
+  });
+
+  [customNum, customDen].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') customAddBtn.click();
+    });
+    input.addEventListener('input', () => { customError.textContent = ''; });
+  });
+
+  // ---------- Toggles (skjutreglage) ----------
+  segToggle.checked = showSegments;
+  sumToggle.checked = showRowSums;
+
+  segToggle.addEventListener('change', () => {
+    showSegments = segToggle.checked;
+    render();
+  });
+
+  sumToggle.addEventListener('change', () => {
+    showRowSums = sumToggle.checked;
+    render();
+  });
+
+  guidedToggle.checked = guidedMode;
+  guidedToggle.addEventListener('change', () => {
+    guidedMode = guidedToggle.checked;
+  });
+
+  compareToggle.checked = showCompareLine;
+  compareToggle.addEventListener('change', () => {
+    showCompareLine = compareToggle.checked;
+    positionCompareLine();
+  });
+
+  let showNumberline = true;
+  let showGuideLines = true;
+  numlineToggle.checked = showNumberline;
+  guideToggle.checked = showGuideLines;
+
+  numlineToggle.addEventListener('change', () => {
+    showNumberline = numlineToggle.checked;
+    numberlineEl.style.display = showNumberline ? 'block' : 'none';
+  });
+
+  guideToggle.addEventListener('change', () => {
+    showGuideLines = guideToggle.checked;
+    board.querySelectorAll('.guide-line').forEach(el => {
+      el.style.display = showGuideLines ? 'block' : 'none';
     });
   });
 
-  var helpDialog = document.getElementById('helpDialog');
-  var glossaryDialog = document.getElementById('glossaryDialog');
+  // ---------- Addition & subtraktion (elevstyrt flerstegsflöde) ----------
+  function fracText(t) {
+    if (t.isWhole) return '1';
+    return t.num + '/' + t.den;
+  }
 
-  document.getElementById('helpBtn').addEventListener('click', function(){ helpDialog.showModal(); });
-  document.getElementById('glossaryBtn').addEventListener('click', function(){ glossaryDialog.showModal(); });
+  function clearCoSelection() {
+    coSelectedId = null;
+    render();
+    positionOpFab();
+  }
 
-  [helpDialog, glossaryDialog].forEach(function(dlg){
-    dlg.querySelector('[data-close]').addEventListener('click', function(){ dlg.close(); });
-    dlg.addEventListener('click', function(e){ if(e.target === dlg) dlg.close(); });
+  opAdd.addEventListener('click', () => openOpDialog('add'));
+  opSub.addEventListener('click', () => openOpDialog('sub'));
+
+  const opStepBody = document.getElementById('opStepBody');
+  const opStepLabel = document.getElementById('opStepLabel');
+  const opFeedback = document.getElementById('opFeedback');
+
+  function openOpDialog(kind) {
+    const a = tiles.find(t => t.id === selectedId);
+    const b = tiles.find(t => t.id === coSelectedId);
+    if (!a || !b) return;
+
+    const aNum = a.isWhole ? 1 : a.num, aDen = a.isWhole ? 1 : a.den;
+    const bNum = b.isWhole ? 1 : b.num, bDen = b.isWhole ? 1 : b.den;
+
+    if (kind === 'sub') {
+      const aWidth = a.isWhole ? WHOLE_PERCENT : WHOLE_PERCENT * (aNum / aDen);
+      const bWidth = b.isWhole ? WHOLE_PERCENT : WHOLE_PERCENT * (bNum / bDen);
+      if (aWidth === bWidth) {
+        opDialogTitle.textContent = 'Kan inte subtrahera';
+        opStepLabel.style.display = 'none';
+        opDialogDesc.textContent = 'Brickorna är lika stora — resultatet blir noll. Välj två olika stora brickor.';
+        opPreview.innerHTML = '';
+        opStepBody.innerHTML = '';
+        opFeedback.textContent = '';
+        opDialogConfirm.style.display = 'none';
+        opDialogPanel.classList.add('open');
+        pendingOp = null;
+        return;
+      }
+      const larger = aWidth > bWidth ? a : b;
+      const smaller = aWidth > bWidth ? b : a;
+      const largerNum = larger.isWhole ? 1 : larger.num, largerDen = larger.isWhole ? 1 : larger.den;
+      const smallerNum = smaller.isWhole ? 1 : smaller.num, smallerDen = smaller.isWhole ? 1 : smaller.den;
+      const commonDen = lcm(largerDen, smallerDen);
+      pendingOp = {
+        kind: 'sub', largerId: larger.id, smallerId: smaller.id,
+        largerNum, largerDen, smallerNum, smallerDen,
+        step: 'denominator', wrongCount: 0, useFreeInput: false
+      };
+
+      if (!guidedMode) {
+        // Direktläge: räkna ut och utför operationen utan att fråga eleven.
+        pendingOp.commonDen = commonDen;
+        pendingOp.confirmedNumA = largerNum * (commonDen / largerDen);
+        pendingOp.confirmedNumB = smallerNum * (commonDen / smallerDen);
+        finishOperation(pendingOp.confirmedNumA - pendingOp.confirmedNumB, commonDen);
+        coSelectedId = null;
+        selectedId = null;
+        positionOpFab();
+        return;
+      }
+      startSubtractOverlay(larger, smaller);
+    } else {
+      const commonDen = lcm(aDen, bDen);
+      pendingOp = {
+        kind: 'add', aId: a.id, bId: b.id,
+        aNum, aDen, bNum, bDen,
+        step: 'denominator', wrongCount: 0, useFreeInput: false
+      };
+
+      if (!guidedMode) {
+        pendingOp.commonDen = commonDen;
+        pendingOp.confirmedNumA = aNum * (commonDen / aDen);
+        pendingOp.confirmedNumB = bNum * (commonDen / bDen);
+        finishOperation(pendingOp.confirmedNumA + pendingOp.confirmedNumB, commonDen);
+        coSelectedId = null;
+        selectedId = null;
+        positionOpFab();
+        return;
+      }
+
+      opDialogTitle.textContent = 'Addera bråk';
+      opPreview.innerHTML = `${fracHTML(aNum, aDen)} <span class="op-symbol">+</span> ${fracHTML(bNum, bDen)} <span class="op-symbol">=</span> ?`;
+      opDialogPanel.classList.add('open');
+      renderOpStep();
+    }
+  }
+
+  // Lägger den mindre brickan visuellt ovanpå den större (randig, halvgenomskinlig)
+  // så eleven ser vad som "täcks" innan de börjar räkna sig fram till svaret.
+  function startSubtractOverlay(larger, smaller) {
+    smaller.row = larger.row;
+    smaller.x = larger.x; // vänsterjusterad ovanpå den större, för tydlig jämförelse
+    render();
+    const el = board.querySelector('.tile[data-id="' + smaller.id + '"]');
+    if (el) el.classList.add('subtract-overlay');
+
+    opDialogTitle.textContent = 'Subtrahera bråk';
+    opPreview.innerHTML = `${fracHTML(pendingOp.largerNum, pendingOp.largerDen)} <span class="op-symbol">−</span> ${fracHTML(pendingOp.smallerNum, pendingOp.smallerDen)} <span class="op-symbol">=</span> ?`;
+    opDialogPanel.classList.add('open');
+    renderOpStep();
+  }
+
+  function closeOpDialog(cancelled) {
+    opDialogPanel.classList.remove('open');
+    if (cancelled && pendingOp && pendingOp.kind === 'sub') {
+      // Ångra: ta bort overlay-klassen och låt eleven flytta brickan själv igen
+      const el = board.querySelector('.tile[data-id="' + pendingOp.smallerId + '"]');
+      if (el) el.classList.remove('subtract-overlay');
+    }
+    pendingOp = null;
+    clearCoSelection();
+  }
+
+  opDialogCancel.addEventListener('click', () => closeOpDialog(true));
+  opDialogPanel.addEventListener('click', (e) => {
+    if (e.target === opDialogPanel) closeOpDialog(true);
   });
+  opDialogConfirm.style.display = 'none'; // steg-UI:t har egna bekräfta-knappar per steg
 
-  buildNumberline();
-  buildGlossary();
-  DENOMS.forEach(function(n){ wallEl.appendChild(buildRow(n)); });
+  // Bygger rätt lockande-fel-alternativ för gemensam nämnare
+  function denominatorChoices(denA, denB) {
+    const correct = lcm(denA, denB);
+    const distractors = new Set([denA * denB, denA + denB, Math.max(denA, denB), denA, denB]);
+    distractors.delete(correct);
+    const choices = [correct, ...Array.from(distractors)].filter(n => n > 0);
+    // Max 4 alternativ, blanda ordningen
+    const trimmed = choices.slice(0, 4);
+    for (let i = trimmed.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [trimmed[i], trimmed[j]] = [trimmed[j], trimmed[i]];
+    }
+    return { correct, choices: trimmed };
+  }
+
+  function renderOpStep() {
+    opFeedback.textContent = '';
+    opFeedback.className = 'op-feedback';
+    const op = pendingOp;
+    if (!op) return;
+
+    const denA = op.kind === 'add' ? op.aDen : op.largerDen;
+    const denB = op.kind === 'add' ? op.bDen : op.smallerDen;
+    const correctDen = lcm(denA, denB);
+
+    if (op.step === 'denominator') {
+      opStepLabel.style.display = 'block';
+      opStepLabel.textContent = 'Steg 1 av 2 — hitta gemensam nämnare';
+      opDialogDesc.textContent = `Bråken har olika nämnare (${denA} och ${denB}). Vilken gemensam nämnare kan båda förlängas till?`;
+
+      if (op.useFreeInput) {
+        opStepBody.innerHTML = '';
+        const row = document.createElement('div');
+        row.className = 'op-free-row';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '1';
+        input.id = 'opDenInput';
+        input.setAttribute('aria-label', 'Gemensam nämnare');
+        const btn = document.createElement('button');
+        btn.textContent = 'Kontrollera';
+        btn.addEventListener('click', () => {
+          const val = parseInt(input.value, 10);
+          handleDenominatorAnswer(val, correctDen, denA, denB);
+        });
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') btn.click(); });
+        row.appendChild(input);
+        row.appendChild(btn);
+        opStepBody.appendChild(row);
+        setTimeout(() => input.focus(), 50);
+      } else {
+        const { correct, choices } = denominatorChoices(denA, denB);
+        opStepBody.innerHTML = '';
+        const grid = document.createElement('div');
+        grid.className = 'op-choices';
+        choices.forEach(val => {
+          const btn = document.createElement('button');
+          btn.textContent = val;
+          btn.addEventListener('click', () => handleDenominatorAnswer(val, correctDen, denA, denB, btn));
+          grid.appendChild(btn);
+        });
+        opStepBody.appendChild(grid);
+
+        const link = document.createElement('button');
+        link.className = 'op-freeinput-link';
+        link.textContent = 'Skriv själv istället';
+        link.addEventListener('click', () => { op.useFreeInput = true; op.wrongCount = 0; renderOpStep(); });
+        opStepBody.appendChild(link);
+      }
+    } else if (op.step === 'numerators') {
+      opStepLabel.textContent = 'Steg 2 av 3 — förlängda täljare';
+      const commonDen = op.commonDen;
+      const numA = op.kind === 'add' ? op.aNum : op.largerNum;
+      const numB = op.kind === 'add' ? op.bNum : op.smallerNum;
+      const symbol = op.kind === 'add' ? '+' : '−';
+      opDialogDesc.textContent = `Bra! Gemensam nämnare är ${commonDen}. Vilka täljare får bråken när de förlängs till ${commonDen}-delar?`;
+
+      opStepBody.innerHTML = '';
+
+      // Samma uppställning som frågan högst upp, men med inmatningsfält
+      // istället för de givna täljarna, och den gemensamma nämnaren ifylld.
+      const inputRow = document.createElement('div');
+      inputRow.className = 'op-input-row';
+
+      const fracA = document.createElement('div');
+      fracA.className = 'op-input-frac';
+      const inputA = document.createElement('input');
+      inputA.type = 'number'; inputA.min = '0'; inputA.id = 'opNumA';
+      inputA.setAttribute('aria-label', 'Ny täljare för ' + numA + '/' + denA);
+      const barA = document.createElement('div');
+      barA.className = 'op-input-bar';
+      const denLabelA = document.createElement('span');
+      denLabelA.className = 'op-den-fixed';
+      denLabelA.textContent = commonDen;
+      fracA.appendChild(inputA);
+      fracA.appendChild(barA);
+      fracA.appendChild(denLabelA);
+      inputRow.appendChild(fracA);
+
+      const symbolSpan = document.createElement('span');
+      symbolSpan.className = 'op-symbol';
+      symbolSpan.textContent = symbol;
+      inputRow.appendChild(symbolSpan);
+
+      const fracB = document.createElement('div');
+      fracB.className = 'op-input-frac';
+      const inputB = document.createElement('input');
+      inputB.type = 'number'; inputB.min = '0'; inputB.id = 'opNumB';
+      inputB.setAttribute('aria-label', 'Ny täljare för ' + numB + '/' + denB);
+      const barB = document.createElement('div');
+      barB.className = 'op-input-bar';
+      const denLabelB = document.createElement('span');
+      denLabelB.className = 'op-den-fixed';
+      denLabelB.textContent = commonDen;
+      fracB.appendChild(inputB);
+      fracB.appendChild(barB);
+      fracB.appendChild(denLabelB);
+      inputRow.appendChild(fracB);
+
+      opStepBody.appendChild(inputRow);
+
+      const checkBtn = document.createElement('button');
+      checkBtn.className = 'op-confirm op-check-btn';
+      checkBtn.innerHTML = 'Kontrollera <span class="op-check-icon">→</span>';
+      checkBtn.addEventListener('click', () => {
+        const valA = parseInt(inputA.value, 10);
+        const valB = parseInt(inputB.value, 10);
+        handleNumeratorAnswer(valA, valB, numA, denA, numB, denB, commonDen);
+      });
+      opStepBody.appendChild(checkBtn);
+      setTimeout(() => inputA.focus(), 50);
+    } else if (op.step === 'result') {
+      opStepLabel.textContent = 'Steg 3 av 3 — räkna ut svaret';
+      const commonDen = op.commonDen;
+      const symbol = op.kind === 'add' ? '+' : '−';
+      opDialogDesc.textContent = `Nu när båda bråken har nämnaren ${commonDen}: räkna ut täljarna i täljaren, och skriv svaret som ett bråk.`;
+
+      opStepBody.innerHTML = '';
+
+      // Samma rad-uppställning igen, nu med de bekräftade förlängda bråken
+      // skrivna ut, ett likhetstecken, och ett tomt bråk eleven fyller i själv
+      // — både täljare och nämnare — för att cementera att nämnaren följer med.
+      const eqRow = document.createElement('div');
+      eqRow.className = 'op-input-row';
+      eqRow.innerHTML = `${fracHTML(op.confirmedNumA, commonDen)} <span class="op-symbol">${symbol}</span> ${fracHTML(op.confirmedNumB, commonDen)} <span class="op-symbol">=</span>`;
+
+      const fracResult = document.createElement('div');
+      fracResult.className = 'op-input-frac';
+      const inputResNum = document.createElement('input');
+      inputResNum.type = 'number'; inputResNum.id = 'opResNum';
+      inputResNum.setAttribute('aria-label', 'Täljare i svaret');
+      const barRes = document.createElement('div');
+      barRes.className = 'op-input-bar';
+      const inputResDen = document.createElement('input');
+      inputResDen.type = 'number'; inputResDen.min = '1'; inputResDen.id = 'opResDen';
+      inputResDen.setAttribute('aria-label', 'Nämnare i svaret');
+      inputResDen.className = 'op-den-input';
+      fracResult.appendChild(inputResNum);
+      fracResult.appendChild(barRes);
+      fracResult.appendChild(inputResDen);
+      eqRow.appendChild(fracResult);
+
+      opStepBody.appendChild(eqRow);
+
+      const checkBtn = document.createElement('button');
+      checkBtn.className = 'op-confirm op-check-btn';
+      checkBtn.innerHTML = 'Kontrollera <span class="op-check-icon">→</span>';
+      checkBtn.addEventListener('click', () => {
+        const valNum = parseInt(inputResNum.value, 10);
+        const valDen = parseInt(inputResDen.value, 10);
+        handleResultAnswer(valNum, valDen);
+      });
+      opStepBody.appendChild(checkBtn);
+      setTimeout(() => inputResNum.focus(), 50);
+    } else if (op.step === 'done') {
+      opStepLabel.style.display = 'none';
+      opDialogDesc.textContent = op.resultMessage;
+      opStepBody.innerHTML = '';
+      const okBtn = document.createElement('button');
+      okBtn.className = 'op-confirm';
+      okBtn.style.width = '100%';
+      okBtn.textContent = 'Stäng';
+      okBtn.addEventListener('click', () => closeOpDialog(false));
+      opStepBody.appendChild(okBtn);
+    }
+  }
+
+  function handleDenominatorAnswer(val, correctDen, denA, denB, btnEl) {
+    if (val === correctDen) {
+      pendingOp.commonDen = correctDen;
+      pendingOp.step = 'numerators';
+      pendingOp.wrongCount = 0;
+      renderOpStep();
+      return;
+    }
+    pendingOp.wrongCount++;
+    if (btnEl) {
+      btnEl.classList.add('wrong-flash');
+      setTimeout(() => btnEl.classList.remove('wrong-flash'), 500);
+    }
+    if (pendingOp.wrongCount >= 2) {
+      opFeedback.className = 'op-feedback hint';
+      opFeedback.textContent = `Ledtråd: ${denA} och ${denB} måste båda gå jämnt upp i nämnaren. Prova en multipel av båda — t.ex. ${denA} × ${denB} funkar alltid, men det finns ofta ett mindre tal också.`;
+    } else {
+      opFeedback.className = 'op-feedback error';
+      opFeedback.textContent = `${val} funkar inte — ${denA} eller ${denB} går inte jämnt upp i det. Försök igen.`;
+    }
+  }
+
+  function handleNumeratorAnswer(valA, valB, numA, denA, numB, denB, commonDen) {
+    const factorA = commonDen / denA;
+    const factorB = commonDen / denB;
+    const correctA = numA * factorA;
+    const correctB = numB * factorB;
+
+    if (valA === correctA && valB === correctB) {
+      pendingOp.confirmedNumA = correctA;
+      pendingOp.confirmedNumB = correctB;
+      pendingOp.step = 'result';
+      pendingOp.wrongCount = 0;
+      renderOpStep();
+      return;
+    }
+    pendingOp.wrongCount++;
+    if (pendingOp.wrongCount >= 2) {
+      opFeedback.className = 'op-feedback hint';
+      opFeedback.textContent = `Ledtråd: ${numA}/${denA} förlängs genom att multiplicera täljare och nämnare med samma tal (×${factorA}). ${numB}/${denB} multipliceras med ×${factorB}.`;
+    } else {
+      opFeedback.className = 'op-feedback error';
+      opFeedback.textContent = 'Inte riktigt — kom ihåg att täljaren ska förlängas med samma faktor som nämnaren. Försök igen.';
+    }
+  }
+
+  function handleResultAnswer(valNum, valDen) {
+    const op = pendingOp;
+    const commonDen = op.commonDen;
+    const trueNum = op.kind === 'add'
+      ? op.confirmedNumA + op.confirmedNumB
+      : op.confirmedNumA - op.confirmedNumB;
+    const [correctSimpNum, correctSimpDen] = simplify(Math.max(trueNum, 0), commonDen);
+
+    // Godkänn både oförkortat (t.ex. 9/30) och förkortat (3/10) svar, så länge
+    // det är matematiskt samma bråk — eleven ska inte straffas för att inte
+    // förkorta om de inte kommit dit i sin undervisning än.
+    const isCorrect = Number.isFinite(valNum) && Number.isFinite(valDen) && valDen > 0 &&
+      valNum * correctSimpDen === correctSimpNum * valDen;
+
+    if (isCorrect) {
+      finishOperation(trueNum, commonDen);
+      return;
+    }
+    pendingOp.wrongCount++;
+    if (pendingOp.wrongCount >= 2) {
+      opFeedback.className = 'op-feedback hint';
+      const symbol = op.kind === 'add' ? '+' : '−';
+      opFeedback.textContent = `Ledtråd: när nämnaren är samma, räkna bara ${op.confirmedNumA} ${symbol} ${op.confirmedNumB} i täljaren. Nämnaren ${commonDen} följer med rakt av.`;
+    } else {
+      opFeedback.className = 'op-feedback error';
+      opFeedback.textContent = 'Inte riktigt — kom ihåg att nämnaren är oförändrad, det är bara täljarna som räknas ihop. Försök igen.';
+    }
+  }
+
+  function finishOperation(trueNum, commonDen) {
+    const op = pendingOp;
+    const [simpNum, simpDen] = simplify(Math.max(trueNum, 0), commonDen);
+
+    if (op.kind === 'add') {
+      const a = tiles.find(t => t.id === op.aId);
+      const b = tiles.find(t => t.id === op.bId);
+      if (!a || !b) { closeOpDialog(true); return; }
+
+      const row = a.row;
+      const x = Math.min(a.x, b.x);
+      tiles = tiles.filter(t => t.id !== a.id && t.id !== b.id);
+
+      addResultTile(simpNum, simpDen, row, x);
+      op.resultMessage = `${fracText(a)} + ${fracText(b)} = ${op.confirmedNumA}/${commonDen} + ${op.confirmedNumB}/${commonDen} = ${simpDen === 1 ? simpNum : simpNum + '/' + simpDen}`;
+    } else {
+      const larger = tiles.find(t => t.id === op.largerId);
+      const smaller = tiles.find(t => t.id === op.smallerId);
+      if (!larger || !smaller) { closeOpDialog(true); return; }
+
+      const row = larger.row;
+      const x = larger.x;
+      tiles = tiles.filter(t => t.id !== larger.id && t.id !== smaller.id);
+
+      addResultTile(simpNum, simpDen, row, x);
+      op.resultMessage = `${fracText(larger)} − ${fracText(smaller)} = ${op.confirmedNumA}/${commonDen} − ${op.confirmedNumB}/${commonDen} = ${simpDen === 1 ? simpNum : simpNum + '/' + simpDen}`;
+    }
+
+    render();
+    op.step = 'done';
+    if (opDialogPanel.classList.contains('open')) {
+      renderOpStep();
+    }
+  }
+
+  function addResultTile(num, den, row, x) {
+    const isWhole = (num === den);
+    const t = {
+      id: nextId++,
+      num, den,
+      isWhole,
+      x: Math.max(0, x),
+      row,
+      color: isWhole ? null : colorFor(den)
+    };
+    // Om resultatet inte får plats får det knuffas in inom spelplanens gränser
+    const width = tileWidth(t);
+    t.x = Math.max(0, Math.min(MAX_TILE_RIGHT - width, t.x));
+    t.x = resolveRowCollision(t.id, t.row, t.x, width);
+    tiles.push(t);
+    selectedId = t.id;
+  }
+
+  // ---------- Initiera: lägg ut en helhet som referens ----------
+  addTile(1, 1, true);
+  tiles[0].row = 0;
   render();
+
+  window.addEventListener('resize', render);
 })();
 </script>
+
 </body>
 </html>

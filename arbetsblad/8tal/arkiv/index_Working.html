@@ -199,24 +199,6 @@
     margin-top:10px; border:1.5px dashed var(--border); border-radius:8px;
     background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 19px, #e4e0f7 20px, #e4e0f7 21.5px, transparent 21.5px);
   }
-  .wcompare-blank{ display:inline-block; width:34px; height:1.2em; border-bottom:1.5px solid #100e28; margin:0 6px; flex-shrink:0; }
-  .ws-compare-input{ display:inline-flex; gap:5px; margin:0 4px; }
-  .ws-compare-btn{
-    width:32px; height:32px; border:1.5px solid var(--border); background:#fff; border-radius:7px;
-    font-weight:700; font-size:1.05rem; cursor:pointer; font-family:'Sora',sans-serif; color:#100e28;
-  }
-  .ws-compare-btn:hover{ border-color:var(--accent); }
-  .ws-compare-btn.selected{ background:var(--accent); border-color:var(--accent); color:#fff; }
-  .ws-row-hint{ font-size:.72rem; color:var(--muted); }
-  .wchoice-options{ display:inline-flex; flex-wrap:wrap; gap:4px 14px; margin-left:6px; }
-  .wchoice-option{ white-space:nowrap; font-weight:600; }
-  .ws-choice-input{ display:inline-flex; flex-wrap:wrap; gap:5px; margin:0 4px; }
-  .ws-choice-btn{
-    padding:5px 10px; border:1.5px solid var(--border); background:#fff; border-radius:7px;
-    font-weight:700; font-size:.9rem; cursor:pointer; font-family:'Sora',sans-serif; color:#100e28;
-  }
-  .ws-choice-btn:hover{ border-color:var(--accent); }
-  .ws-choice-btn.selected{ background:var(--accent); border-color:var(--accent); color:#fff; }
   .ws-numline-row{ flex-direction:column; align-items:stretch; gap:2px; padding-bottom:22px; margin-bottom:6px; }
   .ws-numline{ width:100%; max-width:640px; height:auto; display:block; margin-top:6px; }
   .worksheet-answerkey{ page-break-before:always; }
@@ -487,7 +469,6 @@
               <button type="button" class="ws-mode-btn ws-dec-level-btn active" data-level="1">Nivå 1</button>
               <button type="button" class="ws-mode-btn ws-dec-level-btn" data-level="2">Nivå 2</button>
             </div>
-            <label title="Fyra svarsalternativ med samma siffror men decimaltecknet flyttat — kräver överslagsräkning istället för exakt uträkning"><input type="checkbox" id="wsDecMulEstimate"> Flerval (överslagsräkning)</label>
           </div>
           </div>
         </div>
@@ -502,52 +483,7 @@
               <button type="button" class="ws-mode-btn ws-dec-level-btn active" data-level="1">Nivå 1</button>
               <button type="button" class="ws-mode-btn ws-dec-level-btn" data-level="2">Nivå 2</button>
             </div>
-            <label title="Fyra svarsalternativ med samma siffror men decimaltecknet flyttat — kräver överslagsräkning istället för exakt uträkning"><input type="checkbox" id="wsDecDivEstimate"> Flerval (överslagsräkning)</label>
           </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ws-table-group">
-        <div class="ws-table-grouphead">
-          <span class="ws-table-group-label">Jämförelse</span>
-        </div>
-        <div class="ws-table-row" data-row="intCompare">
-          <div class="ws-row-top">
-            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="intCompare"> Heltal</label>
-            <input type="number" class="ws-row-count" data-cat="intCompare" min="0" max="60" value="10" disabled>
-          </div>
-          <div class="ws-row-controls-wrap">
-            <div class="ws-row-controls">
-              <label><input type="checkbox" id="wsIntCompareNeg"> Tillåt negativa tal</label>
-            </div>
-          </div>
-        </div>
-        <div class="ws-table-row" data-row="decCompare">
-          <div class="ws-row-top">
-            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="decCompare"> Decimaltal</label>
-            <input type="number" class="ws-row-count" data-cat="decCompare" min="0" max="60" value="10" disabled>
-          </div>
-          <div class="ws-row-controls-wrap">
-            <div class="ws-row-controls">
-              <span class="ws-row-hint">Olika antal decimaler — kräver att man matchar dem innan man jämför</span>
-            </div>
-          </div>
-        </div>
-        <div class="ws-table-row" data-row="fracCompare">
-          <div class="ws-row-top">
-            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="fracCompare"> Bråk</label>
-            <input type="number" class="ws-row-count" data-cat="fracCompare" min="0" max="60" value="10" disabled>
-          </div>
-          <div class="ws-row-controls-wrap">
-            <div class="ws-row-controls">
-              <div class="ws-mode-toggle">
-                <button type="button" class="ws-mode-btn ws-fraccmp-level-btn active" data-level="1" title="T.ex. 3/8 jämfört med 5/8">Samma nämnare</button>
-                <button type="button" class="ws-mode-btn ws-fraccmp-level-btn" data-level="2" title="T.ex. 3/8 jämfört med 3/5">Samma täljare</button>
-                <button type="button" class="ws-mode-btn ws-fraccmp-level-btn" data-level="3" title="T.ex. 1/2 jämfört med 3/8">Multipel</button>
-                <button type="button" class="ws-mode-btn ws-fraccmp-level-btn" data-level="4" title="T.ex. 10/18 jämfört med 13/24 — resonera mot en halv">Riktmärke</button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -848,66 +784,7 @@ function genDecimalAddSub() {
   };
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  ÖVERSLAGSRÄKNING (flervalsalternativ) — samma sifferföljd som det
-//  korrekta svaret, men med decimaltecknet (exponenten) flyttat olika
-//  långt. Tvingar fram en uppskattning ("ca 1 · 4,2 ≈ 4,2, och eftersom
-//  vi avrundade 1,05 nedåt till 1 ska svaret vara LITE större än 4,2")
-//  istället för att bara räkna ut exakt eller gissa på antal decimaler.
-// ═══════════════════════════════════════════════════════════════════
-function wsShiftedDecimalStr(core, e) {
-  return (e >= 0) ? intToDecimalStr(core, e, false) : String(core * Math.pow(10, -e));
-}
-function wsBuildEstimateOptions(core, correctExp) {
-  const start = correctExp - wsRandInt(0, 3); // korrekt exponent hamnar slumpmässigt på en av de fyra platserna
-  const exps = [start, start + 1, start + 2, start + 3];
-  const options = exps.map(e => wsShiftedDecimalStr(core, e));
-  const correct = wsShiftedDecimalStr(core, correctExp);
-  const shuffled = options.slice();
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return { options: shuffled, correct };
-}
-
-function genDecimalMulEstimate() {
-  const bothDecimal = (wsDecLevel === 2);
-  const coreMax = bothDecimal ? 45 : 9;
-  const c1 = wsRandNonZero(1, coreMax), c2 = wsRandNonZero(1, coreMax);
-  const dp1 = wsRandInt(1, 2);
-  const dp2 = bothDecimal ? wsRandInt(1, 2) : 0;
-  const roundFactor = bothDecimal ? 1 : Math.pow(10, wsRandInt(2, 4));
-  const n1 = c1, n2 = c2 * roundFactor; // positiva — överslagsräkning ska inte behöva hålla reda på tecken också
-  const rawProduct = n1 * n2;
-  const totalDp = dp1 + dp2;
-  const { options, correct } = wsBuildEstimateOptions(rawProduct, totalDp);
-  return {
-    parts: [
-      { t: 'txt', text: intToDecimalStr(n1, dp1, false) },
-      { t: 'txt', text: '·' },
-      { t: 'txt', text: intToDecimalStr(n2, dp2, false) },
-    ],
-    answerKind: 'choice', answer: correct, options,
-  };
-}
-
-function genDecimalDivEstimate() {
-  const d = wsRandInt(2, 9);
-  const k = (wsDecLevel === 2) ? wsRandInt(2, 9) : 1;
-  const divisorInt = d * k;
-  const q = wsRandInt(2, 12);
-  const dividendInt = divisorInt * q;
-  const p = (wsDecLevel === 2) ? wsRandInt(1, 2) : 1;
-  const { options, correct } = wsBuildEstimateOptions(q, 0); // kvoten är alltid ett rent heltal i grundfallet
-  return {
-    parts: [{ t: 'frac', num: intToDecimalStr(dividendInt, p, false), den: intToDecimalStr(divisorInt, p, false) }],
-    answerKind: 'choice', answer: correct, options,
-  };
-}
-
 function genDecimalMul() {
-  if (wsDecMulEstimate.checked) return genDecimalMulEstimate();
   const bothDecimal = (wsDecLevel === 2);
   const coreMax = bothDecimal ? 45 : 9; // "siffrorna" i multiplikationen
   const c1 = wsRandNonZero(1, coreMax), c2 = wsRandNonZero(1, coreMax);
@@ -928,7 +805,6 @@ function genDecimalMul() {
 }
 
 function genDecimalDiv() {
-  if (wsDecDivEstimate.checked) return genDecimalDivEstimate();
   const d = wsRandInt(2, 9);                         // målnämnare efter förkortning — en ensam siffra
   const k = (wsDecLevel === 2) ? wsRandInt(2, 9) : 1; // hur mycket som måste förkortas bort
   const divisorInt  = d * k;
@@ -944,94 +820,6 @@ function genDecimalDiv() {
     // inte ÷-tecken och inte en amerikansk "long division"-bracket.
     parts: [{ t: 'frac', num: intToDecimalStr(n1, p, true), den: intToDecimalStr(n2, p, true) }],
     answerKind: 'integer', answer: sign * q,
-  };
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  JÄMFÖRELSE — jämför två tal, svaret är '>' eller '<' (aldrig '=' —
-//  det undviks medvetet i genereringen så att det alltid finns ett
-//  entydigt rätt svar att resonera fram till).
-// ═══════════════════════════════════════════════════════════════════
-
-function genIntCompare() {
-  const level = wsIntCompareNeg.checked ? 'flera' : 'inga';
-  let a, b;
-  do {
-    [a, b] = wsApplyNegLevel([wsIntMag(50), wsIntMag(50)], level);
-  } while (a === b);
-  return {
-    left: [{ t: 'txt', text: fmtNum(a) }],
-    right: [{ t: 'txt', text: fmtNum(b) }],
-    answerKind: 'compare', answer: a > b ? '>' : '<',
-  };
-}
-
-// Bygger medvetet in fällan med OLIKA antal decimaler (t.ex. 3,4 mot 3,38)
-// — poängen är just att behöva fylla ut med nollor för att jämföra rättvist,
-// inte själva uträkningen. Hålls positiv, samma skäl som "Delar"/"Stort tal".
-function genDecimalCompare() {
-  const sameWhole = Math.random() < 0.7;
-  const whole1 = wsRandInt(0, 9);
-  const whole2 = sameWhole ? whole1 : wsRandInt(0, 9);
-  const dp1 = wsRandInt(1, 2), dp2 = wsRandInt(1, 2);
-  let dec1, dec2, n1, n2, v1, v2;
-  do {
-    dec1 = wsRandInt(0, Math.pow(10, dp1) - 1);
-    dec2 = wsRandInt(0, Math.pow(10, dp2) - 1);
-    n1 = whole1 * Math.pow(10, dp1) + dec1;
-    n2 = whole2 * Math.pow(10, dp2) + dec2;
-    const scale = Math.max(dp1, dp2);
-    v1 = n1 * Math.pow(10, scale - dp1);
-    v2 = n2 * Math.pow(10, scale - dp2);
-  } while (v1 === v2);
-  return {
-    left: [{ t: 'txt', text: intToDecimalStr(n1, dp1, false) }],
-    right: [{ t: 'txt', text: intToDecimalStr(n2, dp2, false) }],
-    answerKind: 'compare', answer: v1 > v2 ? '>' : '<',
-  };
-}
-
-// Fyra scenarier, valda med wsFracCompareLevel (matchar önskade resonemang):
-//  1. Samma nämnare        — jämför bara täljarna.
-//  2. Samma täljare         — jämför nämnarna (omvänt: större nämnare = mindre bråk).
-//  3. Multipel               — en nämnare är en multipel av den andra, lätt att förlänga.
-//  4. Riktmärke              — båda bråken är "en halv ± en del", med olika och inte
-//     alltför besläktade nämnare, så att förlängning till minsta gemensamma nämnare
-//     blir mödosam men jämförelse mot riktmärket (en halv) är den smidiga vägen —
-//     t.ex. 10/18 (= 1/2 + 1/18) mot 13/24 (= 1/2 + 1/24).
-function genFracCompare() {
-  let a, b;
-  if (wsFracCompareLevel === 1) {
-    const den = wsRandInt(4, 12);
-    let n1, n2;
-    do { n1 = wsRandInt(1, den - 1); n2 = wsRandInt(1, den - 1); } while (n1 === n2);
-    a = { num: n1, den }; b = { num: n2, den };
-  } else if (wsFracCompareLevel === 2) {
-    const num = wsRandInt(2, 9);
-    let d1, d2;
-    do { d1 = wsRandInt(num + 1, num + 10); d2 = wsRandInt(num + 1, num + 10); } while (d1 === d2);
-    a = { num, den: d1 }; b = { num, den: d2 };
-  } else if (wsFracCompareLevel === 3) {
-    const denSmall = wsRandInt(2, 6);
-    const denBig = denSmall * wsRandInt(2, 3);
-    const numSmall = wsRandInt(1, denSmall - 1);
-    let numBig;
-    do { numBig = wsRandInt(1, denBig - 1); } while (numSmall * denBig === numBig * denSmall);
-    const swap = Math.random() < 0.5;
-    a = swap ? { num: numBig, den: denBig } : { num: numSmall, den: denSmall };
-    b = swap ? { num: numSmall, den: denSmall } : { num: numBig, den: denBig };
-  } else {
-    let d1, d2;
-    do { d1 = wsRandInt(7, 15) * 2; d2 = wsRandInt(7, 15) * 2; } while (d1 === d2 || wsGcd(d1, d2) > 2);
-    const s1 = Math.random() < 0.5 ? 1 : -1, s2 = Math.random() < 0.5 ? 1 : -1;
-    a = { num: d1 / 2 + s1, den: d1 };
-    b = { num: d2 / 2 + s2, den: d2 };
-  }
-  const answer = (a.num * b.den > b.num * a.den) ? '>' : '<';
-  return {
-    left: [{ t: 'frac', num: fmtNum(a.num), den: String(a.den) }],
-    right: [{ t: 'frac', num: fmtNum(b.num), den: String(b.den) }],
-    answerKind: 'compare', answer,
   };
 }
 
@@ -1253,9 +1041,6 @@ const CATEGORIES = {
   decAddSub:  { label: 'Decimaltal +/−',    group: 'Decimal', gen: genDecimalAddSub },
   decMul:     { label: 'Decimaltal ·',      group: 'Decimal', gen: genDecimalMul },
   decDiv:     { label: 'Decimaltal division',   group: 'Decimal', gen: genDecimalDiv },
-  intCompare:  { label: 'Heltal jämförelse',     group: 'Jämförelse', gen: genIntCompare },
-  decCompare:  { label: 'Decimaltal jämförelse', group: 'Jämförelse', gen: genDecimalCompare },
-  fracCompare: { label: 'Bråk jämförelse',       group: 'Jämförelse', gen: genFracCompare },
 };
 let wsActiveCategories = new Set();
 
@@ -1316,11 +1101,6 @@ let wsFracRelLevel = 1; // 1 | 2 | 3 — nämnarrelation, endast Bråk +/−
 let wsFracMagLevel = 1; // 1 | 2 — talens storlek, delas av Bråk × och Bråk ÷
 let wsDecAddSubLevel = 1; // 1 | 2 — antal decimaler, endast Decimaltal +/−
 let wsDecLevel = 1;     // 1 | 2 — delas av Decimaltal × och Decimaltal ÷
-let wsFracCompareLevel = 1; // 1 | 2 | 3 | 4 — endast Bråk jämförelse
-const wsIntCompareNeg = document.getElementById('wsIntCompareNeg');
-const wsDecMulEstimate = document.getElementById('wsDecMulEstimate');
-const wsDecDivEstimate = document.getElementById('wsDecDivEstimate');
-const wsFracCompareLevelBtns = Array.from(document.querySelectorAll('.ws-fraccmp-level-btn'));
 let wsNumlineType = 'graderad'; // 'graderad' | 'oppen' — endast Tallinjeblad
 let wsProblems = [];
 
@@ -1351,8 +1131,6 @@ function fracInlineHTML(n, d) {
 function wsAnswerHTML(p) {
   if (p.answerKind === 'integer') return String(p.answer);
   if (p.answerKind === 'decimal') return intToDecimalStr(p.answer.value, p.answer.dp, false);
-  if (p.answerKind === 'compare') return `<b>${p.answer}</b>`;
-  if (p.answerKind === 'choice') return `<b>${p.answer}</b>`;
   const { num, den } = p.answer;
   if (den === 1) return String(num);
   if (Math.abs(num) < den) return fracInlineHTML(num, den);
@@ -1451,8 +1229,7 @@ function wsEstimateComplexity(parts) {
 }
 function wsWorkSpaceHeight(p) {
   const scale = { liten: 0.7, mellan: 1, stor: 1.5 }[wsWorkSpaceSize] || 1;
-  const partsForScore = p.parts || [...(p.left || []), ...(p.right || [])];
-  const base = 46 + wsEstimateComplexity(partsForScore) * 13;
+  const base = 46 + wsEstimateComplexity(p.parts) * 13;
   return Math.round(Math.max(46, Math.min(170, base)) * scale);
 }
 
@@ -1472,30 +1249,6 @@ function renderWorksheet() {
   if (wsMode === 'interactive') {
     worksheetAnswerPage.style.display = 'none'; // facit ska inte synas direkt i interaktivt läge
     worksheetGrid.innerHTML = wsProblems.map((p, i) => {
-      if (p.answerKind === 'compare') {
-        return `
-        <div class="worksheet-problem" data-idx="${i}">
-          <span class="wnum">${i + 1}.</span>
-          <span class="wexpr">${p.left.map(renderPart).join(' ')}</span>
-          <span class="ws-compare-input no-print">
-            <button type="button" class="ws-compare-btn" data-symbol="<">&lt;</button>
-            <button type="button" class="ws-compare-btn" data-symbol="=">=</button>
-            <button type="button" class="ws-compare-btn" data-symbol=">">&gt;</button>
-          </span>
-          <span class="wexpr">${p.right.map(renderPart).join(' ')}</span>
-          <span class="ws-feedback no-print" id="wsFeedback${i}"></span>
-        </div>`;
-      }
-      if (p.answerKind === 'choice') {
-        const btns = p.options.map(opt => `<button type="button" class="ws-choice-btn" data-value="${opt}">${opt}</button>`).join('');
-        return `
-        <div class="worksheet-problem" data-idx="${i}">
-          <span class="wnum">${i + 1}.</span>
-          ${wsProblemHTML(p)}
-          <span class="ws-choice-input no-print">${btns}</span>
-          <span class="ws-feedback no-print" id="wsFeedback${i}"></span>
-        </div>`;
-      }
       const inputHTML = (p.answerKind === 'fraction')
         ? `<span class="ws-frac-input no-print">
              <input type="number" id="wsAnsNum${i}" title="Täljare">
@@ -1524,26 +1277,20 @@ function renderWorksheet() {
     worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
   } else {
     const showWork = wsWorkSpace.checked;
-    worksheetGrid.innerHTML = wsProblems.map((p, i) => {
-      const mainHTML = (p.answerKind === 'compare')
-        ? `<span class="wnum">${i + 1}.</span>
-           <span class="wexpr">${p.left.map(renderPart).join(' ')}</span>
-           <span class="wcompare-blank"></span>
-           <span class="wexpr">${p.right.map(renderPart).join(' ')}</span>`
-        : (p.answerKind === 'choice')
-        ? `<span class="wnum">${i + 1}.</span>
-           ${wsProblemHTML(p)}
-           <span class="wchoice-options">${p.options.map(opt => `<span class="wchoice-option">○ ${opt}</span>`).join('')}</span>`
-        : `<span class="wnum">${i + 1}.</span>
-           ${wsProblemHTML(p)}<span>&nbsp;=</span>
-           <span class="wanswer-line"></span>`;
-      return showWork ? `
-        <div class="worksheet-problem ws-has-workspace">
-          <div class="wproblem-line">${mainHTML}</div>
-          <div class="ws-work-space" style="min-height:${wsWorkSpaceHeight(p)}px"></div>
-        </div>` : `
-        <div class="worksheet-problem">${mainHTML}</div>`;
-    }).join('');
+    worksheetGrid.innerHTML = wsProblems.map((p, i) => showWork ? `
+      <div class="worksheet-problem ws-has-workspace">
+        <div class="wproblem-line">
+          <span class="wnum">${i + 1}.</span>
+          ${wsProblemHTML(p)}<span>&nbsp;=</span>
+          <span class="wanswer-line"></span>
+        </div>
+        <div class="ws-work-space" style="min-height:${wsWorkSpaceHeight(p)}px"></div>
+      </div>` : `
+      <div class="worksheet-problem">
+        <span class="wnum">${i + 1}.</span>
+        ${wsProblemHTML(p)}<span>&nbsp;=</span>
+        <span class="wanswer-line"></span>
+      </div>`).join('');
     worksheetAnswerGrid.innerHTML = wsProblems.map((p, i) =>
       `<div><b>${i + 1}.</b> ${wsAnswerHTML(p)}</div>`).join('');
     worksheetAnswerPage.style.display = wsAnswerKey.checked ? '' : 'none';
@@ -1561,30 +1308,6 @@ function checkWorksheetAnswers() {
   wsProblems.forEach((p, i) => {
     const fb  = document.getElementById('wsFeedback' + i);
     const row = document.querySelector(`.worksheet-problem[data-idx="${i}"]`);
-
-    if (p.answerKind === 'compare') {
-      const selectedBtn = row.querySelector('.ws-compare-btn.selected');
-      if (!selectedBtn) { row.classList.remove('ws-correct','ws-wrong'); fb.textContent=''; return; }
-      answered++;
-      const isCorrect = selectedBtn.dataset.symbol === p.answer;
-      if (isCorrect) correct++;
-      row.classList.toggle('ws-correct', isCorrect);
-      row.classList.toggle('ws-wrong', !isCorrect);
-      fb.innerHTML = wsFeedbackHTML(isCorrect, wsAnswerHTML(p));
-      return;
-    }
-
-    if (p.answerKind === 'choice') {
-      const selectedBtn = row.querySelector('.ws-choice-btn.selected');
-      if (!selectedBtn) { row.classList.remove('ws-correct','ws-wrong'); fb.textContent=''; return; }
-      answered++;
-      const isCorrect = selectedBtn.dataset.value === p.answer;
-      if (isCorrect) correct++;
-      row.classList.toggle('ws-correct', isCorrect);
-      row.classList.toggle('ws-wrong', !isCorrect);
-      fb.innerHTML = wsFeedbackHTML(isCorrect, wsAnswerHTML(p));
-      return;
-    }
 
     if (p.answerKind === 'fraction') {
       const numEl = document.getElementById('wsAnsNum' + i), denEl = document.getElementById('wsAnsDen' + i);
@@ -1716,7 +1439,6 @@ function resetAllSettings() {
   wsDecAddSubLevel = 1; resetButtonGroup(wsDecAddSubLevelBtns);
   wsDecLevel = 1; resetButtonGroup(wsDecLevelBtns);
   wsNumlineType = 'graderad'; resetButtonGroup(wsNumlineTypeBtns);
-  wsFracCompareLevel = 1; resetButtonGroup(wsFracCompareLevelBtns);
 
   // Negativ-nivåer tillbaka till "Inga"
   wsIntNegLevel = 'inga'; resetButtonGroup(wsIntNegBtns);
@@ -1728,9 +1450,6 @@ function resetAllSettings() {
   wsFracAdvanced.checked = false;
   wsFracMulCancel.checked = false;
   wsFracDivNested.checked = false;
-  wsIntCompareNeg.checked = false;
-  wsDecMulEstimate.checked = false;
-  wsDecDivEstimate.checked = false;
   wsAnswerKey.checked = true;
   wsNumlineToggle.checked = false;
   wsWorkSpace.checked = false;
@@ -1747,21 +1466,6 @@ function resetAllSettings() {
   renderWorksheet();
 }
 wsResetAll.addEventListener('click', resetAllSettings);
-// Delegerad lyssnare (överlever att worksheetGrid görs om vid varje renderWorksheet)
-// för jämförelse- och flervalsknapparna i interaktivt läge — klick väljer, avmarkerar syskonen.
-worksheetGrid.addEventListener('click', (e) => {
-  const cmpBtn = e.target.closest('.ws-compare-btn');
-  if (cmpBtn) {
-    const group = cmpBtn.closest('.ws-compare-input');
-    group.querySelectorAll('.ws-compare-btn').forEach(b => b.classList.toggle('selected', b === cmpBtn));
-    return;
-  }
-  const choiceBtn = e.target.closest('.ws-choice-btn');
-  if (choiceBtn) {
-    const group = choiceBtn.closest('.ws-choice-input');
-    group.querySelectorAll('.ws-choice-btn').forEach(b => b.classList.toggle('selected', b === choiceBtn));
-  }
-});
 
 document.getElementById('wsRegenerate').addEventListener('click', renderWorksheet);
 function updateGlassToggleUI() {
@@ -1871,16 +1575,6 @@ wsDecNegBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     wsDecNegLevel = btn.dataset.level;
     wsDecNegBtns.forEach(b => b.classList.toggle('active', b === btn));
-    renderWorksheet();
-  });
-});
-wsIntCompareNeg.addEventListener('change', renderWorksheet);
-wsDecMulEstimate.addEventListener('change', renderWorksheet);
-wsDecDivEstimate.addEventListener('change', renderWorksheet);
-wsFracCompareLevelBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    wsFracCompareLevel = parseInt(btn.dataset.level, 10);
-    wsFracCompareLevelBtns.forEach(b => b.classList.toggle('active', b === btn));
     renderWorksheet();
   });
 });

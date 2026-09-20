@@ -352,6 +352,17 @@
     .icon-btn:hover { background: rgba(0,0,0,0.06); }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 
+    .teacher-list { display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; }
+    .teacher-row {
+      display: flex; justify-content: space-between; align-items: center; width: 100%;
+      padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+      background: rgba(255,255,255,0.7); font-family: 'Sora', sans-serif; font-size: 0.88rem; font-weight: 600;
+      color: var(--text); text-align: left; transition: border-color 0.15s;
+    }
+    .teacher-row:hover { border-color: var(--cat); }
+    .teacher-row.absent { opacity: 0.5; text-decoration: line-through; background: transparent; }
+    .teacher-row .tr-seat { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-decoration: none; }
+
     footer { text-align: center; padding: 22px; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border); }
 
     @media (prefers-reduced-motion: reduce) {
@@ -379,7 +390,9 @@
         <span class="eyebrow">Rum</span>
         <select id="roomSelect"></select>
       </div>
-      <button class="btn btn-secondary" id="exportBtn" title="Exportera som bild">🖼️ Exportera</button>
+      <button class="btn btn-secondary" id="exportBtn" title="Exportera som bild (elevperspektiv)">🖼️ Exportera</button>
+      <button class="btn btn-secondary" id="exportMirrorBtn" title="Spegelvänd utskrift, rättvänd från lärarens plats i rummet">🖨️ Lärarutskrift</button>
+      <button class="btn btn-secondary" id="teacherViewBtn" title="Lärarvy — närvaro">📋 Lärarvy</button>
       <button class="btn btn-secondary" id="settingsBtn">⚙️</button>
     </div>
 
@@ -405,6 +418,7 @@
             </div>
           </div>
           <p class="room-hint" style="text-align:left;margin:0;">Dra i tom yta för att markera flera bänkar/föremål — dra sedan i ett av de markerade för att flytta hela gruppen tillsammans. Kortkommandon: R roterar, D duplicerar, Delete tar bort.</p>
+          <button class="btn btn-secondary" id="undoBtn" style="width:100%;">↩️ Ångra (Ctrl+Z)</button>
           <button class="btn btn-secondary" id="standardLayoutBtn" style="width:100%;">📐 Standardlayout (3×2, 5 rader)</button>
           <div class="cluster-stepper">
             <span class="label">Klusterstorlek</span>
@@ -513,6 +527,17 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="teacherViewBackdrop">
+    <div class="modal" style="max-width:420px;">
+      <h2>Lärarvy — Närvaro</h2>
+      <p class="hint" id="teacherViewSummary"></p>
+      <div id="teacherViewList" class="teacher-list"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="closeTeacherViewBtn">Stäng</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop" id="confirmModalBackdrop">
     <div class="modal" style="max-width:360px;">
       <h2>Bekräfta</h2>
@@ -532,7 +557,9 @@
     const SEATINGS_KEY = 'pt-klassrum-placeringar';
 
     const DESK = 64;        // bänkens/kateders sida i px
+    const WIDE_DESK_W = Math.round(DESK * 1.4); // bred bänk: 40% bredare än en vanlig bänk
     const SNAP = 16;        // rutnätets finhet i px (både bakgrundsprickar och dragsnäpp)
+    const VERY_LIGHT_GREY = '#e4e4ea';
     const CANVAS_W = 2200;  // rummets totala bredd i px
     const CANVAS_H = 1150;  // rummets totala höjd i px
     const GROUP_COLORS = ['#306BF0', '#EC6095', '#F4A261', '#8b5cf6', '#14b8a6', '#e0a800'];
@@ -550,6 +577,7 @@
 
     const TOOL_DEFS = [
       { key: 'desk',        label: 'Enskild bänk', icon: '🪑',  swatch: 'var(--surface)',  border: 'var(--border)' },
+      { key: 'widedesk',    label: 'Bred bänk',    icon: '🪑↔️', swatch: 'var(--surface)',  border: 'var(--border)' },
       { key: 'cluster',     label: 'Bänkkluster',  icon: '🪑',  swatch: 'var(--surface)',  border: GROUP_COLORS[0] },
       { key: 'kateder',     label: 'Kateder',      icon: '🧑‍🏫', swatch: 'var(--cat)',      border: 'var(--cat-dark)' },
       { key: 'whiteboard',  label: 'Whiteboard',   icon: '📝',  swatch: '#ffffff',         border: '#b7bfc9' },
@@ -566,6 +594,20 @@
     function saveJSON(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
     function nyttId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
+    // Ångra: spara en ögonblicksbild av rummets layout innan varje ändring.
+    function snapshotRoom() {
+      const r = aktivRum(); if (!r) return;
+      undoStack.push(JSON.stringify({ desks: r.desks, markers: r.markers, walls: r.walls || [] }));
+      if (undoStack.length > 30) undoStack.shift();
+    }
+    function undo() {
+      const r = aktivRum(); if (!r || undoStack.length === 0) return;
+      const snap = JSON.parse(undoStack.pop());
+      r.desks = snap.desks; r.markers = snap.markers; r.walls = snap.walls;
+      saveRum();
+      selected.clear(); armed = null;
+      renderCanvas(); renderRoomSelect(); renderPool();
+    }
     // Egen bekräftelsedialog istället för webbläsarens confirm() — fungerar pålitligt
     // oavsett var sidan är inbäddad (native dialoger kan annars blockeras tyst).
     let confirmCallback = null;
@@ -602,6 +644,7 @@
     let clusterSize = 2;
     let armed = null;
     let selected = new Set(); // markerade föremål i redigeringsläget, nycklar "desk:ID" / "marker:ID"
+    let undoStack = []; // ögonblicksbilder av rummets layout, för Ångra (Ctrl+Z)
 
     function saveKlasser() { saveJSON(STORAGE_KEY, klasser); }
     function saveRum() { saveJSON(ROOMS_KEY, rum); }
@@ -688,7 +731,7 @@
     roomSelect.addEventListener('change', () => {
       aktivRumId = roomSelect.value;
       localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId);
-      armed = null; selected.clear(); renderAll();
+      armed = null; selected.clear(); undoStack = []; renderAll();
     });
 
     modeEditBtn.addEventListener('click', () => { mode = 'edit'; armed = null; syncModeUI(); renderAll(); });
@@ -724,6 +767,7 @@
     }
     function handleToolClick(key) {
       if (key === 'desk') addDesk();
+      else if (key === 'widedesk') addDesk(true);
       else if (key === 'cluster') addCluster();
       else if (key === 'vagg') addWall();
       else addMarker(key);
@@ -739,14 +783,16 @@
       return { x, y };
     }
 
-    function addDesk() {
+    function addDesk(wide) {
       const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      snapshotRoom();
       const p = nextSpawnPoint(r);
-      r.desks.push({ id: nyttId(), x: p.x, y: p.y, rot: 0, clusterId: null });
+      r.desks.push({ id: nyttId(), x: p.x, y: p.y, rot: 0, clusterId: null, w: wide ? WIDE_DESK_W : DESK });
       saveRum(); renderCanvas(); renderRoomSelect();
     }
     function addCluster() {
       const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      snapshotRoom();
       const p = nextSpawnPoint(r);
       const existing = new Set(r.desks.filter(d => d.clusterId).map(d => d.clusterId));
       const color = GROUP_COLORS[existing.size % GROUP_COLORS.length];
@@ -758,12 +804,14 @@
     }
     function addMarker(typ) {
       const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      snapshotRoom();
       const p = nextSpawnPoint(r);
       r.markers.push({ id: nyttId(), x: p.x, y: p.y, typ, rot: 0 });
       saveRum(); renderCanvas();
     }
     function addWall() {
       const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      snapshotRoom();
       const p = nextSpawnPoint(r);
       const length = 140;
       r.walls.push({ id: nyttId(), x1: p.x, y1: p.y, x2: Math.min(p.x + length, CANVAS_W), y2: p.y });
@@ -775,6 +823,7 @@
     function applyStandardLayout() {
       const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
       const build = () => {
+        snapshotRoom();
         const gapInPair = 8, colGap = 50, rowGap = 36;
         const pairW = DESK * 2 + gapInPair;
         const x0 = 220, y0 = 200;
@@ -805,6 +854,7 @@
 
     function deleteDesk(deskId) {
       const r = aktivRum(); if (!r) return;
+      snapshotRoom();
       r.desks = r.desks.filter(d => d.id !== deskId);
       saveRum();
       placeringar.forEach(p => { if (p.roomId === aktivRumId) delete p.assignments[deskId]; });
@@ -814,6 +864,7 @@
     }
     function deleteMarker(markerId) {
       const r = aktivRum(); if (!r) return;
+      snapshotRoom();
       r.markers = r.markers.filter(m => m.id !== markerId);
       saveRum();
       selected.delete('marker:' + markerId);
@@ -821,12 +872,17 @@
     }
     function deleteWall(wallId) {
       const r = aktivRum(); if (!r) return;
+      snapshotRoom();
       r.walls = r.walls.filter(w => w.id !== wallId);
       saveRum(); renderCanvas();
     }
 
     function itemBoxSize(key) {
-      if (key.startsWith('desk:')) return { w: DESK, h: DESK };
+      if (key.startsWith('desk:')) {
+        const r = aktivRum();
+        const d = r && r.desks.find(dd => 'desk:' + dd.id === key);
+        return { w: d ? (d.w || DESK) : DESK, h: DESK };
+      }
       const r = aktivRum();
       const m = r && r.markers.find(mm => 'marker:' + mm.id === key);
       return m ? MARKER_SIZE[m.typ] : { w: DESK, h: DESK };
@@ -842,6 +898,7 @@
         if (mode !== 'edit') return;
         if (e.target.closest('.delete-badge') || e.target.closest('.rotate-badge')) return;
         e.preventDefault();
+        snapshotRoom();
         el.setPointerCapture(e.pointerId);
         const rect = roomCanvas.getBoundingClientRect();
 
@@ -910,6 +967,7 @@
       body.addEventListener('pointerdown', (e) => {
         if (mode !== 'edit') return;
         e.preventDefault();
+        snapshotRoom();
         body.setPointerCapture(e.pointerId);
         const rect = roomCanvas.getBoundingClientRect();
         const startPX = e.clientX - rect.left, startPY = e.clientY - rect.top;
@@ -936,6 +994,7 @@
       handle.addEventListener('pointerdown', (e) => {
         if (mode !== 'edit') return;
         e.preventDefault(); e.stopPropagation();
+        snapshotRoom();
         handle.setPointerCapture(e.pointerId);
         const rect = roomCanvas.getBoundingClientRect();
         function onMove(ev) {
@@ -960,7 +1019,7 @@
       return !(ix2 < box.l || ix1 > box.l + box.w || iy2 < box.t || iy1 > box.t + box.h);
     }
 
-    const SWATCH_COLORS = [...GROUP_COLORS, STANDARD_COLOR];
+    const SWATCH_COLORS = [...GROUP_COLORS, STANDARD_COLOR, VERY_LIGHT_GREY];
     function renderSelectionColors() {
       const wrap = document.getElementById('selectionColors');
       wrap.querySelectorAll('.color-swatch-btn').forEach(b => b.remove());
@@ -979,6 +1038,7 @@
     }
     function setSelectedDeskColor(color) {
       const r = aktivRum(); if (!r) return;
+      snapshotRoom();
       let changed = false;
       selected.forEach(key => {
         if (!key.startsWith('desk:')) return;
@@ -1010,6 +1070,7 @@
       const markerIds = [...selected].filter(k => k.startsWith('marker:')).map(k => k.slice(7));
       const count = selected.size;
       showConfirm(`Ta bort ${count} markerade föremål?`, () => {
+        snapshotRoom();
         r.desks = r.desks.filter(d => !deskIds.includes(d.id));
         r.markers = r.markers.filter(m => !markerIds.includes(m.id));
         saveRum();
@@ -1024,17 +1085,19 @@
     function duplicateSelected() {
       if (selected.size === 0) return;
       const r = aktivRum(); if (!r) return;
+      snapshotRoom();
       const OFFSET = 30;
       const newKeys = new Set();
       selected.forEach(key => {
         if (key.startsWith('desk:')) {
           const d = r.desks.find(x => x.id === key.slice(5));
           if (d) {
+            const dw = d.w || DESK;
             const nd = {
               id: nyttId(),
-              x: Math.max(DESK / 2, Math.min(CANVAS_W - DESK / 2, d.x + OFFSET)),
+              x: Math.max(dw / 2, Math.min(CANVAS_W - dw / 2, d.x + OFFSET)),
               y: Math.max(DESK / 2, Math.min(CANVAS_H - DESK / 2, d.y + OFFSET)),
-              rot: d.rot || 0, clusterId: d.clusterId || null, color: d.color || null
+              rot: d.rot || 0, clusterId: d.clusterId || null, color: d.color || null, w: dw
             };
             r.desks.push(nd);
             newKeys.add('desk:' + nd.id);
@@ -1063,6 +1126,7 @@
     function rotateSelected() {
       if (selected.size === 0) return;
       const r = aktivRum(); if (!r) return;
+      snapshotRoom();
       let changed = false;
       selected.forEach(key => {
         if (key.startsWith('desk:')) {
@@ -1076,17 +1140,19 @@
       if (changed) { saveRum(); renderCanvas(); }
     }
 
-    // Kortkommandon i redigeringsläget: R roterar markeringen, D duplicerar, Delete/Backspace tar bort.
+    // Kortkommandon i redigeringsläget: Ctrl/Cmd+Z ångrar, R roterar markeringen, D duplicerar, Delete/Backspace tar bort.
     document.addEventListener('keydown', (e) => {
       if (mode !== 'edit') return;
       const tag = document.activeElement && document.activeElement.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       if (document.querySelector('.modal-backdrop.open')) return;
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); undo(); return; }
       if (selected.size === 0) return;
       if (e.key === 'r' || e.key === 'R') { rotateSelected(); }
       else if (e.key === 'd' || e.key === 'D') { e.preventDefault(); duplicateSelected(); }
       else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSelected(); }
     });
+    document.getElementById('undoBtn').addEventListener('click', undo);
 
     // Rubber-band-markering: dra i tom yta i rummet för att markera flera föremål på en gång.
     roomCanvas.addEventListener('pointerdown', (e) => {
@@ -1123,7 +1189,7 @@
           selected.clear();
         } else if (r) {
           selected.clear();
-          r.desks.forEach(d => { if (rectIntersectsItem(final, d.x, d.y, DESK, DESK)) selected.add('desk:' + d.id); });
+          r.desks.forEach(d => { if (rectIntersectsItem(final, d.x, d.y, d.w || DESK, DESK)) selected.add('desk:' + d.id); });
           r.markers.forEach(m => { const s = MARKER_SIZE[m.typ]; if (rectIntersectsItem(final, m.x, m.y, s.w, s.h)) selected.add('marker:' + m.id); });
         }
         renderCanvas(); renderSelectionStatus();
@@ -1226,7 +1292,7 @@
             const rot = document.createElement('div');
             rot.className = 'rotate-badge'; rot.textContent = '⟳';
             rot.addEventListener('pointerdown', e => e.stopPropagation());
-            rot.addEventListener('click', e => { e.stopPropagation(); m.rot = ((m.rot || 0) + 90) % 360; saveRum(); renderCanvas(); });
+            rot.addEventListener('click', e => { e.stopPropagation(); snapshotRoom(); m.rot = ((m.rot || 0) + 90) % 360; saveRum(); renderCanvas(); });
             el.appendChild(rot);
           }
           makeDraggable(el, m, size.w, size.h, () => saveRum(), selKey);
@@ -1238,13 +1304,15 @@
         const elevId = assignments[d.id];
         const elev = elevId && klass ? klass.elever.find(e => e.id === elevId) : null;
         const selKey = 'desk:' + d.id;
+        const deskW = d.w || DESK;
         const el = document.createElement('div');
         el.className = 'desk-el' + (elev ? ' occupied' : '') +
           (mode === 'edit' ? ' editable' : '') + (mode === 'place' ? ' placeable' : '') +
           (selected.has(selKey) ? ' selected' : '');
         el.dataset.selKey = selKey;
         if (armed && armed.source !== 'desk' && !elev) el.classList.add('armed-target');
-        el.style.left = (d.x - DESK / 2) + 'px'; el.style.top = (d.y - DESK / 2) + 'px';
+        el.style.width = deskW + 'px';
+        el.style.left = (d.x - deskW / 2) + 'px'; el.style.top = (d.y - DESK / 2) + 'px';
         if (d.color) {
           el.style.borderColor = 'rgba(255,255,255,0.75)';
           el.style.borderWidth = '2px';
@@ -1275,10 +1343,10 @@
           const rot = document.createElement('div');
           rot.className = 'rotate-badge'; rot.textContent = '⟳';
           rot.addEventListener('pointerdown', e => e.stopPropagation());
-          rot.addEventListener('click', e => { e.stopPropagation(); d.rot = ((d.rot || 0) + 90) % 360; saveRum(); renderCanvas(); });
+          rot.addEventListener('click', e => { e.stopPropagation(); snapshotRoom(); d.rot = ((d.rot || 0) + 90) % 360; saveRum(); renderCanvas(); });
           el.appendChild(rot);
 
-          makeDraggable(el, d, DESK, DESK, () => saveRum(), selKey);
+          makeDraggable(el, d, deskW, DESK, () => saveRum(), selKey);
         } else {
           el.addEventListener('click', () => handleDeskClick(d.id));
         }
@@ -1389,7 +1457,11 @@
       ctx.closePath();
     }
 
-    function exportRoomImage() {
+    // Vid spegelvänd export: en bänk/dörr som satt till höger (rot 90) ska sitta till vänster (rot 270) och tvärtom.
+    // Rakt fram/bak (0/180) påverkas inte av en vänster-högerspegling.
+    function mirrorRot(rot) { return rot === 90 ? 270 : rot === 270 ? 90 : rot; }
+
+    function exportRoomImage(mirror) {
       const r = aktivRum();
       if (!r) { alert('Inget rum valt.'); return; }
       if (r.desks.length === 0 && r.markers.length === 0 && (!r.walls || r.walls.length === 0)) { alert('Rummet är tomt — lägg till bänkar eller möbler innan du exporterar.'); return; }
@@ -1397,7 +1469,7 @@
       const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
       fontsReady.then(() => {
         const items = [];
-        r.desks.forEach(d => items.push({ x: d.x, y: d.y, w: DESK, h: DESK }));
+        r.desks.forEach(d => items.push({ x: d.x, y: d.y, w: d.w || DESK, h: DESK }));
         r.markers.forEach(m => { const s = MARKER_SIZE[m.typ]; items.push({ x: m.x, y: m.y, w: s.w, h: s.h }); });
         (r.walls || []).forEach(w => { items.push({ x: w.x1, y: w.y1, w: 0, h: 0 }); items.push({ x: w.x2, y: w.y2, w: 0, h: 0 }); });
 
@@ -1407,6 +1479,7 @@
         const minY = Math.min(...items.map(i => i.y - i.h / 2)) - pad;
         const maxY = Math.max(...items.map(i => i.y + i.h / 2)) + pad;
         const contentW = maxX - minX, contentH = maxY - minY;
+        const mx = mirror ? (x => minX + maxX - x) : (x => x);
 
         const targetLongEdge = 2200;
         const scale = Math.min(3, targetLongEdge / Math.max(contentW, contentH));
@@ -1427,32 +1500,39 @@
         // Väggar (ritas bakom möblerna)
         ctx.strokeStyle = '#4a4a55'; ctx.lineWidth = 6; ctx.lineCap = 'round';
         (r.walls || []).forEach(w => {
-          ctx.beginPath(); ctx.moveTo(w.x1, w.y1); ctx.lineTo(w.x2, w.y2); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(mx(w.x1), w.y1); ctx.lineTo(mx(w.x2), w.y2); ctx.stroke();
         });
+
+        // Hjälpfunktion: rita en markörs textetikett alltid läsbar rättvänd, även i spegelvänt läge.
+        function drawMarkerLabel(text) {
+          if (mirror) { ctx.save(); ctx.scale(-1, 1); ctx.fillText(text, 0, 0); ctx.restore(); }
+          else { ctx.fillText(text, 0, 0); }
+        }
 
         // Markörer
         r.markers.forEach(m => {
           const s = MARKER_SIZE[m.typ];
           ctx.save();
-          ctx.translate(m.x, m.y);
+          ctx.translate(mx(m.x), m.y);
           ctx.rotate((m.rot || 0) * Math.PI / 180);
+          if (mirror) ctx.scale(-1, 1); // sann spegling av asymmetrisk form (t.ex. dörrens gångjärnssida)
           if (m.typ === 'whiteboard') {
             ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#b7bfc9'; ctx.lineWidth = 3;
             roundRectPath(ctx, -s.w / 2, -s.h / 2, s.w, s.h, 6); ctx.fill(); ctx.stroke();
             ctx.fillStyle = '#585078'; ctx.font = 'bold 11px Sora, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('Whiteboard', 0, 0);
+            drawMarkerLabel('Whiteboard');
           } else if (m.typ === 'clevertouch') {
             ctx.fillStyle = '#3c3f47'; ctx.strokeStyle = '#22242a'; ctx.lineWidth = 3;
             roundRectPath(ctx, -s.w / 2, -s.h / 2, s.w, s.h, 6); ctx.fill(); ctx.stroke();
             ctx.strokeStyle = '#6c7078'; ctx.lineWidth = 1.5;
             roundRectPath(ctx, -s.w / 2 + 5, -s.h / 2 + 5, s.w - 10, s.h - 10, 3); ctx.stroke();
             ctx.fillStyle = '#e8e8ec'; ctx.font = 'bold 10px Sora, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('Clevertouch', 0, 0);
+            drawMarkerLabel('Clevertouch');
           } else if (m.typ === 'kateder') {
             ctx.fillStyle = '#3aada8'; ctx.strokeStyle = '#2a827e'; ctx.lineWidth = 3;
             roundRectPath(ctx, -s.w / 2, -s.h / 2, s.w, s.h, 9); ctx.fill(); ctx.stroke();
             ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Sora, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('Kateder', 0, 0);
+            drawMarkerLabel('Kateder');
           } else if (m.typ === 'dorr') {
             ctx.strokeStyle = '#585078'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.arc(-s.w / 2, s.h / 2, s.w * 0.78, -Math.PI / 2, 0); ctx.stroke();
@@ -1471,15 +1551,16 @@
         r.desks.forEach(d => {
           const elevId = assignments[d.id];
           const elev = elevId && klass ? klass.elever.find(e => e.id === elevId) : null;
-          const rot = d.rot || 0;
+          const rot = mirror ? mirrorRot(d.rot || 0) : (d.rot || 0);
+          const dw = d.w || DESK;
           ctx.save();
-          ctx.translate(d.x, d.y);
+          ctx.translate(mx(d.x), d.y);
 
           // Stol
           let cx = 0, cy = 0, cw = 24, ch = 12;
-          if (rot === 90) { cx = DESK / 2 + 7; cy = 0; cw = 12; ch = 24; }
+          if (rot === 90) { cx = dw / 2 + 7; cy = 0; cw = 12; ch = 24; }
           else if (rot === 180) { cx = 0; cy = -DESK / 2 - 7; cw = 24; ch = 12; }
-          else if (rot === 270) { cx = -DESK / 2 - 7; cy = 0; cw = 12; ch = 24; }
+          else if (rot === 270) { cx = -dw / 2 - 7; cy = 0; cw = 12; ch = 24; }
           else { cx = 0; cy = DESK / 2 + 7; cw = 24; ch = 12; }
           ctx.fillStyle = '#2a827e';
           roundRectPath(ctx, cx - cw / 2, cy - ch / 2, cw, ch, 5); ctx.fill();
@@ -1488,13 +1569,13 @@
           ctx.fillStyle = d.color || '#ffffff';
           ctx.strokeStyle = d.color ? 'rgba(255,255,255,0.85)' : '#ccc5f0';
           ctx.lineWidth = 2;
-          roundRectPath(ctx, -DESK / 2, -DESK / 2, DESK, DESK, 8); ctx.fill(); ctx.stroke();
+          roundRectPath(ctx, -dw / 2, -DESK / 2, dw, DESK, 8); ctx.fill(); ctx.stroke();
 
           ctx.fillStyle = d.color ? '#ffffff' : (elev ? '#100e28' : '#9891ab');
           ctx.font = (elev ? 'bold ' : '') + '10px Sora, sans-serif';
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           const text = elev ? elev.namn : '—';
-          ctx.fillText(text, 0, 0, DESK - 8);
+          ctx.fillText(text, 0, 0, dw - 8);
           ctx.restore();
         });
 
@@ -1502,7 +1583,7 @@
         ctx.fillStyle = '#585078';
         ctx.font = '11px Sora, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        const footerText = `${r.namn}${klass ? ' · ' + klass.namn : ''}`;
+        const footerText = `${r.namn}${klass ? ' · ' + klass.namn : ''}${mirror ? ' · Lärarens vy (spegelvänd)' : ''}`;
         ctx.fillText(footerText, minX + 4, maxY - 18);
 
         canvas.toBlob(blob => {
@@ -1510,13 +1591,53 @@
           const a = document.createElement('a');
           a.href = url;
           const safe = s => (s || '').replace(/[^a-zA-Z0-9åäöÅÄÖ]+/g, '_');
-          a.download = `Klassrumsplacering_${safe(r.namn)}${klass ? '_' + safe(klass.namn) : ''}.png`;
+          a.download = `Klassrumsplacering_${safe(r.namn)}${klass ? '_' + safe(klass.namn) : ''}${mirror ? '_lararutskrift' : ''}.png`;
           document.body.appendChild(a); a.click(); document.body.removeChild(a);
           setTimeout(() => URL.revokeObjectURL(url), 4000);
         }, 'image/png');
       });
     }
-    document.getElementById('exportBtn').addEventListener('click', exportRoomImage);
+    document.getElementById('exportBtn').addEventListener('click', () => exportRoomImage(false));
+    document.getElementById('exportMirrorBtn').addEventListener('click', () => exportRoomImage(true));
+
+    /* ── Lärarvy: kompakt, alfabetisk närvarolista synkad med samma frånvaromarkering ── */
+    function renderTeacherView() {
+      const klass = aktivKlass();
+      const list = document.getElementById('teacherViewList');
+      const summary = document.getElementById('teacherViewSummary');
+      list.innerHTML = '';
+      if (!klass || klass.elever.length === 0) {
+        summary.textContent = klass ? 'Den här klassen har inga elever ännu.' : 'Ingen klass vald.';
+        return;
+      }
+      const assignments = currentAssignments();
+      const seated = new Set(Object.values(assignments));
+      const sorted = [...klass.elever].sort((a, b) => a.namn.localeCompare(b.namn, 'sv'));
+      const presentCount = sorted.filter(e => !franvarande.has(e.id)).length;
+      summary.textContent = `${presentCount} av ${sorted.length} närvarande — klicka på en elev för att markera frånvaro.`;
+
+      sorted.forEach(elev => {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'teacher-row' + (franvarande.has(elev.id) ? ' absent' : '');
+        row.innerHTML = `<span>${elev.namn}</span><span class="tr-seat">${seated.has(elev.id) ? '🪑 Placerad' : 'Ej placerad'}</span>`;
+        row.addEventListener('click', () => {
+          if (franvarande.has(elev.id)) franvarande.delete(elev.id); else franvarande.add(elev.id);
+          renderTeacherView(); renderStudentChips(); renderCanvas(); renderPool();
+        });
+        list.appendChild(row);
+      });
+    }
+    document.getElementById('teacherViewBtn').addEventListener('click', () => {
+      renderTeacherView();
+      document.getElementById('teacherViewBackdrop').classList.add('open');
+    });
+    document.getElementById('closeTeacherViewBtn').addEventListener('click', () => {
+      document.getElementById('teacherViewBackdrop').classList.remove('open');
+    });
+    document.getElementById('teacherViewBackdrop').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+    });
 
     function renderStudentChips() {
       const klass = aktivKlass();
@@ -1647,10 +1768,26 @@
       } else {
         const nyttRum = { id: nyttId(), namn, desks: [], markers: [], walls: [] };
         rum.push(nyttRum); aktivRumId = nyttRum.id; localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId); saveRum();
+        undoStack = [];
       }
       resetRoomForm();
       renderSavedRoomsList(); renderRoomSelect(); armed = null; renderAll();
     });
+
+    // Duplicera ett rum: samma layout (bänkar/möbler/väggar) med nya id:n, men inga placeringar kopierade.
+    function duplicateRoom(r) {
+      const newDesks = r.desks.map(d => ({ ...d, id: nyttId() }));
+      const newMarkers = r.markers.map(m => ({ ...m, id: nyttId() }));
+      const newWalls = (r.walls || []).map(w => ({ ...w, id: nyttId() }));
+      const copy = { id: nyttId(), namn: r.namn + ' (kopia)', desks: newDesks, markers: newMarkers, walls: newWalls };
+      rum.push(copy);
+      saveRum();
+      aktivRumId = copy.id;
+      localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId);
+      undoStack = []; selected.clear(); armed = null;
+      roomModalBackdrop.classList.remove('open'); resetRoomForm();
+      renderRoomSelect(); renderAll();
+    }
 
     function renderSavedRoomsList() {
       savedRoomsList.innerHTML = '';
@@ -1671,6 +1808,10 @@
           roomNameInput.focus();
         });
 
+        const dupBtn = document.createElement('button');
+        dupBtn.className = 'icon-btn'; dupBtn.title = 'Duplicera'; dupBtn.textContent = '⧉';
+        dupBtn.addEventListener('click', () => duplicateRoom(r));
+
         const delBtn = document.createElement('button');
         delBtn.className = 'icon-btn'; delBtn.title = 'Ta bort'; delBtn.textContent = '🗑️';
         delBtn.addEventListener('click', () => {
@@ -1678,14 +1819,14 @@
             rum = rum.filter(rr => rr.id !== r.id);
             placeringar = placeringar.filter(p => p.roomId !== r.id);
             saveRum(); savePlaceringar();
-            if (aktivRumId === r.id) { aktivRumId = rum[0] ? rum[0].id : null; localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId || ''); }
+            if (aktivRumId === r.id) { aktivRumId = rum[0] ? rum[0].id : null; localStorage.setItem(ACTIVE_ROOM_KEY, aktivRumId || ''); undoStack = []; }
             if (redigerarRumId === r.id) resetRoomForm();
             selected.clear();
             renderSavedRoomsList(); renderRoomSelect(); armed = null; renderAll();
           });
         });
 
-        actions.append(editBtn, delBtn); row.append(label, actions); savedRoomsList.appendChild(row);
+        actions.append(editBtn, dupBtn, delBtn); row.append(label, actions); savedRoomsList.appendChild(row);
       });
     }
 
