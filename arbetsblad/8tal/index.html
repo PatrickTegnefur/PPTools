@@ -219,6 +219,7 @@
   .ws-choice-btn.selected{ background:var(--accent); border-color:var(--accent); color:#fff; }
   .ws-numline-row{ flex-direction:column; align-items:stretch; gap:2px; padding-bottom:22px; margin-bottom:6px; }
   .ws-numline{ width:100%; max-width:640px; height:auto; display:block; margin-top:6px; }
+  .wnumline-answer-blank{ width:90px; height:1.3em; border-bottom:1.5px solid #100e28; margin-top:8px; }
   .worksheet-answerkey{ page-break-before:always; }
   .worksheet-answer-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:11px 22px; font-size:.92rem; color:#100e28; }
   .ws-mode-toggle{
@@ -547,6 +548,27 @@
                 <button type="button" class="ws-mode-btn ws-fraccmp-level-btn" data-level="3" title="T.ex. 1/2 jämfört med 3/8">Multipel</button>
                 <button type="button" class="ws-mode-btn ws-fraccmp-level-btn" data-level="4" title="T.ex. 10/18 jämfört med 13/24 — resonera mot en halv">Riktmärke</button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-table-group">
+        <div class="ws-table-grouphead">
+          <span class="ws-table-group-label">Tallinje</span>
+        </div>
+        <div class="ws-table-row" data-row="numlineRead">
+          <div class="ws-row-top">
+            <label class="ws-row-check"><input type="checkbox" class="ws-row-toggle" data-cat="numlineRead"> Läs av markering</label>
+            <input type="number" class="ws-row-count" data-cat="numlineRead" min="0" max="60" value="10" disabled>
+          </div>
+          <div class="ws-row-controls-wrap">
+            <div class="ws-row-controls">
+              <label><input type="checkbox" id="wsNumlineReadOnes" checked> Ental</label>
+              <label><input type="checkbox" id="wsNumlineReadTens" checked> Tiotal</label>
+              <label><input type="checkbox" id="wsNumlineReadHundreds"> Hundratal</label>
+              <label><input type="checkbox" id="wsNumlineReadDecimals"> Decimaltal</label>
+              <label><input type="checkbox" id="wsNumlineReadNeg"> Negativa tal</label>
             </div>
           </div>
         </div>
@@ -1256,6 +1278,7 @@ const CATEGORIES = {
   intCompare:  { label: 'Heltal jämförelse',     group: 'Jämförelse', gen: genIntCompare },
   decCompare:  { label: 'Decimaltal jämförelse', group: 'Jämförelse', gen: genDecimalCompare },
   fracCompare: { label: 'Bråk jämförelse',       group: 'Jämförelse', gen: genFracCompare },
+  numlineRead: { label: 'Tallinje — läs av',     group: 'Tallinje',   gen: genNumberLineRead },
 };
 let wsActiveCategories = new Set();
 
@@ -1320,6 +1343,11 @@ let wsFracCompareLevel = 1; // 1 | 2 | 3 | 4 — endast Bråk jämförelse
 const wsIntCompareNeg = document.getElementById('wsIntCompareNeg');
 const wsDecMulEstimate = document.getElementById('wsDecMulEstimate');
 const wsDecDivEstimate = document.getElementById('wsDecDivEstimate');
+const wsNumlineReadOnes = document.getElementById('wsNumlineReadOnes');
+const wsNumlineReadTens = document.getElementById('wsNumlineReadTens');
+const wsNumlineReadHundreds = document.getElementById('wsNumlineReadHundreds');
+const wsNumlineReadDecimals = document.getElementById('wsNumlineReadDecimals');
+const wsNumlineReadNeg = document.getElementById('wsNumlineReadNeg');
 const wsFracCompareLevelBtns = Array.from(document.querySelectorAll('.ws-fraccmp-level-btn'));
 let wsNumlineType = 'graderad'; // 'graderad' | 'oppen' — endast Tallinjeblad
 let wsProblems = [];
@@ -1401,6 +1429,60 @@ function wsOpenNumberLineSVG() {
 }
 function wsNumberLineSVG() {
   return (wsNumlineType === 'oppen') ? wsOpenNumberLineSVG() : wsGradedNumberLineSVG();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TALLINJE — LÄS AV MARKERING. Linjen har bara start- och slutvärdet
+//  utsatt; alla mellanliggande graderingar är omärkta streck utom EN,
+//  som har en pil. Eleven måste själv räkna ut hur stort varje hopp är
+//  (utifrån start/slut och antal steg) för att kunna läsa av pilens tal.
+// ═══════════════════════════════════════════════════════════════════
+function wsNumberLineReadSVG(numTicks, markedIndex, startLabel, endLabel) {
+  const W = 640, H = 74, m = 30, cy = 40;
+  const usableW = W - m * 2;
+  let ticks = '';
+  for (let i = 0; i < numTicks; i++) {
+    const x = (m + usableW * i / (numTicks - 1)).toFixed(1);
+    const isEnd = (i === 0 || i === numTicks - 1);
+    const tickH = isEnd ? 13 : 7;
+    ticks += `<line x1="${x}" y1="${cy - tickH}" x2="${x}" y2="${cy + tickH}" stroke="#100e28" stroke-width="${isEnd ? 2.2 : 1.1}"/>`;
+    if (isEnd) {
+      const label = (i === 0) ? startLabel : endLabel;
+      ticks += `<text x="${x}" y="${cy + 30}" font-family="Sora" font-size="13" font-weight="700" text-anchor="middle" fill="#100e28">${label}</text>`;
+    }
+    if (i === markedIndex) {
+      ticks += `<polygon points="${x - 7},${cy - 24} ${(+x + 7)},${cy - 24} ${x},${cy - 11}" fill="#306BF0"/>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" class="ws-numline" preserveAspectRatio="none">
+    <line x1="${m}" y1="${cy}" x2="${W - m}" y2="${cy}" stroke="#100e28" stroke-width="1.5"/>
+    ${ticks}
+  </svg>`;
+}
+
+function genNumberLineRead() {
+  const scales = [];
+  if (wsNumlineReadOnes.checked)      scales.push({ step: 1,   dp: 0 });
+  if (wsNumlineReadTens.checked)      scales.push({ step: 10,  dp: 0 });
+  if (wsNumlineReadHundreds.checked)  scales.push({ step: 100, dp: 0 });
+  if (wsNumlineReadDecimals.checked)  scales.push({ step: 1,   dp: 1 }); // steg om 0,1
+  const s = scales.length ? scales[wsRandInt(0, scales.length - 1)] : { step: 1, dp: 0 };
+
+  const numTicks = 6; // start + 4 dolda + slut = 5 lika stora hopp
+  const startSteps = wsNumlineReadNeg.checked ? wsRandInt(-10, 10) : wsRandInt(0, 15);
+  const markedIndex = wsRandInt(1, numTicks - 2); // aldrig ändpunkterna — de är redan utsatta
+
+  const rawAt = i => (startSteps + i) * s.step; // "råvärdet" — tolkas med s.dp decimaler
+  const fmt = raw => intToDecimalStr(raw, s.dp, false);
+
+  const svg = wsNumberLineReadSVG(numTicks, markedIndex, fmt(rawAt(0)), fmt(rawAt(numTicks - 1)));
+  const markedRaw = rawAt(markedIndex);
+
+  return {
+    svg, prompt: 'Vilket tal visar pilen?',
+    answerKind: (s.dp > 0) ? 'decimal' : 'integer',
+    answer: (s.dp > 0) ? { value: markedRaw, dp: s.dp } : markedRaw,
+  };
 }
 
 // Uppdaterar totalsumman som visas ovanför tabellen — summan av antalet
@@ -1496,6 +1578,17 @@ function renderWorksheet() {
           <span class="ws-feedback no-print" id="wsFeedback${i}"></span>
         </div>`;
       }
+      if (p.svg) {
+        const inputHTML = (p.answerKind === 'decimal')
+          ? `<input type="text" inputmode="decimal" class="ws-answer-input no-print" id="wsAns${i}" placeholder="t.ex. 3,4">`
+          : `<input type="number" class="ws-answer-input no-print" id="wsAns${i}">`;
+        return `
+        <div class="worksheet-problem ws-numline-row" data-idx="${i}">
+          <div><span class="wnum">${i + 1}.</span> ${p.prompt}</div>
+          ${p.svg}
+          <div>${inputHTML} <span class="ws-feedback no-print" id="wsFeedback${i}"></span></div>
+        </div>`;
+      }
       const inputHTML = (p.answerKind === 'fraction')
         ? `<span class="ws-frac-input no-print">
              <input type="number" id="wsAnsNum${i}" title="Täljare">
@@ -1525,6 +1618,14 @@ function renderWorksheet() {
   } else {
     const showWork = wsWorkSpace.checked;
     worksheetGrid.innerHTML = wsProblems.map((p, i) => {
+      if (p.svg) {
+        return `
+        <div class="worksheet-problem ws-numline-row">
+          <div><span class="wnum">${i + 1}.</span> ${p.prompt}</div>
+          ${p.svg}
+          <div class="wnumline-answer-blank"></div>
+        </div>`;
+      }
       const mainHTML = (p.answerKind === 'compare')
         ? `<span class="wnum">${i + 1}.</span>
            <span class="wexpr">${p.left.map(renderPart).join(' ')}</span>
@@ -1731,6 +1832,11 @@ function resetAllSettings() {
   wsIntCompareNeg.checked = false;
   wsDecMulEstimate.checked = false;
   wsDecDivEstimate.checked = false;
+  wsNumlineReadOnes.checked = true;
+  wsNumlineReadTens.checked = true;
+  wsNumlineReadHundreds.checked = false;
+  wsNumlineReadDecimals.checked = false;
+  wsNumlineReadNeg.checked = false;
   wsAnswerKey.checked = true;
   wsNumlineToggle.checked = false;
   wsWorkSpace.checked = false;
@@ -1877,6 +1983,9 @@ wsDecNegBtns.forEach(btn => {
 wsIntCompareNeg.addEventListener('change', renderWorksheet);
 wsDecMulEstimate.addEventListener('change', renderWorksheet);
 wsDecDivEstimate.addEventListener('change', renderWorksheet);
+[wsNumlineReadOnes, wsNumlineReadTens, wsNumlineReadHundreds, wsNumlineReadDecimals, wsNumlineReadNeg].forEach(el => {
+  el.addEventListener('change', renderWorksheet);
+});
 wsFracCompareLevelBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     wsFracCompareLevel = parseInt(btn.dataset.level, 10);
