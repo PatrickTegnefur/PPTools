@@ -391,7 +391,7 @@
         <select id="roomSelect"></select>
       </div>
       <button class="btn btn-secondary" id="exportBtn" title="Exportera som bild (elevperspektiv)">🖼️ Exportera</button>
-      <button class="btn btn-secondary" id="exportMirrorBtn" title="Spegelvänd utskrift, rättvänd från lärarens plats i rummet">🖨️ Lärarutskrift</button>
+      <button class="btn btn-secondary" id="exportMirrorBtn" title="Roterad 180°, rättvänd från lärarens plats i rummet">🖨️ Lärarutskrift</button>
       <button class="btn btn-secondary" id="teacherViewBtn" title="Lärarvy — närvaro">📋 Lärarvy</button>
       <button class="btn btn-secondary" id="settingsBtn">⚙️</button>
     </div>
@@ -420,6 +420,7 @@
           <p class="room-hint" style="text-align:left;margin:0;">Dra i tom yta för att markera flera bänkar/föremål — dra sedan i ett av de markerade för att flytta hela gruppen tillsammans. Kortkommandon: R roterar, D duplicerar, Delete tar bort.</p>
           <button class="btn btn-secondary" id="undoBtn" style="width:100%;">↩️ Ångra (Ctrl+Z)</button>
           <button class="btn btn-secondary" id="standardLayoutBtn" style="width:100%;">📐 Standardlayout (3×2, 5 rader)</button>
+          <button class="btn btn-secondary" id="standardLayoutWideBtn" style="width:100%;">📐 Standardlayout, bred (3×2, 5 rader)</button>
           <div class="cluster-stepper">
             <span class="label">Klusterstorlek</span>
             <div class="controls">
@@ -820,12 +821,13 @@
 
     // Standardlayout: 3 kolumner med bänkpar, upprepat över 5 rader (30 bänkar totalt).
     // Alla bänkar får en och samma neutrala, solida gråton för bästa läsbarhet.
-    function applyStandardLayout() {
+    function applyStandardLayout(wide) {
       const r = aktivRum(); if (!r) { alert('Skapa eller välj ett rum först (⚙️).'); return; }
+      const deskW = wide ? WIDE_DESK_W : DESK;
       const build = () => {
         snapshotRoom();
         const gapInPair = 8, colGap = 50, rowGap = 36;
-        const pairW = DESK * 2 + gapInPair;
+        const pairW = deskW * 2 + gapInPair;
         const x0 = 220, y0 = 200;
         const desks = [];
         for (let row = 0; row < 5; row++) {
@@ -833,8 +835,8 @@
             const clusterId = nyttId();
             const colX = x0 + col * (pairW + colGap);
             const y = y0 + row * (DESK + rowGap);
-            desks.push({ id: nyttId(), x: colX + DESK / 2, y, rot: 0, clusterId, color: STANDARD_COLOR });
-            desks.push({ id: nyttId(), x: colX + DESK + gapInPair + DESK / 2, y, rot: 0, clusterId, color: STANDARD_COLOR });
+            desks.push({ id: nyttId(), x: colX + deskW / 2, y, rot: 0, clusterId, color: STANDARD_COLOR, w: deskW });
+            desks.push({ id: nyttId(), x: colX + deskW + gapInPair + deskW / 2, y, rot: 0, clusterId, color: STANDARD_COLOR, w: deskW });
           }
         }
         r.desks = desks;
@@ -845,12 +847,13 @@
         renderCanvas(); renderRoomSelect(); renderPool();
       };
       if (r.desks.length > 0) {
-        showConfirm('Det här ersätter alla bänkar i rummet med standardlayouten (3 kolumner × 5 rader, bänkar i par). Fortsätta?', build);
+        showConfirm(`Det här ersätter alla bänkar i rummet med ${wide ? 'den breda ' : ''}standardlayouten (3 kolumner × 5 rader, bänkar i par). Fortsätta?`, build);
       } else {
         build();
       }
     }
-    document.getElementById('standardLayoutBtn').addEventListener('click', applyStandardLayout);
+    document.getElementById('standardLayoutBtn').addEventListener('click', () => applyStandardLayout(false));
+    document.getElementById('standardLayoutWideBtn').addEventListener('click', () => applyStandardLayout(true));
 
     function deleteDesk(deskId) {
       const r = aktivRum(); if (!r) return;
@@ -1457,11 +1460,7 @@
       ctx.closePath();
     }
 
-    // Vid spegelvänd export: en bänk/dörr som satt till höger (rot 90) ska sitta till vänster (rot 270) och tvärtom.
-    // Rakt fram/bak (0/180) påverkas inte av en vänster-högerspegling.
-    function mirrorRot(rot) { return rot === 90 ? 270 : rot === 270 ? 90 : rot; }
-
-    function exportRoomImage(mirror) {
+    function exportRoomImage(rotate180) {
       const r = aktivRum();
       if (!r) { alert('Inget rum valt.'); return; }
       if (r.desks.length === 0 && r.markers.length === 0 && (!r.walls || r.walls.length === 0)) { alert('Rummet är tomt — lägg till bänkar eller möbler innan du exporterar.'); return; }
@@ -1479,7 +1478,6 @@
         const minY = Math.min(...items.map(i => i.y - i.h / 2)) - pad;
         const maxY = Math.max(...items.map(i => i.y + i.h / 2)) + pad;
         const contentW = maxX - minX, contentH = maxY - minY;
-        const mx = mirror ? (x => minX + maxX - x) : (x => x);
 
         const targetLongEdge = 2200;
         const scale = Math.min(3, targetLongEdge / Math.max(contentW, contentH));
@@ -1497,15 +1495,24 @@
         const klass = aktivKlass();
         const assignments = currentAssignments();
 
+        // Lärarens vy = hela rummet roterat 180° runt sin mittpunkt (fram/bak OCH vänster/höger byter plats) —
+        // det motsvarar hur rummet ser ut från lärarens plats längst fram, vänd mot klassen.
+        // Texten motroteras separat nedan så den inte hamnar upp och ned.
+        ctx.save();
+        if (rotate180) {
+          const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+          ctx.translate(cx, cy); ctx.rotate(Math.PI); ctx.translate(-cx, -cy);
+        }
+
         // Väggar (ritas bakom möblerna)
         ctx.strokeStyle = '#4a4a55'; ctx.lineWidth = 6; ctx.lineCap = 'round';
         (r.walls || []).forEach(w => {
-          ctx.beginPath(); ctx.moveTo(mx(w.x1), w.y1); ctx.lineTo(mx(w.x2), w.y2); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(w.x1, w.y1); ctx.lineTo(w.x2, w.y2); ctx.stroke();
         });
 
-        // Hjälpfunktion: rita en markörs textetikett alltid läsbar rättvänd, även i spegelvänt läge.
+        // Hjälpfunktion: rita en markörs textetikett rättvänd trots den yttre 180°-rotationen.
         function drawMarkerLabel(text) {
-          if (mirror) { ctx.save(); ctx.scale(-1, 1); ctx.fillText(text, 0, 0); ctx.restore(); }
+          if (rotate180) { ctx.save(); ctx.rotate(Math.PI); ctx.fillText(text, 0, 0); ctx.restore(); }
           else { ctx.fillText(text, 0, 0); }
         }
 
@@ -1513,9 +1520,8 @@
         r.markers.forEach(m => {
           const s = MARKER_SIZE[m.typ];
           ctx.save();
-          ctx.translate(mx(m.x), m.y);
+          ctx.translate(m.x, m.y);
           ctx.rotate((m.rot || 0) * Math.PI / 180);
-          if (mirror) ctx.scale(-1, 1); // sann spegling av asymmetrisk form (t.ex. dörrens gångjärnssida)
           if (m.typ === 'whiteboard') {
             ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#b7bfc9'; ctx.lineWidth = 3;
             roundRectPath(ctx, -s.w / 2, -s.h / 2, s.w, s.h, 6); ctx.fill(); ctx.stroke();
@@ -1551,12 +1557,12 @@
         r.desks.forEach(d => {
           const elevId = assignments[d.id];
           const elev = elevId && klass ? klass.elever.find(e => e.id === elevId) : null;
-          const rot = mirror ? mirrorRot(d.rot || 0) : (d.rot || 0);
+          const rot = d.rot || 0;
           const dw = d.w || DESK;
           ctx.save();
-          ctx.translate(mx(d.x), d.y);
+          ctx.translate(d.x, d.y);
 
-          // Stol
+          // Stol (positioneras manuellt per sida — ärver den yttre 180°-rotationen automatiskt, ingen specialkod behövs)
           let cx = 0, cy = 0, cw = 24, ch = 12;
           if (rot === 90) { cx = dw / 2 + 7; cy = 0; cw = 12; ch = 24; }
           else if (rot === 180) { cx = 0; cy = -DESK / 2 - 7; cw = 24; ch = 12; }
@@ -1575,15 +1581,18 @@
           ctx.font = (elev ? 'bold ' : '') + '10px Sora, sans-serif';
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           const text = elev ? elev.namn : '—';
-          ctx.fillText(text, 0, 0, dw - 8);
+          if (rotate180) { ctx.save(); ctx.rotate(Math.PI); ctx.fillText(text, 0, 0, dw - 8); ctx.restore(); }
+          else { ctx.fillText(text, 0, 0, dw - 8); }
           ctx.restore();
         });
+
+        ctx.restore(); // tillbaka till oroterat läge för sidfoten
 
         // Sidfot: klass + rum
         ctx.fillStyle = '#585078';
         ctx.font = '11px Sora, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        const footerText = `${r.namn}${klass ? ' · ' + klass.namn : ''}${mirror ? ' · Lärarens vy (spegelvänd)' : ''}`;
+        const footerText = `${r.namn}${klass ? ' · ' + klass.namn : ''}${rotate180 ? ' · Lärarens vy (roterad 180°)' : ''}`;
         ctx.fillText(footerText, minX + 4, maxY - 18);
 
         canvas.toBlob(blob => {
@@ -1591,7 +1600,7 @@
           const a = document.createElement('a');
           a.href = url;
           const safe = s => (s || '').replace(/[^a-zA-Z0-9åäöÅÄÖ]+/g, '_');
-          a.download = `Klassrumsplacering_${safe(r.namn)}${klass ? '_' + safe(klass.namn) : ''}${mirror ? '_lararutskrift' : ''}.png`;
+          a.download = `Klassrumsplacering_${safe(r.namn)}${klass ? '_' + safe(klass.namn) : ''}${rotate180 ? '_lararutskrift' : ''}.png`;
           document.body.appendChild(a); a.click(); document.body.removeChild(a);
           setTimeout(() => URL.revokeObjectURL(url), 4000);
         }, 'image/png');
