@@ -119,6 +119,15 @@
 
     .room-hint { font-size: 0.76rem; color: var(--muted); text-align: center; }
 
+    /* ── Enkel vy: bara topbar + rum, inga redigeringspaneler ── */
+    main.clean-view > .mode-tabs,
+    main.clean-view > .room-hint,
+    main.clean-view .side-panel { display: none !important; }
+    .desk-el.seat-draggable { cursor: grab; }
+    .desk-el.seat-draggable:active { cursor: grabbing; }
+    .desk-el.seat-dragging { box-shadow: 0 10px 26px rgba(16,14,40,0.3); z-index: 40; opacity: 0.92; }
+    .desk-el.seat-drop-target { box-shadow: 0 0 0 3px var(--cat); }
+
     /* ── Arbetsyta: canvas + sidopanel ── */
     .workspace { display: flex; gap: 16px; align-items: flex-start; }
     .side-panel { width: 290px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 84px; }
@@ -390,6 +399,7 @@
         <span class="eyebrow">Rum</span>
         <select id="roomSelect"></select>
       </div>
+      <button class="btn btn-secondary" id="cleanViewToggleBtn"></button>
       <button class="btn btn-secondary" id="exportBtn" title="Exportera som bild (elevperspektiv)">🖼️ Exportera</button>
       <button class="btn btn-secondary" id="exportMirrorBtn" title="Roterad 180°, rättvänd från lärarens plats i rummet">🖨️ Lärarutskrift</button>
       <button class="btn btn-secondary" id="teacherViewBtn" title="Lärarvy — närvaro">📋 Lärarvy</button>
@@ -642,6 +652,7 @@
     let placeringar = loadJSON(SEATINGS_KEY, []);
 
     let mode = 'edit';
+    let cleanView = !!(aktivKlassId && aktivRumId); // landar i enkel vy om klass + rum redan är valda
     let clusterSize = 2;
     let armed = null;
     let selected = new Set(); // markerade föremål i redigeringsläget, nycklar "desk:ID" / "marker:ID"
@@ -743,6 +754,21 @@
       toolPanel.style.display = mode === 'edit' ? 'flex' : 'none';
       poolPanel.style.display = mode === 'place' ? 'flex' : 'none';
     }
+
+    function syncCleanViewUI() {
+      document.querySelector('main').classList.toggle('clean-view', cleanView);
+      const btn = document.getElementById('cleanViewToggleBtn');
+      btn.textContent = cleanView ? '🛠 Redigera rum' : '🧹 Enkel vy';
+      btn.title = cleanView
+        ? 'Visa redigeringsverktyg — lägg till/flytta/rotera bänkar och möbler'
+        : 'Dölj redigeringsverktyget — visa bara klass- och rumval, dra bänkar för att byta elevplats';
+    }
+    document.getElementById('cleanViewToggleBtn').addEventListener('click', () => {
+      cleanView = !cleanView;
+      mode = cleanView ? 'place' : 'edit';
+      armed = null; selected.clear();
+      syncCleanViewUI(); syncModeUI(); renderAll();
+    });
 
     document.getElementById('clusterDown').addEventListener('click', () => {
       clusterSize = Math.max(2, clusterSize - 1); clusterValue.textContent = clusterSize;
@@ -1351,11 +1377,69 @@
 
           makeDraggable(el, d, deskW, DESK, () => saveRum(), selKey);
         } else {
+          el.classList.add('seat-draggable');
           el.addEventListener('click', () => handleDeskClick(d.id));
+          makeSeatDraggable(el, d);
         }
         roomCanvas.appendChild(el);
       });
       renderSelectionStatus();
+    }
+
+    // Byt plats på eleverna vid två bänkar (rör aldrig bänkarnas fysiska position i rummet).
+    function swapSeats(idA, idB) {
+      if (idA === idB) return;
+      mutateAssignments(a => {
+        const occA = a[idA], occB = a[idB];
+        if (occB) a[idA] = occB; else delete a[idA];
+        if (occA) a[idB] = occA; else delete a[idB];
+      });
+      armed = null;
+      renderAll();
+    }
+
+    // Dra en bänk (i placeringsläget) ovanpå en annan för att byta plats på eleverna.
+    // Ett kort klick utan att dra fungerar precis som vanligt (hanteras av click-lyssnaren).
+    function makeSeatDraggable(el, d) {
+      el.addEventListener('pointerdown', (e) => {
+        if (mode !== 'place') return;
+        const startX = e.clientX, startY = e.clientY;
+        let moved = false;
+        el.setPointerCapture(e.pointerId);
+        let lastTargetEl = null;
+
+        function onMove(ev) {
+          const dx = ev.clientX - startX, dy = ev.clientY - startY;
+          if (!moved && Math.hypot(dx, dy) > 10) {
+            moved = true;
+            el.classList.add('seat-dragging');
+          }
+          if (moved) {
+            el.style.transform = `translate(${dx}px, ${dy}px)`;
+            if (lastTargetEl) lastTargetEl.classList.remove('seat-drop-target');
+            el.style.pointerEvents = 'none';
+            const under = document.elementFromPoint(ev.clientX, ev.clientY);
+            el.style.pointerEvents = '';
+            const targetEl = under ? under.closest('.desk-el') : null;
+            lastTargetEl = (targetEl && targetEl !== el) ? targetEl : null;
+            if (lastTargetEl) lastTargetEl.classList.add('seat-drop-target');
+          }
+        }
+        function onUp(ev) {
+          el.releasePointerCapture(e.pointerId);
+          el.removeEventListener('pointermove', onMove);
+          el.removeEventListener('pointerup', onUp);
+          el.style.transform = '';
+          el.classList.remove('seat-dragging');
+          if (lastTargetEl) lastTargetEl.classList.remove('seat-drop-target');
+          if (moved && lastTargetEl) {
+            const targetKey = lastTargetEl.dataset.selKey || '';
+            if (targetKey.startsWith('desk:')) swapSeats(d.id, targetKey.slice(5));
+          }
+        }
+        el.addEventListener('pointermove', onMove);
+        el.addEventListener('pointerup', onUp);
+      });
     }
 
     function handleDeskClick(deskId) {
@@ -1840,7 +1924,8 @@
     }
 
     function renderAll() { renderCanvas(); renderPool(); }
-    renderClassSelect(); renderRoomSelect(); renderStudentChips(); renderToolGrid(); syncModeUI(); renderAll();
+    mode = cleanView ? 'place' : 'edit';
+    renderClassSelect(); renderRoomSelect(); renderStudentChips(); renderToolGrid(); syncModeUI(); syncCleanViewUI(); renderAll();
   </script>
 </body>
 </html>
