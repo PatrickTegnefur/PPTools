@@ -6,124 +6,104 @@
 <title>Korsordsbyggaren</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #F3F1E6;
-    --paper-line: #E3DECB;
-    --panel: #FBFAF4;
-    --ink: #232A3B;
-    --ink-soft: #5B6275;
-    --ink-faint: #8B8F9E;
-    --bio: #3E7A56;
-    --bio-bg: #E4EFE6;
-    --math: #B5651D;
-    --math-bg: #F5E9DA;
-    --accent-line: #C9C2AA;
-    --danger: #B5453D;
-    --danger-bg: #F6E4E2;
-    --good: #3E7A56;
-    --good-bg: #E4EFE6;
-    --cell-bg: #FDFCF7;
-    --cell-block: #232A3B;
-    --cell-border: #C9C2AA;
-    --cell-text: #232A3B;
-    --radius: 4px;
+    /* PT Ljus */
+    --bg:        #f6f4ff;
+    --surface:   #ffffff;
+    --surface2:  #eae6ff;
+    --border:    #ccc5f0;
+    --text:      #100e28;
+    --muted:     #585078;
+    --accent:    #306BF0;
+    --accent2:   #EC6095;
+    --gradient:  linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+    --ak7:       #66C7C2;
+    --ak8:       #F4A261;
+    --ak9:       #EC6095;
+    --correct:   #18a348;
+    --wrong:     #e02020;
+    --correct-bg:#e4f7ea;
+    --wrong-bg:  #fbe6e6;
+    --shadow:    rgba(48, 107, 240, 0.12);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --shadow-sm: 0 2px 8px var(--shadow);
+    --shadow-md: 0 4px 20px var(--shadow);
+    --shadow-lg: 0 8px 40px var(--shadow);
+    --cell-bg: var(--surface);
+    --cell-block: var(--text);
+    --cell-text: var(--text);
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --paper: #1A1D26;
-      --paper-line: #2A2E3B;
-      --panel: #21242F;
-      --ink: #ECE9DE;
-      --ink-soft: #ABB0C0;
-      --ink-faint: #767B8C;
-      --bio: #7BC49B;
-      --bio-bg: #223327;
-      --math: #E3A968;
-      --math-bg: #372A1B;
-      --accent-line: #3A3E4C;
-      --danger: #E28A82;
-      --danger-bg: #3A2422;
-      --good: #7BC49B;
-      --good-bg: #1F2E24;
-    }
-  }
-  :root[data-theme="dark"] {
-    --paper: #1A1D26;
-    --paper-line: #2A2E3B;
-    --panel: #21242F;
-    --ink: #ECE9DE;
-    --ink-soft: #ABB0C0;
-    --ink-faint: #767B8C;
-    --bio: #7BC49B;
-    --bio-bg: #223327;
-    --math: #E3A968;
-    --math-bg: #372A1B;
-    --accent-line: #3A3E4C;
-    --danger: #E28A82;
-    --danger-bg: #3A2422;
-    --good: #7BC49B;
-    --good-bg: #1F2E24;
   }
   html, body { height: 100%; }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
     font-size: 14.5px;
-    line-height: 1.5;
-    background-image:
-      linear-gradient(var(--paper-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
-    background-size: 26px 26px;
-    background-attachment: local;
+    line-height: 1.55;
   }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 60px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 60px; }
 
-  header.top { margin-bottom: 22px; }
+  header.top {
+    background: var(--gradient);
+    color: #fff;
+    padding: 22px 20px;
+    padding-top: calc(22px + env(safe-area-inset-top, 0px));
+    margin: 0 0 26px;
+    box-shadow: 0 4px 24px rgba(16, 14, 40, 0.18);
+  }
+  header.top .inner { max-width: 1180px; margin: 0 auto; }
   header.top h1 {
-    font-family: 'Newsreader', serif;
-    font-weight: 600;
-    font-style: italic;
-    font-size: clamp(28px, 4vw, 40px);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(24px, 4vw, 34px);
     margin: 0 0 6px;
     letter-spacing: -0.01em;
+    color: #fff;
   }
-  header.top p { margin: 0; color: var(--ink-soft); max-width: 62ch; }
+  header.top p { margin: 0; color: rgba(255,255,255,0.9); max-width: 62ch; }
 
   .subject-row {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin: 20px 0 18px;
+    margin: 0 0 18px;
     align-items: center;
   }
   .subject-tab {
-    border: 1.5px solid var(--accent-line);
-    background: var(--panel);
-    color: var(--ink);
-    padding: 7px 14px;
-    border-radius: var(--radius);
+    position: relative;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 7px 30px 7px 14px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font: inherit;
     font-size: 13.5px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
   }
-  .subject-tab .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-faint); }
-  .subject-tab[data-active="true"] { border-color: currentColor; font-weight: 600; }
-  .subject-tab[data-subj="biologi"][data-active="true"] { color: var(--bio); background: var(--bio-bg); }
-  .subject-tab[data-subj="matematik"][data-active="true"] { color: var(--math); background: var(--math-bg); }
-  .subject-tab .dot.bio { background: var(--bio); }
-  .subject-tab .dot.math { background: var(--math); }
-  .subject-tab.new { border-style: dashed; color: var(--ink-soft); }
+  .subject-tab .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+  .subject-tab[data-active="true"] { border-color: var(--subj-color, var(--accent)); background: var(--subj-bg, var(--surface2)); color: var(--subj-color, var(--accent)); font-weight: 600; }
+  .subject-tab .del-subj {
+    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; border-radius: 50%; border: none; background: transparent;
+    color: var(--muted); font-size: 13px; line-height: 1; cursor: pointer; display: none;
+    align-items: center; justify-content: center;
+  }
+  .subject-tab:hover .del-subj { display: flex; }
+  .subject-tab .del-subj:hover { background: var(--wrong-bg); color: var(--wrong); }
+  .subject-tab.new { border-style: dashed; color: var(--muted); padding-right: 14px; }
 
   .columns {
     display: grid;
@@ -136,20 +116,20 @@
   }
 
   .panel {
-    background: var(--panel);
-    border: 1px solid var(--accent-line);
-    border-radius: var(--radius);
-    padding: 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
   }
   .panel + .panel { margin-top: 16px; }
   .panel h2 {
-    font-family: 'Newsreader', serif;
-    font-style: italic;
-    font-weight: 600;
-    font-size: 18px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
     margin: 0 0 12px;
   }
-  .panel .hint { color: var(--ink-faint); font-size: 12.5px; margin: -6px 0 12px; }
+  .panel .hint { color: var(--muted); font-size: 12.5px; margin: -6px 0 12px; }
 
   .entry-row {
     display: grid;
@@ -161,71 +141,63 @@
   .entry-row input, .entry-row textarea {
     font: inherit;
     font-size: 13px;
-    padding: 6px 8px;
-    border: 1px solid var(--accent-line);
-    border-radius: var(--radius);
-    background: var(--paper);
-    color: var(--ink);
+    padding: 7px 9px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
     resize: vertical;
-    min-height: 32px;
+    min-height: 34px;
   }
-  .entry-row input:focus, .entry-row textarea:focus { outline: 2px solid var(--ink-soft); outline-offset: 1px; }
+  .entry-row input:focus, .entry-row textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   .entry-row button.del {
-    border: 1px solid var(--accent-line);
+    border: 1.5px solid var(--border);
     background: transparent;
-    color: var(--ink-faint);
-    border-radius: var(--radius);
+    color: var(--muted);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    width: 30px; height: 32px;
+    width: 32px; height: 34px;
     font: inherit;
   }
-  .entry-row button.del:hover { color: var(--danger); border-color: var(--danger); }
+  .entry-row button.del:hover { color: var(--wrong); border-color: var(--wrong); }
 
   .btn {
     font: inherit;
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
     font-size: 13px;
-    padding: 8px 14px;
-    border-radius: var(--radius);
-    border: 1.5px solid var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
     cursor: pointer;
   }
   .btn:hover { opacity: 0.88; }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--accent-line); }
-  .btn.ghost:hover { border-color: var(--ink); opacity: 1; }
-  .btn.small { padding: 5px 10px; font-size: 12px; }
+  .btn.ghost { background: var(--surface2); color: var(--accent); border-color: var(--border); }
+  .btn.ghost:hover { border-color: var(--accent); opacity: 1; }
+  .btn.small { padding: 6px 12px; font-size: 12px; }
   .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 
-  .ai-box { border-top: 1px dashed var(--accent-line); margin-top: 14px; padding-top: 14px; }
-  .ai-box .row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-  .ai-box input[type=text] {
-    font: inherit; font-size: 13px; padding: 6px 8px; border: 1px solid var(--accent-line);
-    border-radius: var(--radius); background: var(--paper); color: var(--ink); flex: 1; min-width: 140px;
-  }
-  .ai-box input[type=number] {
-    font: inherit; font-size: 13px; padding: 6px 8px; border: 1px solid var(--accent-line);
-    border-radius: var(--radius); background: var(--paper); color: var(--ink); width: 56px;
-  }
-  .status { font-size: 12.5px; color: var(--ink-faint); min-height: 16px; margin-top: 6px; }
-  .status.err { color: var(--danger); }
-  .status.ok { color: var(--good); }
-
-  .save-box { border-top: 1px dashed var(--accent-line); margin-top: 14px; padding-top: 14px; }
-  .save-box .meta { font-size: 12px; color: var(--ink-faint); }
+  .save-box { border-top: 1px dashed var(--border); margin-top: 14px; padding-top: 14px; }
+  .save-box .meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .status { font-size: 12.5px; color: var(--muted); min-height: 16px; margin-top: 6px; }
+  .status.err { color: var(--wrong); }
+  .status.ok { color: var(--correct); }
+  input[type=file].visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
   /* crossword grid */
   .grid-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
-  .mode-switch { display: inline-flex; border: 1.5px solid var(--accent-line); border-radius: var(--radius); overflow: hidden; }
+  .mode-switch { display: inline-flex; border: 1.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
   .mode-switch button {
-    font: inherit; font-size: 12.5px; padding: 6px 12px; border: none; background: transparent;
-    color: var(--ink-soft); cursor: pointer;
+    font: inherit; font-size: 12.5px; padding: 7px 14px; border: none; background: transparent;
+    color: var(--muted); cursor: pointer;
   }
-  .mode-switch button[data-active="true"] { background: var(--ink); color: var(--paper); }
+  .mode-switch button[data-active="true"] { background: var(--accent); color: #fff; }
 
   .grid-scroll { overflow-x: auto; padding: 4px 0 10px; }
-  .cw-grid { display: inline-grid; gap: 1px; background: var(--accent-line); border: 1px solid var(--accent-line); }
+  .cw-grid { display: inline-grid; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
   .cw-cell {
     position: relative;
     background: var(--cell-bg);
@@ -233,52 +205,63 @@
   }
   .cw-cell.block { background: var(--cell-block); }
   .cw-cell .num {
-    position: absolute; top: 1px; left: 2px; font-size: 8px; color: var(--ink-faint); line-height: 1;
+    position: absolute; top: 1px; left: 2px; font-size: 8px; color: var(--muted); line-height: 1;
   }
   .cw-cell input {
     width: 100%; height: 100%; border: none; background: transparent; text-align: center;
-    font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--cell-text);
+    font-family: 'Sora', sans-serif; font-weight: 600; color: var(--cell-text);
     text-transform: uppercase; padding: 0;
   }
-  .cw-cell input:focus { outline: 2px solid var(--ink-soft); outline-offset: -2px; }
-  .cw-cell.key-letter { color: var(--cell-text); font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
-  .cw-cell.correct input { background: var(--good-bg); }
-  .cw-cell.incorrect input { background: var(--danger-bg); }
+  .cw-cell input:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .cw-cell.key-letter { color: var(--cell-text); font-weight: 600; font-family: 'Sora', sans-serif; }
+  .cw-cell.correct input { background: var(--correct-bg); }
+  .cw-cell.incorrect input { background: var(--wrong-bg); }
 
   .clues { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 18px; }
   @media (max-width: 620px) { .clues { grid-template-columns: 1fr; } }
   .clues h3 {
-    font-family: 'Newsreader', serif; font-style: italic; font-weight: 600; font-size: 15px;
-    margin: 0 0 8px; border-bottom: 1px solid var(--accent-line); padding-bottom: 4px;
+    font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 14px;
+    margin: 0 0 8px; border-bottom: 1.5px solid var(--border); padding-bottom: 4px;
+    color: var(--accent);
   }
   .clues ol { margin: 0; padding-left: 20px; }
   .clues li { margin-bottom: 6px; font-size: 13px; }
-  .clues li::marker { color: var(--ink-faint); }
+  .clues li::marker { color: var(--muted); }
 
   .empty-state {
-    border: 1.5px dashed var(--accent-line); border-radius: var(--radius); padding: 30px 18px;
-    text-align: center; color: var(--ink-faint); font-size: 13px;
+    border: 1.5px dashed var(--border); border-radius: var(--radius-md); padding: 30px 18px;
+    text-align: center; color: var(--muted); font-size: 13px;
   }
 
-  footer.note { margin-top: 26px; font-size: 12px; color: var(--ink-faint); max-width: 70ch; }
+  footer.note { margin-top: 26px; font-size: 12px; color: var(--muted); max-width: 70ch; }
   footer.note a { color: inherit; }
 
   @media print {
     body { background: #fff; }
-    .panel.editor-panel, .ai-box, .save-box, .subject-row, header.top p, .grid-toolbar, footer.note { display: none !important; }
+    header.top { background: none !important; color: var(--text) !important; box-shadow: none; padding: 0 0 10px; }
+    header.top h1 { color: var(--text) !important; font-size: 20px; }
+    .panel.editor-panel, .save-box, .subject-row, header.top p, .grid-toolbar, footer.note { display: none !important; }
     .columns { display: block; }
-    .panel { border: none; padding: 0; }
-    header.top h1 { font-size: 22px; }
-    .cw-cell.block { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #000 !important; }
+    .panel { border: none; padding: 0; box-shadow: none; }
+    /* Blockerade rutor ska vara diskreta på utskrift - fokus ska ligga på korsordet, inte på svart bläck */
+    .cw-grid { border-color: #ccc !important; background: #ccc !important; }
+    .cw-cell.block {
+      background: var(--surface2) !important;
+      background-image: repeating-linear-gradient(135deg, var(--border) 0, var(--border) 1px, transparent 1px, transparent 5px) !important;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .cw-cell { border: 0.5px solid #ddd; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
+<header class="top">
+  <div class="inner">
     <h1>Korsordsbyggaren</h1>
-    <p>Mata in begrepp och förklaringar, så byggs de automatiskt ihop till ett korsord. Listorna kan delas och byggas vidare av kollegor.</p>
-  </header>
+    <p>Mata in begrepp och förklaringar, så byggs de automatiskt ihop till ett korsord.</p>
+  </div>
+</header>
+<div class="wrap">
 
   <div class="subject-row" id="subjectRow"></div>
 
@@ -292,24 +275,19 @@
           <button class="btn ghost small" id="addRowBtn" type="button">+ Lägg till rad</button>
         </div>
 
-        <div class="ai-box">
-          <strong style="font-size:13px;">Låt AI:n fylla på listan</strong>
-          <p class="hint" style="margin-top:4px;">Anthropics Claude kan föreslå fler begrepp och förklaringar inom ett tema.</p>
-          <div class="row">
-            <input type="text" id="aiTopic" placeholder="t.ex. cellbiologi, bråkräkning, ekologi">
-            <input type="number" id="aiCount" value="6" min="2" max="15">
-            <button class="btn ghost small" id="aiBtn" type="button">Generera</button>
-          </div>
-          <div class="status" id="aiStatus"></div>
-        </div>
-
         <div class="save-box">
           <div class="btn-row" style="margin-top:0;">
             <button class="btn" id="buildBtn" type="button">Skapa korsord</button>
-            <button class="btn ghost small" id="saveBtn" type="button">Spara till delad bank</button>
           </div>
           <div class="status" id="saveStatus"></div>
-          <div class="meta" id="saveMeta"></div>
+          <div class="meta" id="saveMeta">Sparas automatiskt i den här webbläsaren.</div>
+          <div class="btn-row">
+            <button class="btn ghost small" id="exportBtn" type="button">Exportera ämnesbanken (.json)</button>
+            <button class="btn ghost small" id="importBtn" type="button">Importera .json</button>
+            <input type="file" id="importFile" class="visually-hidden" accept="application/json">
+            <button class="btn ghost small" id="copyCodeBtn" type="button">Kopiera som kod</button>
+          </div>
+          <p class="hint" style="margin:8px 0 0;">Exportera regelbundet som backup. "Kopiera som kod" ger dig en JS-sträng att klistra in i <code>DEFAULTS</code> i filen, så att banken följer med när du committar till GitHub — annars finns den bara kvar i den här webbläsaren.</p>
         </div>
       </div>
     </div>
@@ -331,7 +309,7 @@
   </div>
 
   <footer class="note">
-    Utkast: skelettet innehåller startlistor för biologi och matematik (åk 7&ndash;9) som du kan redigera fritt. Listor du sparar delas med kollegor i samma organisation som öppnar den här sidan.
+    Startlistor för biologi och matematik (åk 7&ndash;9) finns som exempel — redigera fritt eller lägg till egna ämnesområden med &quot;+ Ny lista&quot;. Allt sparas lokalt i webbläsaren; använd export/kopiera-som-kod för att göra en bank permanent i filen.
   </footer>
 </div>
 
@@ -343,7 +321,6 @@
   var DEFAULTS = {
     biologi: {
       name: "Biologi",
-      color: "bio",
       words: [
         { term: "Fotosyntes", clue: "Processen där växter omvandlar ljusenergi till kemisk energi" },
         { term: "Cell", clue: "Den minsta levande byggstenen i en organism" },
@@ -364,7 +341,6 @@
     },
     matematik: {
       name: "Matematik",
-      color: "math",
       words: [
         { term: "Primtal", clue: "Ett tal som bara går att dela jämnt med 1 och sig självt" },
         { term: "Hypotenusa", clue: "Den längsta sidan i en rätvinklig triangel" },
@@ -386,14 +362,26 @@
   };
 
   // ---------- state ----------
-  var subjects = {};           // slug -> {name, color, words:[{term,clue}]}
+  var STORAGE_KEY = 'pt-korsord-amnesbanker';
+  var SUBJ_PALETTE = [
+    { c: '#306BF0', bg: '#eaf0fe' }, // blå (accent)
+    { c: '#3aada8', bg: '#e8f7f7' }, // teal
+    { c: '#d4813a', bg: '#fef3e8' }, // orange
+    { c: '#c43d75', bg: '#fde8f1' }, // rosa
+    { c: '#585078', bg: '#eae6ff' }  // lila/muted
+  ];
+  var subjects = {};           // slug -> {name, words:[{term,clue}], updatedAt}
   var subjectOrder = [];
   var currentSlug = "biologi";
   var entries = [];            // working copy for current subject
   var currentPuzzle = null;    // {width,height,grid,numberGrid,placements}
   var mode = "solve";
-  var db = null, sampleFn = null;
-  var dbReady = false;
+  var saveTimer = null;
+
+  function subjColor(slug){
+    var idx = subjectOrder.indexOf(slug);
+    return SUBJ_PALETTE[((idx % SUBJ_PALETTE.length) + SUBJ_PALETTE.length) % SUBJ_PALETTE.length];
+  }
 
   function slugify(s){
     return s.toLowerCase()
@@ -532,13 +520,29 @@
     row.innerHTML = '';
     subjectOrder.forEach(function(slug){
       var subj = subjects[slug];
+      var col = subjColor(slug);
       var btn = document.createElement('button');
       btn.className = 'subject-tab';
       btn.type = 'button';
       btn.dataset.subj = slug;
       btn.dataset.active = (slug === currentSlug) ? 'true' : 'false';
-      var dotClass = subj.color === 'bio' ? 'bio' : (subj.color === 'math' ? 'math' : '');
-      btn.innerHTML = '<span class="dot ' + dotClass + '"></span>' + escapeHtml(subj.name);
+      btn.style.setProperty('--subj-color', col.c);
+      btn.style.setProperty('--subj-bg', col.bg);
+      var dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = col.c;
+      btn.appendChild(dot);
+      btn.appendChild(document.createTextNode(subj.name));
+      var delBtn = document.createElement('button');
+      delBtn.className = 'del-subj';
+      delBtn.type = 'button';
+      delBtn.textContent = '×';
+      delBtn.title = 'Ta bort listan "' + subj.name + '"';
+      delBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        deleteSubject(slug);
+      });
+      btn.appendChild(delBtn);
       btn.addEventListener('click', function(){ switchSubject(slug); });
       row.appendChild(btn);
     });
@@ -556,9 +560,22 @@
     var slug = slugify(name.trim());
     var base = slug, n = 2;
     while (subjects[slug]) { slug = base + '-' + n; n++; }
-    subjects[slug] = { name: name.trim(), color: null, words: [] };
+    subjects[slug] = { name: name.trim(), words: [], updatedAt: new Date().toISOString() };
     subjectOrder.push(slug);
+    persistSubjects();
     switchSubject(slug);
+  }
+
+  function deleteSubject(slug){
+    if (subjectOrder.length <= 1) {
+      alert('Du måste ha minst en lista kvar.');
+      return;
+    }
+    if (!window.confirm('Ta bort listan "' + subjects[slug].name + '" och alla dess begrepp? Går inte att ångra.')) return;
+    delete subjects[slug];
+    subjectOrder = subjectOrder.filter(function(s){ return s !== slug; });
+    persistSubjects();
+    switchSubject(subjectOrder[0]);
   }
 
   function switchSubject(slug){
@@ -584,13 +601,13 @@
       termInput.type = 'text';
       termInput.placeholder = 'Begrepp';
       termInput.value = entry.term;
-      termInput.addEventListener('input', function(e){ entries[idx].term = e.target.value; });
+      termInput.addEventListener('input', function(e){ entries[idx].term = e.target.value; scheduleAutosave(); });
 
       var clueInput = document.createElement('textarea');
       clueInput.rows = 1;
       clueInput.placeholder = 'Förklaring / ledtråd';
       clueInput.value = entry.clue;
-      clueInput.addEventListener('input', function(e){ entries[idx].clue = e.target.value; });
+      clueInput.addEventListener('input', function(e){ entries[idx].clue = e.target.value; scheduleAutosave(); });
 
       var delBtn = document.createElement('button');
       delBtn.className = 'del';
@@ -600,6 +617,7 @@
       delBtn.addEventListener('click', function(){
         entries.splice(idx, 1);
         renderEditorList();
+        scheduleAutosave();
       });
 
       row.appendChild(termInput);
@@ -612,6 +630,7 @@
   document.getElementById('addRowBtn').addEventListener('click', function(){
     entries.push({ term: '', clue: '' });
     renderEditorList();
+    scheduleAutosave();
   });
 
   // ---------- rendering: grid & clues ----------
@@ -735,145 +754,154 @@
     renderGrid();
   });
 
-  // ---------- AI generation (sample capability) ----------
-  document.getElementById('aiBtn').addEventListener('click', function(){
-    var statusEl = document.getElementById('aiStatus');
-    var topic = document.getElementById('aiTopic').value.trim() || subjects[currentSlug].name;
-    var count = Math.max(2, Math.min(15, parseInt(document.getElementById('aiCount').value, 10) || 6));
-    if (!sampleFn) {
-      statusEl.className = 'status err';
-      statusEl.textContent = 'AI-generering är inte tillgänglig i den här vyn just nu.';
-      return;
-    }
-    statusEl.className = 'status';
-    statusEl.textContent = 'Genererar förslag …';
-    var existing = entries.map(function(e){ return e.term; }).filter(Boolean).join(', ');
-    var prompt = 'Ge mig ' + count + ' skolbegrepp med korta korsordsledtrådar inom ämnesområdet "' + topic +
-      '" för högstadieelever (åk 7-9) i Sverige, på svenska. Varje begrepp ska vara EN sammanhängande term utan mellanslag eller bindestreck (skriv ihop ord om det behövs). Undvik dessa som redan finns: ' + (existing || 'inga') +
-      '. Förklaringen/ledtråden ska beskriva begreppet tydligt utan att skriva ut själva ordet. Svara ENDAST med giltig JSON, som en array: [{"term":"ORD","clue":"förklaring"}]. Inget annat i svaret.';
-    sampleFn.json(prompt, { modelTier: 'default' }).then(function(data){
-      if (!Array.isArray(data)) throw new Error('bad shape');
-      var added = 0;
-      data.forEach(function(item){
-        if (item && typeof item.term === 'string' && typeof item.clue === 'string' && normalize(item.term).length >= 2) {
-          if (entries.length === 1 && !entries[0].term && !entries[0].clue) entries.pop();
-          entries.push({ term: item.term.trim(), clue: item.clue.trim() });
-          added++;
-        }
-      });
-      renderEditorList();
-      statusEl.className = 'status ok';
-      statusEl.textContent = added > 0 ? (added + ' begrepp tillagda i listan.') : 'Fick inget användbart svar, försök igen.';
-    }).catch(function(err){
-      statusEl.className = 'status err';
-      var code = err && err.code;
-      if (code === 'not_granted') statusEl.textContent = 'Du behöver tillåta AI-förslag för att använda funktionen.';
-      else if (code === 'rate_limited') statusEl.textContent = 'För många förfrågningar just nu, försök igen om en stund.';
-      else statusEl.textContent = 'Kunde inte generera förslag just nu.';
-    });
-  });
-
-  // ---------- db: shared word banks ----------
-  function updateSaveMeta(){
-    var meta = document.getElementById('saveMeta');
-    var subj = subjects[currentSlug];
-    if (!db) {
-      meta.textContent = 'Delning med kollegor kräver att sidan är publicerad och öppnad av er i samma organisation.';
-    } else if (subj.updatedAt) {
-      var d = new Date(subj.updatedAt);
-      meta.textContent = 'Senast sparad: ' + d.toLocaleString('sv-SE');
-    } else {
-      meta.textContent = 'Ännu inte sparad i den delade banken.';
-    }
-  }
-
-  document.getElementById('saveBtn').addEventListener('click', function(){
-    var status = document.getElementById('saveStatus');
-    subjects[currentSlug].words = cloneWords(entries.filter(function(e){ return e.term.trim(); }));
-    if (!db) {
-      status.className = 'status err';
-      status.textContent = 'Ingen delad bank tillgänglig i den här vyn — publicera sidan för att kunna dela med kollegor.';
-      return;
-    }
-    var payload = {
-      name: subjects[currentSlug].name,
-      color: subjects[currentSlug].color || null,
-      words: subjects[currentSlug].words,
-      updatedAt: new Date().toISOString()
-    };
-    db.doc('wordbanks/' + currentSlug).set(payload).then(function(){
-      subjects[currentSlug].updatedAt = payload.updatedAt;
-      status.className = 'status ok';
-      status.textContent = 'Sparat! Listan är nu delad med kollegor i organisationen.';
-      updateSaveMeta();
-    }).catch(function(){
-      status.className = 'status err';
-      status.textContent = 'Kunde inte spara just nu, försök igen.';
-    });
-  });
-
   function escapeHtml(s){
     return (s||'').replace(/[&<>"']/g, function(c){
       return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
     });
   }
 
+  // ---------- persistence: localStorage ----------
+  function updateSaveMeta(){
+    var meta = document.getElementById('saveMeta');
+    var subj = subjects[currentSlug];
+    if (subj.updatedAt) {
+      var d = new Date(subj.updatedAt);
+      meta.textContent = 'Sparat lokalt i den här webbläsaren · ' + d.toLocaleString('sv-SE');
+    } else {
+      meta.textContent = 'Sparas automatiskt i den här webbläsaren.';
+    }
+  }
+
+  function persistSubjects(){
+    try {
+      var payload = { subjectOrder: subjectOrder, subjects: subjects };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch (e) { /* privat läge eller full lagring — fortsätt ändå */ }
+  }
+
+  function scheduleAutosave(){
+    subjects[currentSlug].words = cloneWords(entries.filter(function(e){ return e.term.trim(); }));
+    subjects[currentSlug].updatedAt = new Date().toISOString();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      persistSubjects();
+      updateSaveMeta();
+    }, 500);
+  }
+
+  function loadPersisted(){
+    var raw;
+    try { raw = window.localStorage.getItem(STORAGE_KEY); } catch (e) { return false; }
+    if (!raw) return false;
+    try {
+      var data = JSON.parse(raw);
+      if (!data || !data.subjects || !Array.isArray(data.subjectOrder) || !data.subjectOrder.length) return false;
+      subjects = data.subjects;
+      subjectOrder = data.subjectOrder;
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // ---------- export / import / kopiera som kod ----------
+  function downloadFile(filename, text){
+    var blob = new Blob([text], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  document.getElementById('exportBtn').addEventListener('click', function(){
+    scheduleAutosave();
+    var payload = { subjectOrder: subjectOrder, subjects: subjects, exportedAt: new Date().toISOString() };
+    downloadFile('korsord-amnesbank.json', JSON.stringify(payload, null, 2));
+  });
+
+  document.getElementById('importBtn').addEventListener('click', function(){
+    document.getElementById('importFile').click();
+  });
+
+  document.getElementById('importFile').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    var status = document.getElementById('saveStatus');
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var data = JSON.parse(reader.result);
+        if (!data || !data.subjects || !Array.isArray(data.subjectOrder)) throw new Error('bad shape');
+        var replaceAll = window.confirm('Ersätt alla nuvarande listor med innehållet i filen?\n\nOK = ersätt allt\nAvbryt = lägg till som nya listor (dubbletter döps om)');
+        if (replaceAll) {
+          subjects = data.subjects;
+          subjectOrder = data.subjectOrder;
+        } else {
+          data.subjectOrder.forEach(function(slug){
+            var src = data.subjects[slug];
+            if (!src) return;
+            var newSlug = slug, n = 2;
+            while (subjects[newSlug]) { newSlug = slug + '-' + n; n++; }
+            subjects[newSlug] = src;
+            subjectOrder.push(newSlug);
+          });
+        }
+        persistSubjects();
+        renderSubjectTabs();
+        switchSubject(subjectOrder.indexOf(currentSlug) >= 0 ? currentSlug : subjectOrder[0]);
+        status.className = 'status ok';
+        status.textContent = 'Importen lyckades.';
+      } catch (err) {
+        status.className = 'status err';
+        status.textContent = 'Kunde inte läsa filen — är det en export härifrån?';
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('copyCodeBtn').addEventListener('click', function(){
+    scheduleAutosave();
+    var status = document.getElementById('saveStatus');
+    var lines = ['  var DEFAULTS = {'];
+    subjectOrder.forEach(function(slug, i){
+      var subj = subjects[slug];
+      lines.push('    ' + JSON.stringify(slug) + ': {');
+      lines.push('      name: ' + JSON.stringify(subj.name) + ',');
+      lines.push('      words: [');
+      subj.words.forEach(function(w, wi){
+        lines.push('        { term: ' + JSON.stringify(w.term) + ', clue: ' + JSON.stringify(w.clue) + ' }' + (wi < subj.words.length - 1 ? ',' : ''));
+      });
+      lines.push('      ]');
+      lines.push('    }' + (i < subjectOrder.length - 1 ? ',' : ''));
+    });
+    lines.push('  };');
+    var code = lines.join('\n');
+    var done = function(){
+      status.className = 'status ok';
+      status.textContent = 'Kod kopierad! Klistra in som DEFAULTS-blocket i filen och committa till GitHub.';
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(done).catch(function(){
+        window.prompt('Kopiera koden manuellt (Ctrl/Cmd+C):', code);
+      });
+    } else {
+      window.prompt('Kopiera koden manuellt (Ctrl/Cmd+C):', code);
+    }
+  });
+
   // ---------- init ----------
   function initDefaults(){
     Object.keys(DEFAULTS).forEach(function(slug){
-      subjects[slug] = { name: DEFAULTS[slug].name, color: DEFAULTS[slug].color, words: cloneWords(DEFAULTS[slug].words) };
+      subjects[slug] = { name: DEFAULTS[slug].name, words: cloneWords(DEFAULTS[slug].words), updatedAt: null };
       subjectOrder.push(slug);
     });
   }
 
-  async function init(){
-    initDefaults();
-    switchSubject('biologi');
-
-    try {
-      db = await window.claude.use('db');
-    } catch (e) { db = null; }
-    try {
-      sampleFn = await window.claude.use('sample');
-    } catch (e) { sampleFn = null; }
-
-    if (db) {
-      try {
-        var snap = await db.collection('wordbanks').get();
-        var seedOps = [];
-        var seenSlugs = {};
-        snap.docs.forEach(function(docSnap){
-          var data = docSnap.data();
-          if (!data || !Array.isArray(data.words)) return;
-          var slug = docSnap.id;
-          seenSlugs[slug] = true;
-          if (!subjects[slug]) { subjectOrder.push(slug); }
-          subjects[slug] = {
-            name: data.name || slug,
-            color: data.color || (DEFAULTS[slug] ? DEFAULTS[slug].color : null),
-            words: data.words,
-            updatedAt: data.updatedAt || null
-          };
-        });
-        // seed defaults into shared bank if nobody has saved them yet
-        ['biologi','matematik'].forEach(function(slug){
-          if (!seenSlugs[slug]) {
-            seedOps.push(db.doc('wordbanks/' + slug).set({
-              name: DEFAULTS[slug].name,
-              color: DEFAULTS[slug].color,
-              words: DEFAULTS[slug].words,
-              updatedAt: new Date().toISOString()
-            }).catch(function(){}));
-          }
-        });
-        await Promise.all(seedOps);
-        renderSubjectTabs();
-        switchSubject(subjects[currentSlug] ? currentSlug : subjectOrder[0]);
-      } catch (e) { /* stay on local defaults */ }
+  function init(){
+    if (!loadPersisted()) {
+      initDefaults();
     }
-
-    dbReady = true;
-    updateSaveMeta();
+    switchSubject(subjects[currentSlug] ? currentSlug : subjectOrder[0]);
   }
 
   init();
