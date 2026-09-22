@@ -214,6 +214,12 @@ main {
 .icon-btn:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); }
 .icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .icon-btn.help-btn { color: var(--accent); }
+.icon-btn.lock-active {
+  background: var(--text);
+  border-color: var(--text);
+  color: #fff;
+}
+.icon-btn.lock-active:hover { border-color: var(--text); box-shadow: var(--shadow-sm); }
 
 /* Kontextuella brickknappar (dela/duplicera/ta bort markerad) */
 .tile-actions {
@@ -1127,7 +1133,7 @@ main {
 }
 .split-options {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
   gap: 8px;
   margin-bottom: 18px;
 }
@@ -1220,9 +1226,9 @@ footer {
         <div class="custom-frac">
           <span class="custom-frac-label">Eget bråk:</span>
           <div class="custom-frac-inputs">
-            <input type="number" id="customNum" min="1" max="99" value="4" aria-label="Täljare">
+            <input type="number" id="customNum" min="1" max="99" placeholder="t" aria-label="Täljare">
             <div class="custom-frac-bar"></div>
-            <input type="number" id="customDen" min="1" max="99" value="7" aria-label="Nämnare">
+            <input type="number" id="customDen" min="1" max="99" placeholder="n" aria-label="Nämnare">
           </div>
           <button class="custom-frac-add" id="customAddBtn">Lägg till</button>
           <div class="custom-frac-error" id="customError"></div>
@@ -1243,7 +1249,7 @@ footer {
         <div class="compare-line" id="compareLine"></div>
         <div class="quick-menu" id="quickMenu" style="display:none;">
           <button id="qmSplit" title="Dela upp">✂</button>
-          <button id="qmDup" title="Duplicera">⧉</button>
+          <button id="qmDup" title="Duplicera (Ctrl/Cmd + D)">⧉</button>
           <button id="qmDelete" class="danger" title="Ta bort">✕</button>
         </div>
         <div class="op-fab" id="opFab" style="display:none;">
@@ -1308,9 +1314,19 @@ footer {
         </span>
       </label>
 
+      <label class="switch-item" title="Visa oäkta bråk (t.ex. 5/3) i blandad form (1 2/3) på brickorna, istället för som ett vanligt bråk.">
+        <span class="switch-icon">1½</span>
+        <span class="switch-text">Blandad form</span>
+        <span class="switch">
+          <input type="checkbox" id="mixedToggle">
+          <span class="switch-track"></span>
+        </span>
+      </label>
+
       <div class="toolbar-sep"></div>
 
       <div class="toolbar-actions">
+        <button class="icon-btn" id="lockBtn" title="Lås spelplanen så att brickorna inte kan flyttas av misstag — bra vid genomgångar.">🔓 Lås</button>
         <button class="icon-btn" id="resetBtn" title="Ta bort alla brickor och börja om från en tom spelplan">🗑 Rensa</button>
       </div>
     </div>
@@ -1368,8 +1384,14 @@ footer {
       <dd>Markera en bricka, håll sedan ned Skift och klicka på en till (eller dra en bricka in i en annan) för att markera två brickor samtidigt. En +/−-knapp dyker upp mellan dem. I guidat läge leds ni genom gemensam nämnare, förlängda täljare och svaret i tre steg. Med guidat läge avstängt utförs operationen direkt.</dd>
       <dt>Guidat läge</dt>
       <dd>På: eleven får själv resonera fram gemensam nämnare och räkna ut svaret i tre steg innan resultatet visas — bra för undervisning. Av: additionen eller subtraktionen utförs direkt utan frågor, användbart för snabba demonstrationer på tavlan.</dd>
+      <dt>Blandad form</dt>
+      <dd>Visar oäkta bråk (t.ex. 5/3) som blandad form (1 2/3) på brickorna istället för som ett vanligt bråk.</dd>
+      <dt>Lås</dt>
+      <dd>Fryser spelplanen så att inga brickor kan flyttas, läggas till eller tas bort av misstag — bra när du visar upp ett färdigt exempel för klassen. Lås upp igen för att fortsätta redigera.</dd>
       <dt>Upplägg</dt>
       <dd>Spara aktuell spelplan under ett namn för att snabbt kunna öppna den igen senare. Sparas i den här webbläsaren. Du kan även exportera ett upplägg till en fil för att ta med det till en annan dator, och importera en fil du fått eller sparat tidigare.</dd>
+      <dt>Kortkommandon</dt>
+      <dd>Ctrl/Cmd + D duplicerar den markerade brickan direkt.</dd>
     </dl>
     <button class="help-close" id="helpClose">Stäng</button>
   </div>
@@ -1436,6 +1458,8 @@ footer {
 
   const sumToggle = document.getElementById('sumToggle');
   const guidedToggle = document.getElementById('guidedToggle');
+  const mixedToggle = document.getElementById('mixedToggle');
+  const lockBtn = document.getElementById('lockBtn');
   const numlineToggle = document.getElementById('numlineToggle');
   const guideToggle = document.getElementById('guideToggle');
   const opFab = document.getElementById('opFab');
@@ -1520,6 +1544,8 @@ footer {
   let dragState = null;
   let showSegments = false;  // toggle: visa delningslinjer inuti brickor (av som standard — brickan ska se hel ut)
   let showRowSums = false;   // toggle: visa summan av brickorna på varje rad
+  let showMixed = false;     // toggle: visa oäkta bråk (t.ex. 5/3) i blandad form (1 2/3)
+  let boardLocked = false;   // toggle: fryser brickornas positioner (presentationsläge)
   let showCompareLine = false; // toggle: vertikal linje vid markerad brickas högerkant
   let guidedMode = true;     // toggle: räkneoperationer leds i tre steg (av: utförs direkt)
   let menuVisibleForId = null; // vilken bricka som just nu visar snabbmenyn (klick nr 2)
@@ -1546,7 +1572,7 @@ footer {
     { num: 1, den: 2 }, { num: 1, den: 3 }, { num: 1, den: 4 },
     { num: 1, den: 5 }, { num: 1, den: 6 }, { num: 1, den: 7 },
     { num: 1, den: 8 }, { num: 1, den: 9 }, { num: 1, den: 10 },
-    { num: 1, den: 12 }
+    { num: 1, den: 11 }, { num: 1, den: 12 }
   ];
 
   trayDefs.forEach(def => {
@@ -1570,8 +1596,21 @@ footer {
     </span>`;
   }
 
+  // Blandad form, t.ex. 5/3 -> "1 2/3". Äkta bråk (num < den) visas som vanligt.
+  function mixedFracHTML(num, den) {
+    if (den === 1) return num.toString();
+    const whole = Math.floor(num / den);
+    const rem = num % den;
+    if (whole === 0) return fracHTML(num, den);
+    if (rem === 0) return whole.toString();
+    return `<span style="display:inline-flex;align-items:center;gap:3px;">
+      <span>${whole}</span>${fracHTML(rem, den)}
+    </span>`;
+  }
+
   // ---------- Lägg till bricka ----------
   function addTile(num, den, isWhole) {
+    if (boardLocked) return;
     const row = findFreeRow();
     const t = {
       id: nextId++,
@@ -1619,7 +1658,7 @@ footer {
       if (t.isWhole) {
         label.innerHTML = '1 <small>hel</small>';
       } else if (t.den <= 20 || widthPercent > 6) {
-        label.innerHTML = fracHTML(displayNum, displayDen);
+        label.innerHTML = showMixed ? mixedFracHTML(displayNum, displayDen) : fracHTML(displayNum, displayDen);
       }
       el.appendChild(label);
       el.title = t.isWhole ? '1 (hel)' : `${displayNum}/${displayDen}`;
@@ -1753,6 +1792,7 @@ footer {
 
   // ---------- Drag ----------
   function onPointerDown(e, id) {
+    if (boardLocked) { e.preventDefault(); return; }
     const wasShiftPair = e.shiftKey && selectedId !== null && id !== selectedId;
     select(id, e.shiftKey);
     // Ett skift-klick parar ihop två brickor för addition/subtraktion — det ska
@@ -2020,7 +2060,7 @@ footer {
       splitOptions.appendChild(b);
     }
 
-    [2, 3, 4, 5, 6, 8, 10, 12].forEach(n => {
+    [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].forEach(n => {
       const b = document.createElement('button');
       b.textContent = '× ' + n;
       b.addEventListener('click', () => doSplit(n));
@@ -2364,6 +2404,31 @@ footer {
   guidedToggle.checked = guidedMode;
   guidedToggle.addEventListener('change', () => {
     guidedMode = guidedToggle.checked;
+  });
+
+  mixedToggle.checked = showMixed;
+  mixedToggle.addEventListener('change', () => {
+    showMixed = mixedToggle.checked;
+    render();
+  });
+
+  lockBtn.addEventListener('click', () => {
+    boardLocked = !boardLocked;
+    lockBtn.textContent = boardLocked ? '🔒 Låst' : '🔓 Lås';
+    lockBtn.classList.toggle('lock-active', boardLocked);
+    lockBtn.title = boardLocked
+      ? 'Spelplanen är låst — klicka för att låsa upp och kunna flytta brickor igen.'
+      : 'Lås spelplanen så att brickorna inte kan flyttas av misstag — bra vid genomgångar.';
+    if (boardLocked) {
+      // Vid låsning: avmarkera allt så inga menyer/linjer blir kvar hängande
+      selectedId = null;
+      coSelectedId = null;
+      menuVisibleForId = null;
+      render();
+      positionQuickMenu();
+      positionCompareLine();
+      positionOpFab();
+    }
   });
 
   compareToggle.checked = showCompareLine;
@@ -2826,6 +2891,23 @@ footer {
     tiles.push(t);
     selectedId = t.id;
   }
+
+  // ---------- Kortkommandon ----------
+  // Ctrl/Cmd + D duplicerar den markerade brickan, om man inte just då
+  // skriver i ett textfält (då ska webbläsarens vanliga bokmärkes-kommando
+  // eller vanlig textredigering inte störas).
+  window.addEventListener('keydown', (e) => {
+    const tag = document.activeElement ? document.activeElement.tagName : '';
+    const isTyping = tag === 'INPUT' || tag === 'TEXTAREA';
+    if (isTyping) return;
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+      if (selectedId !== null) {
+        e.preventDefault();
+        handleDuplicate();
+      }
+    }
+  });
 
   // ---------- Initiera: lägg ut en helhet som referens ----------
   addTile(1, 1, true);

@@ -125,7 +125,7 @@
     main.clean-view .side-panel { display: none !important; }
     .desk-el.seat-draggable { cursor: grab; }
     .desk-el.seat-draggable:active { cursor: grabbing; }
-    .desk-el.seat-dragging { box-shadow: 0 10px 26px rgba(16,14,40,0.3); z-index: 40; opacity: 0.92; }
+    .desk-el.seat-dragging { box-shadow: 0 8px 16px rgba(16,14,40,0.35); z-index: 40; opacity: 0.98; outline: 2px solid var(--cat); transition: none; }
     .desk-el.seat-drop-target { box-shadow: 0 0 0 3px var(--cat); }
 
     /* ── Arbetsyta: canvas + sidopanel ── */
@@ -374,6 +374,28 @@
 
     footer { text-align: center; padding: 22px; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border); }
 
+    /* ── Utskrift: klasslista (döljs på skärm, visas isolerat vid utskrift) ── */
+    .print-only { display: none; }
+    @media print {
+      body > *:not(#classListPrintArea) { display: none !important; }
+      #classListPrintArea { display: block !important; }
+      @page { margin: 1.6cm; }
+      .print-banner {
+        background: linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+        color: #ffffff; border-radius: 14px; padding: 22px 26px;
+        display: flex; align-items: center; gap: 14px; margin-bottom: 22px;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      .print-icon { font-size: 2rem; }
+      .print-title { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; }
+      .print-meta { font-family: 'Montserrat', sans-serif; font-size: 1.15rem; font-weight: 700; color: #100e28; margin-bottom: 18px; }
+      .print-table { width: 100%; border-collapse: collapse; font-family: 'Sora', sans-serif; }
+      .print-table th, .print-table td { text-align: left; padding: 11px 10px; border-bottom: 1px solid #ccc5f0; }
+      .print-table th { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; color: #585078; text-transform: uppercase; }
+      .print-table td { font-size: 1rem; color: #100e28; }
+      .print-table td:first-child, .print-table th:first-child { width: 40px; color: #585078; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .pool-chip, .btn, .desk-el, .tool-card { transition: none; }
     }
@@ -403,6 +425,7 @@
       <button class="btn btn-secondary" id="exportBtn" title="Exportera som bild (elevperspektiv)">🖼️ Exportera</button>
       <button class="btn btn-secondary" id="exportMirrorBtn" title="Roterad 180°, rättvänd från lärarens plats i rummet">🖨️ Lärarutskrift</button>
       <button class="btn btn-secondary" id="teacherViewBtn" title="Lärarvy — närvaro">📋 Lärarvy</button>
+      <button class="btn btn-secondary" id="printClassListTopBtn" title="Skriv ut klasslista">🖨️ Klasslista</button>
       <button class="btn btn-secondary" id="settingsBtn">⚙️</button>
     </div>
 
@@ -544,6 +567,7 @@
       <p class="hint" id="teacherViewSummary"></p>
       <div id="teacherViewList" class="teacher-list"></div>
       <div class="modal-actions">
+        <button class="btn btn-secondary" id="printClassListBtn">🖨️ Skriv ut klasslista</button>
         <button class="btn btn-secondary" id="closeTeacherViewBtn">Stäng</button>
       </div>
     </div>
@@ -1407,6 +1431,19 @@
         let moved = false;
         el.setPointerCapture(e.pointerId);
         let lastTargetEl = null;
+        let hitTestScheduled = false;
+        let lastPointerX = startX, lastPointerY = startY;
+
+        function runHitTest() {
+          hitTestScheduled = false;
+          if (lastTargetEl) lastTargetEl.classList.remove('seat-drop-target');
+          el.style.pointerEvents = 'none';
+          const under = document.elementFromPoint(lastPointerX, lastPointerY);
+          el.style.pointerEvents = '';
+          const targetEl = under ? under.closest('.desk-el') : null;
+          lastTargetEl = (targetEl && targetEl !== el) ? targetEl : null;
+          if (lastTargetEl) lastTargetEl.classList.add('seat-drop-target');
+        }
 
         function onMove(ev) {
           const dx = ev.clientX - startX, dy = ev.clientY - startY;
@@ -1415,14 +1452,12 @@
             el.classList.add('seat-dragging');
           }
           if (moved) {
+            // Positionen följer muspekaren direkt (varje event) — den tyngre träffdetekteringen
+            // (elementFromPoint) körs istället högst en gång per bildruta, så dragningen känns
+            // fast kopplad till pekaren istället för att släpa efter som en skugga.
             el.style.transform = `translate(${dx}px, ${dy}px)`;
-            if (lastTargetEl) lastTargetEl.classList.remove('seat-drop-target');
-            el.style.pointerEvents = 'none';
-            const under = document.elementFromPoint(ev.clientX, ev.clientY);
-            el.style.pointerEvents = '';
-            const targetEl = under ? under.closest('.desk-el') : null;
-            lastTargetEl = (targetEl && targetEl !== el) ? targetEl : null;
-            if (lastTargetEl) lastTargetEl.classList.add('seat-drop-target');
+            lastPointerX = ev.clientX; lastPointerY = ev.clientY;
+            if (!hitTestScheduled) { hitTestScheduled = true; requestAnimationFrame(runHitTest); }
           }
         }
         function onUp(ev) {
@@ -1732,6 +1767,25 @@
       if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
     });
 
+    function printClassList() {
+      const klass = aktivKlass();
+      if (!klass || klass.elever.length === 0) { alert('Ingen klass vald, eller så har klassen inga elever ännu.'); return; }
+      document.getElementById('printClassName').textContent = `Klass: ${klass.namn}`;
+      const tbody = document.getElementById('printTableBody');
+      tbody.innerHTML = '';
+      const sorted = [...klass.elever].sort((a, b) => a.namn.localeCompare(b.namn, 'sv'));
+      sorted.forEach((elev, i) => {
+        const tr = document.createElement('tr');
+        const tdNum = document.createElement('td'); tdNum.textContent = i + 1;
+        const tdName = document.createElement('td'); tdName.textContent = elev.namn;
+        tr.append(tdNum, tdName);
+        tbody.appendChild(tr);
+      });
+      window.print();
+    }
+    document.getElementById('printClassListBtn').addEventListener('click', printClassList);
+    document.getElementById('printClassListTopBtn').addEventListener('click', printClassList);
+
     function renderStudentChips() {
       const klass = aktivKlass();
       studentChips.innerHTML = '';
@@ -1927,5 +1981,17 @@
     mode = cleanView ? 'place' : 'edit';
     renderClassSelect(); renderRoomSelect(); renderStudentChips(); renderToolGrid(); syncModeUI(); syncCleanViewUI(); renderAll();
   </script>
+  <div id="classListPrintArea" class="print-only">
+    <div class="print-banner">
+      <span class="print-icon">🧑‍🤝‍🧑</span>
+      <span class="print-title">Klasslista</span>
+    </div>
+    <div class="print-meta" id="printClassName"></div>
+    <table class="print-table">
+      <thead><tr><th>#</th><th>Namn</th></tr></thead>
+      <tbody id="printTableBody"></tbody>
+    </table>
+  </div>
+
 </body>
 </html>
