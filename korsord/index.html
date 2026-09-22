@@ -133,7 +133,7 @@
 
   .entry-row {
     display: grid;
-    grid-template-columns: 1fr 1.6fr auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) auto;
     gap: 6px;
     margin-bottom: 6px;
     align-items: start;
@@ -148,6 +148,8 @@
     color: var(--text);
     resize: vertical;
     min-height: 34px;
+    width: 100%;
+    min-width: 0;
   }
   .entry-row input:focus, .entry-row textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   .entry-row button.del {
