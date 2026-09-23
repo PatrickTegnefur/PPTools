@@ -84,7 +84,7 @@
     border: 1.5px solid var(--border);
     background: var(--surface);
     color: var(--text);
-    padding: 7px 30px 7px 14px;
+    padding: 7px 76px 7px 14px;
     border-radius: var(--radius-sm);
     cursor: pointer;
     font: inherit;
@@ -95,14 +95,18 @@
   }
   .subject-tab .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
   .subject-tab[data-active="true"] { border-color: var(--subj-color, var(--accent)); background: var(--subj-bg, var(--surface2)); color: var(--subj-color, var(--accent)); font-weight: 600; }
-  .subject-tab .del-subj {
+  .subject-tab .tab-actions {
     position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
-    width: 18px; height: 18px; border-radius: 50%; border: none; background: transparent;
-    color: var(--muted); font-size: 13px; line-height: 1; cursor: pointer; display: none;
-    align-items: center; justify-content: center;
+    display: none; gap: 2px;
   }
-  .subject-tab:hover .del-subj { display: flex; }
-  .subject-tab .del-subj:hover { background: var(--wrong-bg); color: var(--wrong); }
+  .subject-tab:hover .tab-actions { display: flex; }
+  .subject-tab .tab-actions button {
+    width: 18px; height: 18px; border-radius: 50%; border: none; background: transparent;
+    color: var(--muted); font-size: 11px; line-height: 1; cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .subject-tab .tab-actions button:hover { background: var(--surface2); color: var(--accent); }
+  .subject-tab .tab-actions button.del-subj:hover { background: var(--wrong-bg); color: var(--wrong); }
   .subject-tab.new { border-style: dashed; color: var(--muted); padding-right: 14px; }
 
   .columns {
@@ -153,6 +157,9 @@
     min-width: 0;
   }
   .entry-row input:focus, .entry-row textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .entry-row input.dup { border-color: var(--wrong); background: var(--wrong-bg); }
+  .entry-row input.dup:focus { outline-color: var(--wrong); }
+  .dup-hint { grid-column: 1 / 2; font-size: 11px; color: var(--wrong); margin: -3px 0 2px; }
   .entry-row button.del {
     border: 1.5px solid var(--border);
     background: transparent;
@@ -185,6 +192,16 @@
 
   .save-box { border-top: 1px dashed var(--border); margin-top: 14px; padding-top: 14px; }
   .save-box .meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .bulk-box { border-top: 1px dashed var(--border); margin-top: 14px; padding-top: 14px; }
+  .bulk-box .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .bulk-box .head strong { font-size: 13px; }
+  .bulk-box textarea {
+    width: 100%; font: inherit; font-size: 13px; padding: 8px 9px; margin-top: 8px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg); color: var(--text); resize: vertical; min-height: 90px;
+  }
+  .bulk-box textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .bulk-box code { background: var(--surface2); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
   .status { font-size: 12.5px; color: var(--muted); min-height: 16px; margin-top: 6px; }
   .status.err { color: var(--wrong); }
   .status.ok { color: var(--correct); }
@@ -198,6 +215,18 @@
     color: var(--muted); cursor: pointer;
   }
   .mode-switch button[data-active="true"] { background: var(--accent); color: #fff; }
+  .scale-select {
+    font: inherit; font-size: 12.5px; padding: 6px 8px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); background: var(--surface); color: var(--text); cursor: pointer;
+  }
+  .scale-label { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
+  .print-title-row { margin-bottom: 14px; }
+  .print-title-row input {
+    width: 100%; font: inherit; font-size: 13px; padding: 8px 10px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); background: var(--surface); color: var(--text);
+  }
+  .print-title-row input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .print-only-heading { display: none; }
 
   .grid-scroll { overflow-x: auto; padding: 4px 0 10px; }
   .cw-grid { display: inline-grid; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
@@ -239,6 +268,8 @@
   footer.note { margin-top: 26px; font-size: 12px; color: var(--muted); max-width: 70ch; }
   footer.note a { color: inherit; }
 
+  @page { size: A4; margin: 14mm; }
+
   @media print {
     body { background: #fff; }
     header.top { background: none !important; color: var(--text) !important; box-shadow: none; padding: 0 0 10px; }
@@ -246,10 +277,16 @@
     .panel.editor-panel, .save-box, .subject-row, header.top p, .grid-toolbar, footer.note { display: none !important; }
     .columns { display: block; }
     .panel { border: none; padding: 0; box-shadow: none; }
+    .print-title-row { display: none !important; }
+    .print-only-heading {
+      display: block; font-family: 'Montserrat', sans-serif; font-weight: 700;
+      font-size: 19px; margin: 0 0 16px; color: #000;
+    }
+    .print-only-heading:empty { display: none; }
     /* Rent utskriftsläge: svarta kantlinjer runt varje ifyllbar ruta, vit bakgrund.
        Blockerade rutor har varken kant eller fyllning - de "försvinner" in i sidan
        istället för att dra uppmärksamhet, så fokus hamnar på själva korsordet. */
-    .cw-grid { background: #fff !important; border: none !important; gap: 0 !important; }
+    .cw-grid { background: #fff !important; border: none !important; gap: 0 !important; --cell: var(--print-cell) !important; }
     .cw-cell {
       background: #fff !important;
       border: 1px solid #000 !important;
@@ -284,6 +321,21 @@
           <button class="btn ghost small" id="addRowBtn" type="button">+ Lägg till rad</button>
         </div>
 
+        <div class="bulk-box">
+          <div class="head">
+            <strong>Klistra in en befintlig lista</strong>
+            <button class="btn ghost small" id="bulkToggle" type="button">Visa</button>
+          </div>
+          <div id="bulkPanel" style="display:none;">
+            <p class="hint" style="margin:8px 0 0;">En rad per begrepp. Begrepp och förklaring separeras med tab (t.ex. inklistrat från Excel/Sheets) eller semikolon: <code>Fotosyntes; Processen där växter omvandlar ljus till energi</code></p>
+            <textarea id="bulkInput" rows="6" placeholder="Fotosyntes; Processen där växter omvandlar ljus till energi&#10;Cell; Den minsta levande byggstenen i en organism"></textarea>
+            <div class="btn-row" style="margin-top:0;">
+              <button class="btn ghost small" id="bulkAddBtn" type="button">Lägg till i listan</button>
+            </div>
+            <div class="status" id="bulkStatus"></div>
+          </div>
+        </div>
+
         <div class="save-box">
           <div class="btn-row" style="margin-top:0;">
             <button class="btn" id="buildBtn" type="button">Skapa korsord</button>
@@ -309,8 +361,20 @@
             <button data-mode="key" type="button">Facit</button>
           </div>
           <button class="btn ghost small" id="checkBtn" type="button">Rätta</button>
+          <button class="btn ghost small" id="hintBtn" type="button">Ledtråd</button>
+          <label class="scale-label">Rutstorlek vid utskrift
+            <select class="scale-select" id="printScaleSelect">
+              <option value="0.75">Liten</option>
+              <option value="1" selected>Normal</option>
+              <option value="1.3">Stor</option>
+            </select>
+          </label>
           <button class="btn ghost small" id="printBtn" type="button">Skriv ut</button>
         </div>
+        <div class="print-title-row">
+          <input type="text" id="printTitleInput" placeholder="Titel för utskrift, t.ex. &quot;Korsord: Cellbiologi, v.38&quot; (visas överst på den utskrivna sidan)">
+        </div>
+        <h2 class="print-only-heading" id="printTitleHeading"></h2>
         <div id="gridArea"><div class="empty-state">Bygg en begreppslista till vänster och tryck på &quot;Skapa korsord&quot;.</div></div>
         <div class="clues" id="cluesArea"></div>
       </div>
@@ -372,6 +436,7 @@
 
   // ---------- state ----------
   var STORAGE_KEY = 'pt-korsord-amnesbanker';
+  var PRINT_SCALE_KEY = 'pt-korsord-utskriftsskala';
   var SUBJ_PALETTE = [
     { c: '#306BF0', bg: '#eaf0fe' }, // blå (accent)
     { c: '#3aada8', bg: '#e8f7f7' }, // teal
@@ -379,13 +444,19 @@
     { c: '#c43d75', bg: '#fde8f1' }, // rosa
     { c: '#585078', bg: '#eae6ff' }  // lila/muted
   ];
-  var subjects = {};           // slug -> {name, words:[{term,clue}], updatedAt}
+  var subjects = {};           // slug -> {name, words:[{term,clue}], printTitle, updatedAt}
   var subjectOrder = [];
   var currentSlug = "biologi";
   var entries = [];            // working copy for current subject
   var currentPuzzle = null;    // {width,height,grid,numberGrid,placements}
   var mode = "solve";
   var saveTimer = null;
+  var printScale = 1;
+  var activeInput = null;
+  try {
+    var storedScale = parseFloat(window.localStorage.getItem(PRINT_SCALE_KEY));
+    if (storedScale === 0.75 || storedScale === 1 || storedScale === 1.3) printScale = storedScale;
+  } catch (e) {}
 
   function subjColor(slug){
     var idx = subjectOrder.indexOf(slug);
@@ -434,21 +505,11 @@
     }
   }
 
-  function generateCrossword(rawEntries){
-    var words = [];
-    rawEntries.forEach(function(e){
-      var letters = normalize(e.term);
-      if (letters.length >= 2 && e.clue && e.clue.trim()) {
-        words.push({ letters: letters, clue: e.clue.trim(), term: e.term.trim() });
-      }
-    });
-    if (words.length < 2) return null;
-    words.sort(function(a,b){ return b.letters.length - a.letters.length; });
-
+  function buildFromOrdering(words){
     var grid = new Map();
     var placements = [];
+    var fallbackCount = 0;
 
-    // first word: horizontal at origin
     placeWord(grid, words[0].letters, 0, 0, 'H');
     placements.push({ letters: words[0].letters, clue: words[0].clue, term: words[0].term, x: 0, y: 0, dir: 'H' });
 
@@ -478,6 +539,7 @@
       }
       if (!best) {
         // fallback: place disconnected, below current content
+        fallbackCount++;
         var maxY = -Infinity;
         grid.forEach(function(_, key){ var yy = parseInt(key.split(',')[1],10); if (yy > maxY) maxY = yy; });
         if (maxY === -Infinity) maxY = -2;
@@ -520,7 +582,52 @@
     }
     placements.forEach(function(pl){ pl.number = numberGrid[pl.y][pl.x]; });
 
-    return { width: width, height: height, cells: cells, numberGrid: numberGrid, placements: placements };
+    var filled = 0;
+    cells.forEach(function(row){ row.forEach(function(c){ if (c) filled++; }); });
+
+    return { width: width, height: height, cells: cells, numberGrid: numberGrid, placements: placements, fallbackCount: fallbackCount, filled: filled };
+  }
+
+  function shuffleFrom(arr, startIdx){
+    var out = arr.slice();
+    for (var i = out.length - 1; i > startIdx; i--) {
+      var j = startIdx + Math.floor(Math.random() * (i - startIdx + 1));
+      var tmp = out[i]; out[i] = out[j]; out[j] = tmp;
+    }
+    return out;
+  }
+
+  function generateCrossword(rawEntries){
+    var words = [];
+    rawEntries.forEach(function(e){
+      var letters = normalize(e.term);
+      if (letters.length >= 2 && e.clue && e.clue.trim()) {
+        words.push({ letters: letters, clue: e.clue.trim(), term: e.term.trim() });
+      }
+    });
+    if (words.length < 2) return null;
+
+    var byLenDesc = words.slice().sort(function(a,b){ return b.letters.length - a.letters.length; });
+
+    // Provar flera placeringsordningar av samma ordlista (längsta ordet hålls
+    // fast som ankare) och behåller den tätast packade layouten: flest
+    // korsningar, minst antal lösryckta ord, minsta yta.
+    var attemptCount = Math.min(16, Math.max(6, words.length));
+    var orderings = [byLenDesc];
+    for (var i = 0; i < attemptCount; i++) {
+      orderings.push(shuffleFrom(byLenDesc, 1));
+    }
+
+    var best = null, bestScore = -Infinity;
+    orderings.forEach(function(ordering){
+      var result = buildFromOrdering(ordering);
+      var area = result.width * result.height;
+      var density = area > 0 ? result.filled / area : 0;
+      var score = density * 1000 - result.fallbackCount * 400 - area * 0.15;
+      if (score > bestScore) { bestScore = score; best = result; }
+    });
+
+    return best;
   }
 
   // ---------- rendering: subject tabs ----------
@@ -542,6 +649,28 @@
       dot.style.background = col.c;
       btn.appendChild(dot);
       btn.appendChild(document.createTextNode(subj.name));
+
+      var actions = document.createElement('span');
+      actions.className = 'tab-actions';
+
+      var renameBtn = document.createElement('button');
+      renameBtn.type = 'button';
+      renameBtn.textContent = '✎';
+      renameBtn.title = 'Döp om listan "' + subj.name + '"';
+      renameBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        renameSubject(slug);
+      });
+
+      var dupBtn = document.createElement('button');
+      dupBtn.type = 'button';
+      dupBtn.textContent = '⧉';
+      dupBtn.title = 'Duplicera listan "' + subj.name + '"';
+      dupBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        duplicateSubject(slug);
+      });
+
       var delBtn = document.createElement('button');
       delBtn.className = 'del-subj';
       delBtn.type = 'button';
@@ -551,7 +680,11 @@
         e.stopPropagation();
         deleteSubject(slug);
       });
-      btn.appendChild(delBtn);
+
+      actions.appendChild(renameBtn);
+      actions.appendChild(dupBtn);
+      actions.appendChild(delBtn);
+      btn.appendChild(actions);
       btn.addEventListener('click', function(){ switchSubject(slug); });
       row.appendChild(btn);
     });
@@ -569,10 +702,36 @@
     var slug = slugify(name.trim());
     var base = slug, n = 2;
     while (subjects[slug]) { slug = base + '-' + n; n++; }
-    subjects[slug] = { name: name.trim(), words: [], updatedAt: new Date().toISOString() };
+    subjects[slug] = { name: name.trim(), printTitle: '', words: [], updatedAt: new Date().toISOString() };
     subjectOrder.push(slug);
     persistSubjects();
     switchSubject(slug);
+  }
+
+  function renameSubject(slug){
+    var current = subjects[slug];
+    var name = window.prompt('Nytt namn på listan:', current.name);
+    if (!name || !name.trim() || name.trim() === current.name) return;
+    current.name = name.trim();
+    current.updatedAt = new Date().toISOString();
+    persistSubjects();
+    renderSubjectTabs();
+    if (slug === currentSlug) {
+      document.getElementById('editorTitle').textContent = current.name + ': begrepp & förklaringar';
+      updateSaveMeta();
+    }
+  }
+
+  function duplicateSubject(slug){
+    var source = subjects[slug];
+    var newName = source.name + ' (kopia)';
+    var newSlug = slugify(newName), n = 2;
+    while (subjects[newSlug]) { newSlug = slugify(newName) + '-' + n; n++; }
+    subjects[newSlug] = { name: newName, printTitle: source.printTitle || '', words: cloneWords(source.words), updatedAt: new Date().toISOString() };
+    var pos = subjectOrder.indexOf(slug);
+    subjectOrder.splice(pos + 1, 0, newSlug);
+    persistSubjects();
+    switchSubject(newSlug);
   }
 
   function deleteSubject(slug){
@@ -592,6 +751,9 @@
     entries = cloneWords(subjects[slug].words.length ? subjects[slug].words : [{term:'',clue:''}]);
     currentPuzzle = null;
     document.getElementById('editorTitle').textContent = subjects[slug].name + ': begrepp & förklaringar';
+    var titleVal = subjects[slug].printTitle || '';
+    document.getElementById('printTitleInput').value = titleVal;
+    document.getElementById('printTitleHeading').textContent = titleVal;
     renderSubjectTabs();
     renderEditorList();
     renderGrid();
@@ -599,6 +761,39 @@
   }
 
   // ---------- rendering: editor ----------
+  function duplicateCounts(){
+    var counts = {};
+    entries.forEach(function(e){
+      var n = normalize(e.term);
+      if (n.length < 2) return;
+      counts[n] = (counts[n] || 0) + 1;
+    });
+    return counts;
+  }
+
+  function updateDuplicateHighlights(){
+    var counts = duplicateCounts();
+    var rows = document.querySelectorAll('#entryList .entry-row');
+    rows.forEach(function(row, idx){
+      var input = row.querySelector('input[type=text]');
+      if (!input || !entries[idx]) return;
+      var n = normalize(entries[idx].term);
+      var isDup = n.length >= 2 && counts[n] > 1;
+      input.classList.toggle('dup', isDup);
+      var hint = row.querySelector('.dup-hint');
+      if (isDup) {
+        if (!hint) {
+          hint = document.createElement('div');
+          hint.className = 'dup-hint';
+          hint.textContent = 'Finns redan i listan';
+          row.appendChild(hint);
+        }
+      } else if (hint) {
+        hint.remove();
+      }
+    });
+  }
+
   function renderEditorList(){
     var list = document.getElementById('entryList');
     list.innerHTML = '';
@@ -610,7 +805,7 @@
       termInput.type = 'text';
       termInput.placeholder = 'Begrepp';
       termInput.value = entry.term;
-      termInput.addEventListener('input', function(e){ entries[idx].term = e.target.value; scheduleAutosave(); });
+      termInput.addEventListener('input', function(e){ entries[idx].term = e.target.value; updateDuplicateHighlights(); scheduleAutosave(); });
 
       var clueInput = document.createElement('textarea');
       clueInput.rows = 1;
@@ -634,12 +829,71 @@
       row.appendChild(delBtn);
       list.appendChild(row);
     });
+    updateDuplicateHighlights();
   }
 
   document.getElementById('addRowBtn').addEventListener('click', function(){
     entries.push({ term: '', clue: '' });
     renderEditorList();
     scheduleAutosave();
+  });
+
+  // ---------- bulk-inmatning ----------
+  document.getElementById('bulkToggle').addEventListener('click', function(){
+    var panel = document.getElementById('bulkPanel');
+    var open = panel.style.display !== 'none';
+    panel.style.display = open ? 'none' : 'block';
+    this.textContent = open ? 'Visa' : 'Dölj';
+  });
+
+  function parseBulkLine(line){
+    line = line.trim();
+    if (!line) return null;
+    var sep = null;
+    if (line.indexOf('\t') !== -1) sep = '\t';
+    else if (line.indexOf(';') !== -1) sep = ';';
+    else if (/ [-–] /.test(line)) sep = / [-–] /;
+    if (sep === null) return null;
+    var idx, term, clue;
+    if (sep instanceof RegExp) {
+      var m = line.split(sep);
+      if (m.length < 2) return null;
+      term = m[0]; clue = m.slice(1).join(' - ');
+    } else {
+      idx = line.indexOf(sep);
+      term = line.slice(0, idx);
+      clue = line.slice(idx + 1);
+    }
+    term = term.replace(/^[\d.\-\)\s]+/, '').trim();
+    clue = clue.trim();
+    if (normalize(term).length < 2 || !clue) return null;
+    return { term: term, clue: clue };
+  }
+
+  document.getElementById('bulkAddBtn').addEventListener('click', function(){
+    var status = document.getElementById('bulkStatus');
+    var raw = document.getElementById('bulkInput').value;
+    var lines = raw.split('\n');
+    var added = 0, skipped = 0;
+    var parsed = [];
+    lines.forEach(function(line){
+      if (!line.trim()) return;
+      var item = parseBulkLine(line);
+      if (item) { parsed.push(item); added++; }
+      else { skipped++; }
+    });
+    if (!parsed.length) {
+      status.className = 'status err';
+      status.textContent = 'Kunde inte tolka några rader. Kontrollera att begrepp och förklaring är separerade med tab eller semikolon.';
+      return;
+    }
+    if (entries.length === 1 && !entries[0].term && !entries[0].clue) entries.pop();
+    parsed.forEach(function(item){ entries.push(item); });
+    renderEditorList();
+    scheduleAutosave();
+    document.getElementById('bulkInput').value = '';
+    status.className = 'status ok';
+    status.textContent = added + ' begrepp tillagda' + (skipped ? (', ' + skipped + ' rader kunde inte tolkas och hoppades över.') : '.');
   });
 
   // ---------- rendering: grid & clues ----------
@@ -653,13 +907,34 @@
     }
     var p = currentPuzzle;
     var cellPx = Math.max(22, Math.min(38, Math.floor(620 / p.width)));
+    // Utskriftens rutstorlek beräknas oberoende av skärmens - utgår från en A4-sidas
+    // ungefärliga innehållsbredd och skalas sedan med det valda utskriftsläget.
+    var printBase = Math.max(18, Math.min(46, Math.floor(700 / p.width)));
+    var printCellPx = Math.max(14, Math.min(60, Math.round(printBase * printScale)));
 
     var wrap = document.createElement('div');
     wrap.className = 'grid-scroll';
     var gridEl = document.createElement('div');
     gridEl.className = 'cw-grid';
-    gridEl.style.gridTemplateColumns = 'repeat(' + p.width + ', ' + cellPx + 'px)';
-    gridEl.style.gridAutoRows = cellPx + 'px';
+    gridEl.style.gridTemplateColumns = 'repeat(' + p.width + ', var(--cell))';
+    gridEl.style.gridAutoRows = 'var(--cell)';
+    gridEl.style.setProperty('--cell', cellPx + 'px');
+    gridEl.style.setProperty('--print-cell', printCellPx + 'px');
+
+    activeInput = null;
+
+    function cellRunFlags(x, y){
+      var hasLeft = x > 0 && p.cells[y][x-1];
+      var hasRight = x + 1 < p.width && p.cells[y][x+1];
+      var hasUp = y > 0 && p.cells[y-1][x];
+      var hasDown = y + 1 < p.height && p.cells[y+1][x];
+      return { h: !!(hasLeft || hasRight), v: !!(hasUp || hasDown) };
+    }
+
+    function getInputAt(x, y){
+      if (x < 0 || y < 0 || x >= p.width || y >= p.height) return null;
+      return gridEl.querySelector('input[data-x="' + x + '"][data-y="' + y + '"]');
+    }
 
     for (var y = 0; y < p.height; y++) {
       for (var x = 0; x < p.width; x++) {
@@ -688,11 +963,52 @@
           input.autocomplete = 'off';
           input.spellcheck = false;
           input.dataset.x = x; input.dataset.y = y; input.dataset.answer = letter;
+          var flags = cellRunFlags(x, y);
+          input.dataset.dir = flags.h ? 'H' : (flags.v ? 'V' : 'H');
+          input.dataset.hasH = flags.h ? '1' : '0';
+          input.dataset.hasV = flags.v ? '1' : '0';
+
+          input.addEventListener('click', function(e){
+            var t = e.target;
+            if (activeInput === t && t.dataset.hasH === '1' && t.dataset.hasV === '1') {
+              t.dataset.dir = t.dataset.dir === 'H' ? 'V' : 'H';
+            }
+            activeInput = t;
+          });
+          input.addEventListener('focus', function(e){ activeInput = e.target; });
+
           input.addEventListener('input', function(e){
             e.target.value = e.target.value.toUpperCase().slice(-1);
             var parentCell = e.target.parentElement;
             parentCell.classList.remove('correct','incorrect');
+            if (e.target.value) {
+              var cx = parseInt(e.target.dataset.x, 10), cy = parseInt(e.target.dataset.y, 10);
+              var dir = e.target.dataset.dir;
+              var next = dir === 'H' ? getInputAt(cx + 1, cy) : getInputAt(cx, cy + 1);
+              if (next) { next.focus(); next.select(); }
+            }
           });
+
+          input.addEventListener('keydown', function(e){
+            var t = e.target;
+            var cx = parseInt(t.dataset.x, 10), cy = parseInt(t.dataset.y, 10);
+            var target = null;
+            if (e.key === 'ArrowRight') { target = getInputAt(cx + 1, cy); if (target) t.dataset.dir = 'H'; }
+            else if (e.key === 'ArrowLeft') { target = getInputAt(cx - 1, cy); if (target) t.dataset.dir = 'H'; }
+            else if (e.key === 'ArrowDown') { target = getInputAt(cx, cy + 1); if (target) t.dataset.dir = 'V'; }
+            else if (e.key === 'ArrowUp') { target = getInputAt(cx, cy - 1); if (target) t.dataset.dir = 'V'; }
+            else if (e.key === 'Backspace' && !t.value) {
+              var dir2 = t.dataset.dir;
+              var prev = dir2 === 'H' ? getInputAt(cx - 1, cy) : getInputAt(cx, cy - 1);
+              if (prev) { target = prev; }
+            }
+            if (target) {
+              e.preventDefault();
+              target.focus();
+              target.select();
+            }
+          });
+
           cell.appendChild(input);
         }
         gridEl.appendChild(cell);
@@ -743,7 +1059,40 @@
     });
   });
 
+  document.getElementById('hintBtn').addEventListener('click', function(){
+    if (!currentPuzzle || mode !== 'solve') return;
+    var status = document.getElementById('saveStatus');
+    var target = (activeInput && !activeInput.value) ? activeInput : null;
+    if (!target) {
+      var empties = Array.prototype.filter.call(document.querySelectorAll('.cw-cell input'), function(inp){ return !inp.value; });
+      target = empties[0] || null;
+    }
+    if (!target) {
+      status.className = 'status ok';
+      status.textContent = 'Alla rutor är redan ifyllda.';
+      return;
+    }
+    target.value = target.dataset.answer;
+    target.parentElement.classList.remove('incorrect');
+    target.parentElement.classList.add('correct');
+    target.focus();
+  });
+
   document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
+
+  var printScaleSelect = document.getElementById('printScaleSelect');
+  printScaleSelect.value = String(printScale);
+  printScaleSelect.addEventListener('change', function(){
+    printScale = parseFloat(this.value) || 1;
+    try { window.localStorage.setItem(PRINT_SCALE_KEY, String(printScale)); } catch (e) {}
+    renderGrid();
+  });
+
+  document.getElementById('printTitleInput').addEventListener('input', function(e){
+    subjects[currentSlug].printTitle = e.target.value;
+    document.getElementById('printTitleHeading').textContent = e.target.value;
+    scheduleAutosave();
+  });
 
   document.getElementById('buildBtn').addEventListener('click', function(){
     var status = document.getElementById('saveStatus');
@@ -876,6 +1225,7 @@
       var subj = subjects[slug];
       lines.push('    ' + JSON.stringify(slug) + ': {');
       lines.push('      name: ' + JSON.stringify(subj.name) + ',');
+      if (subj.printTitle) lines.push('      printTitle: ' + JSON.stringify(subj.printTitle) + ',');
       lines.push('      words: [');
       subj.words.forEach(function(w, wi){
         lines.push('        { term: ' + JSON.stringify(w.term) + ', clue: ' + JSON.stringify(w.clue) + ' }' + (wi < subj.words.length - 1 ? ',' : ''));
@@ -901,7 +1251,7 @@
   // ---------- init ----------
   function initDefaults(){
     Object.keys(DEFAULTS).forEach(function(slug){
-      subjects[slug] = { name: DEFAULTS[slug].name, words: cloneWords(DEFAULTS[slug].words), updatedAt: null };
+      subjects[slug] = { name: DEFAULTS[slug].name, printTitle: DEFAULTS[slug].printTitle || '', words: cloneWords(DEFAULTS[slug].words), updatedAt: null };
       subjectOrder.push(slug);
     });
   }
