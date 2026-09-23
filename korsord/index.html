@@ -108,6 +108,21 @@
   .subject-tab .tab-actions button:hover { background: var(--surface2); color: var(--accent); }
   .subject-tab .tab-actions button.del-subj:hover { background: var(--wrong-bg); color: var(--wrong); }
   .subject-tab.new { border-style: dashed; color: var(--muted); padding-right: 14px; }
+  .subject-tab .grade-dots { display: flex; gap: 2px; flex: none; }
+  .subject-tab .grade-dots span { width: 6px; height: 6px; border-radius: 50%; }
+
+  .filter-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+  .filter-row .flabel { font-size: 12px; color: var(--muted); margin-right: 2px; }
+  .grade-chip {
+    border: 1.5px solid var(--border); background: var(--surface); color: var(--muted);
+    padding: 5px 12px; border-radius: var(--radius-sm); font: inherit; font-size: 12.5px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .grade-chip .sw { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+  .grade-chip[data-active="true"] { color: #fff; border-color: transparent; }
+  .grade-chip[data-active="true"] .sw { background: #fff; }
+  .grade-tag-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: -6px 0 14px; }
+  .grade-tag-row .glabel { font-size: 12px; color: var(--muted); margin-right: 2px; }
 
   .columns {
     display: grid;
@@ -309,12 +324,14 @@
 </header>
 <div class="wrap">
 
+  <div class="filter-row" id="gradeFilterRow"></div>
   <div class="subject-row" id="subjectRow"></div>
 
   <div class="columns">
     <div>
       <div class="panel editor-panel">
         <h2 id="editorTitle">Begrepp &amp; förklaringar</h2>
+        <div class="grade-tag-row" id="gradeTagRow"></div>
         <p class="hint">Skriv ett begrepp per rad (blir automatiskt EN sammanhängande sträng i rutnätet) och en förklaring som inte avslöjar ordet.</p>
         <div id="entryList"></div>
         <div class="btn-row">
@@ -444,7 +461,13 @@
     { c: '#c43d75', bg: '#fde8f1' }, // rosa
     { c: '#585078', bg: '#eae6ff' }  // lila/muted
   ];
-  var subjects = {};           // slug -> {name, words:[{term,clue}], printTitle, updatedAt}
+  var GRADE_COLORS = {
+    7: { c: '#2a9490', bg: '#e8f7f7' }, // PT Ljus badge.ak7
+    8: { c: '#b5621a', bg: '#fef3e8' }, // PT Ljus badge.ak8
+    9: { c: '#b03070', bg: '#fde8f1' }  // PT Ljus badge.ak9
+  };
+  var GRADE_SWATCH = { 7: '#66C7C2', 8: '#F4A261', 9: '#EC6095' };
+  var subjects = {};           // slug -> {name, words:[{term,clue}], printTitle, grades:[7,8,9], updatedAt}
   var subjectOrder = [];
   var currentSlug = "biologi";
   var entries = [];            // working copy for current subject
@@ -453,12 +476,16 @@
   var saveTimer = null;
   var printScale = 1;
   var activeInput = null;
+  var gradeFilter = null;      // null = alla, annars 7/8/9
   try {
     var storedScale = parseFloat(window.localStorage.getItem(PRINT_SCALE_KEY));
     if (storedScale === 0.75 || storedScale === 1 || storedScale === 1.3) printScale = storedScale;
   } catch (e) {}
 
   function subjColor(slug){
+    var subj = subjects[slug];
+    var grades = (subj && subj.grades) || [];
+    if (grades.length === 1) return GRADE_COLORS[grades[0]];
     var idx = subjectOrder.indexOf(slug);
     return SUBJ_PALETTE[((idx % SUBJ_PALETTE.length) + SUBJ_PALETTE.length) % SUBJ_PALETTE.length];
   }
@@ -636,6 +663,8 @@
     row.innerHTML = '';
     subjectOrder.forEach(function(slug){
       var subj = subjects[slug];
+      var grades = subj.grades || [];
+      if (gradeFilter !== null && grades.indexOf(gradeFilter) === -1) return;
       var col = subjColor(slug);
       var btn = document.createElement('button');
       btn.className = 'subject-tab';
@@ -644,10 +673,22 @@
       btn.dataset.active = (slug === currentSlug) ? 'true' : 'false';
       btn.style.setProperty('--subj-color', col.c);
       btn.style.setProperty('--subj-bg', col.bg);
-      var dot = document.createElement('span');
-      dot.className = 'dot';
-      dot.style.background = col.c;
-      btn.appendChild(dot);
+
+      if (grades.length > 1) {
+        var dots = document.createElement('span');
+        dots.className = 'grade-dots';
+        grades.forEach(function(g){
+          var d = document.createElement('span');
+          d.style.background = GRADE_SWATCH[g];
+          dots.appendChild(d);
+        });
+        btn.appendChild(dots);
+      } else {
+        var dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.style.background = grades.length === 1 ? GRADE_SWATCH[grades[0]] : col.c;
+        btn.appendChild(dot);
+      }
       btn.appendChild(document.createTextNode(subj.name));
 
       var actions = document.createElement('span');
@@ -696,13 +737,84 @@
     row.appendChild(newBtn);
   }
 
+  function renderGradeFilterRow(){
+    var row = document.getElementById('gradeFilterRow');
+    row.innerHTML = '';
+    var label = document.createElement('span');
+    label.className = 'flabel';
+    label.textContent = 'Visa:';
+    row.appendChild(label);
+
+    function makeChip(value, text, color){
+      var activeColor = color || '#306BF0';
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'grade-chip';
+      chip.dataset.active = (gradeFilter === value) ? 'true' : 'false';
+      if (gradeFilter === value) chip.style.background = activeColor;
+      var sw = document.createElement('span');
+      sw.className = 'sw';
+      if (color) sw.style.background = color;
+      chip.appendChild(sw);
+      chip.appendChild(document.createTextNode(text));
+      chip.addEventListener('click', function(){
+        gradeFilter = value;
+        renderGradeFilterRow();
+        renderSubjectTabs();
+      });
+      return chip;
+    }
+
+    row.appendChild(makeChip(null, 'Alla', null));
+    row.appendChild(makeChip(7, 'Åk 7', GRADE_SWATCH[7]));
+    row.appendChild(makeChip(8, 'Åk 8', GRADE_SWATCH[8]));
+    row.appendChild(makeChip(9, 'Åk 9', GRADE_SWATCH[9]));
+  }
+
+  function toggleGrade(g){
+    var subj = subjects[currentSlug];
+    subj.grades = subj.grades || [];
+    var idx = subj.grades.indexOf(g);
+    if (idx === -1) subj.grades.push(g); else subj.grades.splice(idx, 1);
+    subj.grades.sort();
+    subj.updatedAt = new Date().toISOString();
+    persistSubjects();
+    renderGradeTagRow();
+    renderSubjectTabs();
+  }
+
+  function renderGradeTagRow(){
+    var row = document.getElementById('gradeTagRow');
+    row.innerHTML = '';
+    var label = document.createElement('span');
+    label.className = 'glabel';
+    label.textContent = 'Årskurs:';
+    row.appendChild(label);
+    var grades = subjects[currentSlug].grades || [];
+    [7, 8, 9].forEach(function(g){
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'grade-chip';
+      var active = grades.indexOf(g) !== -1;
+      chip.dataset.active = active ? 'true' : 'false';
+      if (active) chip.style.background = GRADE_SWATCH[g];
+      var sw = document.createElement('span');
+      sw.className = 'sw';
+      sw.style.background = GRADE_SWATCH[g];
+      chip.appendChild(sw);
+      chip.appendChild(document.createTextNode('Åk ' + g));
+      chip.addEventListener('click', function(){ toggleGrade(g); });
+      row.appendChild(chip);
+    });
+  }
+
   function createNewSubject(){
     var name = window.prompt('Namn på den nya listan (t.ex. "Kemi" eller "Historia, åk 8"):');
     if (!name || !name.trim()) return;
     var slug = slugify(name.trim());
     var base = slug, n = 2;
     while (subjects[slug]) { slug = base + '-' + n; n++; }
-    subjects[slug] = { name: name.trim(), printTitle: '', words: [], updatedAt: new Date().toISOString() };
+    subjects[slug] = { name: name.trim(), printTitle: '', grades: [], words: [], updatedAt: new Date().toISOString() };
     subjectOrder.push(slug);
     persistSubjects();
     switchSubject(slug);
@@ -727,7 +839,7 @@
     var newName = source.name + ' (kopia)';
     var newSlug = slugify(newName), n = 2;
     while (subjects[newSlug]) { newSlug = slugify(newName) + '-' + n; n++; }
-    subjects[newSlug] = { name: newName, printTitle: source.printTitle || '', words: cloneWords(source.words), updatedAt: new Date().toISOString() };
+    subjects[newSlug] = { name: newName, printTitle: source.printTitle || '', grades: (source.grades || []).slice(), words: cloneWords(source.words), updatedAt: new Date().toISOString() };
     var pos = subjectOrder.indexOf(slug);
     subjectOrder.splice(pos + 1, 0, newSlug);
     persistSubjects();
@@ -754,6 +866,7 @@
     var titleVal = subjects[slug].printTitle || '';
     document.getElementById('printTitleInput').value = titleVal;
     document.getElementById('printTitleHeading').textContent = titleVal;
+    renderGradeTagRow();
     renderSubjectTabs();
     renderEditorList();
     renderGrid();
@@ -1226,6 +1339,7 @@
       lines.push('    ' + JSON.stringify(slug) + ': {');
       lines.push('      name: ' + JSON.stringify(subj.name) + ',');
       if (subj.printTitle) lines.push('      printTitle: ' + JSON.stringify(subj.printTitle) + ',');
+      if (subj.grades && subj.grades.length) lines.push('      grades: ' + JSON.stringify(subj.grades) + ',');
       lines.push('      words: [');
       subj.words.forEach(function(w, wi){
         lines.push('        { term: ' + JSON.stringify(w.term) + ', clue: ' + JSON.stringify(w.clue) + ' }' + (wi < subj.words.length - 1 ? ',' : ''));
@@ -1251,7 +1365,7 @@
   // ---------- init ----------
   function initDefaults(){
     Object.keys(DEFAULTS).forEach(function(slug){
-      subjects[slug] = { name: DEFAULTS[slug].name, printTitle: DEFAULTS[slug].printTitle || '', words: cloneWords(DEFAULTS[slug].words), updatedAt: null };
+      subjects[slug] = { name: DEFAULTS[slug].name, printTitle: DEFAULTS[slug].printTitle || '', grades: DEFAULTS[slug].grades || [], words: cloneWords(DEFAULTS[slug].words), updatedAt: null };
       subjectOrder.push(slug);
     });
   }
@@ -1260,6 +1374,7 @@
     if (!loadPersisted()) {
       initDefaults();
     }
+    renderGradeFilterRow();
     switchSubject(subjects[currentSlug] ? currentSlug : subjectOrder[0]);
   }
 
