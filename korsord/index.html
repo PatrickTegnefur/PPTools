@@ -287,9 +287,8 @@
 
   @media print {
     body { background: #fff; }
-    header.top { background: none !important; color: var(--text) !important; box-shadow: none; padding: 0 0 10px; }
-    header.top h1 { color: var(--text) !important; font-size: 20px; }
-    .panel.editor-panel, .save-box, .subject-row, header.top p, .grid-toolbar, footer.note { display: none !important; }
+    header.top { display: none !important; }
+    .panel.editor-panel, .save-box, .subject-row, .filter-row, .grid-toolbar, footer.note { display: none !important; }
     .columns { display: block; }
     .panel { border: none; padding: 0; box-shadow: none; }
     .print-title-row { display: none !important; }
@@ -298,10 +297,15 @@
       font-size: 19px; margin: 0 0 16px; color: #000;
     }
     .print-only-heading:empty { display: none; }
+    .grid-scroll { overflow: visible !important; padding: 0 !important; text-align: center; break-inside: avoid; }
+    /* Sida 1 = korsordet, sida 2 = förklaringarna - de tävlar då inte om samma
+       utrymme, vilket annars gjorde att rutnätet eller listan kunde bli fel stor. */
+    .clues { break-before: page; page-break-before: always; margin-top: 0; }
+    .clues li { break-inside: avoid; page-break-inside: avoid; }
     /* Rent utskriftsläge: svarta kantlinjer runt varje ifyllbar ruta, vit bakgrund.
        Blockerade rutor har varken kant eller fyllning - de "försvinner" in i sidan
        istället för att dra uppmärksamhet, så fokus hamnar på själva korsordet. */
-    .cw-grid { background: #fff !important; border: none !important; gap: 0 !important; --cell: var(--print-cell) !important; }
+    .cw-grid { background: #fff !important; border: none !important; gap: 0 !important; --cell: var(--print-cell) !important; break-inside: avoid; }
     .cw-cell {
       background: #fff !important;
       border: 1px solid #000 !important;
@@ -332,6 +336,10 @@
       <div class="panel editor-panel">
         <h2 id="editorTitle">Begrepp &amp; förklaringar</h2>
         <div class="grade-tag-row" id="gradeTagRow"></div>
+        <div class="btn-row" style="margin-top:0;">
+          <button class="btn" id="buildBtn" type="button">Skapa korsord</button>
+        </div>
+        <div class="status" id="saveStatus"></div>
         <p class="hint">Skriv ett begrepp per rad (blir automatiskt EN sammanhängande sträng i rutnätet) och en förklaring som inte avslöjar ordet.</p>
         <div id="entryList"></div>
         <div class="btn-row">
@@ -354,10 +362,6 @@
         </div>
 
         <div class="save-box">
-          <div class="btn-row" style="margin-top:0;">
-            <button class="btn" id="buildBtn" type="button">Skapa korsord</button>
-          </div>
-          <div class="status" id="saveStatus"></div>
           <div class="meta" id="saveMeta">Sparas automatiskt i den här webbläsaren.</div>
           <div class="btn-row">
             <button class="btn ghost small" id="exportBtn" type="button">Exportera ämnesbanken (.json)</button>
@@ -393,6 +397,7 @@
         </div>
         <h2 class="print-only-heading" id="printTitleHeading"></h2>
         <div id="gridArea"><div class="empty-state">Bygg en begreppslista till vänster och tryck på &quot;Skapa korsord&quot;.</div></div>
+        <h2 class="print-only-heading" id="printTitleHeadingBack"></h2>
         <div class="clues" id="cluesArea"></div>
       </div>
     </div>
@@ -866,6 +871,7 @@
     var titleVal = subjects[slug].printTitle || '';
     document.getElementById('printTitleInput').value = titleVal;
     document.getElementById('printTitleHeading').textContent = titleVal;
+    document.getElementById('printTitleHeadingBack').textContent = titleVal;
     renderGradeTagRow();
     renderSubjectTabs();
     renderEditorList();
@@ -1020,10 +1026,23 @@
     }
     var p = currentPuzzle;
     var cellPx = Math.max(22, Math.min(38, Math.floor(620 / p.width)));
-    // Utskriftens rutstorlek beräknas oberoende av skärmens - utgår från en A4-sidas
-    // ungefärliga innehållsbredd och skalas sedan med det valda utskriftsläget.
-    var printBase = Math.max(18, Math.min(46, Math.floor(700 / p.width)));
-    var printCellPx = Math.max(14, Math.min(60, Math.round(printBase * printScale)));
+
+    // Utskriftens rutstorlek räknas fram oberoende av skärmens, utifrån en A4-sidas
+    // faktiska innehållsyta (efter marginaler) - i BÅDA led, inte bara bredden. Det
+    // garanterar att rutnätet alltid får plats på en sida, oavsett vald skala:
+    // "Stor" fyller sidan så mycket som möjligt utan att någonsin svämma över,
+    // "Normal" ligger på en behaglig läsbar storlek (eller mindre om det krävs för
+    // att få plats), och "Liten" krymper vidare därifrån.
+    var PAGE_W_PX = 660;  // ~A4-bredd minus marginaler
+    var PAGE_H_PX = 900;  // ~A4-höjd minus marginaler och plats för rubriken
+    var maxFitPx = Math.max(8, Math.floor(Math.min(PAGE_W_PX / p.width, PAGE_H_PX / p.height)));
+    var printCellPx;
+    if (printScale >= 1.25) {
+      printCellPx = maxFitPx;
+    } else {
+      var niceDefault = Math.min(maxFitPx, 34);
+      printCellPx = printScale <= 0.8 ? Math.max(8, Math.round(niceDefault * 0.78)) : niceDefault;
+    }
 
     var wrap = document.createElement('div');
     wrap.className = 'grid-scroll';
@@ -1204,6 +1223,7 @@
   document.getElementById('printTitleInput').addEventListener('input', function(e){
     subjects[currentSlug].printTitle = e.target.value;
     document.getElementById('printTitleHeading').textContent = e.target.value;
+    document.getElementById('printTitleHeadingBack').textContent = e.target.value;
     scheduleAutosave();
   });
 

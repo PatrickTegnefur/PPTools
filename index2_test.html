@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Positionssystemet Widget</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 20px; background: #f4f6f8; }
+    .widget-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-width: 600px; margin: 0 auto; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 20px 0; font-weight: bold; }
+    .col-header { font-size: 0.8rem; color: #666; border-bottom: 2px solid #ccc; padding-bottom: 4px; }
+    .digit-cell { font-size: 1.8rem; background: #eef2ff; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: transform 0.3s ease, background 0.3s; }
+    .comma-cell { font-size: 2rem; color: #d97706; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .btn-group button { margin: 4px; padding: 10px 16px; border: none; background: #2563eb; color: white; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .btn-group button:hover { background: #1d4ed8; }
+  </style>
+</head>
+<body>
+
+<div class="widget-box">
+  <h3>Siffrornas förskjutning i positionssystemet</h3>
+  <p>Lägg märke till att decimaltecknet står kvar — det är siffrorna som flyttar sig!</p>
+
+  <div class="grid">
+    <div class="col-header">Hundratal (100)</div>
+    <div class="col-header">Tiotal (10)</div>
+    <div class="col-header">Ental (1)</div>
+    <div class="col-header">Tiondelar (0.1)</div>
+    <div class="col-header">Hundradelar (0.01)</div>
+    <div class="col-header">Tusendelar (0.001)</div>
+
+    <div class="digit-cell" id="h"></div>
+    <div class="digit-cell" id="t"></div>
+    <div class="digit-cell" id="e"></div>
+    <div class="digit-cell" id="d1"></div>
+    <div class="digit-cell" id="d2"></div>
+    <div class="digit-cell" id="d3"></div>
+  </div>
+
+  <div class="btn-group">
+    <button onclick="shift(-2)">/ 100</button>
+    <button onclick="shift(-1)">/ 10</button>
+    <button onclick="resetVal()">Återställ (12,3)</button>
+    <button onclick="shift(1)">· 10</button>
+    <button onclick="shift(2)">· 100</button>
+  </div>
+</div>
+
+<script>
+  // Vi representerar 12.3 som en pos-indexering där Ental = pos 0
+  let currentPos = 0; // Standardläge för 12.3 (1 på Tiotal, 2 på Ental, 3 på Tiondelar)
+
+  function render() {
+    // Töm alla rutor
+    ['h', 't', 'e', 'd1', 'd2', 'd3'].forEach(id => document.getElementById(id).innerText = '');
+
+    // Sifferpositioner i förhållande till förskjutningen (currentPos)
+    const positions = [
+      { id: 'h', pos: 2 },
+      { id: 't', pos: 1 },
+      { id: 'e', pos: 0 },
+      { id: 'd1', pos: -1 },
+      { id: 'd2', pos: -2 },
+      { id: 'd3', pos: -3 }
+    ];
+
+    // Siffrorna 1, 2, 3 hör ihop med relativa platser (1 ligger 1 steg över 2, 3 ligger 1 steg under 2)
+    const digits = [
+      { val: '1', relPos: 1 + currentPos },
+      { val: '2', relPos: 0 + currentPos },
+      { val: '3', relPos: -1 + currentPos }
+    ];
+
+    digits.forEach(d => {
+      const match = positions.find(p => p.pos === d.relPos);
+      if (match) {
+        document.getElementById(match.id).innerText = d.val;
+      }
+    });
+  }
+
+  function shift(steps) {
+    if (currentPos + steps <= 2 && currentPos + steps >= -2) {
+      currentPos += steps;
+      render();
+    }
+  }
+
+  function resetVal() {
+    currentPos = 0;
+    render();
+  }
+
+  render();
+</script>
+</body>
+</html>

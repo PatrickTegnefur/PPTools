@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modul 2 — Addition och subtraktion | Taluppfattning Åk 8</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Sora:wght@400;500;600&family=Carlito:wght@400;700&display=swap');
+
+:root{
+  --bg:#f6f4ff; --surface:#ffffff; --surface2:#eae6ff; --border:#ccc5f0;
+  --text:#100e28; --muted:#585078; --accent:#306BF0; --accent2:#EC6095;
+  --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+  --ak8:#F4A261; --correct:#18a348; --wrong:#e02020;
+  --shadow:rgba(48,107,240,.12);
+  --radius-sm:8px; --radius-md:14px; --radius-lg:20px; --radius-xl:28px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;line-height:1.6}
+h1,h2,h3{font-family:'Montserrat',sans-serif;margin:0}
+header{background:var(--gradient);padding:14px 16px;position:sticky;top:0;z-index:10;box-shadow:0 4px 24px rgba(0,0,0,.18)}
+.navrow{display:flex;gap:8px;overflow-x:auto;align-items:center}
+.navlabel{color:#fff;font-weight:600;font-size:14px;white-space:nowrap;margin-right:4px}
+.pill{font-size:13px;padding:6px 13px;border-radius:999px;white-space:nowrap;font-weight:600}
+.pill.active{background:#fff;color:var(--ak8)}
+.pill.inactive{background:rgba(255,255,255,.25);color:#fff}
+main{max-width:640px;margin:0 auto;padding:20px 16px 60px}
+.hero{padding:18px 0 24px}
+.hero h1{font-size:22px;margin-bottom:6px}
+.hero p{color:var(--muted);font-size:15px;margin:0}
+.module{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:0 2px 12px var(--shadow);margin-bottom:20px}
+.modhead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.modnum{width:26px;height:26px;border-radius:50%;background:var(--ak8);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none}
+.modhead h2{font-size:18px}
+.accordion summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--muted);padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);list-style:none;display:flex;align-items:center;gap:8px}
+.accordion summary::-webkit-details-marker{display:none}
+.accordion summary::before{content:'▸';transition:transform .15s}
+.accordion[open] summary::before{transform:rotate(90deg)}
+.accordion-body{padding:12px 4px 4px;font-size:14px;color:var(--muted)}
+.accordion-body ul{margin:6px 0 0;padding-left:18px}
+.widget{border:1.5px solid var(--border);border-radius:var(--radius-md);padding:16px;margin:16px 0;background:var(--surface2)}
+.eyebrow{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px}
+.pair{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.card{flex:1;min-width:200px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px}
+.card .lbl{font-size:13px;color:var(--muted);margin-bottom:6px}
+.card .val{font-size:20px;font-weight:600;margin-bottom:10px;font-family:'Carlito',sans-serif}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15;margin:0 2px;font-family:'Carlito',sans-serif}
+.frac .num{padding:0 3px}
+.frac .den{padding:0 3px;border-top:1.5px solid currentColor}
+.opcol{display:flex;align-items:center;justify-content:center;min-width:40px}
+.opbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:#fff;font-size:16px;font-weight:700;color:var(--accent);cursor:pointer}
+.opbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.modepills{display:flex;gap:6px;margin-bottom:10px}
+.modepill{font-size:12px;padding:4px 10px;border-radius:999px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;color:var(--muted)}
+.modepill.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.steprow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.steprow .name{font-size:12px;color:var(--muted);width:64px;flex:none}
+.stepbtn{width:26px;height:26px;border-radius:6px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:14px;font-weight:700;color:var(--accent)}
+.stepval{font-size:14px;font-weight:600;min-width:22px;text-align:center}
+.resultbox{margin-top:12px;padding:12px;border-radius:var(--radius-sm);background:#fff;border:1.5px solid var(--border);text-align:center;font-size:16px;font-family:'Carlito',sans-serif}
+.resultbox.mismatch{font-family:'Sora',sans-serif;color:var(--muted);font-size:13px}
+.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+button.btnw{font-family:'Sora',sans-serif;font-weight:600;border-radius:var(--radius-sm);border:none;padding:9px 16px;cursor:pointer;font-size:13px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-secondary{background:var(--surface);color:var(--accent);border:1.5px solid var(--border)}
+button.btnw:disabled{opacity:.4;cursor:default}
+h3.sub{font-size:14px;margin:18px 0 6px;color:var(--text)}
+p.body{font-size:14px;color:var(--muted);margin:0 0 10px}
+.trap{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.trap button{text-align:left;background:#fff;border:1.5px solid var(--border);color:var(--text);font-weight:400;border-radius:var(--radius-sm);padding:9px 12px;font-family:'Sora',sans-serif;font-size:13px;cursor:pointer}
+.trap button.picked-wrong{border-color:var(--wrong);background:#fdeaea}
+.trap button.picked-right{border-color:var(--correct);background:#e7f7ec}
+.kortversion{margin-top:16px;background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--text)}
+.kortversion b{color:var(--accent)}
+.exlist{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.exlist button{font-size:12px;padding:6px 11px;border-radius:999px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;color:var(--muted)}
+.exlist button.on{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.stepline{border-left:2px solid var(--accent);padding:4px 0 4px 10px;margin-bottom:8px}
+.stepline .lbl2{font-size:11px;color:var(--accent);font-weight:600}
+.stepline .txt{font-size:14px;margin-top:2px}
+.stepline .math{font-size:15px;font-weight:600;margin-top:4px;font-family:'Carlito',sans-serif}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="navrow">
+    <span class="navlabel">Taluppfattning Åk 8</span>
+    <span class="pill inactive">1</span>
+    <span class="pill active">2</span>
+    <span class="pill inactive">3</span>
+    <span class="pill inactive">4</span>
+    <span class="pill inactive">5</span>
+    <span class="pill inactive">6</span>
+    <span class="pill inactive">Sammanfattning</span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Addition och subtraktion med bråk och decimaltal</h1>
+    <p>Modul 2 av 7 — för att kombinera tal måste de vara i samma sorts delar. Annars vet vi inte vad vi räknar med.</p>
+  </div>
+
+  <section class="module">
+    <div class="modhead">
+      <span class="modnum">2</span>
+      <h2>Addition och subtraktion</h2>
+    </div>
+
+    <details class="accordion">
+      <summary>Förkunskaper</summary>
+      <div class="accordion-body">
+        <ul>
+          <li>Positionssystemet och uppställning av decimaltal.</li>
+          <li>Begreppet gemensam enhet/sort — samma idé som i Modul 1.</li>
+          <li>Täljare och nämnare.</li>
+        </ul>
+      </div>
+    </details>
+
+    <h3 class="sub">Se och testa — Enhetspusslet</h3>
+    <div class="widget">
+      <div class="eyebrow">Ändra talen och operatorn — se vad som krävs för att kombinera dem</div>
+      <div class="pair">
+        <div class="card" id="cardA">
+          <div class="lbl">Tal A</div>
+          <div class="modepills">
+            <button class="modepill" onclick="setMode('A','decimal')">Decimal</button>
+            <button class="modepill" onclick="setMode('A','brak')">Bråk</button>
+          </div>
+          <div class="val" id="a-val">0,7</div>
+          <div id="a-controls"></div>
+        </div>
+        <div class="opcol">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button class="opbtn" id="opAdd" onclick="setOp('add')">+</button>
+            <button class="opbtn" id="opSub" onclick="setOp('sub')">−</button>
+          </div>
+        </div>
+        <div class="card" id="cardB">
+          <div class="lbl">Tal B</div>
+          <div class="modepills">
+            <button class="modepill" onclick="setMode('B','decimal')">Decimal</button>
+            <button class="modepill" onclick="setMode('B','brak')">Bråk</button>
+          </div>
+          <div class="val" id="b-val">0,25</div>
+          <div id="b-controls"></div>
+        </div>
+      </div>
+      <div class="resultbox" id="resultBox"></div>
+    </div>
+
+    <h3 class="sub">Metod — Lösningsstegen</h3>
+    <div class="widget">
+      <div class="eyebrow">Fyra typexempel — samma metod fungerar även på svårare tal</div>
+      <div class="exlist" id="exlist"></div>
+      <p class="body" id="exTask" style="font-size:15px;font-weight:500;color:var(--text)"></p>
+      <div id="exSteps"></div>
+      <div class="controls">
+        <button class="btnw btn-primary" id="exNextBtn" onclick="exNext()">Nästa steg</button>
+      </div>
+    </div>
+
+    <h3 class="sub">Förstå</h3>
+    <p class="body">Du kan bara addera eller subtrahera tal som är i samma sorts delar. Nämnaren beskriver enheten och ska därför stå kvar — det är bara täljarna som adderas, och det går bara om nämnarna redan är lika. Är de olika måste du först skriva om båda bråken med en gemensam nämnare. För decimaltal gäller samma idé: ental ska stå mot ental, tiondelar mot tiondelar.</p>
+
+    <h3 class="sub">Göra — vilket svar visar ett tänkande som inte fungerar?</h3>
+    <p class="body">En elev räknar <span class="frac"><span class="num">1</span><span class="den">2</span></span> + <span class="frac"><span class="num">1</span><span class="den">3</span></span> och får svaret <span class="frac"><span class="num">2</span><span class="den">5</span></span>. Vad är felet?</p>
+    <div class="trap" id="trapRow">
+      <button onclick="pickTrap(this,true)">Hon adderade både täljare och nämnare, i stället för att göra nämnarna lika först.</button>
+      <button onclick="pickTrap(this,false)">Hon glömde att förkorta svaret i slutet.</button>
+      <button onclick="pickTrap(this,false)">Hon borde ha subtraherat i stället för att addera.</button>
+    </div>
+
+    <div class="kortversion">
+      <b>Kortversion:</b> Samma sorts delar krävs innan du adderar eller subtraherar. Bråk: gör nämnarna lika (gemensam nämnare) — nämnaren står sedan kvar. Decimaltal: gör så att de har lika många decimaler. Blandad form: växla en helhet till delar vid behov.
+    </div>
+  </section>
+</main>
+
+<script>
+function frac(n,d){
+  return `<span class="frac"><span class="num">${n}</span><span class="den">${d}</span></span>`;
+}
+function gcd(a,b){ return b===0 ? a : gcd(b, a%b); }
+function lcm(a,b){ return (a*b)/gcd(a,b); }
+function simplify(n,d){
+  const g = gcd(Math.abs(n), Math.abs(d)) || 1;
+  return {n: n/g, d: d/g};
+}
+function fmtDecimal(v){
+  return v.toFixed(2).replace('.',',').replace(/0$/,'').replace(/,$/,',0');
+}
+
+let A = {mode:'decimal', tiondel:7, hundradel:0, decimals:1, num:1, den:2};
+let B = {mode:'decimal', tiondel:2, hundradel:5, decimals:2, num:1, den:3};
+let op = 'add';
+
+function valueOf(t){
+  return t.mode==='decimal' ? (t.tiondel*0.1 + (t.decimals===2? t.hundradel*0.01 : 0)) : t.num/t.den;
+}
+function dispOf(t){
+  if(t.mode==='decimal'){
+    return t.decimals===1 ? `0,${t.tiondel}` : `0,${t.tiondel}${t.hundradel}`;
+  }
+  return frac(t.num, t.den);
+}
+function stepper(name,val,side,dec){
+  return `<div class="steprow"><span class="name">${name}</span>
+  <button class="stepbtn" onclick="adj('${side}','${dec}',-1)">-</button>
+  <span class="stepval">${val}</span>
+  <button class="stepbtn" onclick="adj('${side}','${dec}',1)">+</button></div>`;
+}
+function renderSide(side){
+  const t = side==='A'?A:B;
+  document.getElementById(side.toLowerCase()+'-val').innerHTML = dispOf(t);
+  document.querySelectorAll('#card'+side+' .modepill').forEach((el,i)=>{
+    el.classList.toggle('on', (i===0 && t.mode==='decimal') || (i===1 && t.mode==='brak'));
+  });
+  let ctrl = '';
+  if(t.mode==='decimal'){
+    ctrl += stepper('Tiondel', t.tiondel, side,'tiondel');
+    if(t.decimals===2) ctrl += stepper('Hundradel', t.hundradel, side,'hundradel');
+    ctrl += `<div class="steprow"><span class="name">Decimaler</span><button class="stepbtn" onclick="toggleDecimals('${side}')">${t.decimals===1?'+0':'-0'}</button><span class="stepval" style="width:auto;font-size:12px;color:var(--muted)">${t.decimals} st</span></div>`;
+  } else {
+    ctrl += stepper('Täljare', t.num, side,'num');
+    ctrl += stepper('Nämnare', t.den, side,'den');
+  }
+  document.getElementById(side.toLowerCase()+'-controls').innerHTML = ctrl;
+}
+function opSymbol(){ return op==='add' ? '+' : '\u2212'; }
+function renderResult(){
+  const box = document.getElementById('resultBox');
+  if(A.mode !== B.mode){
+    box.className = 'resultbox mismatch';
+    box.textContent = 'Gör talen till samma form (båda bråk eller båda decimaltal) innan de kan kombineras.';
+    return;
+  }
+  box.className = 'resultbox';
+  if(A.mode==='decimal'){
+    const vA = valueOf(A), vB = valueOf(B);
+    const res = op==='add' ? vA+vB : vA-vB;
+    box.innerHTML = `${dispOf(A)} ${opSymbol()} ${dispOf(B)} = ${fmtDecimal(res)}`;
+  } else {
+    const L = lcm(A.den,B.den);
+    const nA = A.num*(L/A.den), nB = B.num*(L/B.den);
+    const sum = op==='add' ? nA+nB : nA-nB;
+    const simp = simplify(sum, L);
+    let out = `${frac(A.num,A.den)} ${opSymbol()} ${frac(B.num,B.den)} = ${frac(nA,L)} ${opSymbol()} ${frac(nB,L)} = ${frac(sum,L)}`;
+    if(simp.d !== L && simp.d !== 0) out += ` = ${frac(simp.n, simp.d)}`;
+    box.innerHTML = out;
+  }
+}
+function renderAll(){
+  renderSide('A'); renderSide('B');
+  document.getElementById('opAdd').classList.toggle('on', op==='add');
+  document.getElementById('opSub').classList.toggle('on', op==='sub');
+  renderResult();
+}
+function setMode(side,mode){ (side==='A'?A:B).mode = mode; renderAll(); }
+function setOp(o){ op = o; renderAll(); }
+function adj(side,field,delta){
+  const t = side==='A'?A:B;
+  if(field==='num'){ t.num = Math.min(12,Math.max(1,t.num+delta)); }
+  else if(field==='den'){ t.den = Math.min(12,Math.max(1,t.den+delta)); }
+  else { t[field] = Math.min(9,Math.max(0,t[field]+delta)); }
+  renderAll();
+}
+function toggleDecimals(side){
+  const t = side==='A'?A:B;
+  t.decimals = t.decimals===1?2:1;
+  renderAll();
+}
+renderAll();
+
+const examples = [
+  {name:'Decimal +/−', task:'Beräkna 5 − 1,25.',
+   steps:[
+     {lbl:'Steg 1', txt:'Gör lika många decimaler', math:'5 → 5,00'},
+     {lbl:'Steg 2', txt:'Ställ upp position för position', math:'5,00 och 1,25'},
+     {lbl:'Svar', txt:'Subtrahera position för position', math:'5,00 \u2212 1,25 = 3,75'}
+   ]},
+  {name:'Bråk, samma nämnare', task:`Beräkna ${frac(2,7)} + ${frac(3,7)}.`,
+   steps:[
+     {lbl:'Steg 1', txt:'Samma nämnare — samma sorts delar redan', math:'sjundedelar'},
+     {lbl:'Steg 2', txt:'Addera bara täljarna, nämnaren står kvar', math:'2 + 3 = 5'},
+     {lbl:'Svar', txt:'Klart', math:`${frac(2,7)} + ${frac(3,7)} = ${frac(5,7)}`}
+   ]},
+  {name:'Bråk, olika nämnare', task:`Beräkna ${frac(1,5)} + ${frac(1,4)}.`,
+   steps:[
+     {lbl:'Steg 1', txt:'Hitta en gemensam nämnare', math:'20'},
+     {lbl:'Steg 2', txt:'Skriv om båda bråken', math:`${frac(1,5)} = ${frac(4,20)}, ${frac(1,4)} = ${frac(5,20)}`},
+     {lbl:'Svar', txt:'Nu kan täljarna adderas', math:`${frac(4,20)} + ${frac(5,20)} = ${frac(9,20)}`}
+   ]},
+  {name:'Blandad form', task:`Beräkna 2${frac(1,4)} \u2212 ${frac(3,4)}.`,
+   steps:[
+     {lbl:'Steg 1', txt:'Växla en hel till fjärdedelar', math:`2${frac(1,4)} = 1${frac(5,4)}`},
+     {lbl:'Steg 2', txt:'Subtrahera fjärdedelarna', math:`1${frac(5,4)} \u2212 ${frac(3,4)} = 1${frac(2,4)}`},
+     {lbl:'Svar', txt:'Förenkla', math:`1${frac(2,4)} = 1${frac(1,2)}`}
+   ]}
+];
+let exI = 0, exStep = 0;
+function renderExList(){
+  document.getElementById('exlist').innerHTML = examples.map((e,i)=>
+    `<button class="${i===exI?'on':''}" onclick="selectEx(${i})">${e.name}</button>`).join('');
+}
+function selectEx(i){
+  exI = i; exStep = 0;
+  document.getElementById('exTask').innerHTML = examples[i].task;
+  document.getElementById('exSteps').innerHTML = '';
+  document.getElementById('exNextBtn').disabled = false;
+  document.getElementById('exNextBtn').textContent = 'Nästa steg';
+  renderExList();
+}
+function exNext(){
+  const ex = examples[exI];
+  if(exStep >= ex.steps.length) return;
+  const s = ex.steps[exStep];
+  const div = document.createElement('div');
+  div.className = 'stepline';
+  div.innerHTML = `<div class="lbl2">${s.lbl}</div><div class="txt">${s.txt}</div><div class="math">${s.math}</div>`;
+  document.getElementById('exSteps').appendChild(div);
+  exStep++;
+  if(exStep >= ex.steps.length){
+    document.getElementById('exNextBtn').disabled = true;
+  }
+}
+renderExList();
+selectEx(0);
+
+function pickTrap(btn, isRight){
+  document.querySelectorAll('#trapRow button').forEach(b=>{
+    b.classList.remove('picked-right','picked-wrong');
+    b.disabled = true;
+  });
+  btn.classList.add(isRight ? 'picked-right' : 'picked-wrong');
+}
+</script>
+</body>
+</html>
