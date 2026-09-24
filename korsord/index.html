@@ -297,10 +297,15 @@
       font-size: 19px; margin: 0 0 16px; color: #000;
     }
     .print-only-heading:empty { display: none; }
+    #printTitleHeadingBack { display: none !important; }
+    body[data-force-break="true"] #printTitleHeadingBack:not(:empty) { display: block !important; }
     .grid-scroll { overflow: visible !important; padding: 0 !important; text-align: center; break-inside: avoid; }
-    /* Sida 1 = korsordet, sida 2 = förklaringarna - de tävlar då inte om samma
-       utrymme, vilket annars gjorde att rutnätet eller listan kunde bli fel stor. */
-    .clues { break-before: page; page-break-before: always; margin-top: 0; }
+    /* Standard: begreppslistan flyter naturligt - ryms den på samma sida som
+       korsordet stannar den där, annars fortsätter den på sida 2 automatiskt.
+       Kryssrutan "Tvinga egen sida" gör istället brytningen absolut, så att
+       förklaringarna alltid hamnar på en egen sida (t.ex. för dubbelsidig utskrift). */
+    .clues { break-before: auto; margin-top: 24px; }
+    body[data-force-break="true"] .clues { break-before: page; page-break-before: always; margin-top: 0; }
     .clues li { break-inside: avoid; page-break-inside: avoid; }
     /* Rent utskriftsläge: svarta kantlinjer runt varje ifyllbar ruta, vit bakgrund.
        Blockerade rutor har varken kant eller fyllning - de "försvinner" in i sidan
@@ -323,8 +328,7 @@
 <header class="top">
   <div class="inner">
     <h1>Korsordsbyggaren</h1>
-    <p>Mata in begrepp och förklaringar, så byggs de automatiskt ihop till ett korsord.</p>
-  </div>
+    </div>
 </header>
 <div class="wrap">
 
@@ -390,6 +394,7 @@
               <option value="1.3">Stor</option>
             </select>
           </label>
+          <label class="scale-label"><input type="checkbox" id="forceBreakToggle"> Tvinga egen sida för förklaringarna</label>
           <button class="btn ghost small" id="printBtn" type="button">Skriv ut</button>
         </div>
         <div class="print-title-row">
@@ -459,6 +464,7 @@
   // ---------- state ----------
   var STORAGE_KEY = 'pt-korsord-amnesbanker';
   var PRINT_SCALE_KEY = 'pt-korsord-utskriftsskala';
+  var FORCE_BREAK_KEY = 'pt-korsord-tvinga-sidbrytning';
   var SUBJ_PALETTE = [
     { c: '#306BF0', bg: '#eaf0fe' }, // blå (accent)
     { c: '#3aada8', bg: '#e8f7f7' }, // teal
@@ -480,11 +486,15 @@
   var mode = "solve";
   var saveTimer = null;
   var printScale = 1;
+  var forcePageBreak = false;
   var activeInput = null;
   var gradeFilter = null;      // null = alla, annars 7/8/9
   try {
     var storedScale = parseFloat(window.localStorage.getItem(PRINT_SCALE_KEY));
     if (storedScale === 0.75 || storedScale === 1 || storedScale === 1.3) printScale = storedScale;
+  } catch (e) {}
+  try {
+    forcePageBreak = window.localStorage.getItem(FORCE_BREAK_KEY) === '1';
   } catch (e) {}
 
   function subjColor(slug){
@@ -1220,6 +1230,15 @@
     renderGrid();
   });
 
+  var forceBreakToggle = document.getElementById('forceBreakToggle');
+  forceBreakToggle.checked = forcePageBreak;
+  document.body.dataset.forceBreak = forcePageBreak ? 'true' : 'false';
+  forceBreakToggle.addEventListener('change', function(){
+    forcePageBreak = this.checked;
+    document.body.dataset.forceBreak = forcePageBreak ? 'true' : 'false';
+    try { window.localStorage.setItem(FORCE_BREAK_KEY, forcePageBreak ? '1' : '0'); } catch (e) {}
+  });
+
   document.getElementById('printTitleInput').addEventListener('input', function(e){
     subjects[currentSlug].printTitle = e.target.value;
     document.getElementById('printTitleHeading').textContent = e.target.value;
@@ -1397,7 +1416,6 @@
     renderGradeFilterRow();
     switchSubject(subjects[currentSlug] ? currentSlug : subjectOrder[0]);
   }
-
 
   init();
 })();
