@@ -234,6 +234,7 @@
     font: inherit; font-size: 12.5px; padding: 6px 8px; border: 1.5px solid var(--border);
     border-radius: var(--radius-sm); background: var(--surface); color: var(--text); cursor: pointer;
   }
+  .scale-select:disabled { opacity: 0.5; cursor: not-allowed; }
   .scale-label { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
   .print-title-row { margin-bottom: 14px; }
   .print-title-row input {
@@ -328,7 +329,8 @@
 <header class="top">
   <div class="inner">
     <h1>Korsordsbyggaren</h1>
-    </div>
+    <p>Mata in begrepp och förklaringar, så byggs de automatiskt ihop till ett korsord.</p>
+  </div>
 </header>
 <div class="wrap">
 
@@ -1039,15 +1041,15 @@
 
     // Utskriftens rutstorlek räknas fram oberoende av skärmens, utifrån en A4-sidas
     // faktiska innehållsyta (efter marginaler) - i BÅDA led, inte bara bredden. Det
-    // garanterar att rutnätet alltid får plats på en sida, oavsett vald skala:
-    // "Stor" fyller sidan så mycket som möjligt utan att någonsin svämma över,
-    // "Normal" ligger på en behaglig läsbar storlek (eller mindre om det krävs för
-    // att få plats), och "Liten" krymper vidare därifrån.
-    var PAGE_W_PX = 660;  // ~A4-bredd minus marginaler
-    var PAGE_H_PX = 900;  // ~A4-höjd minus marginaler och plats för rubriken
+    // garanterar att rutnätet alltid får plats på en sida.
+    // Har förklaringarna tvingats till en egen sida äger korsordet hela sin sida
+    // själv, och då maximeras det alltid - oavsett vald skala - så att det blir så
+    // stort och enkelt som möjligt att fylla i för hand.
+    var PAGE_W_PX = 670;  // ~A4-bredd minus marginaler
+    var PAGE_H_PX = 930;  // ~A4-höjd minus marginaler och plats för rubriken
     var maxFitPx = Math.max(8, Math.floor(Math.min(PAGE_W_PX / p.width, PAGE_H_PX / p.height)));
     var printCellPx;
-    if (printScale >= 1.25) {
+    if (forcePageBreak || printScale >= 1.25) {
       printCellPx = maxFitPx;
     } else {
       var niceDefault = Math.min(maxFitPx, 34);
@@ -1233,10 +1235,15 @@
   var forceBreakToggle = document.getElementById('forceBreakToggle');
   forceBreakToggle.checked = forcePageBreak;
   document.body.dataset.forceBreak = forcePageBreak ? 'true' : 'false';
+  printScaleSelect.disabled = forcePageBreak;
+  printScaleSelect.title = forcePageBreak ? 'Ignoreras - korsordet maximeras automatiskt när det har en egen sida' : '';
   forceBreakToggle.addEventListener('change', function(){
     forcePageBreak = this.checked;
     document.body.dataset.forceBreak = forcePageBreak ? 'true' : 'false';
+    printScaleSelect.disabled = forcePageBreak;
+    printScaleSelect.title = forcePageBreak ? 'Ignoreras - korsordet maximeras automatiskt när det har en egen sida' : '';
     try { window.localStorage.setItem(FORCE_BREAK_KEY, forcePageBreak ? '1' : '0'); } catch (e) {}
+    renderGrid();
   });
 
   document.getElementById('printTitleInput').addEventListener('input', function(e){
