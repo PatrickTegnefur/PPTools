@@ -287,7 +287,7 @@
   footer.note { margin-top: 26px; font-size: 12px; color: var(--muted); max-width: 70ch; }
   footer.note a { color: inherit; }
 
-  @page { size: A4; margin: 14mm; }
+
 
   @media print {
     body { background: #fff; }
@@ -304,8 +304,6 @@
       font-size: 19px; margin: 0 0 16px; color: #000;
     }
     .print-only-heading:empty { display: none; }
-    #printTitleHeadingBack { display: none !important; }
-    body[data-force-break="true"] #printTitleHeadingBack:not(:empty) { display: block !important; }
     .grid-scroll { overflow: visible !important; padding: 0 !important; text-align: center; break-inside: avoid; }
     /* Standard: begreppslistan flyter naturligt - ryms den på samma sida som
        korsordet stannar den där, annars fortsätter den på sida 2 automatiskt.
@@ -330,12 +328,13 @@
     }
   }
 </style>
+<style id="pageStylePortrait" media="print">@page { size: A4 portrait; margin: 14mm; }</style>
+<style id="pageStyleLandscape" media="print" disabled>@page { size: A4 landscape; margin: 14mm; }</style>
 </head>
 <body>
 <header class="top">
   <div class="inner">
     <h1>Korsordsbyggaren</h1>
-    <p>Mata in begrepp och förklaringar, så byggs de automatiskt ihop till ett korsord.</p>
   </div>
 </header>
 <div class="wrap">
@@ -417,7 +416,6 @@
         </div>
         <h2 class="print-only-heading" id="printTitleHeading"></h2>
         <div id="gridArea"><div class="empty-state">Fyll i begrepp under fliken &quot;Redigera begrepp&quot; och tryck på &quot;Skapa korsord&quot;.</div></div>
-        <h2 class="print-only-heading" id="printTitleHeadingBack"></h2>
         <div class="clues" id="cluesArea"></div>
       </div>
     </div>
@@ -896,7 +894,6 @@
     var titleVal = subjects[slug].printTitle || '';
     document.getElementById('printTitleInput').value = titleVal;
     document.getElementById('printTitleHeading').textContent = titleVal;
-    document.getElementById('printTitleHeadingBack').textContent = titleVal;
     renderGradeTagRow();
     renderSubjectTabs();
     renderEditorList();
@@ -1058,9 +1055,21 @@
     // Har förklaringarna tvingats till en egen sida äger korsordet hela sin sida
     // själv, och då maximeras det alltid - oavsett vald skala - så att det blir så
     // stort och enkelt som möjligt att fylla i för hand.
-    var PAGE_W_PX = 670;  // ~A4-bredd minus marginaler
-    var PAGE_H_PX = 930;  // ~A4-höjd minus marginaler och plats för rubriken
-    var maxFitPx = Math.max(8, Math.floor(Math.min(PAGE_W_PX / p.width, PAGE_H_PX / p.height)));
+    // Sidans orientering (stående/liggande) väljs automatiskt utifrån vilken som
+    // ger störst rutor för just det här korsordets form - ett brett korsord får en
+    // liggande sida, ett högt får en stående.
+    var PORTRAIT_W_PX = 670, PORTRAIT_H_PX = 930;   // ~A4 stående, minus marginaler och rubrik
+    var LANDSCAPE_W_PX = 1000, LANDSCAPE_H_PX = 590; // ~A4 liggande, minus marginaler och rubrik
+    var fitPortrait = Math.floor(Math.min(PORTRAIT_W_PX / p.width, PORTRAIT_H_PX / p.height));
+    var fitLandscape = Math.floor(Math.min(LANDSCAPE_W_PX / p.width, LANDSCAPE_H_PX / p.height));
+    var useLandscape = fitLandscape > fitPortrait;
+    var maxFitPx = Math.max(8, useLandscape ? fitLandscape : fitPortrait);
+    var pageStylePortrait = document.getElementById('pageStylePortrait');
+    var pageStyleLandscape = document.getElementById('pageStyleLandscape');
+    if (pageStylePortrait && pageStyleLandscape) {
+      pageStylePortrait.disabled = useLandscape;
+      pageStyleLandscape.disabled = !useLandscape;
+    }
     var printCellPx;
     if (forcePageBreak || printScale >= 1.25) {
       printCellPx = maxFitPx;
@@ -1262,7 +1271,6 @@
   document.getElementById('printTitleInput').addEventListener('input', function(e){
     subjects[currentSlug].printTitle = e.target.value;
     document.getElementById('printTitleHeading').textContent = e.target.value;
-    document.getElementById('printTitleHeadingBack').textContent = e.target.value;
     scheduleAutosave();
   });
 
@@ -1465,6 +1473,11 @@
 
   init();
 })();
+
+<footer style="width:100%;text-align:center;padding:10px 0 18px;font-family:'Sora',sans-serif;font-size:.72rem;color:#aaa;letter-spacing:.02em;">
+  Skapat av Patrick Tegnefur &nbsp;·&nbsp; Förstelärare i matematik &nbsp;·&nbsp; Alfred Dalinskolan, Huskvarna
+</footer>
+
 </script>
 </body>
 </html>
