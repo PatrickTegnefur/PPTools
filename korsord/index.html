@@ -303,8 +303,6 @@
       display: block; font-family: 'Montserrat', sans-serif; font-weight: 700;
       font-size: 19px; margin: 0 0 16px; color: #000;
     }
-    .footer{bottom: 0;}
-
     .print-only-heading:empty { display: none; }
     .grid-scroll { overflow: visible !important; padding: 0 !important; text-align: center; break-inside: avoid; }
     /* Standard: begreppslistan flyter naturligt - ryms den på samma sida som
@@ -411,6 +409,7 @@
           </label>
           <label class="scale-label"><input type="checkbox" id="forceBreakToggle"> Tvinga egen sida för förklaringarna</label>
           <button class="btn ghost small" id="printBtn" type="button">Skriv ut</button>
+          <button class="btn ghost small" id="exportStudentBtn" type="button">Elevversion (.html)</button>
         </div>
         <div class="status" id="previewStatus"></div>
         <div class="print-title-row">
@@ -423,12 +422,10 @@
     </div>
   </div>
 
-
-<footer style="width:100%;text-align:center;padding:10px 0 18px;font-family:'Sora',sans-serif;font-size:.72rem;color:#aaa;letter-spacing:.02em;">
-  
-</footer>
+  <footer class="note">
+    Startlistor för biologi och matematik (åk 7&ndash;9) finns som exempel — redigera fritt eller lägg till egna ämnesområden med &quot;+ Ny lista&quot;. Allt sparas lokalt i webbläsaren; använd export/kopiera-som-kod för att göra en bank permanent i filen.
+  </footer>
 </div>
-
 
 <script>
 (function(){
@@ -1250,6 +1247,125 @@
 
   document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
 
+  // ---------- elevversion: fristående spelbar fil ----------
+  function buildStudentHtml(title, puzzleData){
+    var lines = [];
+    lines.push('<!doctype html>');
+    lines.push('<html lang="sv">');
+    lines.push('<head>');
+    lines.push('<meta charset="utf-8">');
+    lines.push('<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">');
+    lines.push('<title>' + escapeHtml(title) + ' \u2013 Korsord</title>');
+    lines.push('<link rel="preconnect" href="https://fonts.googleapis.com">');
+    lines.push('<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>');
+    lines.push('<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">');
+    lines.push('<style>');
+    lines.push(':root{--bg:#f6f4ff;--surface:#fff;--surface2:#eae6ff;--border:#ccc5f0;--text:#100e28;--muted:#585078;--accent:#306BF0;--gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);--correct:#18a348;--wrong:#e02020;--correct-bg:#e4f7ea;--wrong-bg:#fbe6e6;--radius-sm:8px;--radius-lg:20px;--shadow-sm:0 2px 8px rgba(48,107,240,.12);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}');
+    lines.push('*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Sora,sans-serif;font-size:14.5px;line-height:1.55}');
+    lines.push('header.top{background:var(--gradient);color:#fff;padding:22px 20px;padding-top:calc(22px + env(safe-area-inset-top,0px));box-shadow:0 4px 24px rgba(16,14,40,.18)}header.top h1{font-family:Montserrat,sans-serif;font-weight:700;font-size:clamp(22px,4vw,30px);margin:0}');
+    lines.push('.wrap{max-width:900px;margin:0 auto;padding:24px 20px 60px}');
+    lines.push('.panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:20px}');
+    lines.push('.grid-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}');
+    lines.push('.mode-switch{display:inline-flex;border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}.mode-switch button{font:inherit;font-size:12.5px;padding:7px 14px;border:none;background:transparent;color:var(--muted);cursor:pointer}.mode-switch button[data-active="true"]{background:var(--accent);color:#fff}');
+    lines.push('.btn{font:inherit;font-family:Sora,sans-serif;font-weight:600;font-size:13px;padding:8px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--accent);cursor:pointer}.btn:hover{border-color:var(--accent)}');
+    lines.push('.grid-scroll{overflow-x:auto;padding:4px 0 10px;text-align:center}.cw-grid{display:inline-grid;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}');
+    lines.push('.cw-cell{position:relative;background:var(--surface);display:flex;align-items:center;justify-content:center}.cw-cell.block{background:var(--text)}');
+    lines.push('.cw-cell .num{position:absolute;top:1px;left:2px;font-size:8px;color:var(--muted);line-height:1}');
+    lines.push('.cw-cell input{width:100%;height:100%;border:none;background:transparent;text-align:center;font-family:Sora,sans-serif;font-weight:600;color:var(--text);text-transform:uppercase;padding:0}.cw-cell input:focus{outline:2px solid var(--accent);outline-offset:-2px}');
+    lines.push('.cw-cell.key-letter{color:var(--text);font-weight:600}.cw-cell.correct input{background:var(--correct-bg)}.cw-cell.incorrect input{background:var(--wrong-bg)}');
+    lines.push('.clues{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px}@media(max-width:620px){.clues{grid-template-columns:1fr}}');
+    lines.push('.clues h3{font-family:Montserrat,sans-serif;font-weight:700;font-size:14px;margin:0 0 8px;border-bottom:1.5px solid var(--border);padding-bottom:4px;color:var(--accent)}');
+    lines.push('.clues ol{margin:0;padding-left:20px}.clues li{margin-bottom:6px;font-size:13px}.clues li::marker{color:var(--muted)}');
+    lines.push('.status{font-size:12.5px;color:var(--muted);min-height:16px;margin-top:6px}.status.ok{color:var(--correct)}');
+    lines.push('</style>');
+    lines.push('</head>');
+    lines.push('<body>');
+    lines.push('<header class="top"><h1>' + escapeHtml(title) + '</h1></header>');
+    lines.push('<div class="wrap"><div class="panel">');
+    lines.push('<div class="grid-toolbar">');
+    lines.push('<div class="mode-switch" id="modeSwitch"><button data-mode="solve" data-active="true" type="button">L\u00f6sning</button><button data-mode="key" type="button">Facit</button></div>');
+    lines.push('<button class="btn" id="checkBtn" type="button">R\u00e4tta</button>');
+    lines.push('<button class="btn" id="hintBtn" type="button">Ledtr\u00e5d</button>');
+    lines.push('</div>');
+    lines.push('<div id="gridArea"></div>');
+    lines.push('<div class="clues" id="cluesArea"></div>');
+    lines.push('</div></div>');
+    lines.push('<script>');
+    lines.push('var P = ' + JSON.stringify(puzzleData).replace(/<\//g, '<\\/') + ';');
+    lines.push('var mode = "solve"; var activeInput = null;');
+    lines.push('function getInputAt(x,y){ if(x<0||y<0||x>=P.width||y>=P.height) return null; return document.querySelector(\'.cw-grid input[data-x="\'+x+\'"][data-y="\'+y+\'"]\'); }');
+    lines.push('function cellRunFlags(x,y){ var hL=x>0&&P.cells[y][x-1], hR=x+1<P.width&&P.cells[y][x+1], hU=y>0&&P.cells[y-1][x], hD=y+1<P.height&&P.cells[y+1][x]; return {h:!!(hL||hR), v:!!(hU||hD)}; }');
+    lines.push('function renderGrid(){');
+    lines.push('  var area=document.getElementById("gridArea"); area.innerHTML="";');
+    lines.push('  var cellPx = Math.max(22, Math.min(40, Math.floor(Math.min(620,document.querySelector(".wrap").clientWidth-40) / P.width)));');
+    lines.push('  var wrap=document.createElement("div"); wrap.className="grid-scroll";');
+    lines.push('  var grid=document.createElement("div"); grid.className="cw-grid";');
+    lines.push('  grid.style.gridTemplateColumns="repeat("+P.width+", "+cellPx+"px)"; grid.style.gridAutoRows=cellPx+"px";');
+    lines.push('  activeInput=null;');
+    lines.push('  for(var y=0;y<P.height;y++){ for(var x=0;x<P.width;x++){');
+    lines.push('    var letter=P.cells[y][x]; var cell=document.createElement("div"); cell.className="cw-cell";');
+    lines.push('    if(!letter){ cell.className+=" block"; grid.appendChild(cell); continue; }');
+    lines.push('    var num=P.numberGrid[y][x];');
+    lines.push('    if(num){ var n=document.createElement("span"); n.className="num"; n.textContent=num; cell.appendChild(n); }');
+    lines.push('    if(mode==="key"){ cell.className+=" key-letter"; cell.textContent=letter; if(num){ var n2=document.createElement("span"); n2.className="num"; n2.textContent=num; cell.insertBefore(n2,cell.firstChild); } }');
+    lines.push('    else {');
+    lines.push('      var inp=document.createElement("input"); inp.maxLength=1; inp.autocomplete="off"; inp.spellcheck=false;');
+    lines.push('      inp.dataset.x=x; inp.dataset.y=y; inp.dataset.answer=letter;');
+    lines.push('      var fl=cellRunFlags(x,y); inp.dataset.dir = fl.h?"H":(fl.v?"V":"H"); inp.dataset.hasH=fl.h?"1":"0"; inp.dataset.hasV=fl.v?"1":"0";');
+    lines.push('      inp.addEventListener("click", function(e){ var t=e.target; if(activeInput===t && t.dataset.hasH==="1" && t.dataset.hasV==="1"){ t.dataset.dir = t.dataset.dir==="H"?"V":"H"; } activeInput=t; });');
+    lines.push('      inp.addEventListener("focus", function(e){ activeInput=e.target; });');
+    lines.push('      inp.addEventListener("input", function(e){ e.target.value=e.target.value.toUpperCase().slice(-1); e.target.parentElement.classList.remove("correct","incorrect"); if(e.target.value){ var cx=parseInt(e.target.dataset.x,10), cy=parseInt(e.target.dataset.y,10), dir=e.target.dataset.dir; var next = dir==="H"?getInputAt(cx+1,cy):getInputAt(cx,cy+1); if(next){ next.focus(); next.select(); } } });');
+    lines.push('      inp.addEventListener("keydown", function(e){ var t=e.target, cx=parseInt(t.dataset.x,10), cy=parseInt(t.dataset.y,10), target=null;');
+    lines.push('        if(e.key==="ArrowRight"){ target=getInputAt(cx+1,cy); if(target) t.dataset.dir="H"; }');
+    lines.push('        else if(e.key==="ArrowLeft"){ target=getInputAt(cx-1,cy); if(target) t.dataset.dir="H"; }');
+    lines.push('        else if(e.key==="ArrowDown"){ target=getInputAt(cx,cy+1); if(target) t.dataset.dir="V"; }');
+    lines.push('        else if(e.key==="ArrowUp"){ target=getInputAt(cx,cy-1); if(target) t.dataset.dir="V"; }');
+    lines.push('        else if(e.key==="Backspace" && !t.value){ var d2=t.dataset.dir; var prev = d2==="H"?getInputAt(cx-1,cy):getInputAt(cx,cy-1); if(prev) target=prev; }');
+    lines.push('        if(target){ e.preventDefault(); target.focus(); target.select(); } });');
+    lines.push('      cell.appendChild(inp);');
+    lines.push('    }');
+    lines.push('    grid.appendChild(cell);');
+    lines.push('  } }');
+    lines.push('  wrap.appendChild(grid); area.appendChild(wrap);');
+    lines.push('  var across=P.placements.filter(function(p){return p.dir==="H";}).sort(function(a,b){return a.number-b.number;});');
+    lines.push('  var down=P.placements.filter(function(p){return p.dir==="V";}).sort(function(a,b){return a.number-b.number;});');
+    lines.push('  function buildList(title,arr){ var box=document.createElement("div"); var h=document.createElement("h3"); h.textContent=title; box.appendChild(h); var ol=document.createElement("ol"); arr.forEach(function(pl){ var li=document.createElement("li"); li.value=pl.number; li.textContent=pl.clue; ol.appendChild(li); }); box.appendChild(ol); return box; }');
+    lines.push('  var cluesArea=document.getElementById("cluesArea"); cluesArea.innerHTML="";');
+    lines.push('  cluesArea.appendChild(buildList("V\u00e5gr\u00e4tt", across)); cluesArea.appendChild(buildList("Lodr\u00e4tt", down));');
+    lines.push('}');
+    lines.push('document.getElementById("modeSwitch").addEventListener("click", function(e){ var b=e.target.closest("button"); if(!b) return; mode=b.dataset.mode; Array.from(this.querySelectorAll("button")).forEach(function(x){ x.dataset.active = (x===b)?"true":"false"; }); renderGrid(); });');
+    lines.push('document.getElementById("checkBtn").addEventListener("click", function(){ if(mode!=="solve") return; document.querySelectorAll(".cw-cell input").forEach(function(inp){ var cell=inp.parentElement; cell.classList.remove("correct","incorrect"); var val=(inp.value||"").toUpperCase(); if(!val) return; if(val===inp.dataset.answer) cell.classList.add("correct"); else cell.classList.add("incorrect"); }); });');
+    lines.push('document.getElementById("hintBtn").addEventListener("click", function(){ if(mode!=="solve") return; var target=(activeInput && !activeInput.value)?activeInput:null; if(!target){ var empties=Array.prototype.filter.call(document.querySelectorAll(".cw-cell input"), function(i){return !i.value;}); target=empties[0]||null; } if(!target) return; target.value=target.dataset.answer; target.parentElement.classList.remove("incorrect"); target.parentElement.classList.add("correct"); target.focus(); });');
+    lines.push('window.addEventListener("resize", renderGrid);');
+    lines.push('renderGrid();');
+    lines.push('<' + '/script>');
+    lines.push('</body></html>');
+    return lines.join('\n');
+  }
+
+  document.getElementById('exportStudentBtn').addEventListener('click', function(){
+    var status = document.getElementById('previewStatus');
+    if (!currentPuzzle) {
+      status.className = 'status err';
+      status.textContent = 'Skapa ett korsord innan du exporterar elevversionen.';
+      return;
+    }
+    var title = subjects[currentSlug].printTitle || subjects[currentSlug].name;
+    var puzzleData = {
+      width: currentPuzzle.width,
+      height: currentPuzzle.height,
+      cells: currentPuzzle.cells,
+      numberGrid: currentPuzzle.numberGrid,
+      placements: currentPuzzle.placements.map(function(pl){
+        return { x: pl.x, y: pl.y, dir: pl.dir, number: pl.number, clue: pl.clue };
+      })
+    };
+    var html = buildStudentHtml(title, puzzleData);
+    downloadFile(slugify(title) + '-korsord-elev.html', html, 'text/html');
+    status.className = 'status ok';
+    status.textContent = 'Elevversionen är nedladdad. Ladda upp filen dit eleverna ska hämta den.';
+  });
+
   var printScaleSelect = document.getElementById('printScaleSelect');
   printScaleSelect.value = String(printScale);
   printScaleSelect.addEventListener('change', function(){
@@ -1371,8 +1487,8 @@
   }
 
   // ---------- export / import / kopiera som kod ----------
-  function downloadFile(filename, text){
-    var blob = new Blob([text], { type: 'application/json' });
+  function downloadFile(filename, text, mimeType){
+    var blob = new Blob([text], { type: mimeType || 'application/json' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url; a.download = filename;

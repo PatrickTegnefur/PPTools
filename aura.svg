@@ -1,0 +1,37 @@
+<!-- Auravåg Huvudgradient (#66C7C2 -> #FDD785 -> #EC6095) -->
+<linearGradient id="auraWaveGrad1" x1="0%" y1="100%" x2="100%" y2="0%">
+  <stop offset="0%" stop-color="#66C7C2" stop-opacity="0.95"/>
+  <stop offset="48%" stop-color="#FDD785" stop-opacity="0.9"/>
+  <stop offset="100%" stop-color="#EC6095" stop-opacity="0.95"/>
+</linearGradient>
+
+<!-- Auravåg Sekundär/Transparensgradient -->
+<linearGradient id="auraWaveGrad2" x1="10%" y1="100%" x2="90%" y2="0%">
+  <stop offset="0%" stop-color="#66C7C2" stop-opacity="0.4"/>
+  <stop offset="50%" stop-color="#FDD785" stop-opacity="0.5"/>
+  <stop offset="100%" stop-color="#EC6095" stop-opacity="0.6"/>
+</linearGradient>
+
+<!-- 3D Sfär Huvudgradient -->
+<radialGradient id="sphere3D" cx="35%" cy="35%" r="65%">
+  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+  <stop offset="25%" stop-color="#FDD785"/>
+  <stop offset="65%" stop-color="#EC6095"/>
+  <stop offset="100%" stop-color="#2a0826"/>
+</radialGradient>
+
+<!-- Liten Glödande Sfär Gradient -->
+<radialGradient id="sphereSmall" cx="30%" cy="30%" r="70%">
+  <stop offset="0%" stop-color="#ffffff"/>
+  <stop offset="50%" stop-color="#66C7C2"/>
+  <stop offset="100%" stop-color="#093f3d"/>
+</radialGradient>
+
+<!-- Soft Glow Filter (Belysning bakom sfärer och vågor) -->
+<filter id="ambientGlow" x="-30%" y="-30%" width="160%" height="160%">
+  <feGaussianBlur stdDeviation="60"/>
+</filter>
+
+<filter id="waveSoftBlur" x="-10%" y="-10%" width="120%" height="120%">
+  <feGaussianBlur stdDeviation="10"/>
+</filter>
