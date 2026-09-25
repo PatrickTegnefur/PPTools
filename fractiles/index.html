@@ -572,6 +572,18 @@ main {
   border-color: #fff;
   box-shadow: 0 0 0 2px var(--accent2), 0 3px 10px rgba(16,14,40,0.28);
 }
+.tile.group-selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--accent), 0 3px 10px rgba(16,14,40,0.28);
+}
+.select-box {
+  position: absolute;
+  border: 1.5px dashed var(--accent);
+  background: rgba(48,107,240,0.1);
+  z-index: 15;
+  pointer-events: none;
+  display: none;
+}
 .tile .frac-label { pointer-events: none; text-align: center; line-height: 1.1; white-space: nowrap; }
 .tile .frac-label small { display: block; font-size: 0.65em; font-weight: 500; opacity: 0.85; }
 
@@ -1247,10 +1259,15 @@ footer {
       <div class="numberline-wrap" id="numberline"></div>
       <div id="board">
         <div class="compare-line" id="compareLine"></div>
+        <div class="select-box" id="selectBox"></div>
         <div class="quick-menu" id="quickMenu" style="display:none;">
           <button id="qmSplit" title="Dela upp">✂</button>
           <button id="qmDup" title="Duplicera (Ctrl/Cmd + D)">⧉</button>
-          <button id="qmDelete" class="danger" title="Ta bort">✕</button>
+          <button id="qmDelete" class="danger" title="Ta bort (Delete)">✕</button>
+        </div>
+        <div class="quick-menu" id="groupMenu" style="display:none;">
+          <button id="gmDup" title="Duplicera markerade brickor (Ctrl/Cmd + D)">⧉</button>
+          <button id="gmDelete" class="danger" title="Ta bort markerade brickor (Delete)">✕</button>
         </div>
         <div class="op-fab" id="opFab" style="display:none;">
           <button id="opAdd" title="Addera de två markerade brickorna">+</button>
@@ -1420,7 +1437,9 @@ footer {
   </div>
 </div>
 
-<footer>Tegnefurs Matte · PT Ljus</footer>
+<footer style="width:100%;text-align:center;padding:10px 0 18px;font-family:'Sora',sans-serif;font-size:.72rem;color:#aaa;letter-spacing:.02em;">
+  Skapat av Patrick Tegnefur &nbsp;·&nbsp; Förstelärare i matematik &nbsp;·&nbsp; Alfred Dalinskolan, Huskvarna
+</footer>
 
 
 <script>
@@ -1446,6 +1465,10 @@ footer {
   const splitCancel = document.getElementById('splitCancel');
   const quickMenu = document.getElementById('quickMenu');
   const compareLine = document.getElementById('compareLine');
+  const selectBoxEl = document.getElementById('selectBox');
+  const groupMenu = document.getElementById('groupMenu');
+  const gmDup = document.getElementById('gmDup');
+  const gmDelete = document.getElementById('gmDelete');
   const compareToggle = document.getElementById('compareToggle');
   const qmSplit = document.getElementById('qmSplit');
   const qmDup = document.getElementById('qmDup');
@@ -1546,6 +1569,8 @@ footer {
   let showRowSums = false;   // toggle: visa summan av brickorna på varje rad
   let showMixed = false;     // toggle: visa oäkta bråk (t.ex. 5/3) i blandad form (1 2/3)
   let boardLocked = false;   // toggle: fryser brickornas positioner (presentationsläge)
+  let groupSelectedIds = new Set(); // box-markerade brickor, för att flytta/ta bort/duplicera flera samtidigt
+  let boxSelectState = null; // {startXpx, startYpx} medan man drar ut en markeringsruta
   let showCompareLine = false; // toggle: vertikal linje vid markerad brickas högerkant
   let guidedMode = true;     // toggle: räkneoperationer leds i tre steg (av: utförs direkt)
   let menuVisibleForId = null; // vilken bricka som just nu visar snabbmenyn (klick nr 2)
@@ -1641,7 +1666,7 @@ footer {
 
     tiles.forEach(t => {
       const el = document.createElement('div');
-      el.className = 'tile' + (t.isWhole ? ' whole' : '') + (t.id === selectedId ? ' selected' : '') + (t.id === coSelectedId ? ' co-selected' : '');
+      el.className = 'tile' + (t.isWhole ? ' whole' : '') + (t.id === selectedId ? ' selected' : '') + (t.id === coSelectedId ? ' co-selected' : '') + (groupSelectedIds.has(t.id) ? ' group-selected' : '');
       el.dataset.id = t.id;
 
       const widthPercent = tileWidth(t);
@@ -1709,9 +1734,14 @@ footer {
     positionQuickMenu();
     positionCompareLine();
     positionOpFab();
+    positionGroupMenu();
   }
 
   function select(id, shiftKey) {
+    // Ett vanligt (icke-skift) klick på en bricka rensar alltid en pågående
+    // box-markering av flera brickor — de två markeringssätten är skilda.
+    if (!shiftKey) { groupSelectedIds.clear(); }
+
     if (shiftKey && selectedId !== null && id !== selectedId) {
       // Skift-klick på en andra bricka: markera den som co-selected för +/-
       coSelectedId = id;
@@ -1790,9 +1820,50 @@ footer {
     compareLine.style.display = 'block';
   }
 
+  // Meny (duplicera/ta bort) för en box-markerad grupp av brickor — visas
+  // ovanför den översta markerade brickan.
+  function positionGroupMenu() {
+    if (groupSelectedIds.size < 2) {
+      groupMenu.style.display = 'none';
+      return;
+    }
+    const selected = tiles.filter(t => groupSelectedIds.has(t.id));
+    if (selected.length === 0) { groupMenu.style.display = 'none'; return; }
+    let topRow = Math.min(...selected.map(t => t.row));
+    const topTiles = selected.filter(t => t.row === topRow);
+    const leftX = Math.min(...topTiles.map(t => t.x));
+    const top = 12 + topRow * ROW_HEIGHT - 36;
+    groupMenu.style.left = (TILE_LEFT + leftX) + '%';
+    groupMenu.style.top = Math.max(0, top) + 'px';
+    groupMenu.style.display = 'flex';
+  }
+
   // ---------- Drag ----------
   function onPointerDown(e, id) {
     if (boardLocked) { e.preventDefault(); return; }
+
+    // Klick på en bricka som redan ingår i en box-markerad grupp (utan skift)
+    // startar ett gruppdrag — alla markerade brickor flyttas tillsammans.
+    if (!e.shiftKey && groupSelectedIds.has(id) && groupSelectedIds.size > 1) {
+      const boardRect = board.getBoundingClientRect();
+      const origPositions = {};
+      groupSelectedIds.forEach(gid => {
+        const gt = tiles.find(t => t.id === gid);
+        if (gt) origPositions[gid] = { x: gt.x, row: gt.row };
+      });
+      dragState = {
+        isGroup: true,
+        anchorId: id,
+        startX: e.clientX,
+        startY: e.clientY,
+        origPositions,
+        boardWidth: boardRect.width
+      };
+      board.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      return;
+    }
+
     const wasShiftPair = e.shiftKey && selectedId !== null && id !== selectedId;
     select(id, e.shiftKey);
     // Ett skift-klick parar ihop två brickor för addition/subtraktion — det ska
@@ -1867,6 +1938,31 @@ footer {
 
   function onPointerMove(e) {
     if (!dragState) return;
+
+    if (dragState.isGroup) {
+      const dxPercent = ((e.clientX - dragState.startX) / dragState.boardWidth) * 100;
+      const dyRow = Math.round((e.clientY - dragState.startY) / ROW_HEIGHT);
+      Object.keys(dragState.origPositions).forEach(gid => {
+        const gt = tiles.find(t => t.id === Number(gid));
+        if (!gt) return;
+        const orig = dragState.origPositions[gid];
+        let newX = orig.x + dxPercent;
+        let newRow = orig.row + dyRow;
+        newRow = Math.max(0, Math.min(MAX_ROW, newRow));
+        const w = tileWidth(gt);
+        newX = Math.max(0, Math.min(MAX_TILE_RIGHT - w, newX));
+        gt.x = newX;
+        gt.row = newRow;
+        const el = board.querySelector('.tile[data-id="' + gt.id + '"]');
+        if (el) {
+          el.style.left = (TILE_LEFT + gt.x) + '%';
+          el.style.top = (12 + gt.row * ROW_HEIGHT) + 'px';
+        }
+      });
+      positionGroupMenu();
+      return;
+    }
+
     const t = tiles.find(t => t.id === dragState.id);
     if (!t) return;
     const dxPercent = ((e.clientX - dragState.startX) / dragState.boardWidth) * 100;
@@ -1985,6 +2081,14 @@ footer {
 
   function onPointerUp(e) {
     if (!dragState) return;
+
+    if (dragState.isGroup) {
+      dragState = null;
+      try { board.releasePointerCapture(e.pointerId); } catch (err) {}
+      render();
+      return;
+    }
+
     const id = dragState.id;
     const collisionTarget = dragState.collisionTarget;
     dragState = null;
@@ -2002,17 +2106,100 @@ footer {
     }
   }
 
-  // Klick på tom yta avmarkerar
+  // Klick (och drag) på tom yta: kort klick avmarkerar, ett drag ritar upp
+  // en markeringsruta som väljer alla brickor den skär över.
   board.addEventListener('pointerdown', (e) => {
-    if (e.target === board) {
+    if (e.target !== board) return;
+    if (boardLocked) return;
+
+    const boardRect = board.getBoundingClientRect();
+    boxSelectState = {
+      startXpx: e.clientX - boardRect.left + board.scrollLeft,
+      startYpx: e.clientY - boardRect.top + board.scrollTop,
+      moved: false
+    };
+    board.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+
+  board.addEventListener('pointermove', (e) => {
+    if (!boxSelectState) return;
+    const boardRect = board.getBoundingClientRect();
+    const curX = e.clientX - boardRect.left + board.scrollLeft;
+    const curY = e.clientY - boardRect.top + board.scrollTop;
+    const dx = curX - boxSelectState.startXpx;
+    const dy = curY - boxSelectState.startYpx;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) boxSelectState.moved = true;
+
+    if (boxSelectState.moved) {
+      const left = Math.min(boxSelectState.startXpx, curX);
+      const top = Math.min(boxSelectState.startYpx, curY);
+      const width = Math.abs(dx);
+      const height = Math.abs(dy);
+      selectBoxEl.style.left = left + 'px';
+      selectBoxEl.style.top = top + 'px';
+      selectBoxEl.style.width = width + 'px';
+      selectBoxEl.style.height = height + 'px';
+      selectBoxEl.style.display = 'block';
+    }
+  });
+
+  board.addEventListener('pointerup', (e) => {
+    if (!boxSelectState) return;
+    const wasMoved = boxSelectState.moved;
+    const boardRect = board.getBoundingClientRect();
+    const endXpx = e.clientX - boardRect.left + board.scrollLeft;
+    const endYpx = e.clientY - boardRect.top + board.scrollTop;
+
+    try { board.releasePointerCapture(e.pointerId); } catch (err) {}
+    selectBoxEl.style.display = 'none';
+
+    if (wasMoved) {
+      // Rutan i procent/rader, för att jämföra mot brickornas egna koordinater
+      const boardWidth = board.clientWidth;
+      const x1 = Math.min(boxSelectState.startXpx, endXpx) / boardWidth * 100;
+      const x2 = Math.max(boxSelectState.startXpx, endXpx) / boardWidth * 100;
+      const y1 = Math.min(boxSelectState.startYpx, endYpx);
+      const y2 = Math.max(boxSelectState.startYpx, endYpx);
+
+      const hits = tiles.filter(t => {
+        const tLeft = TILE_LEFT + t.x;
+        const tRight = tLeft + tileWidth(t);
+        const tTop = 12 + t.row * ROW_HEIGHT;
+        const tBottom = tTop + (t.isWhole ? WHOLE_HEIGHT : TILE_HEIGHT);
+        const overlapsX = tLeft < x2 && tRight > x1;
+        const overlapsY = tTop < y2 && tBottom > y1;
+        return overlapsX && overlapsY;
+      });
+
+      groupSelectedIds = new Set(hits.map(t => t.id));
       selectedId = null;
       coSelectedId = null;
       menuVisibleForId = null;
       render();
       positionQuickMenu();
-    positionCompareLine();
+      positionCompareLine();
+      positionOpFab();
+    } else {
+      // Rent klick utan drag: avmarkera allt som vanligt
+      selectedId = null;
+      coSelectedId = null;
+      menuVisibleForId = null;
+      groupSelectedIds.clear();
+      render();
+      positionQuickMenu();
+      positionCompareLine();
       positionOpFab();
     }
+
+    boxSelectState = null;
+  });
+
+  board.addEventListener('pointercancel', (e) => {
+    if (!boxSelectState) return;
+    try { board.releasePointerCapture(e.pointerId); } catch (err) {}
+    selectBoxEl.style.display = 'none';
+    boxSelectState = null;
   });
 
   // ---------- Verktygsknappar (delas mellan toolbar och snabbmeny) ----------
@@ -2039,6 +2226,40 @@ footer {
     tiles.push(copy);
     select(copy.id);
   }
+
+  // ---------- Gruppverktyg (box-markerade brickor) ----------
+  function handleGroupDelete() {
+    if (groupSelectedIds.size === 0) return;
+    tiles = tiles.filter(t => !groupSelectedIds.has(t.id));
+    groupSelectedIds.clear();
+    render();
+    positionGroupMenu();
+  }
+
+  function handleGroupDuplicate() {
+    if (groupSelectedIds.size === 0) return;
+    const originals = tiles.filter(t => groupSelectedIds.has(t.id));
+    const newIds = new Set();
+    originals.forEach(orig => {
+      const width = tileWidth(orig);
+      let newX = orig.x + width;
+      let newRow = orig.row;
+      if (newX + width > MAX_TILE_RIGHT) {
+        newX = 0;
+        newRow = findFreeRow();
+      }
+      const copy = Object.assign({}, orig, { id: nextId++, x: newX, row: newRow });
+      tiles.push(copy);
+      newIds.add(copy.id);
+    });
+    groupSelectedIds = newIds;
+    render();
+    positionGroupMenu();
+  }
+
+  gmDelete.addEventListener('click', handleGroupDelete);
+  gmDup.addEventListener('click', handleGroupDuplicate);
+  groupMenu.addEventListener('pointerdown', (e) => e.stopPropagation());
 
   function handleOpenSplit() {
     if (selectedId === null) return;
@@ -2424,10 +2645,12 @@ footer {
       selectedId = null;
       coSelectedId = null;
       menuVisibleForId = null;
+      groupSelectedIds.clear();
       render();
       positionQuickMenu();
       positionCompareLine();
       positionOpFab();
+      positionGroupMenu();
     }
   });
 
@@ -2893,18 +3116,33 @@ footer {
   }
 
   // ---------- Kortkommandon ----------
-  // Ctrl/Cmd + D duplicerar den markerade brickan, om man inte just då
-  // skriver i ett textfält (då ska webbläsarens vanliga bokmärkes-kommando
-  // eller vanlig textredigering inte störas).
+  // Ctrl/Cmd + D duplicerar (enskild bricka eller box-markerad grupp).
+  // Delete/Backspace tar bort (enskild bricka eller box-markerad grupp).
+  // Inget av detta gäller när man skriver i ett textfält.
   window.addEventListener('keydown', (e) => {
     const tag = document.activeElement ? document.activeElement.tagName : '';
     const isTyping = tag === 'INPUT' || tag === 'TEXTAREA';
     if (isTyping) return;
+    if (boardLocked) return;
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
-      if (selectedId !== null) {
+      if (groupSelectedIds.size > 0) {
+        e.preventDefault();
+        handleGroupDuplicate();
+      } else if (selectedId !== null) {
         e.preventDefault();
         handleDuplicate();
+      }
+      return;
+    }
+
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      if (groupSelectedIds.size > 0) {
+        e.preventDefault();
+        handleGroupDelete();
+      } else if (selectedId !== null) {
+        e.preventDefault();
+        handleDelete();
       }
     }
   });
