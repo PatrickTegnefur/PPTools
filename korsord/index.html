@@ -72,45 +72,49 @@
   }
   header.top p { margin: 0; color: rgba(255,255,255,0.9); max-width: 62ch; }
 
-  .subject-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0 0 18px;
-    align-items: center;
+  .list-picker { position: relative; margin: 0 0 18px; }
+  .list-picker-trigger {
+    display: flex; align-items: center; gap: 10px; width: 100%; max-width: 420px;
+    padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); font: inherit; font-weight: 600; font-size: 14px;
+    color: var(--text); cursor: pointer; box-shadow: var(--shadow-sm);
   }
-  .subject-tab {
-    position: relative;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    padding: 7px 76px 7px 14px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font: inherit;
-    font-size: 13.5px;
-    display: flex;
-    align-items: center;
-    gap: 7px;
+  .list-picker-trigger:hover { border-color: var(--accent); }
+  .list-picker-trigger .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
+  .list-picker-trigger .chevron { margin-left: auto; color: var(--muted); font-size: 11px; }
+  .list-picker-panel {
+    position: absolute; top: calc(100% + 6px); left: 0; z-index: 30;
+    width: min(480px, 92vw); max-height: 65vh; overflow-y: auto;
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg); padding: 14px; display: none;
   }
-  .subject-tab .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
-  .subject-tab[data-active="true"] { border-color: var(--subj-color, var(--accent)); background: var(--subj-bg, var(--surface2)); color: var(--subj-color, var(--accent)); font-weight: 600; }
-  .subject-tab .tab-actions {
-    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
-    display: none; gap: 2px;
+  .list-picker-panel[data-open="true"] { display: block; }
+  .list-picker-section-label {
+    font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.03em; margin: 12px 0 4px; padding-top: 8px;
+    border-top: 1px solid var(--border);
   }
-  .subject-tab:hover .tab-actions { display: flex; }
-  .subject-tab .tab-actions button {
+  .list-picker-section-label:first-of-type { margin-top: 10px; padding-top: 8px; }
+  .list-picker-item {
+    position: relative; display: flex; align-items: center; gap: 9px;
+    padding: 8px 34px 8px 10px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13.5px;
+  }
+  .list-picker-item:hover { background: var(--surface2); }
+  .list-picker-item[data-active="true"] { background: var(--subj-bg, var(--surface2)); color: var(--subj-color, var(--accent)); font-weight: 600; }
+  .list-picker-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+  .list-picker-item .grade-dots { display: flex; gap: 2px; flex: none; }
+  .list-picker-item .grade-dots span { width: 6px; height: 6px; border-radius: 50%; }
+  .list-picker-item .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .list-picker-item .tab-actions { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); display: none; gap: 2px; }
+  .list-picker-item:hover .tab-actions { display: flex; }
+  .list-picker-item .tab-actions button {
     width: 18px; height: 18px; border-radius: 50%; border: none; background: transparent;
     color: var(--muted); font-size: 11px; line-height: 1; cursor: pointer; padding: 0;
     display: flex; align-items: center; justify-content: center;
   }
-  .subject-tab .tab-actions button:hover { background: var(--surface2); color: var(--accent); }
-  .subject-tab .tab-actions button.del-subj:hover { background: var(--wrong-bg); color: var(--wrong); }
-  .subject-tab.new { border-style: dashed; color: var(--muted); padding-right: 14px; }
-  .subject-tab .grade-dots { display: flex; gap: 2px; flex: none; }
-  .subject-tab .grade-dots span { width: 6px; height: 6px; border-radius: 50%; }
-
+  .list-picker-item .tab-actions button:hover { background: var(--surface); color: var(--accent); }
+  .list-picker-item .tab-actions button.del-subj:hover { background: var(--wrong-bg); color: var(--wrong); }
+  .list-picker-empty { font-size: 13px; color: var(--muted); padding: 10px; text-align: center; }
   .filter-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
   .filter-row .flabel { font-size: 12px; color: var(--muted); margin-right: 2px; }
   .grade-chip {
@@ -123,6 +127,15 @@
   .grade-chip[data-active="true"] .sw { background: #fff; }
   .grade-tag-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: -6px 0 14px; }
   .grade-tag-row .glabel { font-size: 12px; color: var(--muted); margin-right: 2px; }
+  .cat-chip { position: relative; padding-right: 24px; }
+  .cat-chip .del-cat {
+    position: absolute; right: 3px; top: 50%; transform: translateY(-50%);
+    width: 15px; height: 15px; border-radius: 50%; border: none; background: transparent;
+    color: inherit; opacity: 0.6; font-size: 11px; line-height: 1; cursor: pointer; display: none;
+    align-items: center; justify-content: center;
+  }
+  .cat-chip:hover .del-cat { display: flex; }
+  .cat-chip .del-cat:hover { opacity: 1; background: rgba(0,0,0,0.12); }
 
   .view-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
   .view-tab {
@@ -135,7 +148,7 @@
   .columns { }
   .view-pane { display: none; }
   .view-pane[data-active="true"] { display: block; }
-  .view-pane-edit .panel.editor-panel { max-width: 880px; margin: 0 auto; }
+  .view-pane-edit .panel.editor-panel { max-width: 880px; margin: 0; }
 
   .panel {
     background: var(--surface);
@@ -295,7 +308,7 @@
     .view-tabs { display: none !important; }
     .view-pane-edit { display: none !important; }
     .view-pane-preview { display: block !important; }
-    .panel.editor-panel, .save-box, .subject-row, .filter-row, .grid-toolbar, #previewStatus, footer.note { display: none !important; }
+    .panel.editor-panel, .save-box, .list-picker, .filter-row, .grid-toolbar, #previewStatus, footer.note { display: none !important; }
     .columns { display: block; }
     .panel { border: none; padding: 0; box-shadow: none; }
     .print-title-row { display: none !important; }
@@ -335,12 +348,24 @@
 <header class="top">
   <div class="inner">
     <h1>Korsordsbyggaren</h1>
+    <p>Mata in begrepp och förklaringar, så byggs de automatiskt ihop till ett korsord.</p>
   </div>
 </header>
 <div class="wrap">
 
-  <div class="filter-row" id="gradeFilterRow"></div>
-  <div class="subject-row" id="subjectRow"></div>
+  <div class="list-picker" id="listPicker">
+    <button class="list-picker-trigger" id="listPickerTrigger" type="button">
+      <span class="dot" id="listPickerDot"></span>
+      <span id="listPickerLabel">Lista</span>
+      <span class="chevron">&#9662;</span>
+    </button>
+    <div class="list-picker-panel" id="listPickerPanel">
+      <div class="filter-row" id="categoryFilterRow"></div>
+      <div class="filter-row" id="gradeFilterRow"></div>
+      <div id="listPickerItems"></div>
+      <button class="btn ghost small" id="newSubjectBtn" type="button" style="width:100%;margin-top:10px;">+ Ny lista</button>
+    </div>
+  </div>
 
   <div class="view-tabs" id="viewTabs">
     <button class="view-tab" data-view="edit" data-active="true" type="button">✎ Redigera begrepp</button>
@@ -351,6 +376,7 @@
     <div class="view-pane view-pane-edit" id="paneEdit" data-active="true">
       <div class="panel editor-panel">
         <h2 id="editorTitle">Begrepp &amp; förklaringar</h2>
+        <div class="grade-tag-row" id="categoryRow"></div>
         <div class="grade-tag-row" id="gradeTagRow"></div>
         <div class="btn-row" style="margin-top:0;">
           <button class="btn" id="buildBtn" type="button">Skapa korsord</button>
@@ -385,7 +411,7 @@
             <input type="file" id="importFile" class="visually-hidden" accept="application/json">
             <button class="btn ghost small" id="copyCodeBtn" type="button">Kopiera som kod</button>
           </div>
-          <p class="hint" style="margin:8px 0 0;">Exportera regelbundet som backup. "Kopiera som kod" ger dig en JS-sträng att klistra in i <code>DEFAULTS</code> i filen, så att banken följer med när du committar till GitHub — annars finns den bara kvar i den här webbläsaren.</p>
+          <p class="hint" style="margin:8px 0 0;">Exportera regelbundet som backup. "Kopiera som kod" ger dig en JS-sträng att klistra in över <code>DEFAULT_CATEGORIES</code> och <code>DEFAULTS</code> i filen, så att banken (inklusive kategorier) följer med när du committar till GitHub — annars finns den bara kvar i den här webbläsaren.</p>
         </div>
       </div>
     </div>
@@ -432,6 +458,7 @@
   "use strict";
 
   // ---------- default word banks ----------
+  var DEFAULT_CATEGORIES = []; // t.ex. ["Matte","NO","SO"] - fylls i via "Kopiera som kod"
   var DEFAULTS = {
     biologi: {
       name: "Biologi",
@@ -492,8 +519,9 @@
     9: { c: '#b03070', bg: '#fde8f1' }  // PT Ljus badge.ak9
   };
   var GRADE_SWATCH = { 7: '#66C7C2', 8: '#F4A261', 9: '#EC6095' };
-  var subjects = {};           // slug -> {name, words:[{term,clue}], printTitle, grades:[7,8,9], updatedAt}
+  var subjects = {};           // slug -> {name, words:[{term,clue}], printTitle, grades:[7,8,9], category, updatedAt}
   var subjectOrder = [];
+  var categories = [];         // ordnad lista med kategorinamn, t.ex. ["Matte","NO","SO"]
   var currentSlug = "biologi";
   var entries = [];            // working copy for current subject
   var currentPuzzle = null;    // {width,height,grid,numberGrid,placements}
@@ -503,6 +531,7 @@
   var forcePageBreak = false;
   var activeInput = null;
   var gradeFilter = null;      // null = alla, annars 7/8/9
+  var categoryFilter = null;   // null = alla, annars ett kategorinamn
   try {
     var storedScale = parseFloat(window.localStorage.getItem(PRINT_SCALE_KEY));
     if (storedScale === 0.75 || storedScale === 1 || storedScale === 1.3) printScale = storedScale;
@@ -687,83 +716,231 @@
   }
 
   // ---------- rendering: subject tabs ----------
-  function renderSubjectTabs(){
-    var row = document.getElementById('subjectRow');
-    row.innerHTML = '';
-    subjectOrder.forEach(function(slug){
-      var subj = subjects[slug];
-      var grades = subj.grades || [];
-      if (gradeFilter !== null && grades.indexOf(gradeFilter) === -1) return;
-      var col = subjColor(slug);
-      var btn = document.createElement('button');
-      btn.className = 'subject-tab';
-      btn.type = 'button';
-      btn.dataset.subj = slug;
-      btn.dataset.active = (slug === currentSlug) ? 'true' : 'false';
-      btn.style.setProperty('--subj-color', col.c);
-      btn.style.setProperty('--subj-bg', col.bg);
+  function makeListPickerItem(slug){
+    var subj = subjects[slug];
+    var grades = subj.grades || [];
+    var col = subjColor(slug);
+    var row = document.createElement('div');
+    row.className = 'list-picker-item';
+    row.dataset.subj = slug;
+    row.dataset.active = (slug === currentSlug) ? 'true' : 'false';
+    row.style.setProperty('--subj-color', col.c);
+    row.style.setProperty('--subj-bg', col.bg);
 
-      if (grades.length > 1) {
-        var dots = document.createElement('span');
-        dots.className = 'grade-dots';
-        grades.forEach(function(g){
-          var d = document.createElement('span');
-          d.style.background = GRADE_SWATCH[g];
-          dots.appendChild(d);
-        });
-        btn.appendChild(dots);
-      } else {
-        var dot = document.createElement('span');
-        dot.className = 'dot';
-        dot.style.background = grades.length === 1 ? GRADE_SWATCH[grades[0]] : col.c;
-        btn.appendChild(dot);
-      }
-      btn.appendChild(document.createTextNode(subj.name));
-
-      var actions = document.createElement('span');
-      actions.className = 'tab-actions';
-
-      var renameBtn = document.createElement('button');
-      renameBtn.type = 'button';
-      renameBtn.textContent = '✎';
-      renameBtn.title = 'Döp om listan "' + subj.name + '"';
-      renameBtn.addEventListener('click', function(e){
-        e.stopPropagation();
-        renameSubject(slug);
+    if (grades.length > 1) {
+      var dots = document.createElement('span');
+      dots.className = 'grade-dots';
+      grades.forEach(function(g){
+        var d = document.createElement('span');
+        d.style.background = GRADE_SWATCH[g];
+        dots.appendChild(d);
       });
+      row.appendChild(dots);
+    } else {
+      var dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = grades.length === 1 ? GRADE_SWATCH[grades[0]] : col.c;
+      row.appendChild(dot);
+    }
+    var nameEl = document.createElement('span');
+    nameEl.className = 'name';
+    nameEl.textContent = subj.name;
+    row.appendChild(nameEl);
 
-      var dupBtn = document.createElement('button');
-      dupBtn.type = 'button';
-      dupBtn.textContent = '⧉';
-      dupBtn.title = 'Duplicera listan "' + subj.name + '"';
-      dupBtn.addEventListener('click', function(e){
-        e.stopPropagation();
-        duplicateSubject(slug);
-      });
+    var actions = document.createElement('span');
+    actions.className = 'tab-actions';
 
-      var delBtn = document.createElement('button');
-      delBtn.className = 'del-subj';
-      delBtn.type = 'button';
-      delBtn.textContent = '×';
-      delBtn.title = 'Ta bort listan "' + subj.name + '"';
-      delBtn.addEventListener('click', function(e){
-        e.stopPropagation();
-        deleteSubject(slug);
-      });
-
-      actions.appendChild(renameBtn);
-      actions.appendChild(dupBtn);
-      actions.appendChild(delBtn);
-      btn.appendChild(actions);
-      btn.addEventListener('click', function(){ switchSubject(slug); });
-      row.appendChild(btn);
+    var renameBtn = document.createElement('button');
+    renameBtn.type = 'button';
+    renameBtn.textContent = '✎';
+    renameBtn.title = 'Döp om listan "' + subj.name + '"';
+    renameBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      renameSubject(slug);
     });
-    var newBtn = document.createElement('button');
-    newBtn.className = 'subject-tab new';
-    newBtn.type = 'button';
-    newBtn.textContent = '+ Ny lista';
-    newBtn.addEventListener('click', createNewSubject);
-    row.appendChild(newBtn);
+
+    var dupBtn = document.createElement('button');
+    dupBtn.type = 'button';
+    dupBtn.textContent = '⧉';
+    dupBtn.title = 'Duplicera listan "' + subj.name + '"';
+    dupBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      duplicateSubject(slug);
+    });
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'del-subj';
+    delBtn.type = 'button';
+    delBtn.textContent = '×';
+    delBtn.title = 'Ta bort listan "' + subj.name + '"';
+    delBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      deleteSubject(slug);
+    });
+
+    actions.appendChild(renameBtn);
+    actions.appendChild(dupBtn);
+    actions.appendChild(delBtn);
+    row.appendChild(actions);
+    row.addEventListener('click', function(){ switchSubject(slug); closeListPicker(); });
+    return row;
+  }
+
+  function openListPicker(){
+    document.getElementById('listPickerPanel').dataset.open = 'true';
+  }
+  function closeListPicker(){
+    document.getElementById('listPickerPanel').dataset.open = 'false';
+  }
+  function toggleListPicker(){
+    var panel = document.getElementById('listPickerPanel');
+    if (panel.dataset.open === 'true') closeListPicker(); else openListPicker();
+  }
+
+  function renderListPicker(){
+    // Kompakt utlösarknapp - visar bara den aktuella listan
+    var subj = subjects[currentSlug];
+    var col = subjColor(currentSlug);
+    var grades = (subj && subj.grades) || [];
+    document.getElementById('listPickerLabel').textContent = subj ? subj.name : 'Välj lista';
+    var triggerDot = document.getElementById('listPickerDot');
+    triggerDot.style.background = grades.length === 1 ? GRADE_SWATCH[grades[0]] : col.c;
+
+    var items = document.getElementById('listPickerItems');
+    items.innerHTML = '';
+
+    var visible = subjectOrder.filter(function(slug){
+      var s = subjects[slug];
+      var g = s.grades || [];
+      if (gradeFilter !== null && g.indexOf(gradeFilter) === -1) return false;
+      if (categoryFilter !== null && (s.category || '') !== categoryFilter) return false;
+      return true;
+    });
+
+    if (!visible.length) {
+      var empty = document.createElement('div');
+      empty.className = 'list-picker-empty';
+      empty.textContent = 'Inga listor matchar filtret.';
+      items.appendChild(empty);
+    } else if (categoryFilter === null && categories.length) {
+      // Gruppera per kategori (i den ordning kategorierna skapades), okategoriserade sist
+      categories.forEach(function(cat){
+        var slugs = visible.filter(function(slug){ return (subjects[slug].category || '') === cat; });
+        if (!slugs.length) return;
+        var label = document.createElement('div');
+        label.className = 'list-picker-section-label';
+        label.textContent = cat;
+        items.appendChild(label);
+        slugs.forEach(function(slug){ items.appendChild(makeListPickerItem(slug)); });
+      });
+      var uncategorized = visible.filter(function(slug){ return !subjects[slug].category; });
+      if (uncategorized.length) {
+        var label2 = document.createElement('div');
+        label2.className = 'list-picker-section-label';
+        label2.textContent = 'Övrigt';
+        items.appendChild(label2);
+        uncategorized.forEach(function(slug){ items.appendChild(makeListPickerItem(slug)); });
+      }
+    } else {
+      visible.forEach(function(slug){ items.appendChild(makeListPickerItem(slug)); });
+    }
+  }
+
+  function renderCategoryFilterRow(){
+    var row = document.getElementById('categoryFilterRow');
+    row.innerHTML = '';
+    var label = document.createElement('span');
+    label.className = 'flabel';
+    label.textContent = 'Kategori:';
+    row.appendChild(label);
+
+    var allChip = document.createElement('button');
+    allChip.type = 'button';
+    allChip.className = 'grade-chip';
+    allChip.dataset.active = (categoryFilter === null) ? 'true' : 'false';
+    if (categoryFilter === null) allChip.style.background = '#306BF0';
+    allChip.textContent = 'Alla';
+    allChip.addEventListener('click', function(){ categoryFilter = null; renderCategoryFilterRow(); renderListPicker(); });
+    row.appendChild(allChip);
+
+    categories.forEach(function(cat){
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'grade-chip cat-chip';
+      chip.dataset.active = (categoryFilter === cat) ? 'true' : 'false';
+      if (categoryFilter === cat) chip.style.background = '#306BF0';
+      chip.appendChild(document.createTextNode(cat));
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'del-cat';
+      del.textContent = '×';
+      del.title = 'Ta bort kategorin "' + cat + '"';
+      del.addEventListener('click', function(e){
+        e.stopPropagation();
+        deleteCategory(cat);
+      });
+      chip.appendChild(del);
+      chip.addEventListener('click', function(){ categoryFilter = cat; renderCategoryFilterRow(); renderListPicker(); });
+      row.appendChild(chip);
+    });
+  }
+
+  function deleteCategory(cat){
+    if (!window.confirm('Ta bort kategorin "' + cat + '"? Listorna i den blir okategoriserade, inget innehåll försvinner.')) return;
+    categories = categories.filter(function(c){ return c !== cat; });
+    Object.keys(subjects).forEach(function(slug){
+      if (subjects[slug].category === cat) subjects[slug].category = '';
+    });
+    if (categoryFilter === cat) categoryFilter = null;
+    persistSubjects();
+    renderCategoryFilterRow();
+    renderCategoryRow();
+    renderListPicker();
+  }
+
+  function setSubjectCategory(cat){
+    subjects[currentSlug].category = cat;
+    subjects[currentSlug].updatedAt = new Date().toISOString();
+    persistSubjects();
+    renderCategoryRow();
+    renderListPicker();
+  }
+
+  function createCategory(){
+    var name = window.prompt('Namn på den nya kategorin (t.ex. "Matte", "NO", "SO"):');
+    if (!name || !name.trim()) return;
+    var trimmed = name.trim();
+    if (categories.indexOf(trimmed) === -1) categories.push(trimmed);
+    setSubjectCategory(trimmed);
+    renderCategoryFilterRow();
+  }
+
+  function renderCategoryRow(){
+    var row = document.getElementById('categoryRow');
+    row.innerHTML = '';
+    var label = document.createElement('span');
+    label.className = 'glabel';
+    label.textContent = 'Kategori:';
+    row.appendChild(label);
+    var current = subjects[currentSlug].category || '';
+    categories.forEach(function(cat){
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'grade-chip';
+      var active = current === cat;
+      chip.dataset.active = active ? 'true' : 'false';
+      if (active) chip.style.background = '#306BF0';
+      chip.textContent = cat;
+      chip.addEventListener('click', function(){ setSubjectCategory(active ? '' : cat); });
+      row.appendChild(chip);
+    });
+    var newChip = document.createElement('button');
+    newChip.type = 'button';
+    newChip.className = 'grade-chip';
+    newChip.style.borderStyle = 'dashed';
+    newChip.textContent = '+ Ny kategori';
+    newChip.addEventListener('click', createCategory);
+    row.appendChild(newChip);
   }
 
   function renderGradeFilterRow(){
@@ -789,7 +966,7 @@
       chip.addEventListener('click', function(){
         gradeFilter = value;
         renderGradeFilterRow();
-        renderSubjectTabs();
+        renderListPicker();
       });
       return chip;
     }
@@ -809,7 +986,7 @@
     subj.updatedAt = new Date().toISOString();
     persistSubjects();
     renderGradeTagRow();
-    renderSubjectTabs();
+    renderListPicker();
   }
 
   function renderGradeTagRow(){
@@ -843,7 +1020,7 @@
     var slug = slugify(name.trim());
     var base = slug, n = 2;
     while (subjects[slug]) { slug = base + '-' + n; n++; }
-    subjects[slug] = { name: name.trim(), printTitle: '', grades: [], words: [], updatedAt: new Date().toISOString() };
+    subjects[slug] = { name: name.trim(), printTitle: '', grades: [], category: '', words: [], updatedAt: new Date().toISOString() };
     subjectOrder.push(slug);
     persistSubjects();
     switchSubject(slug);
@@ -856,7 +1033,7 @@
     current.name = name.trim();
     current.updatedAt = new Date().toISOString();
     persistSubjects();
-    renderSubjectTabs();
+    renderListPicker();
     if (slug === currentSlug) {
       document.getElementById('editorTitle').textContent = current.name + ': begrepp & förklaringar';
       updateSaveMeta();
@@ -868,7 +1045,7 @@
     var newName = source.name + ' (kopia)';
     var newSlug = slugify(newName), n = 2;
     while (subjects[newSlug]) { newSlug = slugify(newName) + '-' + n; n++; }
-    subjects[newSlug] = { name: newName, printTitle: source.printTitle || '', grades: (source.grades || []).slice(), words: cloneWords(source.words), updatedAt: new Date().toISOString() };
+    subjects[newSlug] = { name: newName, printTitle: source.printTitle || '', grades: (source.grades || []).slice(), category: source.category || '', words: cloneWords(source.words), updatedAt: new Date().toISOString() };
     var pos = subjectOrder.indexOf(slug);
     subjectOrder.splice(pos + 1, 0, newSlug);
     persistSubjects();
@@ -896,7 +1073,8 @@
     document.getElementById('printTitleInput').value = titleVal;
     document.getElementById('printTitleHeading').textContent = titleVal;
     renderGradeTagRow();
-    renderSubjectTabs();
+    renderCategoryRow();
+    renderListPicker();
     renderEditorList();
     renderGrid();
     updateSaveMeta();
@@ -936,6 +1114,11 @@
     });
   }
 
+  function autoGrowTextarea(el){
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
   function renderEditorList(){
     var list = document.getElementById('entryList');
     list.innerHTML = '';
@@ -953,7 +1136,7 @@
       clueInput.rows = 1;
       clueInput.placeholder = 'Förklaring / ledtråd';
       clueInput.value = entry.clue;
-      clueInput.addEventListener('input', function(e){ entries[idx].clue = e.target.value; scheduleAutosave(); });
+      clueInput.addEventListener('input', function(e){ entries[idx].clue = e.target.value; autoGrowTextarea(e.target); scheduleAutosave(); });
 
       var delBtn = document.createElement('button');
       delBtn.className = 'del';
@@ -970,6 +1153,7 @@
       row.appendChild(clueInput);
       row.appendChild(delBtn);
       list.appendChild(row);
+      autoGrowTextarea(clueInput);
     });
     updateDuplicateHighlights();
   }
@@ -1268,6 +1452,7 @@
     lines.push('.grid-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}');
     lines.push('.mode-switch{display:inline-flex;border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}.mode-switch button{font:inherit;font-size:12.5px;padding:7px 14px;border:none;background:transparent;color:var(--muted);cursor:pointer}.mode-switch button[data-active="true"]{background:var(--accent);color:#fff}');
     lines.push('.btn{font:inherit;font-family:Sora,sans-serif;font-weight:600;font-size:13px;padding:8px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--accent);cursor:pointer}.btn:hover{border-color:var(--accent)}');
+    lines.push('.scale-label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}.scale-select{font:inherit;font-size:12.5px;padding:6px 8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);cursor:pointer}.scale-select:disabled{opacity:.5;cursor:not-allowed}');
     lines.push('.grid-scroll{overflow-x:auto;padding:4px 0 10px;text-align:center}.cw-grid{display:inline-grid;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}');
     lines.push('.cw-cell{position:relative;background:var(--surface);display:flex;align-items:center;justify-content:center}.cw-cell.block{background:var(--text)}');
     lines.push('.cw-cell .num{position:absolute;top:1px;left:2px;font-size:8px;color:var(--muted);line-height:1}');
@@ -1277,30 +1462,67 @@
     lines.push('.clues h3{font-family:Montserrat,sans-serif;font-weight:700;font-size:14px;margin:0 0 8px;border-bottom:1.5px solid var(--border);padding-bottom:4px;color:var(--accent)}');
     lines.push('.clues ol{margin:0;padding-left:20px}.clues li{margin-bottom:6px;font-size:13px}.clues li::marker{color:var(--muted)}');
     lines.push('.status{font-size:12.5px;color:var(--muted);min-height:16px;margin-top:6px}.status.ok{color:var(--correct)}');
+    lines.push('.print-only-heading{display:none}');
+    lines.push('@media print{');
+    lines.push('  body{background:#fff}');
+    lines.push('  header.top{display:none!important}');
+    lines.push('  .grid-toolbar{display:none!important}');
+    lines.push('  .panel{border:none;padding:0;box-shadow:none}');
+    lines.push('  .print-only-heading{display:block;font-family:Montserrat,sans-serif;font-weight:700;font-size:19px;margin:0 0 16px;color:#000}');
+    lines.push('  .print-only-heading:empty{display:none}');
+    lines.push('  #printTitleHeadingBack{display:none!important}');
+    lines.push('  body[data-force-break="true"] #printTitleHeadingBack:not(:empty){display:block!important}');
+    lines.push('  .grid-scroll{overflow:visible!important;padding:0!important;text-align:center;break-inside:avoid}');
+    lines.push('  .clues{break-before:auto;margin-top:24px}');
+    lines.push('  body[data-force-break="true"] .clues{break-before:page;page-break-before:always;margin-top:0}');
+    lines.push('  .clues h3{break-after:avoid;page-break-after:avoid}');
+    lines.push('  .clues li{break-inside:avoid;page-break-inside:avoid}');
+    lines.push('  .cw-grid{background:#fff!important;border:none!important;gap:0!important;--cell:var(--print-cell)!important;break-inside:avoid}');
+    lines.push('  .cw-cell{background:#fff!important;border:1px solid #000!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}');
+    lines.push('  .cw-cell.block{background:#fff!important;border:none!important}');
+    lines.push('}');
     lines.push('</style>');
+    lines.push('<style id="pageStylePortrait" media="print">@page{size:A4 portrait;margin:14mm}</style>');
+    lines.push('<style id="pageStyleLandscape" media="print" disabled>@page{size:A4 landscape;margin:14mm}</style>');
     lines.push('</head>');
-    lines.push('<body>');
+    lines.push('<body data-force-break="true">');
     lines.push('<header class="top"><h1>' + escapeHtml(title) + '</h1></header>');
     lines.push('<div class="wrap"><div class="panel">');
     lines.push('<div class="grid-toolbar">');
     lines.push('<div class="mode-switch" id="modeSwitch"><button data-mode="solve" data-active="true" type="button">L\u00f6sning</button><button data-mode="key" type="button">Facit</button></div>');
     lines.push('<button class="btn" id="checkBtn" type="button">R\u00e4tta</button>');
     lines.push('<button class="btn" id="hintBtn" type="button">Ledtr\u00e5d</button>');
+    lines.push('<label class="scale-label">Rutstorlek vid utskrift<select class="scale-select" id="printScaleSelect" disabled title="Ignoreras - korsordet maximeras automatiskt n\u00e4r det har en egen sida"><option value="0.75">Liten</option><option value="1" selected>Normal</option><option value="1.3">Stor</option></select></label>');
+    lines.push('<label class="scale-label"><input type="checkbox" id="forceBreakToggle" checked> Tvinga egen sida f\u00f6r f\u00f6rklaringarna</label>');
+    lines.push('<button class="btn" id="printBtn" type="button">Skriv ut</button>');
     lines.push('</div>');
+    lines.push('<h2 class="print-only-heading" id="printTitleHeading">' + escapeHtml(title) + '</h2>');
     lines.push('<div id="gridArea"></div>');
+    lines.push('<h2 class="print-only-heading" id="printTitleHeadingBack">' + escapeHtml(title) + '</h2>');
     lines.push('<div class="clues" id="cluesArea"></div>');
     lines.push('</div></div>');
     lines.push('<script>');
     lines.push('var P = ' + JSON.stringify(puzzleData).replace(/<\//g, '<\\/') + ';');
-    lines.push('var mode = "solve"; var activeInput = null;');
+    lines.push('var mode = "solve"; var activeInput = null; var printScale = 1; var forcePageBreak = true;');
     lines.push('function getInputAt(x,y){ if(x<0||y<0||x>=P.width||y>=P.height) return null; return document.querySelector(\'.cw-grid input[data-x="\'+x+\'"][data-y="\'+y+\'"]\'); }');
     lines.push('function cellRunFlags(x,y){ var hL=x>0&&P.cells[y][x-1], hR=x+1<P.width&&P.cells[y][x+1], hU=y>0&&P.cells[y-1][x], hD=y+1<P.height&&P.cells[y+1][x]; return {h:!!(hL||hR), v:!!(hU||hD)}; }');
     lines.push('function renderGrid(){');
     lines.push('  var area=document.getElementById("gridArea"); area.innerHTML="";');
     lines.push('  var cellPx = Math.max(22, Math.min(40, Math.floor(Math.min(620,document.querySelector(".wrap").clientWidth-40) / P.width)));');
+    lines.push('  var PORTRAIT_W=670, PORTRAIT_H=930, LANDSCAPE_W=1000, LANDSCAPE_H=590;');
+    lines.push('  var fitP = Math.floor(Math.min(PORTRAIT_W/P.width, PORTRAIT_H/P.height));');
+    lines.push('  var fitL = Math.floor(Math.min(LANDSCAPE_W/P.width, LANDSCAPE_H/P.height));');
+    lines.push('  var useLandscape = fitL > fitP;');
+    lines.push('  var maxFitPx = Math.max(8, useLandscape ? fitL : fitP);');
+    lines.push('  var pp = document.getElementById("pageStylePortrait"), pl = document.getElementById("pageStyleLandscape");');
+    lines.push('  if(pp && pl){ pp.disabled = useLandscape; pl.disabled = !useLandscape; }');
+    lines.push('  var printCellPx;');
+    lines.push('  if (forcePageBreak || printScale >= 1.25) { printCellPx = maxFitPx; }');
+    lines.push('  else { var niceDefault = Math.min(maxFitPx, 34); printCellPx = printScale <= 0.8 ? Math.max(8, Math.round(niceDefault*0.78)) : niceDefault; }');
     lines.push('  var wrap=document.createElement("div"); wrap.className="grid-scroll";');
     lines.push('  var grid=document.createElement("div"); grid.className="cw-grid";');
-    lines.push('  grid.style.gridTemplateColumns="repeat("+P.width+", "+cellPx+"px)"; grid.style.gridAutoRows=cellPx+"px";');
+    lines.push('  grid.style.gridTemplateColumns="repeat("+P.width+", var(--cell))"; grid.style.gridAutoRows="var(--cell)";');
+    lines.push('  grid.style.setProperty("--cell", cellPx+"px"); grid.style.setProperty("--print-cell", printCellPx+"px");');
     lines.push('  activeInput=null;');
     lines.push('  for(var y=0;y<P.height;y++){ for(var x=0;x<P.width;x++){');
     lines.push('    var letter=P.cells[y][x]; var cell=document.createElement("div"); cell.className="cw-cell";');
@@ -1336,6 +1558,9 @@
     lines.push('document.getElementById("modeSwitch").addEventListener("click", function(e){ var b=e.target.closest("button"); if(!b) return; mode=b.dataset.mode; Array.from(this.querySelectorAll("button")).forEach(function(x){ x.dataset.active = (x===b)?"true":"false"; }); renderGrid(); });');
     lines.push('document.getElementById("checkBtn").addEventListener("click", function(){ if(mode!=="solve") return; document.querySelectorAll(".cw-cell input").forEach(function(inp){ var cell=inp.parentElement; cell.classList.remove("correct","incorrect"); var val=(inp.value||"").toUpperCase(); if(!val) return; if(val===inp.dataset.answer) cell.classList.add("correct"); else cell.classList.add("incorrect"); }); });');
     lines.push('document.getElementById("hintBtn").addEventListener("click", function(){ if(mode!=="solve") return; var target=(activeInput && !activeInput.value)?activeInput:null; if(!target){ var empties=Array.prototype.filter.call(document.querySelectorAll(".cw-cell input"), function(i){return !i.value;}); target=empties[0]||null; } if(!target) return; target.value=target.dataset.answer; target.parentElement.classList.remove("incorrect"); target.parentElement.classList.add("correct"); target.focus(); });');
+    lines.push('document.getElementById("printScaleSelect").addEventListener("change", function(){ printScale = parseFloat(this.value)||1; renderGrid(); });');
+    lines.push('document.getElementById("forceBreakToggle").addEventListener("change", function(){ forcePageBreak = this.checked; document.body.dataset.forceBreak = forcePageBreak ? "true" : "false"; document.getElementById("printScaleSelect").disabled = forcePageBreak; renderGrid(); });');
+    lines.push('document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });');
     lines.push('window.addEventListener("resize", renderGrid);');
     lines.push('renderGrid();');
     lines.push('<' + '/script>');
@@ -1458,7 +1683,7 @@
 
   function persistSubjects(){
     try {
-      var payload = { subjectOrder: subjectOrder, subjects: subjects };
+      var payload = { subjectOrder: subjectOrder, subjects: subjects, categories: categories };
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch (e) { /* privat läge eller full lagring — fortsätt ändå */ }
   }
@@ -1482,6 +1707,7 @@
       if (!data || !data.subjects || !Array.isArray(data.subjectOrder) || !data.subjectOrder.length) return false;
       subjects = data.subjects;
       subjectOrder = data.subjectOrder;
+      categories = Array.isArray(data.categories) ? data.categories : [];
       return true;
     } catch (e) { return false; }
   }
@@ -1530,7 +1756,7 @@
           });
         }
         persistSubjects();
-        renderSubjectTabs();
+        renderListPicker();
         switchSubject(subjectOrder.indexOf(currentSlug) >= 0 ? currentSlug : subjectOrder[0]);
         status.className = 'status ok';
         status.textContent = 'Importen lyckades.';
@@ -1546,13 +1772,14 @@
   document.getElementById('copyCodeBtn').addEventListener('click', function(){
     scheduleAutosave();
     var status = document.getElementById('saveStatus');
-    var lines = ['  var DEFAULTS = {'];
+    var lines = ['  var DEFAULT_CATEGORIES = ' + JSON.stringify(categories) + ';', '  var DEFAULTS = {'];
     subjectOrder.forEach(function(slug, i){
       var subj = subjects[slug];
       lines.push('    ' + JSON.stringify(slug) + ': {');
       lines.push('      name: ' + JSON.stringify(subj.name) + ',');
       if (subj.printTitle) lines.push('      printTitle: ' + JSON.stringify(subj.printTitle) + ',');
       if (subj.grades && subj.grades.length) lines.push('      grades: ' + JSON.stringify(subj.grades) + ',');
+      if (subj.category) lines.push('      category: ' + JSON.stringify(subj.category) + ',');
       lines.push('      words: [');
       subj.words.forEach(function(w, wi){
         lines.push('        { term: ' + JSON.stringify(w.term) + ', clue: ' + JSON.stringify(w.clue) + ' }' + (wi < subj.words.length - 1 ? ',' : ''));
@@ -1575,10 +1802,28 @@
     }
   });
 
+  // ---------- list picker: öppna/stäng ----------
+  document.getElementById('listPickerTrigger').addEventListener('click', function(e){
+    e.stopPropagation();
+    toggleListPicker();
+  });
+  document.getElementById('newSubjectBtn').addEventListener('click', function(){
+    createNewSubject();
+    closeListPicker();
+  });
+  document.addEventListener('click', function(e){
+    var picker = document.getElementById('listPicker');
+    if (!picker.contains(e.target)) closeListPicker();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') closeListPicker();
+  });
+
   // ---------- init ----------
   function initDefaults(){
+    categories = DEFAULT_CATEGORIES.slice();
     Object.keys(DEFAULTS).forEach(function(slug){
-      subjects[slug] = { name: DEFAULTS[slug].name, printTitle: DEFAULTS[slug].printTitle || '', grades: DEFAULTS[slug].grades || [], words: cloneWords(DEFAULTS[slug].words), updatedAt: null };
+      subjects[slug] = { name: DEFAULTS[slug].name, printTitle: DEFAULTS[slug].printTitle || '', grades: DEFAULTS[slug].grades || [], category: DEFAULTS[slug].category || '', words: cloneWords(DEFAULTS[slug].words), updatedAt: null };
       subjectOrder.push(slug);
     });
   }
@@ -1588,6 +1833,7 @@
       initDefaults();
     }
     renderGradeFilterRow();
+    renderCategoryFilterRow();
     switchSubject(subjects[currentSlug] ? currentSlug : subjectOrder[0]);
   }
 

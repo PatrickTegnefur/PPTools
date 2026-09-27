@@ -240,25 +240,26 @@ main { max-width: 740px; margin: 0 auto; padding: 26px 16px 70px; }
   background: var(--card-front); border: 1.5px solid var(--border2);
 }
 .face.front::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
   border-radius: var(--radius) var(--radius) 0 0;
   background: var(--card-accent, var(--accent));
 }
 .face.back  {
-  background: var(--card-front);
+  background:
+    linear-gradient(135deg, rgba(102,199,194,0.09) 0%, rgba(244,162,97,0.09) 50%, rgba(236,96,149,0.09) 100%),
+    var(--surface);
   color: var(--text); border: 1.5px solid var(--border2);
   transform: rotateY(180deg);
 }
 .face.back::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
   border-radius: var(--radius) var(--radius) 0 0;
-  background: var(--border2);
+  background: var(--accent2);
 }
 .face-lbl {
   font-size: 0.63rem; font-weight: 700; letter-spacing: 0.12em;
   text-transform: uppercase; opacity: 0.5; margin-bottom: 12px;
 }
-.face.back .face-lbl { color: var(--accent2); opacity: 0.8; }
 .face-txt {
   font-family: 'Sora', sans-serif; font-size: 1.18rem;
   line-height: 1.6; font-weight: 500;
@@ -380,20 +381,6 @@ main { max-width: 740px; margin: 0 auto; padding: 26px 16px 70px; }
   padding: 22px 20px 34px; overflow-y: auto;
   animation: slideUp 0.26s ease;
   flex-shrink: 0;
-}
-/* Större skärmar: centrerad dialog istället för bottom-sheet — känns mer
-   naturligt på desktop, där ett bottendockat ark inte är förväntat mönster. */
-@media (min-width: 768px) {
-  .overlay { justify-content: center; }
-  .panel {
-    border-radius: var(--radius);
-    max-height: 82vh;
-    animation: popIn 0.18s ease;
-  }
-  @keyframes popIn {
-    from { opacity: 0; transform: translateY(8px) scale(0.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
 }
 .phdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
 .phdr h2 { font-family: 'Montserrat', sans-serif; font-size: 1.18rem; font-weight: 700; }
@@ -1423,10 +1410,9 @@ body.fs-mode .app-footer { display: none; }
     <div class="admin-dropdown" id="admin-dropdown">
       <button class="hbtn admin-btn" id="admin-btn" onclick="toggleAdminMenu()">🛠 <span class="lbl">Hantera</span></button>
       <div class="admin-dropdown-menu" id="admin-menu">
-        <button class="admin-menu-item admin-only" onclick="openEditor();closeAdminMenu()">✏️ Redigera kort</button>
-        <button class="admin-menu-item admin-only" onclick="openImport();closeAdminMenu()">📥 Importera</button>
-        <button class="admin-menu-item admin-only" onclick="openShare();closeAdminMenu()">🔗 Dela kortlek</button>
-        <button class="admin-menu-item admin-only" onclick="openStudentExport();closeAdminMenu()">🎓 Exportera elevversion</button>
+        <button class="admin-menu-item" onclick="openEditor();closeAdminMenu()">✏️ Redigera kort</button>
+        <button class="admin-menu-item" onclick="openImport();closeAdminMenu()">📥 Importera</button>
+        <button class="admin-menu-item" onclick="openShare();closeAdminMenu()">🔗 Dela kortlek</button>
         <button class="admin-menu-item" onclick="openStats();closeAdminMenu()">📊 Statistik</button>
         <button class="admin-menu-item" onclick="openGroupMix();closeAdminMenu()">🎲 Gruppmix</button>
         <div class="admin-menu-divider"></div>
@@ -1570,7 +1556,7 @@ body.fs-mode .app-footer { display: none; }
 </main>
 
 <!-- EDITOR -->
-<div class="overlay" id="editor-ov">
+<div class="overlay" id="editor-ov" onclick="ovClick(event,'editor-ov')">
   <div class="panel">
     <div class="phdr"><h2>Redigera kort</h2><button class="xbtn" onclick="closeEditor()">✕</button></div>
 
@@ -1729,7 +1715,7 @@ body.fs-mode .app-footer { display: none; }
 </div>
 
 <!-- LIBRARY PICKER (sub-modal) -->
-<div class="overlay" id="lib-picker-ov">
+<div class="overlay" id="lib-picker-ov" onclick="if(event.target.id==='lib-picker-ov')closeLibPicker()">
   <div class="panel" style="max-width:520px">
     <div class="phdr"><h2>Välj bild</h2><button class="xbtn" onclick="closeLibPicker()">✕</button></div>
     <div class="lib-grid" id="lib-picker-grid"></div>
@@ -1741,7 +1727,7 @@ body.fs-mode .app-footer { display: none; }
 </div>
 
 <!-- IMPORT -->
-<div class="overlay" id="import-ov">
+<div class="overlay" id="import-ov" onclick="ovClick(event,'import-ov')">
   <div class="panel">
     <div class="phdr"><h2>Importera kort</h2><button class="xbtn" onclick="closePanel('import-ov')">✕</button></div>
     <div class="itabs">
@@ -1780,7 +1766,7 @@ body.fs-mode .app-footer { display: none; }
 </div>
 
 <!-- STATS -->
-<div class="overlay" id="stats-ov">
+<div class="overlay" id="stats-ov" onclick="ovClick(event,'stats-ov')">
   <div class="panel" style="max-width:580px">
     <div class="phdr"><h2>Kortleksstatistik</h2><button class="xbtn" onclick="closePanel('stats-ov')">✕</button></div>
     <div id="stats-content"></div>
@@ -1788,7 +1774,7 @@ body.fs-mode .app-footer { display: none; }
 </div>
 
 <!-- SHARE -->
-<div class="overlay" id="share-ov">
+<div class="overlay" id="share-ov" onclick="ovClick(event,'share-ov')">
   <div class="panel" style="max-width:480px">
     <div class="phdr"><h2>Dela kortlek</h2><button class="xbtn" onclick="closePanel('share-ov')">✕</button></div>
     <div class="ihint">
@@ -1807,7 +1793,7 @@ body.fs-mode .app-footer { display: none; }
 </div>
 
 <!-- NAV TREE -->
-<div class="nav-tree-overlay" id="nav-tree-ov">
+<div class="nav-tree-overlay" id="nav-tree-ov" onclick="navTreeOverlayClick(event)">
   <div class="nav-tree-panel">
     <div class="nav-tree-header">
       <h2>🗂 Välj innehåll</h2>
@@ -1825,31 +1811,8 @@ body.fs-mode .app-footer { display: none; }
   </div>
 </div>
 
-<!-- STUDENT EXPORT -->
-<div class="overlay admin-only" id="studentexport-ov">
-  <div class="panel" style="max-width:480px">
-    <div class="phdr">
-      <h2>🎓 Exportera elevversion</h2>
-      <button class="xbtn" onclick="closePanel('studentexport-ov')">✕</button>
-    </div>
-    <div class="ihint">Välj de samlingar eleverna ska få. Resultatet blir en fristående .html-fil med bara det urvalet — inga andra ämnesområden, ingen redigering, inga sparade framsteg från dig. Precis som korsordsexporten.</div>
-    <div class="fg">
-      <label>Titel (visas i sidhuvudet hos eleven)</label>
-      <input id="se-title" type="text" placeholder="t.ex. Geometri — begreppsträning åk 8" style="width:100%" />
-    </div>
-    <div class="mix-coll-list" id="se-coll-list"></div>
-    <div class="replace-row" style="margin:10px 0">
-      <label><input type="checkbox" id="se-include-uncategorized" /> Inkludera kort utan samling</label>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn-pri" id="se-export-btn" onclick="exportStudentVersion()" disabled>Exportera .html</button>
-      <button class="btn-sec" onclick="closePanel('studentexport-ov')">Avbryt</button>
-    </div>
-  </div>
-</div>
-
 <!-- GROUP MIX -->
-<div class="overlay" id="groupmix-ov">
+<div class="overlay" id="groupmix-ov" onclick="ovClick(event,'groupmix-ov')">
   <div class="panel" style="max-width:480px">
     <div class="phdr">
       <h2>🎲 Gruppmix</h2>
@@ -1868,7 +1831,7 @@ body.fs-mode .app-footer { display: none; }
 </div>
 
 <!-- SETTINGS -->
-<div class="overlay" id="settings-ov">
+<div class="overlay" id="settings-ov" onclick="ovClick(event,'settings-ov')">
   <div class="panel" style="max-width:450px">
     <div class="phdr"><h2>Inställningar</h2><button class="xbtn" onclick="closePanel('settings-ov')">✕</button></div>
     <!-- Hidden checkbox kept for JS compat (tema är enhetligt PT Ljus, ingen växling) -->
@@ -1885,10 +1848,6 @@ body.fs-mode .app-footer { display: none; }
       <div class="slg"><label>Spara framsteg automatiskt</label><p>Sparas lokalt i webbläsaren</p></div>
       <label class="toggle"><input type="checkbox" id="s-save" onchange="setAutoSave(this.checked)"><span class="tsl"></span></label>
     </div>
-    <div class="srow">
-      <div class="slg"><label>Visa kategori-taggar på korten</label><p>Pillarna med ämne/begrepp ovanför frågan</p></div>
-      <label class="toggle"><input type="checkbox" id="s-cattags" onchange="setShowCatTags(this.checked)"><span class="tsl"></span></label>
-    </div>
     <div style="padding:14px 0;border-bottom:1px solid var(--border)">
       <div style="font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px">Skolprofil</div>
       <div class="fg">
@@ -1900,7 +1859,7 @@ body.fs-mode .app-footer { display: none; }
     </div>
 
     <!-- Export / Share section -->
-    <div class="admin-only" style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
       <div style="font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px">Dela & exportera</div>
       <div style="display:flex;flex-direction:column;gap:8px">
 
@@ -1933,7 +1892,7 @@ body.fs-mode .app-footer { display: none; }
 </div>
 
 <!-- HELP -->
-<div class="overlay" id="help-ov">
+<div class="overlay" id="help-ov" onclick="ovClick(event,'help-ov')">
   <div class="panel" style="max-width:560px">
     <div class="phdr"><h2>Hjälp & instruktioner</h2><button class="xbtn" onclick="closePanel('help-ov')">✕</button></div>
 
@@ -2043,21 +2002,12 @@ MathJax = {
     if(partial.cards)       window.MINNESKORT_BANK.cards.push(...partial.cards);
   };
 </script>
-<!-- MINNESKORT_BANK_INCLUDES_START -->
 <script src="minneskort-data-begrepp.js"      onerror="console.info('Ingen begreppsbank hittad — hoppar över.')"></script>
 <script src="minneskort-data-mattematchen.js" onerror="console.info('Ingen Mattematchen-fil hittad — hoppar över.')"></script>
-<!-- MINNESKORT_BANK_INCLUDES_END -->
 <script>
-// Ren "avtryck" av sidans HTML innan något JS hunnit mutera DOM:en —
-// används av exportStudentVersion() för att bygga en fristående elevfil.
-const PRISTINE_HTML = document.documentElement.outerHTML;
-// Sätts till true i en exporterad elevversion (injiceras av exportStudentVersion).
-// Döljer redigerings-/import-/dela-verktyg som inte är relevanta för eleven.
-window.IS_STUDENT_EXPORT = window.IS_STUDENT_EXPORT || false;
-
 // ── STATE ──────────────────────────────────────────────
 let cards=[], deck=[], cur=0, isFlipped=false;
-let shuffleOn=false, reverseOn=false, autoSave=true, darkMode=false, currentTheme='light', showCatTags=true;
+let shuffleOn=false, reverseOn=false, autoSave=true, darkMode=false, currentTheme='light';
 let activeFilter='all', activeCategories=new Set(), deckTitle='Mina Flashcards';
 let importData=[];
 
@@ -2100,7 +2050,7 @@ function openHelp(){openPanel('help-ov');}
 // ── PERSIST ────────────────────────────────────────────
 function save(){
   if(!autoSave)return;
-  localStorage.setItem(SKEY,JSON.stringify({cards,shuffleOn,reverseOn,autoSave,darkMode,currentTheme,deckTitle,showCatTags}));
+  localStorage.setItem(SKEY,JSON.stringify({cards,shuffleOn,reverseOn,autoSave,darkMode,currentTheme,deckTitle}));
 }
 function load(){
   try{
@@ -2114,20 +2064,19 @@ function load(){
       cards=d.cards||[]; shuffleOn=!!d.shuffleOn; reverseOn=!!d.reverseOn;
       autoSave=d.autoSave!==false; darkMode=!!d.darkMode; currentTheme=d.currentTheme||( d.darkMode?'dark':'light');
       deckTitle=d.deckTitle||'Mina Flashcards';
-      showCatTags = d.showCatTags!==false;
     }
   }catch{defaults();}
   cards.forEach(c=>{ if(!c.id) c.id = cardUid(); }); // migrering: äldre kort saknar id
 }
 function defaults(){
-  cards = window.IS_STUDENT_EXPORT ? [] : [
+  cards=[
     {q:'Vad heter den längsta sidan i en rätvinklig triangel — sidan mitt emot den räta vinkeln?',a:'Hypotenusan',status:'none',cats:['Begrepp','Geometri']},
     {q:'0,05 · 10 = ?',a:'0,5',status:'none',cats:['Huvudräkning','Taluppfattning']},
     {q:'Vad kallas talet som en division inte går jämnt ut på — resten som blir kvar?',a:'Rest (eller "rest vid division")',status:'none',cats:['Begrepp','Taluppfattning']},
     {q:'25 % av 200 = ?',a:'50',status:'none',cats:['Huvudräkning','Procent']},
     {q:'Vad kallas de två vinklarna som tillsammans blir 90°?',a:'Komplementvinklar',status:'none',cats:['Begrepp','Geometri']},
   ];
-  shuffleOn=reverseOn=false; autoSave=true; darkMode=false; currentTheme='light'; showCatTags=true;
+  shuffleOn=reverseOn=false; autoSave=true; darkMode=false; currentTheme='light';
   deckTitle='Mina Flashcards';
 }
 
@@ -2218,7 +2167,6 @@ function render(){
   document.getElementById('s-shuffle').checked=shuffleOn;
   document.getElementById('s-reverse').checked=reverseOn;
   document.getElementById('s-save').checked=autoSave;
-  const sCats=document.getElementById('s-cattags'); if(sCats) sCats.checked=showCatTags;
   const sdark=document.getElementById('s-dark'); if(sdark) sdark.checked=darkMode;
 
   const cw=document.getElementById('card-wrap');
@@ -2307,8 +2255,8 @@ function render(){
     spacer.className = 'face-spacer' + (showFrontImg ? ' has-img' : '');
   }
 
-  // Category tags on card — visas bara om inställningen är påslagen
-  const catHtml = !showCatTags ? '' : (card.cats||[]).map(c=>{
+  // Category tags on card
+  const catHtml = (card.cats||[]).map(c=>{
     const [g1,g2]=catGradient(c);
     return `<span class="card-cat-tag" style="--tg1:${g1};--tg2:${g2}">${esc(c)}</span>`;
   }).join('');
@@ -2415,7 +2363,6 @@ function setShuffle(v){shuffleOn=v;save();buildDeck();render();}
 function toggleReverse(){reverseOn=!reverseOn;save();buildDeck();render();}
 function setReverse(v){reverseOn=v;save();buildDeck();render();}
 function setAutoSave(v){autoSave=v;save();}
-function setShowCatTags(v){showCatTags=v;save();render();}
 function restartFilter(){buildDeck();render();}
 function restartAll(){
   activeFilter='all';
@@ -3194,22 +3141,10 @@ function doImport(){
 // ── PANELS ─────────────────────────────────────────────
 function openPanel(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
 function closePanel(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
-function ovClick(e,id){ /* Klick på bakgrunden stänger inte längre panelen — använd krysset eller ESC */ }
+function ovClick(e,id){
+  if(e.target.id===id){closePanel(id);if(id==='editor-ov'){buildDeck();render();}}
+}
 function openSettings(){openPanel('settings-ov');}
-
-// Karta över overlay-id → rätt stängningsfunktion (för ESC-kortkommandot)
-const OVERLAY_CLOSE_FN = {
-  'editor-ov':        closeEditor,
-  'lib-picker-ov':    closeLibPicker,
-  'import-ov':        ()=>closePanel('import-ov'),
-  'stats-ov':         ()=>closePanel('stats-ov'),
-  'share-ov':         ()=>closePanel('share-ov'),
-  'studentexport-ov': ()=>closePanel('studentexport-ov'),
-  'groupmix-ov':      ()=>closePanel('groupmix-ov'),
-  'settings-ov':      ()=>closePanel('settings-ov'),
-  'help-ov':          ()=>closePanel('help-ov'),
-  'nav-tree-ov':      closeNavTree,
-};
 
 // ── TITLE ──────────────────────────────────────────────
 function initTitle(){
@@ -3219,13 +3154,10 @@ function initTitle(){
 
 // ── KEYBOARD ───────────────────────────────────────────
 document.addEventListener('keydown', e=>{
-  // ESC: exit fullscreen/presentation, close admin-menyn, eller stäng öppen panel
+  // ESC: exit fullscreen or presentation mode first
   if(e.key === 'Escape'){
     if(presentMode){ togglePresentMode(); return; }
     if(document.fullscreenElement){ toggleFullscreen(); return; }
-    if(document.getElementById('admin-menu')?.classList.contains('open')){ closeAdminMenu(); return; }
-    const openOv = document.querySelector('.overlay.open, .nav-tree-overlay.open');
-    if(openOv && OVERLAY_CLOSE_FN[openOv.id]){ OVERLAY_CLOSE_FN[openOv.id](); return; }
   }
 
   if(document.querySelector('.overlay.open')) return;
@@ -3974,138 +3906,6 @@ function startGroupMix(){
   updateMixBadge();
 }
 
-// ── ELEVEXPORT ─────────────────────────────────────────
-// Bygger en fristående .html-fil med bara ett valt urval samlingar —
-// samma princip som korsordsverktygets export. Ingen redigering, ingen
-// import, ingen delningspanel i den exporterade filen, och elevens
-// egna framsteg (trafikljus) sparas lokalt i deras egen webbläsare
-// helt separat från din egen kortlek.
-let seSelectedColls = new Set();
-
-function openStudentExport(){
-  seSelectedColls = new Set();
-  document.getElementById('se-title').value = deckTitle || '';
-  renderStudentExportPanel();
-  openPanel('studentexport-ov');
-}
-function renderStudentExportPanel(){
-  const list = document.getElementById('se-coll-list');
-  if(!list) return;
-  if(!collections.length){
-    list.innerHTML = '<p style="color:var(--muted);font-size:0.83rem;text-align:center;padding:12px">Inga samlingar finns än.</p>';
-    return;
-  }
-  list.innerHTML = collections.map(c => {
-    const count = cards.filter(x=>x.collId===c.id).length;
-    const icon  = c.section==='mattematchen' ? '🎯' : '📚';
-    const sel   = seSelectedColls.has(c.id);
-    return `<div class="mix-coll-item${sel?' selected':''}" onclick="toggleSeColl('${c.id}')">
-      <input type="checkbox" ${sel?'checked':''} readonly />
-      <div>
-        <div class="mix-coll-name">${icon} ${esc(c.name)}</div>
-        <div class="mix-coll-meta">${count} kort</div>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('se-export-btn').disabled = seSelectedColls.size === 0;
-}
-function toggleSeColl(id){
-  if(seSelectedColls.has(id)) seSelectedColls.delete(id);
-  else seSelectedColls.add(id);
-  renderStudentExportPanel();
-}
-
-async function exportStudentVersion(){
-  const inclUncat = document.getElementById('se-include-uncategorized')?.checked;
-  const title = (document.getElementById('se-title').value||'').trim() || 'Mina Minneskort';
-  const btn = document.getElementById('se-export-btn');
-  const btnLabel = btn.textContent;
-  btn.disabled = true; btn.textContent = 'Exporterar…';
-
-  const pickedCards = cards.filter(c=>{
-    if(c.collId && seSelectedColls.has(c.collId)) return true;
-    if(inclUncat && !c.collId) return true;
-    return false;
-  });
-  if(!pickedCards.length){ alert('Inga kort matchar det valda urvalet.'); btn.disabled=false; btn.textContent=btnLabel; return; }
-
-  const pickedColls = collections.filter(c=>seSelectedColls.has(c.id));
-  const pickedSubjIds = new Set(pickedColls.map(c=>c.subjectId).filter(Boolean));
-  const pickedSubjs = subjects.filter(s=>pickedSubjIds.has(s.id));
-
-  // Försök bädda in externa bilder (imgUrl) som base64 — fungerar när sidan
-  // körs hostad (https), men fetch() av lokala filer blockeras av
-  // webbläsaren när man öppnar filen direkt (file://). Faller i så fall
-  // tillbaka till relativ sökväg och varnar tydligt efteråt.
-  const urlCache = new Map();
-  let embedFailed = false;
-  async function embed(url){
-    if(urlCache.has(url)) return urlCache.get(url);
-    try{
-      const res = await fetch(url);
-      if(!res.ok) throw new Error('http '+res.status);
-      const blob = await res.blob();
-      const dataUrl = await new Promise((resolve,reject)=>{
-        const r = new FileReader();
-        r.onload = ()=>resolve(r.result);
-        r.onerror = reject;
-        r.readAsDataURL(blob);
-      });
-      urlCache.set(url, dataUrl);
-      return dataUrl;
-    }catch(e){
-      embedFailed = true;
-      urlCache.set(url, url); // fallback: behåll relativ sökväg
-      return url;
-    }
-  }
-  for(const c of pickedCards){
-    if(c.imgUrl) c.imgUrl = await embed(c.imgUrl);
-  }
-
-  const curatedBank = {
-    subjects: pickedSubjs.map(s=>({id:s.id, name:s.name})),
-    collections: pickedColls.map(c=>({id:c.id, name:c.name, subjectId:c.subjectId||null, grades:c.grades||[], section:c.section||'amne'})),
-    // status nollställs alltid — elevens egen träning ska börja på ett rent blad
-    cards: pickedCards.map(c=>({
-      id:c.id, q:c.q, a:c.a, cats:c.cats||[], collId:c.collId||null, subjectId:c.subjectId||null,
-      imgUrl:c.imgUrl||null, imgAlt:c.imgAlt||'', imgSide:c.imgSide||null,
-      imgId:c.imgId||null // bilder ur ditt eget bibliotek — se OBS nedan
-    }))
-  };
-  // OBS: bilder du laddat upp till ditt eget bildbibliotek (imgId) hänger inte
-  // med automatiskt i exporten — biblioteket är lokalt i din webbläsare. Kort
-  // som bara har imgId (inte imgUrl) visas alltså utan bild hos eleven.
-  // Använd imgUrl (extern bildfil, se frågebanksfilerna) för bilder som ska
-  // följa med i elevexporten.
-  curatedBank.cards.forEach(c=>{ if(!c.imgUrl) c.imgId = null; });
-
-  let html = '<!DOCTYPE html>\n' + PRISTINE_HTML;
-  html = html.replace(
-    /<!-- MINNESKORT_BANK_INCLUDES_START -->[\s\S]*?<!-- MINNESKORT_BANK_INCLUDES_END -->/,
-    `<script>\nwindow.IS_STUDENT_EXPORT = true;\nregisterMinneskortBank(${JSON.stringify(curatedBank)});\n<\/script>`
-  );
-  // Ge exporten en egen titel direkt i <title> och headerns brand-name
-  html = html.replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`);
-
-  const blob = new Blob([html], {type:'text/html'});
-  const url  = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = (title.toLowerCase()
-    .replace(/[åä]/g,'a').replace(/ö/g,'o')
-    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'minneskort-elevversion') + '.html';
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-  closePanel('studentexport-ov');
-  btn.disabled = false; btn.textContent = btnLabel;
-
-  const hasImg = pickedCards.some(c=>c.imgUrl);
-  if(hasImg && embedFailed){
-    alert('Exporten är klar. OBS: bilderna kunde inte bäddas in i filen den här gången (händer när man öppnar appen direkt som fil istället för via en hostad sida) — de pekar istället på samma relativa sökväg som vanligt. Dela hela mappen (den exporterade filen + assets-mappen) tillsammans så visas bilderna korrekt hos eleven. Exporterar du istället från din hostade GitHub Pages-sida bäddas bilderna in automatiskt.');
-  }
-}
-
 function endGroupMix(){
   mixActive = false;
   mixSelectedColls = new Set();
@@ -4654,10 +4454,6 @@ const _loadedSharedDeck = loadSharedDeck();
 if(!_loadedSharedDeck) load();
 loadCollections(); loadSubjects(); loadImages(); loadProfile();
 if(!_loadedSharedDeck) mergeBank(); // inte vid en tillfälligt delad länk-kortlek
-if(window.IS_STUDENT_EXPORT){
-  // Elevversion: dölj redigering/import/delning — eleven ska bara öva
-  document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');
-}
 applyTheme(); applyCtrlBand(); buildDeck(); render(); initTitle();
 </script>
   <footer class="app-footer">

@@ -29,9 +29,6 @@ registerMinneskortBank({
     { id: 'samband',        name: 'Samband & förändring' },
     { id: 'statistik',      name: 'Statistik & dataanalys' },
     { id: 'sannolikhet',    name: 'Sannolikhet & kombinatorik' },
-
-    // 👇 NYTT ÄMNE? Lägg till här ovanför den avslutande hakparentesen:
-    // { id: 'unikt-id', name: 'Ämnesnamn' },
   ],
 
   // ── SAMLINGAR ─────────────────────────────────────────────────
@@ -43,9 +40,6 @@ registerMinneskortBank({
     { id: 'tal-brak-procent', name: 'Bråk, decimal, procent',subjectId: 'taluppfattning', grades: ['7','8'],     section: 'amne' },
     { id: 'sh-grundbegrepp',  name: 'Sannolikhetsbegrepp',   subjectId: 'sannolikhet',    grades: ['9'],         section: 'amne' },
     { id: 'stat-grundbegrepp',name: 'Lägesmått & diagram',   subjectId: 'statistik',      grades: ['7','8','9'], section: 'amne' },
-
-    // 👇 NY SAMLING? Lägg till här ovanför den avslutande hakparentesen:
-    // { id: 'unikt-id', name: 'Namn', subjectId: 'ett-av-ämnena-ovan', grades: [], section: 'amne' },
   ],
 
   // ── KORT ──────────────────────────────────────────────────────
@@ -112,31 +106,5 @@ registerMinneskortBank({
       cats: ['Begrepp', 'Statistik'],
       collId: 'stat-grundbegrepp',
     },
-
-    // ═══════════════════════════════════════════════════════════
-    // 👇 NYA BEGREPP LÄGGS TILL HÄR NEDANFÖR — kopiera mallen,
-    //    klistra in ovanför den avslutande hakparentesen "]", och
-    //    fyll i. Detta är den enda platsen du behöver röra för att
-    //    bygga på banken framöver.
-    //
-    //    Checklista:
-    //    • id — helt eget och PERMANENT. Byt det aldrig i efterhand,
-    //      även om du redigerar fråga/svar senare (se filens topp).
-    //    • collId — måste matcha ett id i samlingarna ovan.
-    //    • imgUrl/imgAlt/imgSide — ta bort de tre raderna helt om
-    //      kortet inte har någon bild.
-    //
-    //    {
-    //      id: 'unikt-id-har',
-    //      q: 'Din fråga eller begrepp...',
-    //      a: 'Svaret / förklaringen...',
-    //      cats: ['Begrepp', 'Ämnesnamn'],
-    //      collId: 'en-samling-id-ovan',
-    //      imgUrl: 'assets/img/<ämne>/filnamn.svg',
-    //      imgAlt: 'Kort beskrivning av bilden',
-    //      imgSide: 'front',
-    //    },
-    // ═══════════════════════════════════════════════════════════
-
   ],
 });

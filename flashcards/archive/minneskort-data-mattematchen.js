@@ -43,9 +43,6 @@ registerMinneskortBank({
     { id: 'mm-1', name: 'Mattematchen 1', subjectId: null, grades: ['8'], section: 'mattematchen' },
     { id: 'mm-2', name: 'Mattematchen 2', subjectId: null, grades: ['8'], section: 'mattematchen' },
     { id: 'mm-3', name: 'Mattematchen 3', subjectId: null, grades: ['8'], section: 'mattematchen' },
-
-    // 👇 NY MATTEMATCH? Lägg till här ovanför den avslutande hakparentesen:
-    // { id: 'mm-4', name: 'Mattematchen 4', subjectId: null, grades: ['8'], section: 'mattematchen' },
   ],
 
   cards: [
@@ -69,22 +66,5 @@ registerMinneskortBank({
       imgAlt: 'Mattematchen 3, uppgift 5',
       imgSide: 'front',
     },
-
-    // ═══════════════════════════════════════════════════════════
-    // 👇 NYA UPPGIFTER LÄGGS TILL HÄR NEDANFÖR — kopiera mallen,
-    //    klistra in ovanför den avslutande hakparentesen "]".
-    //
-    //    {
-    //      id: 'mmNN-UU',                 ← t.ex. mm04-01 (nollfyllt!)
-    //      q: 'Mattematchen NN — uppgift UU',
-    //      a: '(svaret till uppgiften)',
-    //      cats: ['Ämnesnamn'],
-    //      collId: 'mm-NN',               ← måste finnas bland samlingarna ovan
-    //      imgUrl: 'assets/img/mattematchen/mmNN-UU.png',
-    //      imgAlt: 'Mattematchen NN, uppgift UU',
-    //      imgSide: 'front',
-    //    },
-    // ═══════════════════════════════════════════════════════════
-
   ],
 });
