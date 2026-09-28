@@ -1172,39 +1172,74 @@
     this.textContent = open ? 'Visa' : 'Dölj';
   });
 
-  function parseBulkLine(line){
-    line = line.trim();
+  // Tolkar inklistrad text som tabb/radbrytnings-separerade rader, men respekterar
+  // citattecken kring fält - precis som Excel/Word själva citerar en cell vars
+  // innehåll har en egen radbrytning eller tabb inuti sig när de läggs på urklipp.
+  // Det gör att t.ex. en lång förklaring med intern radbrytning i en Excel-cell
+  // fortfarande tolkas som EN rad/post, inte flera.
+  function parseBulkRows(raw){
+    var rows = []; var i = 0, len = raw.length, field = '', row = [], inQuotes = false;
+    function endField(){ row.push(field); field = ''; }
+    function endRow(){ endField(); rows.push(row); row = []; }
+    while (i < len) {
+      var c = raw.charAt(i);
+      if (inQuotes) {
+        if (c === '"') {
+          if (raw.charAt(i + 1) === '"') { field += '"'; i += 2; continue; }
+          inQuotes = false; i++; continue;
+        }
+        field += c; i++; continue;
+      }
+      if (c === '"' && field === '') { inQuotes = true; i++; continue; }
+      if (c === '\t') { endField(); i++; continue; }
+      if (c === '\r') { i++; continue; }
+      if (c === '\n') { endRow(); i++; continue; }
+      field += c; i++;
+    }
+    if (field !== '' || row.length) endRow();
+    return rows;
+  }
+
+  function cleanTerm(t){ return t.replace(/^[\d.\-\)\s]+/, '').trim(); }
+
+  function parseBulkRow(row){
+    if (row.length >= 2) {
+      var term = cleanTerm(row[0].trim());
+      var clue = row.slice(1).join(' ').trim();
+      if (normalize(term).length < 2 || !clue) return null;
+      return { term: term, clue: clue };
+    }
+    // Bara en kolumn (t.ex. manuellt skrivet) - prova semikolon eller tankstreck
+    var line = (row[0] || '').trim();
     if (!line) return null;
     var sep = null;
-    if (line.indexOf('\t') !== -1) sep = '\t';
-    else if (line.indexOf(';') !== -1) sep = ';';
+    if (line.indexOf(';') !== -1) sep = ';';
     else if (/ [-–] /.test(line)) sep = / [-–] /;
     if (sep === null) return null;
-    var idx, term, clue;
+    var t2, c2;
     if (sep instanceof RegExp) {
       var m = line.split(sep);
       if (m.length < 2) return null;
-      term = m[0]; clue = m.slice(1).join(' - ');
+      t2 = m[0]; c2 = m.slice(1).join(' - ');
     } else {
-      idx = line.indexOf(sep);
-      term = line.slice(0, idx);
-      clue = line.slice(idx + 1);
+      var idx = line.indexOf(sep);
+      t2 = line.slice(0, idx); c2 = line.slice(idx + 1);
     }
-    term = term.replace(/^[\d.\-\)\s]+/, '').trim();
-    clue = clue.trim();
-    if (normalize(term).length < 2 || !clue) return null;
-    return { term: term, clue: clue };
+    t2 = cleanTerm(t2); c2 = c2.trim();
+    if (normalize(t2).length < 2 || !c2) return null;
+    return { term: t2, clue: c2 };
   }
 
   document.getElementById('bulkAddBtn').addEventListener('click', function(){
     var status = document.getElementById('bulkStatus');
     var raw = document.getElementById('bulkInput').value;
-    var lines = raw.split('\n');
+    var rows = parseBulkRows(raw);
     var added = 0, skipped = 0;
     var parsed = [];
-    lines.forEach(function(line){
-      if (!line.trim()) return;
-      var item = parseBulkLine(line);
+    rows.forEach(function(row){
+      var blank = row.every(function(f){ return !f.trim(); });
+      if (blank) return;
+      var item = parseBulkRow(row);
       if (item) { parsed.push(item); added++; }
       else { skipped++; }
     });
