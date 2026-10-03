@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Area – triangel | Matematikportalen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ff; --surface:#fff; --surface2:#eae6ff; --border:#ccc5f0;
+  --text:#100e28; --muted:#585078; --accent:#306BF0; --accent2:#EC6095;
+  --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+  --correct:#18a348; --wrong:#e02020; --shadow:rgba(48,107,240,.12);
+  --start:#3aada8; --mal:#c43d75;
+  --radius-sm:8px; --radius-md:14px; --radius-lg:20px;
+  --shadow-sm:0 2px 8px var(--shadow);
+  --font-body: Calibri, 'Atkinson Hyperlegible', sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);padding-bottom:56px;position:relative;overflow-x:hidden;}
+.ambient{position:fixed;border-radius:50%;filter:blur(70px);opacity:.35;pointer-events:none;z-index:0;}
+.ambient.a1{width:340px;height:340px;background:#66C7C2;top:-80px;left:-80px;}
+.ambient.a2{width:380px;height:380px;background:#F4A261;bottom:-100px;right:-60px;}
+.ambient.a3{width:300px;height:300px;background:#EC6095;top:40%;right:20%;}
+header{background:var(--gradient);padding:16px 20px;position:sticky;top:0;z-index:10;box-shadow:0 4px 24px rgba(0,0,0,.15);}
+header h1{margin:0;color:#fff;font-family:'Montserrat',sans-serif;font-size:1.15rem;}
+header p{margin:3px 0 0;color:rgba(255,255,255,.9);font-size:.8rem;}
+main{max-width:920px;margin:0 auto;padding:18px 16px;position:relative;z-index:1;}
+.panels{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:start;}
+@media(max-width:760px){.panels{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:16px;}
+.card h2{font-family:'Montserrat',sans-serif;font-size:.95rem;margin:0 0 12px;}
+.pillbar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.pill{border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:999px;padding:7px 13px;font-weight:700;font-size:.78rem;cursor:pointer;min-height:34px;}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.sliderrow{margin-bottom:12px;}
+.sliderrow label{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:4px;}
+.sliderrow label b{color:var(--accent);}
+.sliderrow input[type=range]{width:100%;accent-color:var(--accent);}
+.togglerow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.togglebtn{border:1.5px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:.75rem;font-weight:700;cursor:pointer;}
+.togglebtn.on{background:var(--start);color:#fff;border-color:var(--start);}
+.svgwrap{background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--radius-sm);display:flex;justify-content:center;padding:10px;}
+svg{max-width:100%;height:auto;}
+.typebadge{font-size:.78rem;font-weight:700;color:var(--muted);margin:8px 0 0;text-align:center;}
+.caption{font-size:.78rem;color:var(--muted);line-height:1.45;margin-top:8px;min-height:34px;}
+.solutionbox{font-size:.92rem;line-height:2;}
+.sline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.sline input{width:64px;padding:5px 6px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:.88rem;text-align:center;}
+.sline input.correct{border-color:var(--correct);background:#eafbf0;}
+.sline input.wrong{border-color:var(--wrong);background:#fdeaea;}
+.formula{font-family:'Montserrat',sans-serif;font-weight:700;text-align:center;background:var(--surface2);border-radius:var(--radius-sm);padding:8px;margin-bottom:10px;font-size:1rem;}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 3px;line-height:1.35;}
+.frac .num{padding:0 6px 2px;border-bottom:1.6px solid var(--text);text-align:center;display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;}
+.frac .den{padding-top:2px;text-align:center;}
+.frac input{width:52px !important;}
+.sline{row-gap:8px;}
+.checkbtn{margin-top:8px;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-weight:700;font-size:.85rem;cursor:pointer;}
+.solfeedback{font-weight:700;margin-top:6px;font-size:.85rem;}
+.solfeedback.correct{color:var(--correct);} .solfeedback.wrong{color:var(--wrong);}
+footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:14px;position:relative;z-index:1;}
+</style>
+</head>
+<body>
+<div class="ambient a1"></div><div class="ambient a2"></div><div class="ambient a3"></div>
+<header>
+  <h1>△ Area – triangel</h1>
+  <p>Geometri · Triangelns area och kopplingen till rektangeln</p>
+</header>
+<main>
+  <div class="panels">
+    <div class="card">
+      <h2>Figur</h2>
+      <div class="sliderrow"><label>Bas <b id="basVal"></b></label><input type="range" id="basSlider" min="2" max="10" value="6"></div>
+      <div class="sliderrow"><label>Höjd <b id="hojdVal"></b></label><input type="range" id="hojdSlider" min="2" max="8" value="4"></div>
+      <div class="sliderrow"><label>Toppens läge <b id="apexVal"></b></label><input type="range" id="apexSlider" min="-5" max="11" value="2"></div>
+      <div class="togglerow">
+        <button class="togglebtn" id="gridToggle">▦ Rutnät</button>
+        <button class="togglebtn" id="dubbelToggle">▱ Visa dubbel</button>
+        <button class="togglebtn" id="randomBtn">🎲 Slumpa</button>
+      </div>
+      <div class="sliderrow" id="morphRow" style="display:none;">
+        <label>Omforma till rektangel <b id="morphVal">0%</b></label>
+        <input type="range" id="morphSlider" min="0" max="100" value="0" step="2">
+      </div>
+      <div class="svgwrap"><svg id="svg"></svg></div>
+      <div class="typebadge" id="typeBadge"></div>
+      <div class="caption" id="caption"></div>
+    </div>
+    <div class="card">
+      <h2>Lösningsförslag</h2>
+      <div class="pillbar" id="modeGroup">
+        <div class="pill active" data-mode="facit">Färdig redovisning</div>
+        <div class="pill" data-mode="elev">Eleven räknar</div>
+      </div>
+      <div class="formula">A = <span class="frac"><span class="num">b · h</span><span class="den">2</span></span></div>
+      <div class="solutionbox" id="solutionBox"></div>
+    </div>
+  </div>
+  <footer>Matematikportalen · PT Ljus</footer>
+</main>
+<script>
+const NS='http://www.w3.org/2000/svg';
+const S={bas:6,hojd:4,apex:2,grid:false,dubbel:false,morph:0,mode:'facit'};
+const $=id=>document.getElementById(id);
+const svg=$('svg');
+const fmt=n=>(Math.round(n*100)/100).toLocaleString('sv-SE');
+
+function el(tag,attrs,parent){
+  const e=document.createElementNS(NS,tag);
+  for(const k in attrs) e.setAttribute(k,attrs[k]);
+  (parent||svg).appendChild(e); return e;
+}
+
+function geom(){
+  const b=S.bas,h=S.hojd,L=S.apex;
+  const tri=[[0,0],[b,0],[L,h]];
+  let copy,para,lam;
+  if(L<=b){ copy=[[L,h],[b,0],[b+L,h]]; para=[[0,0],[b,0],[b+L,h],[L,h]]; lam=L; }
+  else    { copy=[[L,h],[0,0],[L-b,h]]; para=[[0,0],[b,0],[L,h],[L-b,h]]; lam=L-b; }
+  let T,rest,dx;
+  if(lam>=0){ T=[[0,0],[lam,h],[lam,0]]; rest=[[lam,0],[b,0],[b+lam,h],[lam,h]]; dx=b; }
+  else      { T=[[b,0],[b+lam,h],[b+lam,0]]; rest=[[0,0],[b+lam,0],[b+lam,h],[lam,h]]; dx=-b; }
+  return {tri,copy,para,T,rest,dx};
+}
+
+function triType(){
+  const b=S.bas,h=S.hojd,L=S.apex;
+  const dots=[b*L, b*(b-L), h*h-L*(b-L)];
+  if(dots.some(d=>d<0)) return 'Trubbvinklig triangel';
+  if(dots.some(d=>d===0)) return 'Rätvinklig triangel';
+  return 'Spetsvinklig triangel';
+}
+
+function draw(){
+  const sc=20,b=S.bas,h=S.hojd,L=S.apex,G=geom();
+  const pts=[...G.tri,...G.para,...G.T.map(p=>[p[0]+G.dx,p[1]])];
+  const xmin=Math.min(...pts.map(p=>p[0])), xmax=Math.max(...pts.map(p=>p[0]));
+  const padL=70,padR=40,padT=20,padB=36;
+  const W=(xmax-xmin)*sc+padL+padR, H=h*sc+padT+padB;
+  const X=x=>padL+(x-xmin)*sc, Y=y=>padT+(h-y)*sc;
+  const P=arr=>arr.map(p=>X(p[0])+','+Y(p[1])).join(' ');
+  svg.innerHTML='';
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('width',Math.min(W,380)); svg.setAttribute('height',Math.min(W,380)*H/W);
+
+  const t=S.morph/100, morphing=S.dubbel&&t>0;
+  const shifted=G.T.map(p=>[p[0]+G.dx*t,p[1]]);
+
+  // klippyta för rutnätet (union av de figurer som syns)
+  const defs=el('defs',{});
+  const clip=el('clipPath',{id:'cl'},defs);
+  if(morphing){ el('polygon',{points:P(G.rest)},clip); el('polygon',{points:P(shifted)},clip); }
+  else { el('polygon',{points:P(G.tri)},clip); if(S.dubbel) el('polygon',{points:P(G.copy)},clip); }
+  if(S.grid){
+    const pat=el('pattern',{id:'gp',x:X(0),y:Y(0),width:sc,height:sc,patternUnits:'userSpaceOnUse'},defs);
+    el('rect',{width:sc,height:sc,fill:'none',stroke:'var(--accent)','stroke-width':.6},pat);
+  }
+
+  // figurer
+  if(morphing){
+    el('polygon',{points:P(G.rest),fill:'var(--start)','fill-opacity':.18,stroke:'var(--start)','stroke-width':2.2});
+    el('polygon',{points:P(shifted),fill:'var(--mal)','fill-opacity':.18,stroke:'var(--mal)','stroke-width':2.2});
+  } else {
+    el('polygon',{points:P(G.tri),fill:'var(--start)','fill-opacity':.18,stroke:'var(--start)','stroke-width':2.5});
+    if(S.dubbel) el('polygon',{points:P(G.copy),fill:'var(--mal)','fill-opacity':.18,stroke:'var(--mal)','stroke-width':2.5});
+  }
+  if(S.grid) el('rect',{x:X(xmin),y:Y(h),width:(xmax-xmin)*sc,height:h*sc,fill:'url(#gp)','clip-path':'url(#cl)'});
+
+  // streckad höjd + förlängd bas + rät-vinkelmarkering (alltid från originaltriangelns topp)
+  if(!morphing){
+    el('line',{x1:X(L),y1:Y(h),x2:X(L),y2:Y(0),stroke:'var(--muted)','stroke-width':1.5,'stroke-dasharray':'4 3'});
+    if(L<0) el('line',{x1:X(L),y1:Y(0),x2:X(0),y2:Y(0),stroke:'var(--muted)','stroke-width':1.5,'stroke-dasharray':'4 3'});
+    if(L>b) el('line',{x1:X(b),y1:Y(0),x2:X(L),y2:Y(0),stroke:'var(--muted)','stroke-width':1.5,'stroke-dasharray':'4 3'});
+    const s=(L<b/2?1:-1)*6;
+    el('path',{d:`M ${X(L)+s} ${Y(0)} L ${X(L)+s} ${Y(0)-6} L ${X(L)} ${Y(0)-6}`,fill:'none',stroke:'var(--muted)','stroke-width':1});
+  }
+
+  const font="Calibri, 'Atkinson Hyperlegible', sans-serif";
+  const t1=el('text',{x:X(b/2),y:Y(0)+18,'text-anchor':'middle','font-size':12,fill:'var(--muted)','font-family':font});
+  t1.textContent=`b = ${b} cm`;
+  if(!morphing){
+    const hx = L<b/2 ? X(L)+6 : X(L)-6;
+    const t2=el('text',{x:hx,y:Y(h/2)+4,'text-anchor':L<b/2?'start':'end','font-size':12,fill:'var(--muted)','font-family':font});
+    t2.textContent=`h = ${h} cm`;
+  }
+  $('typeBadge').textContent=triType()+(L<0||L>b?' — höjden hamnar utanför basen':'');
+  $('caption').textContent = S.dubbel
+    ? 'Två lika stora trianglar bildar ett parallellogram med samma bas och höjd. Dess area är b · h — så triangelns area är hälften: b · h / 2. Dra i glidaren för att göra om det till en rektangel.'
+    : 'Toppens läge kan flyttas: höjden är alltid det vinkelräta avståndet från toppen ner till basen (eller basens förlängning).';
+}
+
+const frac=(n,d)=>`<span class="frac"><span class="num">${n}</span><span class="den">${d}</span></span>`;
+function solution(){
+  const b=S.bas,h=S.hojd,prod=b*h,a=prod/2,box=$('solutionBox');
+  if(S.mode==='facit'){
+    box.innerHTML=`<div class="sline">Bas = ${b} cm</div><div class="sline">Höjd = ${h} cm</div>
+      <div class="sline">Area = ${frac('b · h','2')} = ${frac(`${b} cm · ${h} cm`,'2')} = ${frac(`${prod} cm²`,'2')} = <b>${fmt(a)} cm²</b></div>`;
+  } else {
+    box.innerHTML=`<div class="sline">Bas = <input id="inB"> cm</div><div class="sline">Höjd = <input id="inH"> cm</div>
+      <div class="sline">Area = ${frac('b · h','2')} = ${frac('<input id="c1"> cm · <input id="c2"> cm','2')} = ${frac('<input id="inP"> cm²','2')} = <input id="inA"> cm²</div>
+      <button class="checkbtn" id="chk">Kolla</button><div class="solfeedback" id="fb"></div>`;
+    $('chk').onclick=()=>{
+      const chk=[['inB',b],['inH',h],['c1',b],['c2',h],['inP',prod],['inA',a]];
+      let all=true;
+      chk.forEach(([id,v])=>{const i=$(id);const ok=parseFloat(i.value.replace(',','.'))===v;
+        i.classList.toggle('correct',ok);i.classList.toggle('wrong',!ok&&i.value!=='');if(!ok)all=false;});
+      $('fb').textContent=all?'Rätt! 🎉':'Något stämmer inte än — kolla igen.';
+      $('fb').className='solfeedback '+(all?'correct':'wrong');
+    };
+  }
+}
+
+function sync(){
+  const m=Math.min(S.bas,5);
+  $('apexSlider').min=-m; $('apexSlider').max=S.bas+m;
+  S.apex=Math.max(-m,Math.min(S.bas+m,S.apex));
+  $('basVal').textContent=S.bas+' cm'; $('hojdVal').textContent=S.hojd+' cm'; $('apexVal').textContent=S.apex+' cm';
+  $('basSlider').value=S.bas; $('hojdSlider').value=S.hojd; $('apexSlider').value=S.apex;
+  $('morphRow').style.display=S.dubbel?'':'none';
+}
+function all(){sync();draw();solution();}
+
+$('basSlider').oninput=e=>{S.bas=+e.target.value;all();};
+$('hojdSlider').oninput=e=>{S.hojd=+e.target.value;all();};
+$('apexSlider').oninput=e=>{S.apex=+e.target.value;all();};
+$('morphSlider').oninput=e=>{S.morph=+e.target.value;$('morphVal').textContent=S.morph+'%';draw();};
+$('gridToggle').onclick=e=>{S.grid=!S.grid;e.target.classList.toggle('on',S.grid);draw();};
+$('dubbelToggle').onclick=e=>{S.dubbel=!S.dubbel;e.target.classList.toggle('on',S.dubbel);
+  if(!S.dubbel){S.morph=0;$('morphSlider').value=0;$('morphVal').textContent='0%';} all();};
+$('randomBtn').onclick=()=>{
+  S.bas=2+Math.floor(Math.random()*9); S.hojd=2+Math.floor(Math.random()*7);
+  const m=Math.min(S.bas,5); S.apex=-m+Math.floor(Math.random()*(S.bas+2*m+1));
+  S.morph=0;$('morphSlider').value=0;$('morphVal').textContent='0%'; all();
+};
+document.querySelectorAll('#modeGroup .pill').forEach(p=>p.onclick=()=>{
+  document.querySelectorAll('#modeGroup .pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active');S.mode=p.dataset.mode;solution();
+});
+all();
+</script>
+</body>
+</html>

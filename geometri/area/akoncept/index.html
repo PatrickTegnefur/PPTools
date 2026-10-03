@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Area – bas gånger höjd | Matematikportalen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ff; --surface:#fff; --surface2:#eae6ff; --border:#ccc5f0;
+  --text:#100e28; --muted:#585078; --accent:#306BF0; --accent2:#EC6095;
+  --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+  --correct:#18a348; --wrong:#e02020; --shadow:rgba(48,107,240,.12);
+  --start:#3aada8; --mal:#c43d75;
+  --radius-sm:8px; --radius-md:14px; --radius-lg:20px;
+  --shadow-sm:0 2px 8px var(--shadow); --shadow-md:0 4px 20px var(--shadow);
+  --font-body: Calibri, 'Atkinson Hyperlegible', sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);padding-bottom:56px;position:relative;overflow-x:hidden;}
+.ambient{position:fixed;border-radius:50%;filter:blur(70px);opacity:.35;pointer-events:none;z-index:0;}
+.ambient.a1{width:340px;height:340px;background:#66C7C2;top:-80px;left:-80px;}
+.ambient.a2{width:380px;height:380px;background:#F4A261;bottom:-100px;right:-60px;}
+.ambient.a3{width:300px;height:300px;background:#EC6095;top:40%;right:20%;}
+header{background:var(--gradient);padding:16px 20px;position:sticky;top:0;z-index:10;box-shadow:0 4px 24px rgba(0,0,0,.15);}
+header h1{margin:0;color:#fff;font-family:'Montserrat',sans-serif;font-size:1.15rem;}
+header p{margin:3px 0 0;color:rgba(255,255,255,.9);font-size:.8rem;}
+main{max-width:920px;margin:0 auto;padding:18px 16px;position:relative;z-index:1;}
+.panels{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:start;}
+@media(max-width:760px){.panels{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:16px;}
+.card h2{font-family:'Montserrat',sans-serif;font-size:.95rem;margin:0 0 12px;}
+
+.pillbar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.pill{border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:999px;padding:7px 13px;font-weight:700;font-size:.78rem;cursor:pointer;min-height:34px;}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+.sliderrow{margin-bottom:12px;}
+.sliderrow label{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:4px;}
+.sliderrow label b{color:var(--accent);}
+.sliderrow input[type=range]{width:100%;accent-color:var(--accent);}
+
+.togglerow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.togglebtn{border:1.5px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:.75rem;font-weight:700;cursor:pointer;}
+.togglebtn.on{background:var(--start);color:#fff;border-color:var(--start);}
+
+.svgwrap{background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--radius-sm);display:flex;justify-content:center;padding:10px;}
+svg{max-width:100%;height:auto;}
+.piece{transition:transform .6s ease;}
+
+.solutionbox{font-size:.92rem;line-height:2;}
+.sline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.sline input{width:60px;padding:5px 6px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:.88rem;text-align:center;}
+.sline input.correct{border-color:var(--correct);background:#eafbf0;}
+.sline input.wrong{border-color:var(--wrong);background:#fdeaea;}
+.formula{font-family:'Montserrat',sans-serif;font-weight:700;text-align:center;background:var(--surface2);border-radius:var(--radius-sm);padding:8px;margin-bottom:10px;font-size:1rem;}
+.checkbtn{margin-top:8px;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-weight:700;font-size:.85rem;cursor:pointer;}
+.solfeedback{font-weight:700;margin-top:6px;font-size:.85rem;}
+.solfeedback.correct{color:var(--correct);}
+.solfeedback.wrong{color:var(--wrong);}
+footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:14px;position:relative;z-index:1;}
+</style>
+</head>
+<body>
+<div class="ambient a1"></div><div class="ambient a2"></div><div class="ambient a3"></div>
+<header>
+  <h1>▱ Area – bas gånger höjd</h1>
+  <p>Geometri · Rektangel, kvadrat, parallellogram, romb</p>
+</header>
+
+<main>
+  <div class="panels">
+    <div class="card">
+      <h2>Figur</h2>
+      <div class="pillbar" id="shapeGroup">
+        <div class="pill active" data-shape="rektangel">Rektangel</div>
+        <div class="pill" data-shape="kvadrat">Kvadrat</div>
+        <div class="pill" data-shape="parallellogram">Parallellogram</div>
+        <div class="pill" data-shape="romb">Romb</div>
+      </div>
+
+      <div class="sliderrow">
+        <label>Bas <b id="basVal">5 cm</b></label>
+        <input type="range" id="basSlider" min="2" max="10" value="5" step="1">
+      </div>
+      <div class="sliderrow" id="hojdRow">
+        <label>Höjd <b id="hojdVal">4 cm</b></label>
+        <input type="range" id="hojdSlider" min="2" max="8" value="4" step="1">
+      </div>
+      <div class="sliderrow" id="lutaRow" style="display:none;">
+        <label>Luta <b id="lutaVal">2 cm</b></label>
+        <input type="range" id="lutaSlider" min="1" max="6" value="3" step="1">
+      </div>
+
+      <div class="sliderrow" id="morphRow" style="display:none;">
+        <label>Omforma till rektangel <b id="morphVal">0%</b></label>
+        <input type="range" id="morphSlider" min="0" max="100" value="0" step="2">
+      </div>
+
+      <div class="togglerow">
+        <button class="togglebtn" id="gridToggle">▦ Rutnät</button>
+        <button class="togglebtn" id="randomBtn">🎲 Slumpa</button>
+      </div>
+
+      <div class="svgwrap"><svg id="shapeSvg"></svg></div>
+    </div>
+
+    <div class="card">
+      <h2>Lösningsförslag</h2>
+      <div class="pillbar" id="modeGroup">
+        <div class="pill active" data-mode="facit">Färdig redovisning</div>
+        <div class="pill" data-mode="elev">Eleven räknar</div>
+      </div>
+      <div class="formula">A = b · h</div>
+      <div class="solutionbox" id="solutionBox"></div>
+    </div>
+  </div>
+  <footer>Matematikportalen · PT Ljus</footer>
+</main>
+
+<script>
+const SVG_NS='http://www.w3.org/2000/svg';
+let state = { shape:'rektangel', bas:5, hojd:4, luta:0, lutaP:3, grid:false, morph:0, mode:'facit' };
+
+const basSlider=document.getElementById('basSlider');
+const hojdSlider=document.getElementById('hojdSlider');
+const lutaSlider=document.getElementById('lutaSlider');
+const basVal=document.getElementById('basVal');
+const hojdVal=document.getElementById('hojdVal');
+const lutaVal=document.getElementById('lutaVal');
+const hojdRow=document.getElementById('hojdRow');
+const lutaRow=document.getElementById('lutaRow');
+const morphRow=document.getElementById('morphRow');
+const morphSlider=document.getElementById('morphSlider');
+const morphVal=document.getElementById('morphVal');
+const gridToggle=document.getElementById('gridToggle');
+const randomBtn=document.getElementById('randomBtn');
+const svg=document.getElementById('shapeSvg');
+const solutionBox=document.getElementById('solutionBox');
+
+function unitLabelName(s){
+  return {rektangel:'Rektangel',kvadrat:'Kvadrat',parallellogram:'Parallellogram',romb:'Romb'}[s];
+}
+
+function syncControls(){
+  const isKvadrat = state.shape==='kvadrat';
+  const isRomb = state.shape==='romb';
+  const isPara = state.shape==='parallellogram';
+  hojdRow.style.display = isKvadrat ? 'none' : '';
+  lutaRow.style.display = isPara ? '' : 'none';
+  morphRow.style.display = (isPara || isRomb) ? '' : 'none';
+  if(isKvadrat){ state.hojd = state.bas; }
+  if(isRomb){
+    hojdSlider.max = state.bas - 1;
+    if(state.hojd > state.bas-1) state.hojd = state.bas-1;
+    state.luta = Math.sqrt(Math.max(state.bas*state.bas - state.hojd*state.hojd,0)); // exakt => alla sidor lika långa
+  } else {
+    hojdSlider.max = 8;
+  }
+  if(isPara){
+    lutaSlider.max = state.bas - 1;
+    if(state.lutaP > state.bas-1) state.lutaP = state.bas-1;
+    state.luta = state.lutaP;
+  }
+  if(!isPara && !isRomb){ state.luta = 0; state.morph=0; morphSlider.value=0; morphVal.textContent='0%'; }
+  basVal.textContent = state.bas+' cm';
+  hojdVal.textContent = state.hojd+' cm';
+  lutaVal.textContent = (isRomb ? state.luta.toFixed(1) : state.luta)+' cm';
+  basSlider.value=state.bas; hojdSlider.value=state.hojd; if(isPara) lutaSlider.value=state.lutaP;
+}
+
+function draw(){
+  const scale = 20;
+  const bas=state.bas, hojd=state.hojd, luta=state.luta;
+  const padding=24, padLeft=64;
+  const w = (2*bas+luta)*scale + padLeft + padding;
+  const h = hojd*scale + padding*2;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.setAttribute('width', Math.min(w,340));
+  svg.setAttribute('height', Math.min(h,240));
+  svg.innerHTML='';
+
+  const x0=padLeft, y0=h-padding;
+  const bp=bas*scale, hp=hojd*scale, lp=luta*scale;
+  const shiftX = (state.morph/100)*bp; // triangeln glider gradvis ett helt steg = bas åt höger
+
+  const defs=document.createElementNS(SVG_NS,'defs');
+  const clip=document.createElementNS(SVG_NS,'clipPath');
+  const clipId='clip'+Date.now();
+  clip.setAttribute('id',clipId);
+  if(luta===0){
+    const p=document.createElementNS(SVG_NS,'polygon');
+    p.setAttribute('points', `${x0},${y0} ${x0+bp},${y0} ${x0+bp},${y0-hp} ${x0},${y0-hp}`);
+    clip.appendChild(p);
+  } else {
+    // klippytan = resten (trapetsen) UNION triangeln i sitt aktuella läge (fungerar för alla mellanlägen)
+    const rest=document.createElementNS(SVG_NS,'polygon');
+    rest.setAttribute('points', `${x0+lp},${y0} ${x0+bp},${y0} ${x0+bp+lp},${y0-hp} ${x0+lp},${y0-hp}`);
+    clip.appendChild(rest);
+    const tri=document.createElementNS(SVG_NS,'polygon');
+    tri.setAttribute('points', `${x0+shiftX},${y0} ${x0+lp+shiftX},${y0-hp} ${x0+lp+shiftX},${y0}`);
+    clip.appendChild(tri);
+  }
+  defs.appendChild(clip);
+
+  if(state.grid){
+    const patId='grid'+Date.now();
+    const pattern=document.createElementNS(SVG_NS,'pattern');
+    pattern.setAttribute('id',patId);
+    pattern.setAttribute('width',scale); pattern.setAttribute('height',scale);
+    pattern.setAttribute('patternUnits','userSpaceOnUse');
+    pattern.setAttribute('x', x0); pattern.setAttribute('y', y0); // rutnätet startar kant i kant med basens vänsterhörn
+    const cell=document.createElementNS(SVG_NS,'rect');
+    cell.setAttribute('width',scale); cell.setAttribute('height',scale);
+    cell.setAttribute('fill','none'); cell.setAttribute('stroke','var(--accent)'); cell.setAttribute('stroke-width','0.6');
+    pattern.appendChild(cell);
+    defs.appendChild(pattern);
+    svg.appendChild(defs);
+    const gridRect=document.createElementNS(SVG_NS,'rect');
+    gridRect.setAttribute('x',x0-lp); gridRect.setAttribute('y',y0-hp);
+    gridRect.setAttribute('width',bp+2*lp+shiftX); gridRect.setAttribute('height',hp);
+    gridRect.setAttribute('fill',`url(#${patId})`);
+    gridRect.setAttribute('clip-path',`url(#${clipId})`);
+    svg.appendChild(gridRect);
+  } else {
+    svg.appendChild(defs);
+  }
+
+  if(luta===0){
+    const rect=document.createElementNS(SVG_NS,'rect');
+    rect.setAttribute('x',x0); rect.setAttribute('y',y0-hp);
+    rect.setAttribute('width',bp); rect.setAttribute('height',hp);
+    rect.setAttribute('fill','none'); rect.setAttribute('stroke','var(--start)'); rect.setAttribute('stroke-width','2.5');
+    svg.appendChild(rect);
+  } else {
+    // streckad höjdlinje — den "sanna" vinkelräta höjden i originalfiguren
+    const hline=document.createElementNS(SVG_NS,'line');
+    hline.setAttribute('x1',x0+lp); hline.setAttribute('y1',y0);
+    hline.setAttribute('x2',x0+lp); hline.setAttribute('y2',y0-hp);
+    hline.setAttribute('stroke','var(--muted)'); hline.setAttribute('stroke-width','1.5');
+    hline.setAttribute('stroke-dasharray','4 3');
+    svg.appendChild(hline);
+
+    // resten (trapets, står still) + triangel (glider kontinuerligt med glidaren)
+    const rest=document.createElementNS(SVG_NS,'polygon');
+    rest.setAttribute('points', `${x0+lp},${y0} ${x0+bp},${y0} ${x0+bp+lp},${y0-hp} ${x0+lp},${y0-hp}`);
+    rest.setAttribute('fill','none'); rest.setAttribute('stroke','var(--start)'); rest.setAttribute('stroke-width','2.5');
+    svg.appendChild(rest);
+
+    const tri=document.createElementNS(SVG_NS,'polygon');
+    tri.setAttribute('class','piece');
+    tri.setAttribute('points', `${x0},${y0} ${x0+lp},${y0-hp} ${x0+lp},${y0}`);
+    tri.setAttribute('fill','none'); tri.setAttribute('stroke','var(--mal)'); tri.setAttribute('stroke-width','2.5');
+    tri.style.transform = `translateX(${shiftX}px)`;
+    svg.appendChild(tri);
+  }
+
+  // bas/höjd-etiketter
+  const lbl1=document.createElementNS(SVG_NS,'text');
+  lbl1.setAttribute('x', x0+bp/2); lbl1.setAttribute('y', y0+16);
+  lbl1.setAttribute('text-anchor','middle'); lbl1.setAttribute('font-size','11'); lbl1.setAttribute('fill','var(--muted)');
+  lbl1.setAttribute('font-family',"Calibri, 'Atkinson Hyperlegible', sans-serif");
+  lbl1.textContent = `b = ${bas} cm`;
+  svg.appendChild(lbl1);
+  const lbl2=document.createElementNS(SVG_NS,'text');
+  lbl2.setAttribute('x', x0-8); lbl2.setAttribute('y', y0-hp/2);
+  lbl2.setAttribute('text-anchor','end'); lbl2.setAttribute('font-size','11'); lbl2.setAttribute('fill','var(--muted)');
+  lbl2.setAttribute('font-family',"Calibri, 'Atkinson Hyperlegible', sans-serif");
+  lbl2.textContent = `h = ${hojd} cm`;
+  svg.appendChild(lbl2);
+}
+
+function renderSolution(){
+  const b=state.bas, h=state.hojd, a=b*h;
+  if(state.mode==='facit'){
+    solutionBox.innerHTML = `
+      <div class="sline">${unitLabelName(state.shape)}</div>
+      <div class="sline">Bas = ${b} cm</div>
+      <div class="sline">Höjd = ${h} cm</div>
+      <div class="sline">Area = b · h = ${b} cm · ${h} cm = <b>${a} cm²</b></div>
+    `;
+  } else {
+    solutionBox.innerHTML = `
+      <div class="sline">Bas = <input type="number" id="inB"> cm</div>
+      <div class="sline">Höjd = <input type="number" id="inH"> cm</div>
+      <div class="sline">Area = b · h = <input type="number" id="inA"> cm²</div>
+      <button class="checkbtn" id="checkSol">Kolla</button>
+      <div class="solfeedback" id="solFb"></div>
+    `;
+    document.getElementById('checkSol').addEventListener('click', ()=>{
+      const inB=document.getElementById('inB'), inH=document.getElementById('inH'), inA=document.getElementById('inA');
+      const okB = parseFloat(inB.value)===b, okH=parseFloat(inH.value)===h, okA=parseFloat(inA.value)===a;
+      [[inB,okB],[inH,okH],[inA,okA]].forEach(([el,ok])=>{
+        el.classList.toggle('correct',ok); el.classList.toggle('wrong',!ok && el.value!=='');
+      });
+      const fb=document.getElementById('solFb');
+      if(okB&&okH&&okA){ fb.textContent='Rätt! 🎉'; fb.className='solfeedback correct'; }
+      else { fb.textContent='Något stämmer inte än — kolla igen.'; fb.className='solfeedback wrong'; }
+    });
+  }
+}
+
+function renderAll(){ syncControls(); draw(); renderSolution(); }
+
+document.querySelectorAll('#shapeGroup .pill').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#shapeGroup .pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); state.shape=btn.dataset.shape; state.morph=0; morphSlider.value=0; morphVal.textContent='0%';
+    renderAll();
+  });
+});
+document.querySelectorAll('#modeGroup .pill').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#modeGroup .pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); state.mode=btn.dataset.mode;
+    renderSolution();
+  });
+});
+basSlider.addEventListener('input', ()=>{ state.bas=parseInt(basSlider.value,10); renderAll(); });
+hojdSlider.addEventListener('input', ()=>{ state.hojd=parseInt(hojdSlider.value,10); renderAll(); });
+lutaSlider.addEventListener('input', ()=>{ state.lutaP=parseInt(lutaSlider.value,10); state.luta=state.lutaP; renderAll(); });
+gridToggle.addEventListener('click', ()=>{ state.grid=!state.grid; gridToggle.classList.toggle('on',state.grid); draw(); });
+morphSlider.addEventListener('input', ()=>{
+  state.morph = parseInt(morphSlider.value,10);
+  morphVal.textContent = state.morph+'%';
+  draw();
+});
+randomBtn.addEventListener('click', ()=>{
+  state.bas = Math.floor(Math.random()*(parseInt(basSlider.max,10)-2+1))+2;
+  const maxH = state.shape==='romb' ? state.bas-1 : 8;
+  state.hojd = Math.floor(Math.random()*(maxH-2+1))+2;
+  renderAll();
+});
+
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volym – basarea gånger höjd | Matematikportalen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ff; --surface:#fff; --surface2:#eae6ff; --border:#ccc5f0;
+  --text:#100e28; --muted:#585078; --accent:#306BF0; --accent2:#EC6095;
+  --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+  --correct:#18a348; --wrong:#e02020; --shadow:rgba(48,107,240,.12);
+  --start:#3aada8; --mal:#c43d75;
+  --radius-sm:8px; --radius-md:14px; --radius-lg:20px;
+  --shadow-sm:0 2px 8px var(--shadow);
+  --font-body: Calibri, 'Atkinson Hyperlegible', sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);padding-bottom:56px;position:relative;overflow-x:hidden;}
+.ambient{position:fixed;border-radius:50%;filter:blur(70px);opacity:.35;pointer-events:none;z-index:0;}
+.ambient.a1{width:340px;height:340px;background:#66C7C2;top:-80px;left:-80px;}
+.ambient.a2{width:380px;height:380px;background:#F4A261;bottom:-100px;right:-60px;}
+.ambient.a3{width:300px;height:300px;background:#EC6095;top:40%;right:20%;}
+header{background:var(--gradient);padding:16px 20px;position:sticky;top:0;z-index:10;box-shadow:0 4px 24px rgba(0,0,0,.15);}
+header h1{margin:0;color:#fff;font-family:'Montserrat',sans-serif;font-size:1.15rem;}
+header p{margin:3px 0 0;color:rgba(255,255,255,.9);font-size:.8rem;}
+main{max-width:920px;margin:0 auto;padding:18px 16px;position:relative;z-index:1;}
+.panels{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:start;}
+@media(max-width:760px){.panels{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:16px;}
+.card h2{font-family:'Montserrat',sans-serif;font-size:.95rem;margin:0 0 12px;}
+.pillbar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.pill{border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:999px;padding:7px 13px;font-weight:700;font-size:.78rem;cursor:pointer;min-height:34px;}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.sliderrow{margin-bottom:12px;}
+.sliderrow label{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:4px;}
+.sliderrow label b{color:var(--accent);}
+.sliderrow input[type=range]{width:100%;accent-color:var(--accent);}
+.togglerow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.togglebtn{border:1.5px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:.75rem;font-weight:700;cursor:pointer;}
+.togglebtn.on{background:var(--start);color:#fff;border-color:var(--start);}
+.svgwrap{background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--radius-sm);display:flex;justify-content:center;padding:10px;}
+svg{max-width:100%;height:auto;}
+.caption{font-size:.78rem;color:var(--muted);line-height:1.45;margin-top:8px;min-height:34px;}
+.solutionbox{font-size:.92rem;line-height:2;}
+.sline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:8px;}
+.sline input{width:64px;padding:5px 6px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:.88rem;text-align:center;}
+.sline input.correct{border-color:var(--correct);background:#eafbf0;}
+.sline input.wrong{border-color:var(--wrong);background:#fdeaea;}
+.formula{font-family:'Montserrat',sans-serif;font-weight:700;text-align:center;background:var(--surface2);border-radius:var(--radius-sm);padding:8px;font-size:1rem;}
+.formula-sub{font-family:'Montserrat',sans-serif;font-weight:700;text-align:center;background:var(--surface2);border-radius:var(--radius-sm);padding:8px;margin-top:6px;font-size:.92rem;display:none;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px;}
+.formula-sub.show{display:flex;}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 3px;line-height:1.35;}
+.frac .num{padding:0 6px 2px;border-bottom:1.6px solid var(--text);text-align:center;display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;}
+.frac .den{padding-top:2px;text-align:center;}
+.frac input{width:52px !important;}
+.checkbtn{margin-top:8px;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-weight:700;font-size:.85rem;cursor:pointer;}
+.solfeedback{font-weight:700;margin-top:6px;font-size:.85rem;}
+.solfeedback.correct{color:var(--correct);} .solfeedback.wrong{color:var(--wrong);}
+footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:14px;position:relative;z-index:1;}
+</style>
+</head>
+<body>
+<div class="ambient a1"></div><div class="ambient a2"></div><div class="ambient a3"></div>
+<header>
+  <h1>📦 Volym – Basarea gånger höjd</h1>
+  <p>Geometri · Rätblock, kub, cylinder, prisma</p>
+</header>
+<main>
+  <div class="panels">
+    <div class="card">
+      <h2>Kropp</h2>
+      <div class="pillbar" id="shapeGroup">
+        <div class="pill active" data-shape="ratblock">Rätblock</div>
+        <div class="pill" data-shape="kub">Kub</div>
+        <div class="pill" data-shape="cylinder">Cylinder</div>
+        <div class="pill" data-shape="prisma">Prisma</div>
+      </div>
+
+      <div class="sliderrow" id="langdRow"><label>Längd <b id="langdVal"></b></label><input type="range" id="langdSlider" min="2" max="8" value="5"></div>
+      <div class="sliderrow" id="breddRow"><label>Bredd <b id="breddVal"></b></label><input type="range" id="breddSlider" min="2" max="8" value="3"></div>
+      <div class="sliderrow" id="sidaRow" style="display:none;"><label>Sida <b id="sidaVal"></b></label><input type="range" id="sidaSlider" min="2" max="7" value="4"></div>
+      <div class="sliderrow" id="radieRow" style="display:none;"><label>Radie <b id="radieVal"></b></label><input type="range" id="radieSlider" min="2" max="6" value="3"></div>
+      <div class="sliderrow" id="triBasRow" style="display:none;"><label>Triangelbas <b id="triBasVal"></b></label><input type="range" id="triBasSlider" min="2" max="8" value="5"></div>
+      <div class="sliderrow" id="triHojdRow" style="display:none;"><label>Triangelhöjd <b id="triHojdVal"></b></label><input type="range" id="triHojdSlider" min="2" max="6" value="3"></div>
+      <div class="sliderrow" id="hRow"><label>Höjd (kroppens) <b id="hVal"></b></label><input type="range" id="hSlider" min="2" max="9" value="6"></div>
+
+      <div class="togglerow">
+        <button class="togglebtn" id="baseToggle">◻️ Visa basarean</button>
+        <button class="togglebtn" id="randomBtn">🎲 Slumpa</button>
+      </div>
+
+      <div class="svgwrap"><svg id="svg"></svg></div>
+      <div class="caption" id="caption"></div>
+    </div>
+
+    <div class="card">
+      <h2>Lösningsförslag</h2>
+      <div class="pillbar" id="modeGroup">
+        <div class="pill active" data-mode="facit">Färdig redovisning</div>
+        <div class="pill" data-mode="elev">Eleven räknar</div>
+      </div>
+      <div class="formula" id="formulaBox">V = B · h</div>
+      <div class="formula-sub" id="formulaSub"></div>
+      <div class="solutionbox" id="solutionBox" style="margin-top:12px;"></div>
+    </div>
+  </div>
+  <footer>Matematikportalen · PT Ljus</footer>
+</main>
+<script>
+const NS='http://www.w3.org/2000/svg';
+const PI=3.14;
+const S={shape:'ratblock',langd:5,bredd:3,sida:4,radie:3,triBas:5,triHojd:3,h:6,base:false,mode:'facit'};
+const $=id=>document.getElementById(id);
+const svg=$('svg');
+const fmt=n=>(Math.round(n*100)/100).toLocaleString('sv-SE');
+const frac=(n,d)=>`<span class="frac"><span class="num">${n}</span><span class="den">${d}</span></span>`;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);(parent||svg).appendChild(e);return e;}
+// isometrisk djupvektor enligt "kabinettprojektion": sträckan inåt ritas med HALVA sanna längden, i 45°
+function depthVec(depthPx){ const seg=depthPx/2*Math.SQRT1_2; return [seg, -seg]; }
+
+function baseArea(){
+  if(S.shape==='ratblock') return S.langd*S.bredd;
+  if(S.shape==='kub') return S.sida*S.sida;
+  if(S.shape==='cylinder') return PI*S.radie*S.radie;
+  return (S.triBas*S.triHojd)/2; // prisma
+}
+function bodyHeight(){ return S.shape==='kub' ? S.sida : S.h; }
+function volume(){ return baseArea()*bodyHeight(); }
+
+function draw(){
+  const sc=18, font="Calibri, 'Atkinson Hyperlegible', sans-serif";
+  svg.innerHTML='';
+  const hh=bodyHeight()*sc;
+  const baseCol='var(--mal)', neutral='var(--start)';
+  const dash={'stroke-dasharray':'4 3'};
+
+  if(S.shape==='cylinder'){
+    const r=S.radie*sc, h=hh, ex=r*0.32;
+    const padR=70; // extra utrymme till höger för r-etiketten
+    const W=2*r+40+padR, H=h+2*ex+50;
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('width',Math.min(W,320)); svg.setAttribute('height',Math.min(H,320));
+    const cx=20+r, topY=25+ex, botY=topY+h;
+    // mantelyta (sidoväggarna) — ritas FÖRST, under ellipserna
+    el('rect',{x:cx-r,y:topY,width:2*r,height:h,fill:neutral,'fill-opacity':.13,stroke:'none'});
+    el('line',{x1:cx-r,y1:topY,x2:cx-r,y2:botY,stroke:neutral,'stroke-width':2.2});
+    el('line',{x1:cx+r,y1:topY,x2:cx+r,y2:botY,stroke:neutral,'stroke-width':2.2});
+    // basen (nedre cirkeln): bakre halvan streckad (skyms), främre halvan solid, ritas UNDER topplocket i z-ordning men här är den sist ritad ovanpå väggarna vilket är rätt eftersom den är kroppens kant
+    const bcol=S.base?baseCol:neutral;
+    // golvcirkeln finns alltid, med samma svaga toning som väggarna som standard — vid basarea skiftar den bara färg
+    el('ellipse',{cx,cy:botY,rx:r,ry:ex,fill:bcol,'fill-opacity':S.base?.32:.13});
+    // den bortre halvan (skyms av kroppen) är streckad, den närmaste halvan är heldragen
+    el('path',{d:`M ${cx-r} ${botY} A ${r} ${ex} 0 0 1 ${cx+r} ${botY}`,fill:'none',stroke:bcol,'stroke-width':S.base?3:2.2,...dash});
+    el('path',{d:`M ${cx-r} ${botY} A ${r} ${ex} 0 0 0 ${cx+r} ${botY}`,fill:'none',stroke:bcol,'stroke-width':S.base?3:2.2});
+    // topplock — helt synligt, ritas sist så den hamnar överst
+    el('ellipse',{cx,cy:topY,rx:r,ry:ex,fill:'#fff',stroke:neutral,'stroke-width':2.2});
+
+    // radie-indikator: kort tydlig streckad linje + etikett UTANFÖR figuren
+    el('line',{x1:cx,y1:botY,x2:cx+r,y2:botY,stroke:'var(--mal)','stroke-width':2,...dash});
+    el('circle',{cx,cy:botY,r:2.5,fill:'var(--mal)'});
+    const rLbl=el('text',{x:cx+r+10,y:botY+4,'text-anchor':'start','font-size':12,fill:'var(--mal)','font-family':font,'font-weight':'700'});
+    rLbl.textContent=`r = ${S.radie} cm`;
+    const hLbl=el('text',{x:cx-r-10,y:(topY+botY)/2,'text-anchor':'end','font-size':12,fill:'var(--muted)','font-family':font});
+    hLbl.textContent=`h = ${S.h} cm`;
+
+    $('caption').textContent = S.base ? 'Basen är en cirkel (streckad = den delen skyms av kroppen). Basarean B = π · r · r.' : 'En cylinder är som ett prisma fast med en cirkel som bas.';
+    return;
+  }
+
+  if(S.shape==='prisma'){
+    // stående triangulärt prisma: triangeln är golvet (basarean), kroppen sträcker sig rakt upp.
+    // djupet (var på figuren "back"-hörnet hamnar) styrs av Triangelhöjd-slidern.
+    const bw=S.triBas*sc;
+    const [ddx,ddy]=depthVec(S.triHojd*sc);
+    const fy=30+Math.abs(ddy)+hh, fx=50;
+    const front=[fx,fy], right=[fx+bw,fy], back=[fx+bw/2+ddx, fy+ddy];
+    const up=([x,y])=>[x,y-hh];
+    const [frontU,rightU,backU]=[front,right,back].map(up);
+    const poly=(pts)=>pts.map(p=>p.join(',')).join(' ');
+    const W=Math.max(back[0],right[0])+40, H=fy+40;
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('width',Math.min(W,320)); svg.setAttribute('height',Math.min(H,320));
+
+    // höger sidovägg (synlig)
+    el('polygon',{points:poly([right,back,backU,rightU]),fill:'#c9c3ec',stroke:'var(--start)','stroke-width':1.8});
+    // framsidans vägg (synlig)
+    el('polygon',{points:poly([front,right,rightU,frontU]),fill:'var(--surface2)',stroke:'var(--start)','stroke-width':1.8});
+    // vänster sidovägg (dold) — streckad kontur, ingen fyllning
+    el('polygon',{points:poly([front,back,backU,frontU]),fill:'none',stroke:'var(--muted)','stroke-width':1.4,...dash});
+    // taket (övre triangeln) — helt synligt
+    el('polygon',{points:poly([frontU,rightU,backU]),fill:'#fff',stroke:'var(--start)','stroke-width':2});
+    // golvet (undre triangeln) = basarean — streckad kontur eftersom den skyms
+    el('polygon',{points:poly([front,right,back]),fill:S.base?baseCol:'none','fill-opacity':S.base?.32:0,stroke:S.base?baseCol:'var(--muted)','stroke-width':S.base?2.6:1.4,...dash});
+
+    const t1=el('text',{x:(front[0]+right[0])/2,y:fy+18,'text-anchor':'middle','font-size':11,fill:'var(--muted)','font-family':font}); t1.textContent=`b = ${S.triBas} cm`;
+    const t1b=el('text',{x:(right[0]+back[0])/2+6,y:(right[1]+back[1])/2,'text-anchor':'start','font-size':11,fill:'var(--muted)','font-family':font}); t1b.textContent=`djup = ${S.triHojd} cm`;
+    const t2=el('text',{x:front[0]-8,y:fy-hh/2,'text-anchor':'end','font-size':11,fill:'var(--muted)','font-family':font}); t2.textContent=`h = ${S.h} cm`;
+    $('caption').textContent = S.base
+      ? 'Golvet (streckat, eftersom det skyms av kroppen) är basarean.'
+      : 'Prismat har två kongruenta trianglar (golv och tak) och tre rektangulära sidoytor — en av dem är dold här.';
+    return;
+  }
+
+  // rätblock / kub: isometrisk låda, basarean vid golvet
+  const bw=(S.shape==='kub'?S.sida:S.langd)*sc;
+  const depthCm = S.shape==='kub' ? S.sida : S.bredd;
+  const [dx,dy]=depthVec(depthCm*sc);
+  const fx=50, fy=30+Math.abs(dy)+hh;
+  const W=fx+bw+Math.abs(dx)+50, H=fy+40;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('width',Math.min(W,320)); svg.setAttribute('height',Math.min(H,320));
+
+  const topFront=[fx,fy-hh], topRight=[fx+bw,fy-hh], topBack=[fx+bw+dx,fy-hh+dy], topLeftBack=[fx+dx,fy-hh+dy];
+  const botFront=[fx,fy], botRight=[fx+bw,fy], botBack=[fx+bw+dx,fy+dy], botLeftBack=[fx+dx,fy+dy];
+  const poly=(pts)=>pts.map(p=>p.join(',')).join(' ');
+
+  // topp (lock) — helt synligt
+  el('polygon',{points:poly([topFront,topRight,topBack,topLeftBack]),fill:'#fff',stroke:'var(--start)','stroke-width':2});
+  // höger sida
+  el('polygon',{points:poly([topRight,topBack,botBack,botRight]),fill:'#c9c3ec',stroke:'var(--start)','stroke-width':1.8});
+  // front
+  el('rect',{x:fx,y:fy-hh,width:bw,height:hh,fill:'var(--surface2)',stroke:'var(--start)','stroke-width':1.8});
+  // dolda kanter vid golvets bortre hörn (streckade)
+  [[botLeftBack,botFront],[botLeftBack,topLeftBack],[botLeftBack,botBack]].forEach(([a,b])=>{
+    el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'var(--muted)','stroke-width':1.4,...dash});
+  });
+  // golvet = basarean, streckad kontur (skyms av kroppen)
+  el('polygon',{points:poly([botFront,botRight,botBack,botLeftBack]),fill:S.base?baseCol:'none','fill-opacity':S.base?.32:0,stroke:S.base?baseCol:'none','stroke-width':S.base?2.6:0});
+
+  if(S.shape==='kub'){
+    const t1=el('text',{x:fx+bw/2,y:fy+22,'text-anchor':'middle','font-size':11,fill:'var(--muted)','font-family':font}); t1.textContent=`s = ${S.sida} cm`;
+  } else {
+    const t1=el('text',{x:fx+bw/2,y:fy+22,'text-anchor':'middle','font-size':11,fill:'var(--muted)','font-family':font}); t1.textContent=`l = ${S.langd} cm`;
+    const t1b=el('text',{x:fx+bw+dx/2+6,y:fy+dy/2+8,'text-anchor':'start','font-size':11,fill:'var(--muted)','font-family':font}); t1b.textContent=`b = ${S.bredd} cm`;
+    const t2=el('text',{x:fx-8,y:fy-hh/2,'text-anchor':'end','font-size':11,fill:'var(--muted)','font-family':font}); t2.textContent=`h = ${S.h} cm`;
+  }
+  $('caption').textContent = S.base
+    ? 'Golvet (streckat, eftersom det skyms av kroppen) är basarean.'
+    : 'Tänk dig basarean staplad rakt upp, lager på lager, hela vägen till toppen — det är volymen.';
+}
+
+function updateFormula(){
+  const sub=$('formulaSub');
+  if(S.shape==='prisma'){
+    sub.innerHTML = `B = ${frac('b · h','2')} <span style="font-family:var(--font-body);font-weight:400;font-size:.75rem;color:var(--muted);margin-left:6px;">(basarean har formen av en triangel)</span>`;
+    sub.classList.add('show');
+  } else {
+    sub.classList.remove('show'); sub.innerHTML='';
+  }
+}
+
+function solutionLines(){
+  const A=baseArea(), h=bodyHeight(), V=A*h;
+  if(S.shape==='ratblock') return {
+    basaFacit:`Basarea B = l · b = ${S.langd} cm · ${S.bredd} cm = ${fmt(A)} cm²`,
+    vFacit:`V = B · h = ${fmt(A)} cm² · ${S.h} cm = <b>${fmt(V)} cm³</b>`,
+    inputs:[['inL',S.langd],['inB',S.bredd],['inBA',A],['inH',S.h],['inV',V]],
+    elevHtml:`<div class="sline">Längd = <input id="inL"> cm, Bredd = <input id="inB"> cm</div>
+      <div class="sline">Basarea B = l · b = <input id="inBA"> cm²</div>
+      <div class="sline">Höjd = <input id="inH"> cm</div>
+      <div class="sline">V = B · h = <input id="inV"> cm³</div>`
+  };
+  if(S.shape==='kub') return {
+    basaFacit:`Basarea B = s · s = ${S.sida} cm · ${S.sida} cm = ${fmt(A)} cm²`,
+    vFacit:`V = s · s · s = ${S.sida} cm · ${S.sida} cm · ${S.sida} cm = <b>${fmt(V)} cm³</b>`,
+    inputs:[['inS',S.sida],['inBA',A],['inV',V]],
+    elevHtml:`<div class="sline">Sida = <input id="inS"> cm</div>
+      <div class="sline">Basarea B = s · s = <input id="inBA"> cm²</div>
+      <div class="sline">V = s · s · s = <input id="inV"> cm³</div>`
+  };
+  if(S.shape==='cylinder') return {
+    basaFacit:`Basarea B = π · r · r = ${PI} · ${S.radie} cm · ${S.radie} cm = ${fmt(A)} cm²`,
+    vFacit:`V = B · h = ${fmt(A)} cm² · ${S.h} cm = <b>${fmt(V)} cm³</b>`,
+    inputs:[['inR',S.radie],['inBA',A],['inH',S.h],['inV',V]],
+    elevHtml:`<div class="sline">Radie = <input id="inR"> cm</div>
+      <div class="sline">Basarea B = π · r · r = <input id="inBA"> cm²</div>
+      <div class="sline">Höjd = <input id="inH"> cm</div>
+      <div class="sline">V = B · h = <input id="inV"> cm³</div>`
+  };
+  return {
+    basaFacit:`Basarea B = ${frac('b · h','2')} = ${frac(`${S.triBas} cm · ${S.triHojd} cm`,'2')} = <b>${fmt(A)} cm²</b>`,
+    vFacit:`V = B · h = ${fmt(A)} cm² · ${S.h} cm = <b>${fmt(V)} cm³</b>`,
+    inputs:[['inTB',S.triBas],['inTH',S.triHojd],['inBA',A],['inH',S.h],['inV',V]],
+    elevHtml:`<div class="sline">Triangelbas = <input id="inTB"> cm, Triangelhöjd = <input id="inTH"> cm</div>
+      <div class="sline">Basarea B = ${frac('b · h','2')} = <input id="inBA"> cm²</div>
+      <div class="sline">Höjd (kroppens) = <input id="inH"> cm</div>
+      <div class="sline">V = B · h = <input id="inV"> cm³</div>`
+  };
+}
+
+function solution(){
+  const box=$('solutionBox'), L=solutionLines();
+  if(S.mode==='facit'){
+    box.innerHTML = `<div class="sline">${L.basaFacit}</div><div class="sline">${L.vFacit}</div>`;
+  } else {
+    box.innerHTML = L.elevHtml + `<button class="checkbtn" id="chk">Kolla</button><div class="solfeedback" id="fb"></div>`;
+    $('chk').onclick=()=>{
+      let all=true;
+      L.inputs.forEach(([id,val])=>{const i=$(id); if(!i) return; const ok=Math.abs(parseFloat((i.value||'').replace(',','.'))-val)<0.05;
+        i.classList.toggle('correct',ok); i.classList.toggle('wrong',!ok&&i.value!==''); if(!ok) all=false;});
+      $('fb').textContent = all?'Rätt! 🎉':'Något stämmer inte än — kolla igen.';
+      $('fb').className='solfeedback '+(all?'correct':'wrong');
+    };
+  }
+}
+
+function sync(){
+  const sh=S.shape;
+  $('langdRow').style.display = sh==='ratblock' ? '' : 'none';
+  $('breddRow').style.display = sh==='ratblock' ? '' : 'none';
+  $('sidaRow').style.display = sh==='kub' ? '' : 'none';
+  $('radieRow').style.display = sh==='cylinder' ? '' : 'none';
+  $('triBasRow').style.display = sh==='prisma' ? '' : 'none';
+  $('triHojdRow').style.display = sh==='prisma' ? '' : 'none';
+  $('hRow').style.display = sh==='kub' ? 'none' : '';
+  $('langdVal').textContent=S.langd+' cm'; $('langdSlider').value=S.langd;
+  $('breddVal').textContent=S.bredd+' cm'; $('breddSlider').value=S.bredd;
+  $('sidaVal').textContent=S.sida+' cm'; $('sidaSlider').value=S.sida;
+  $('radieVal').textContent=S.radie+' cm'; $('radieSlider').value=S.radie;
+  $('triBasVal').textContent=S.triBas+' cm'; $('triBasSlider').value=S.triBas;
+  $('triHojdVal').textContent=S.triHojd+' cm'; $('triHojdSlider').value=S.triHojd;
+  $('hVal').textContent=S.h+' cm'; $('hSlider').value=S.h;
+}
+function all(){ sync(); updateFormula(); draw(); solution(); }
+
+document.querySelectorAll('#shapeGroup .pill').forEach(p=>p.onclick=()=>{
+  document.querySelectorAll('#shapeGroup .pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active'); S.shape=p.dataset.shape; all();
+});
+document.querySelectorAll('#modeGroup .pill').forEach(p=>p.onclick=()=>{
+  document.querySelectorAll('#modeGroup .pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active'); S.mode=p.dataset.mode; solution();
+});
+['langd','bredd','sida','radie','triBas','triHojd','h'].forEach(k=>{
+  $(k+'Slider').oninput=e=>{ S[k]=+e.target.value; all(); };
+});
+$('baseToggle').onclick=e=>{ S.base=!S.base; e.target.classList.toggle('on',S.base); draw(); };
+$('randomBtn').onclick=()=>{
+  S.langd=2+Math.floor(Math.random()*7); S.bredd=2+Math.floor(Math.random()*7);
+  S.sida=2+Math.floor(Math.random()*6); S.radie=2+Math.floor(Math.random()*5);
+  S.triBas=2+Math.floor(Math.random()*7); S.triHojd=2+Math.floor(Math.random()*5);
+  S.h=2+Math.floor(Math.random()*8); all();
+};
+all();
+</script>
+</body>
+</html>

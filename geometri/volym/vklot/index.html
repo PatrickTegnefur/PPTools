@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volym – klot | Matematikportalen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ff; --surface:#fff; --surface2:#eae6ff; --border:#ccc5f0;
+  --text:#100e28; --muted:#585078; --accent:#306BF0; --accent2:#EC6095;
+  --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+  --correct:#18a348; --wrong:#e02020; --shadow:rgba(48,107,240,.12);
+  --start:#3aada8; --mal:#c43d75;
+  --radius-sm:8px; --radius-md:14px; --radius-lg:20px;
+  --shadow-sm:0 2px 8px var(--shadow);
+  --font-body: Calibri, 'Atkinson Hyperlegible', sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);padding-bottom:56px;position:relative;overflow-x:hidden;}
+.ambient{position:fixed;border-radius:50%;filter:blur(70px);opacity:.35;pointer-events:none;z-index:0;}
+.ambient.a1{width:340px;height:340px;background:#66C7C2;top:-80px;left:-80px;}
+.ambient.a2{width:380px;height:380px;background:#F4A261;bottom:-100px;right:-60px;}
+.ambient.a3{width:300px;height:300px;background:#EC6095;top:40%;right:20%;}
+header{background:var(--gradient);padding:16px 20px;position:sticky;top:0;z-index:10;box-shadow:0 4px 24px rgba(0,0,0,.15);}
+header h1{margin:0;color:#fff;font-family:'Montserrat',sans-serif;font-size:1.15rem;}
+header p{margin:3px 0 0;color:rgba(255,255,255,.9);font-size:.8rem;}
+main{max-width:920px;margin:0 auto;padding:18px 16px;position:relative;z-index:1;}
+.panels{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:start;}
+@media(max-width:760px){.panels{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:16px;}
+.card h2{font-family:'Montserrat',sans-serif;font-size:.95rem;margin:0 0 12px;}
+.pillbar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.pill{border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:999px;padding:7px 13px;font-weight:700;font-size:.78rem;cursor:pointer;min-height:34px;}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.sliderrow{margin-bottom:12px;}
+.sliderrow label{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:4px;}
+.sliderrow label b{color:var(--accent);}
+.sliderrow input[type=range]{width:100%;accent-color:var(--accent);}
+.togglerow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.togglebtn{border:1.5px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:.75rem;font-weight:700;cursor:pointer;}
+.togglebtn.on{background:var(--start);color:#fff;border-color:var(--start);}
+.svgwrap{background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--radius-sm);display:flex;justify-content:center;padding:10px;}
+svg{max-width:100%;height:auto;}
+.caption{font-size:.78rem;color:var(--muted);line-height:1.45;margin-top:8px;min-height:34px;}
+.solutionbox{font-size:.92rem;line-height:2;}
+.sline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:8px;}
+.sline input{width:64px;padding:5px 6px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:.88rem;text-align:center;}
+.sline input.correct{border-color:var(--correct);background:#eafbf0;}
+.sline input.wrong{border-color:var(--wrong);background:#fdeaea;}
+.formula{font-family:'Montserrat',sans-serif;font-weight:700;text-align:center;background:var(--surface2);border-radius:var(--radius-sm);padding:8px;font-size:1rem;}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 3px;line-height:1.35;}
+.frac .num{padding:0 6px 2px;border-bottom:1.6px solid var(--text);text-align:center;display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;}
+.frac .den{padding-top:2px;text-align:center;}
+.frac input{width:52px !important;}
+.checkbtn{margin-top:8px;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-weight:700;font-size:.85rem;cursor:pointer;}
+.solfeedback{font-weight:700;margin-top:6px;font-size:.85rem;}
+.solfeedback.correct{color:var(--correct);} .solfeedback.wrong{color:var(--wrong);}
+footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:14px;position:relative;z-index:1;}
+</style>
+</head>
+<body>
+<div class="ambient a1"></div><div class="ambient a2"></div><div class="ambient a3"></div>
+<header>
+  <h1>⚫ Volym – klot</h1>
+  <p>Geometri · V = (4/3) · π · r · r · r</p>
+</header>
+<main>
+  <div class="panels">
+    <div class="card">
+      <h2>Kropp</h2>
+      <div class="sliderrow"><label>Radie <b id="rVal"></b></label><input type="range" id="rSlider" min="2" max="8" value="4"></div>
+      <div class="togglerow">
+        <button class="togglebtn" id="randomBtn">🎲 Slumpa</button>
+      </div>
+      <div class="svgwrap"><svg id="svg"></svg></div>
+      <div class="caption">Den streckade ellipsen är klotets "ekvator" — den finns bara med för att göra klotformen tydligare, den representerar ingen egen yta.</div>
+    </div>
+    <div class="card">
+      <h2>Lösningsförslag</h2>
+      <div class="pillbar" id="modeGroup">
+        <div class="pill active" data-mode="facit">Färdig redovisning</div>
+        <div class="pill" data-mode="elev">Eleven räknar</div>
+      </div>
+      <div class="formula" id="formulaBox"></div>
+      <div class="solutionbox" id="solutionBox" style="margin-top:12px;"></div>
+    </div>
+  </div>
+  <footer>Matematikportalen · PT Ljus</footer>
+</main>
+<script>
+const NS='http://www.w3.org/2000/svg';
+const PI=3.14;
+const S={r:4,mode:'facit'};
+const $=id=>document.getElementById(id);
+const svg=$('svg');
+const fmt=n=>(Math.round(n*100)/100).toLocaleString('sv-SE');
+const frac=(n,d)=>`<span class="frac"><span class="num">${n}</span><span class="den">${d}</span></span>`;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);(parent||svg).appendChild(e);return e;}
+
+function volume(){ return (4/3)*PI*S.r*S.r*S.r; }
+
+function draw(){
+  const sc=16, font="Calibri, 'Atkinson Hyperlegible', sans-serif";
+  const r=S.r*sc, pad=40, W=2*r+2*pad, H=2*r+2*pad;
+  svg.innerHTML='';
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('width',Math.min(W,280)); svg.setAttribute('height',Math.min(H,280));
+  const cx=W/2, cy=H/2;
+  el('circle',{cx,cy,r,fill:'var(--start)','fill-opacity':.15,stroke:'var(--start)','stroke-width':2.5});
+  el('ellipse',{cx,cy,rx:r,ry:r*0.32,fill:'none',stroke:'var(--muted)','stroke-width':1.4,'stroke-dasharray':'4 3'});
+  el('line',{x1:cx,y1:cy,x2:cx+r,y2:cy,stroke:'var(--mal)','stroke-width':2,'stroke-dasharray':'4 3'});
+  el('circle',{cx,cy,r:2.5,fill:'var(--mal)'});
+  const rLbl=el('text',{x:cx+r/2,y:cy-6,'text-anchor':'middle','font-size':12,fill:'var(--mal)','font-family':font,'font-weight':'700'});
+  rLbl.textContent=`r = ${S.r} cm`;
+}
+
+function solution(){
+  const r=S.r, V=volume(), box=$('solutionBox');
+  $('formulaBox').innerHTML = `V = ${frac('4','3')} · π · r · r · r`;
+  if(S.mode==='facit'){
+    box.innerHTML = `<div class="sline">Radie = ${r} cm</div>
+      <div class="sline">V = ${frac('4','3')} · π · r · r · r = ${frac('4','3')} · ${PI} · ${r} cm · ${r} cm · ${r} cm = <b>${fmt(V)} cm³</b></div>`;
+  } else {
+    box.innerHTML = `<div class="sline">Radie = <input id="inR"> cm</div>
+      <div class="sline">V = ${frac('4','3')} · π · r · r · r = <input id="inV"> cm³</div>
+      <button class="checkbtn" id="chk">Kolla</button><div class="solfeedback" id="fb"></div>`;
+    $('chk').onclick=()=>{
+      const chk=[['inR',r],['inV',V]]; let all=true;
+      chk.forEach(([id,val])=>{const i=$(id); const ok=Math.abs(parseFloat((i.value||'').replace(',','.'))-val)<0.1;
+        i.classList.toggle('correct',ok); i.classList.toggle('wrong',!ok&&i.value!==''); if(!ok) all=false;});
+      $('fb').textContent = all?'Rätt! 🎉':'Något stämmer inte än — kolla igen.';
+      $('fb').className='solfeedback '+(all?'correct':'wrong');
+    };
+  }
+}
+
+function all(){
+  $('rVal').textContent=S.r+' cm'; $('rSlider').value=S.r;
+  draw(); solution();
+}
+document.querySelectorAll('#modeGroup .pill').forEach(p=>p.onclick=()=>{
+  document.querySelectorAll('#modeGroup .pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active'); S.mode=p.dataset.mode; solution();
+});
+$('rSlider').oninput=e=>{ S.r=+e.target.value; all(); };
+$('randomBtn').onclick=()=>{ S.r=2+Math.floor(Math.random()*7); all(); };
+all();
+</script>
+</body>
+</html>
