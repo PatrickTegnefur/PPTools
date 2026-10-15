@@ -78,6 +78,8 @@ kbd{margin-left:auto;font:600 .68rem 'Sora',sans-serif;color:#585078;border:1px 
 #keysCard .hd h2{font-size:.95rem;color:#100e28}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
 .keys b{white-space:nowrap}
+.sig{text-align:center;font-size:.7rem;color:#585078;padding:6px 12px;pointer-events:none}
+@media (min-width:760px){.sig{position:absolute;left:0;right:0;bottom:0;padding:2px 12px;z-index:4}.bar{bottom:22px !important}}
 .sep{height:1px;background:#ccc5f0;margin:4px 0}
 .eb{transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
 @media (pointer:coarse){button,input[type=number],select{min-height:44px;height:44px}label.chk,.ln{min-height:44px}}
@@ -158,6 +160,7 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
   <section class="gl pn vy" aria-label="Vy"><button id="reset" title="Återställ vy (R)">Återställ vy</button><button id="read" title="Läsbar vy: framifrån, texten rakt (L)">Läsbar vy</button><button id="below">Se golvytan</button><button id="pop" title="Lyft ut figuren i ett eget fönster som ligger överst">Pop ut</button></section>
   <button class="gl" id="openC" aria-expanded="false" aria-controls="drawer">Beräkningar</button>
  </div>
+ <div class="sig">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
  <aside class="gl" id="keysCard" aria-label="Kortkommandon"><div class="hd"><h2>Kortkommandon</h2><button onclick="this.closest('#keysCard').classList.remove('on')" aria-label="Stäng">✕</button></div>
   <div class="keys"><b>← → ↑ ↓</b><span>Vrid figuren (Shift = större steg)</span><b>Mellanslag</b><span>Vik ut / vik ihop</span><b>+ / −</b><span>Zooma</span><b>R eller 0</b><span>Återställ vy</span><b>L</b><span>Läsbar vy (framifrån)</span><b>G</b><span>Se golvytan</span>
   <b>1 – 8</b><span>Mått på kanterna, Mått på sidoytorna, Svar, Golvrutor, Väggar, Fokusera golvytan, Genomskinliga sidor, Höjd utanför</span>
@@ -364,7 +367,7 @@ function pos(f,q,tt){
  return p;
 }
 //ENDPURE
-let t=1,rz=0,rx=0,zm=1,anim=null,camA=null,S=20,tab='V',G=null;
+let t=1,rz=0,rx=0,zm=1,aTok=0,cTok=0,S=20,tab='V',G=null;
 const stage=$('stage'),scene=$('scene'),tb=$('tb');
 const mod=(a,n)=>((a%n)+n)%n;
 
@@ -509,22 +512,23 @@ $('defX').onclick=()=>openDef(false);
 $('sWalls').onchange=apply;$('sTr').onchange=build;$('sHo').onchange=()=>{labels();apply()};$('wallOp').oninput=apply;
 $('sFocus').onchange=()=>{scene.classList.toggle('focus',$('sFocus').checked);labels();apply()};
 $('sCalc').onchange=results;
+const wrapA=a=>((a%360)+540)%360-180;
 function cam(rxT,rzT,T,zT){
- caf(camA);const a=rx,b=rz,z0=zm,t0=performance.now();
- const run=n=>{const p=Math.min(1,(n-t0)/T),e=ease(p);rx=a+(rxT-a)*e;rz=b+(rzT-b)*e;if(zT!==undefined)zm=z0+(zT-z0)*e;apply();if(p<1)camA=raf(run)};
- camA=raf(run);
+ const my=++cTok;rz=wrapA(rz);const a=rx,b=rz,dz=wrapA(rzT-b),z0=zm;let t0=null;
+ const run=n=>{if(my!==cTok)return;if(t0===null)t0=n;const p=Math.max(0,Math.min(1,(n-t0)/T)),e=ease(p);rx=a+(rxT-a)*e;rz=b+dz*e;if(zT!==undefined)zm=z0+(zT-z0)*e;apply();if(p<1)raf(run)};
+ raf(run);
 }
 const ZC=v=>Math.min(3,Math.max(.4,v));
 $('reset').onclick=$('zr').onclick=()=>cam(0,0,800,1);
 $('zi').onclick=()=>cam(rx,rz,220,ZC(zm*1.25));
 $('zo').onclick=()=>cam(rx,rz,220,ZC(zm/1.25));
-stage.addEventListener('wheel',e=>{e.preventDefault();caf(camA);zm=ZC(zm*Math.exp(-e.deltaY*0.0015));apply()},{passive:false});
+stage.addEventListener('wheel',e=>{e.preventDefault();cTok++;zm=ZC(zm*Math.exp(-e.deltaY*0.0015));apply()},{passive:false});
 $('below').onclick=()=>{const tilt=Math.min(180,Math.max(0,t*55+rx));tilt>110?cam(0,0,1100):cam(165-t*55,0,1400)};
-$('fold').oninput=e=>{caf(anim);t=e.target.value/100;apply()};
+$('fold').oninput=e=>{aTok++;t=e.target.value/100;apply()};
 function go(to,T){
- caf(anim);const from=t,t0=performance.now();
- const run=n=>{const p=Math.min(1,(n-t0)/T);t=from+(to-from)*ease(p);apply();if(p<1)anim=raf(run)};
- anim=raf(run);
+ const my=++aTok,from=t;let t0=null;
+ const run=n=>{if(my!==aTok)return;if(t0===null)t0=n;const p=Math.max(0,Math.min(1,(n-t0)/T));t=from+(to-from)*ease(p);apply();if(p<1)raf(run)};
+ raf(run);
 }
 $('play').onclick=()=>go(t>0.5?0:1,1800);
 $('openC').onclick=()=>{const on=$('drawer').classList.toggle('on');$('openC').setAttribute('aria-expanded',on);$('openC').textContent=on?'Dölj beräkningar':'Beräkningar'};
@@ -532,7 +536,7 @@ $('openC').onclick=()=>{const on=$('drawer').classList.toggle('on');$('openC').s
 let drag=null,pinch=null,dn=null;const ptr=new Map();
 stage.onpointerdown=e=>{
  const ff=e.target.closest&&e.target.closest('.f');dn={x:e.clientX,y:e.clientY,id:ff?ff.dataset.id:null};
- caf(camA);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});stage.setPointerCapture(e.pointerId);stage.style.cursor='grabbing';
+ cTok++;ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});stage.setPointerCapture(e.pointerId);stage.style.cursor='grabbing';
  if(ptr.size===2){const [a,b]=[...ptr.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,z:zm};drag=null}
  else drag={x:e.clientX,y:e.clientY,rz,rx};
 };
@@ -559,7 +563,7 @@ async function popOut(){
  document.head.querySelectorAll('link[rel=stylesheet],style').forEach(n=>w.document.head.appendChild(n.cloneNode(true)));
  w.document.title='Geometriska kroppar';w.document.body.className='pop';
  w.document.body.appendChild(app);
- DOC=w.document;pop=w;setPanels(false);
+ DOC=w.document;pop=w;aTok++;cTok++;setPanels(false);
  document.getElementById('popNote').style.display='block';
  $('pop').textContent='Lägg tillbaka';
  w.addEventListener('keydown',key);w.addEventListener('pagehide',restore);w.addEventListener('resize',build);
@@ -568,7 +572,7 @@ async function popOut(){
 function restore(){
  if(!pop)return;
  const app=DOC.getElementById('app'),note=document.getElementById('popNote');
- pop=null;DOC=document;note.style.display='none';note.after(app);setPanels(pref==='1');$('pop').textContent='Pop ut';setTimeout(build,50);
+ pop=null;aTok++;cTok++;DOC=document;note.style.display='none';note.after(app);setPanels(pref==='1');$('pop').textContent='Pop ut';setTimeout(build,50);
 }
 $('pop').onclick=popOut;
 document.getElementById('popNoteBtn').onclick=()=>{if(pop)pop.close()};
