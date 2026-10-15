@@ -68,9 +68,16 @@ button:disabled{opacity:.5;cursor:default}
 #toast{display:none;position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;padding:10px 16px;max-width:min(520px,calc(100% - 24px));font-size:.9rem}
 body.pop{margin:0;overflow:hidden;background:#f6f4ff}
 .pop #stage{height:100vh;height:100dvh;min-height:0}
-.tbt{margin:8px 12px}
-@media (min-width:760px){.tbt{position:absolute;left:12px;top:12px;z-index:6;margin:0}}
+.tbw{display:flex;gap:6px;margin:8px 12px}
+@media (min-width:760px){.tbw{position:absolute;left:12px;top:12px;z-index:6;margin:0}}
 #app.min .tb{display:none}
+#stage,#stage *{-webkit-user-select:none;user-select:none}
+kbd{margin-left:auto;font:600 .68rem 'Sora',sans-serif;color:#585078;border:1px solid #ccc5f0;border-radius:4px;padding:0 5px;background:#fff}
+#keysCard{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;width:min(540px,calc(100% - 24px));max-height:80%;overflow:auto;padding:12px 16px;font-size:.85rem}
+#keysCard.on{display:block}
+#keysCard .hd h2{font-size:.95rem;color:#100e28}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+.keys b{white-space:nowrap}
 .sep{height:1px;background:#ccc5f0;margin:4px 0}
 .eb{transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
 @media (pointer:coarse){button,input[type=number],select{min-height:44px;height:44px}label.chk,.ln{min-height:44px}}
@@ -119,7 +126,7 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
 <header><h1>Geometriska kroppar</h1></header>
 <div class="gl" id="popNote" style="display:none"><p style="margin:0 0 8px">Figuren visas i ett eget fönster som ligger överst.</p><button id="popNoteBtn">Lägg tillbaka här</button></div>
 <div class="wrap" id="app">
- <button class="gl tbt" id="tbT" aria-pressed="true" aria-controls="tb" title="Visa eller dölj inställningarna">Inställningar</button>
+ <div class="tbw"><button class="gl" id="tbT" aria-pressed="true" aria-controls="tb" title="Visa eller dölj inställningarna (I)">Inställningar</button><button class="gl" id="keysB" aria-label="Kortkommandon" title="Kortkommandon (?)">?</button></div>
  <div class="tb" id="tb">
   <section class="gl pn" aria-label="Figur"><div class="hd"><h2>Figur</h2><button id="defB" title="Visa definition">Definition</button></div>
    <div id="icons" class="icons"></div>
@@ -131,16 +138,16 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
    <div id="dims"></div>
   </section>
   <section class="gl pn" aria-label="Visa"><div class="hd"><h2>Visa</h2></div>
-   <label class="chk"><input type="checkbox" id="sEdge"> Mått på kanterna</label>
-   <label class="chk"><input type="checkbox" id="sMeas"> Mått på sidoytorna</label>
-   <label class="chk"><input type="checkbox" id="sAns"> Svar på sidoytorna</label>
+   <label class="chk"><input type="checkbox" id="sEdge"> Mått på kanterna<kbd>1</kbd></label>
+   <label class="chk"><input type="checkbox" id="sMeas"> Mått på sidoytorna<kbd>2</kbd></label>
+   <label class="chk"><input type="checkbox" id="sAns"> Svar på sidoytorna<kbd>3</kbd></label>
    <div class="sep"></div>
-   <label class="chk"><input type="checkbox" id="sFloor" checked> Golvrutor</label>
-   <label class="chk"><input type="checkbox" id="sWalls"> Väggar</label>
+   <label class="chk"><input type="checkbox" id="sFloor" checked> Golvrutor<kbd>4</kbd></label>
+   <label class="chk"><input type="checkbox" id="sWalls"> Väggar<kbd>5</kbd></label>
    <div class="sub">Synlighet <input type="range" id="wallOp" min="20" max="100" value="75" aria-label="Väggarnas synlighet"></div>
-   <label class="chk"><input type="checkbox" id="sFocus"> Fokusera golvytan</label>
-   <label class="chk" id="trRow" style="display:none"><input type="checkbox" id="sTr"> Genomskinliga sidor</label>
-   <label class="chk" id="hoRow" style="display:none"><input type="checkbox" id="sHo"> Höjd utanför (hjälplinje)</label>
+   <label class="chk"><input type="checkbox" id="sFocus"> Fokusera golvytan<kbd>6</kbd></label>
+   <label class="chk" id="trRow" style="display:none"><input type="checkbox" id="sTr"> Genomskinliga sidor<kbd>7</kbd></label>
+   <label class="chk" id="hoRow" style="display:none"><input type="checkbox" id="sHo"> Höjd utanför (hjälplinje)<kbd>8</kbd></label>
   </section>
  </div>
  <div class="gl" id="cap" role="status"></div>
@@ -148,9 +155,13 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
  <div class="bar">
   <section class="gl pn fold" aria-label="Vik"><button class="main" id="play">Vik ihop</button>Nät <input type="range" id="fold" min="0" max="100" value="100" aria-label="Hur hopvikt nätet är"> Kropp</section>
   <div class="gl zoom" aria-label="Zoom"><button id="zo" aria-label="Zooma ut" title="Zooma ut">−</button><button id="zr" aria-label="Återställ vy" title="Återställ vy (kamera och zoom)">100 %</button><button id="zi" aria-label="Zooma in" title="Zooma in">+</button></div>
-  <section class="gl pn vy" aria-label="Vy"><button id="reset">Återställ vy</button><button id="below">Se golvytan</button><button id="pop" title="Lyft ut figuren i ett eget fönster som ligger överst">Pop ut</button></section>
+  <section class="gl pn vy" aria-label="Vy"><button id="reset" title="Återställ vy (R)">Återställ vy</button><button id="read" title="Läsbar vy: framifrån, texten rakt (L)">Läsbar vy</button><button id="below">Se golvytan</button><button id="pop" title="Lyft ut figuren i ett eget fönster som ligger överst">Pop ut</button></section>
   <button class="gl" id="openC" aria-expanded="false" aria-controls="drawer">Beräkningar</button>
  </div>
+ <aside class="gl" id="keysCard" aria-label="Kortkommandon"><div class="hd"><h2>Kortkommandon</h2><button onclick="this.closest('#keysCard').classList.remove('on')" aria-label="Stäng">✕</button></div>
+  <div class="keys"><b>← → ↑ ↓</b><span>Vrid figuren (Shift = större steg)</span><b>Mellanslag</b><span>Vik ut / vik ihop</span><b>+ / −</b><span>Zooma</span><b>R eller 0</b><span>Återställ vy</span><b>L</b><span>Läsbar vy (framifrån)</span><b>G</b><span>Se golvytan</span>
+  <b>1 – 8</b><span>Mått på kanterna, Mått på sidoytorna, Svar, Golvrutor, Väggar, Fokusera golvytan, Genomskinliga sidor, Höjd utanför</span>
+  <b>I</b><span>Inställningar</span><b>B</b><span>Beräkningar</span><b>U</b><span>Uträkning</span><b>V / A</b><span>Volym / Begränsningsyta</span><b>D</b><span>Definition</span><b>P</b><span>Pop ut</span><b>[ ]</b><span>Föregående / nästa figur</span><b>?</b><span>Den här hjälpen (Esc stänger)</span></div></aside>
  <aside class="gl" id="defCard" aria-label="Definition"><div class="hd"><h2 id="defT"></h2><button id="defX" aria-label="Stäng definition">✕</button></div><div id="defBody"></div></aside>
  <aside class="gl" id="drawer" aria-label="Beräkningar">
   <div class="tabs"><button id="tV" aria-pressed="true">Volym</button><button id="tA" aria-pressed="false">Begränsningsyta</button>
@@ -427,7 +438,7 @@ function apply(){
  if(G.mark){const mo=Math.max(0,(t-.8)/.2);['hm','hr'].forEach(id=>{const e=$(id);e.style.transform='rotateX(90deg)';e.style.opacity=mo;e.style.display=mo?'block':'none'});
   const so=$('sHo').checked?mo:0;['ho','hr2'].forEach(id=>{const e=$(id);e.style.transform='rotateX(90deg)';e.style.opacity=so;e.style.display=so?'block':'none'});const hh=$('hh');hh.style.opacity=so;hh.style.display=so?'block':'none'}
  G.E.forEach((e,i)=>{const p=pos(G.by[e.f],e.pt,t);
-  $('e'+i).style.transform=`translate3d(${p[0]*S}px,${p[1]*S}px,${(p[2]+(e.z||0)*t)*S}px) rotateZ(${-rzE}deg) rotateX(${-tilt}deg) translateZ(30px) translate(-50%,-50%) translate(${e.dx}px,${e.dy}px)`});
+  $('e'+i).style.transform=`translate3d(${p[0]*S}px,${p[1]*S}px,${(p[2]+(e.z||0)*t+.5)*S}px) rotateZ(${-rzE}deg) rotateX(${-tilt}deg) translateZ(30px) translate(-50%,-50%) translate(${e.dx}px,${e.dy}px)`});
  scene.style.transform=`scale(${zm}) translate(${-(1-t)*(G.nc[0]-G.ctr[0])*S}px,${-(1-t)*(G.nc[1]-G.ctr[1])*S+t*G.H*S*0.4}px) rotateX(${tilt}deg) rotateZ(${rzE}deg)`;
  $('fold').value=Math.round(t*100);
  $('zr').textContent=Math.round(zm*100)+' %';
@@ -551,7 +562,7 @@ async function popOut(){
  DOC=w.document;pop=w;setPanels(false);
  document.getElementById('popNote').style.display='block';
  $('pop').textContent='Lägg tillbaka';
- w.addEventListener('pagehide',restore);w.addEventListener('resize',build);
+ w.addEventListener('keydown',key);w.addEventListener('pagehide',restore);w.addEventListener('resize',build);
  setTimeout(build,80);
 }
 function restore(){
@@ -561,6 +572,42 @@ function restore(){
 }
 $('pop').onclick=popOut;
 document.getElementById('popNoteBtn').onclick=()=>{if(pop)pop.close()};
+const ORDER=['rb','kub','pr','pe','p5','p6','py','cy','ko','kl'];
+$('read').onclick=()=>cam(5*t,-30*t,700);
+$('keysB').onclick=()=>$('keysCard').classList.toggle('on');
+function toggleCk(id){const c=$(id),l=c.closest('label');if(l.style.display==='none')return;c.click()}
+function key(e){
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ const tg=e.target,tag=(tg.tagName||'').toLowerCase(),ty=tg.type||'',k=e.key;
+ if(tag==='select'||tag==='textarea'||(tag==='input'&&ty!=='checkbox'&&ty!=='range'))return;
+ if(tag==='input'&&ty==='range'&&k.startsWith('Arrow'))return;
+ const btn=tag==='button'||(tag==='input'&&ty==='checkbox'),lk=k.length===1?k.toLowerCase():k,st=e.shiftKey?3:1;
+ const rxs=v=>Math.max(-t*55,Math.min(180-t*55,v));let ok=true;
+ switch(lk){
+  case 'ArrowLeft':rz-=15*st;apply();break;
+  case 'ArrowRight':rz+=15*st;apply();break;
+  case 'ArrowUp':rx=rxs(rx+10*st);apply();break;
+  case 'ArrowDown':rx=rxs(rx-10*st);apply();break;
+  case ' ':if(btn){ok=false;break}$('play').click();break;
+  case '+':case '=':$('zi').click();break;
+  case '-':case '_':$('zo').click();break;
+  case 'r':case '0':$('zr').click();break;
+  case 'l':$('read').click();break;
+  case 'g':$('below').click();break;
+  case 'i':$('tbT').click();break;
+  case 'b':$('openC').click();break;
+  case 'd':$('defB').click();break;
+  case 'p':$('pop').click();break;
+  case 'u':if(!$('drawer').classList.contains('on'))$('openC').click();$('sCalc').click();break;
+  case 'v':case 'a':if(!$('drawer').classList.contains('on'))$('openC').click();$(lk==='v'?'tV':'tA').click();break;
+  case '[':case ']':{const i=ORDER.indexOf(fig),n=ORDER.length;selectFig(ORDER[(i+(lk===']'?1:-1)+n)%n]);break}
+  case '?':$('keysCard').classList.toggle('on');break;
+  case 'Escape':$('keysCard').classList.remove('on');if($('defCard').classList.contains('on'))openDef(false);break;
+  default:if(lk>='1'&&lk<='8')toggleCk(['sEdge','sMeas','sAns','sFloor','sWalls','sFocus','sTr','sHo'][+lk-1]);else ok=false;
+ }
+ if(ok)e.preventDefault();
+}
+document.addEventListener('keydown',key);
 famUI();dimsUI();all();
 </script>
 </body>
