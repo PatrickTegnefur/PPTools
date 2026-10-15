@@ -68,12 +68,15 @@ button:disabled{opacity:.5;cursor:default}
 #toast{display:none;position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;padding:10px 16px;max-width:min(520px,calc(100% - 24px));font-size:.9rem}
 body.pop{margin:0;overflow:hidden;background:#f6f4ff}
 .pop #stage{height:100vh;height:100dvh;min-height:0}
+.tbt{margin:8px 12px}
+@media (min-width:760px){.tbt{position:absolute;left:12px;top:12px;z-index:6;margin:0}}
+#app.min .tb{display:none}
 .sep{height:1px;background:#ccc5f0;margin:4px 0}
 .eb{transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
 @media (pointer:coarse){button,input[type=number],select{min-height:44px;height:44px}label.chk,.ln{min-height:44px}}
 @media (min-width:760px){
  #stage{height:calc(100vh - 64px);height:calc(100dvh - 64px);min-height:520px}
- .tb{position:absolute;left:12px;top:12px;z-index:5;flex-direction:column;padding:0;background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;width:252px}
+ .tb{position:absolute;left:12px;top:56px;z-index:5;flex-direction:column;padding:0;background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;width:252px}
  .bar{position:absolute;left:12px;right:12px;bottom:12px;justify-content:center;flex-wrap:wrap;padding:0 140px;pointer-events:none;z-index:5}
  .zoom{position:absolute;left:0}
  .bar>*{pointer-events:auto}
@@ -116,6 +119,7 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
 <header><h1>Geometriska kroppar</h1></header>
 <div class="gl" id="popNote" style="display:none"><p style="margin:0 0 8px">Figuren visas i ett eget fönster som ligger överst.</p><button id="popNoteBtn">Lägg tillbaka här</button></div>
 <div class="wrap" id="app">
+ <button class="gl tbt" id="tbT" aria-pressed="true" aria-controls="tb" title="Visa eller dölj inställningarna">Inställningar</button>
  <div class="tb" id="tb">
   <section class="gl pn" aria-label="Figur"><div class="hd"><h2>Figur</h2><button id="defB" title="Visa definition">Definition</button></div>
    <div id="icons" class="icons"></div>
@@ -386,7 +390,7 @@ function build(){
  const all=G.faces.flatMap(f=>f.pts),ex=all.map(q=>q[0]),ey=all.map(q=>q[1]);
  const nx0=Math.min(...ex),nx1=Math.max(...ex),ny0=Math.min(...ey),ny1=Math.max(...ey);
  const bb=G.bb||[nx0,ny0,nx1,ny1];G.nc=G.bb?G.ctr:[(nx0+nx1)/2,(ny0+ny1)/2];if(G.nonet)t=1;
- const desk=DOC.defaultView.getComputedStyle(tb).position==='absolute',offX=desk?tb.offsetWidth+36:0,offY=desk?64:0;
+ const desk=DOC.defaultView.getComputedStyle(tb).position==='absolute',offX=desk&&!$('app').classList.contains('min')?tb.offsetWidth+36:0,offY=desk?64:0;
  S=Math.max(6,Math.min(40,(stage.clientWidth-offX-24)/(bb[2]-bb[0]),(stage.clientHeight-offY-48)/(bb[3]-bb[1])));
  scene.style.left=`calc(50% + ${offX/2}px)`;scene.style.top=`calc(50% - ${offY/2}px)`;
  const c=G.ctr,ext=G.ext||Math.max(...all.map(q=>Math.hypot(q[0]-c[0],q[1]-c[1]))),R1=(ext+1)*S,R2=R1+8*S,fl=c[0]*S-R2,ft=c[1]*S-R2;
@@ -530,6 +534,10 @@ stage.onpointermove=e=>{
 stage.onpointerup=e=>{if(dn&&dn.id&&ptr.size===1&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<5){const g=G.by[dn.id].grp;if(g)setHl(hl===g?'':g);$('defCard').classList.add('on');defUI()}dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 stage.onpointercancel=e=>{dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 window.onresize=build;
+let pref='1';try{pref=localStorage.getItem('gk_panels')||'1'}catch(e){}
+function setPanels(open){$('app').classList.toggle('min',!open);$('tbT').setAttribute('aria-pressed',open)}
+$('tbT').onclick=()=>{const open=$('app').classList.contains('min');setPanels(open);if(!pop){pref=open?'1':'0';try{localStorage.setItem('gk_panels',pref)}catch(e){}}build()};
+setPanels(pref==='1');
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none'},8000)}
 async function popOut(){
  if(pop){pop.close();return}
@@ -540,7 +548,7 @@ async function popOut(){
  document.head.querySelectorAll('link[rel=stylesheet],style').forEach(n=>w.document.head.appendChild(n.cloneNode(true)));
  w.document.title='Geometriska kroppar';w.document.body.className='pop';
  w.document.body.appendChild(app);
- DOC=w.document;pop=w;
+ DOC=w.document;pop=w;setPanels(false);
  document.getElementById('popNote').style.display='block';
  $('pop').textContent='Lägg tillbaka';
  w.addEventListener('pagehide',restore);w.addEventListener('resize',build);
@@ -549,7 +557,7 @@ async function popOut(){
 function restore(){
  if(!pop)return;
  const app=DOC.getElementById('app'),note=document.getElementById('popNote');
- pop=null;DOC=document;note.style.display='none';note.after(app);$('pop').textContent='Pop ut';setTimeout(build,50);
+ pop=null;DOC=document;note.style.display='none';note.after(app);setPanels(pref==='1');$('pop').textContent='Pop ut';setTimeout(build,50);
 }
 $('pop').onclick=popOut;
 document.getElementById('popNoteBtn').onclick=()=>{if(pop)pop.close()};
