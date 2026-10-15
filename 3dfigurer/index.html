@@ -48,12 +48,32 @@ label.chk input{width:16px;height:16px;accent-color:#306BF0;margin:0}
 #scene[data-hl="bas"] .f:not([data-g="bas"]) polygon,#scene[data-hl="sid"] .f:not([data-g="sid"]) polygon{stroke:rgba(16,14,40,.22)}
 #scene[data-hl="bas"] .f[data-g="bas"] polygon,#scene[data-hl="sid"] .f[data-g="sid"] polygon{stroke:#306BF0;stroke-width:7}
 #scene[data-hl="bas"] .f:not([data-g="bas"]) em,#scene[data-hl="sid"] .f:not([data-g="sid"]) em{display:none}
+.hm{position:absolute;width:0;margin-left:-1.5px;border-left:3px dashed #306BF0;transform-origin:0 0;pointer-events:none;display:none}
+.hr{position:absolute;border-right:2.5px solid #306BF0;border-bottom:2.5px solid #306BF0;transform-origin:0 0;pointer-events:none;display:none}
+.ring{transform-origin:0 0;position:absolute;box-sizing:border-box;border:1.5px solid rgba(16,14,40,.5);border-radius:50%;pointer-events:none}
+.spf{transform-origin:0 0;position:absolute;left:0;top:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.75),rgba(102,199,194,.45) 55%,rgba(48,107,240,.35))}
+.rl{position:absolute;height:0;border-top:3px dashed #306BF0;pointer-events:none}
+#scene.lying .f[data-g="bas"] polygon{stroke:#306BF0;stroke-width:7}
+#cap{display:none;position:absolute;left:50%;transform:translateX(-50%);top:12px;z-index:5;padding:6px 14px;font:600 .85rem 'Sora',sans-serif;color:#100e28;max-width:calc(100% - 24px);text-align:center}
+@media (max-width:759px){#cap{position:static;transform:none;margin:8px}}
+button:disabled{opacity:.5;cursor:default}
+.icons{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:6px 0}
+.icons button{padding:0;min-width:0;min-height:32px;height:32px;display:flex;align-items:center;justify-content:center}
+@media (pointer:coarse){.icons{grid-template-columns:repeat(4,1fr)}.icons button{height:44px}}
+.hh{position:absolute;height:0;border-top:2.5px dotted #306BF0;pointer-events:none;display:none}
+.spf.solid{background:radial-gradient(circle at 35% 30%,#ffffff,#9fdcd8 55%,#8FB0F7)}
+.spf .rl2{position:absolute;left:50%;top:50%;width:50%;border-top:3px dashed #306BF0}
+.rlab{display:none;position:absolute;left:75%;top:50%;transform:translate(-50%,-150%);font:600 12px 'Sora',sans-serif;font-style:normal;background:#fff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
+#popNote{margin:16px auto;max-width:420px;padding:16px;text-align:center}
+#toast{display:none;position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;padding:10px 16px;max-width:min(520px,calc(100% - 24px));font-size:.9rem}
+body.pop{margin:0;overflow:hidden;background:#f6f4ff}
+.pop #stage{height:100vh;height:100dvh;min-height:0}
 .sep{height:1px;background:#ccc5f0;margin:4px 0}
-.eb{position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
+.eb{transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
 @media (pointer:coarse){button,input[type=number],select{min-height:44px;height:44px}label.chk,.ln{min-height:44px}}
 @media (min-width:760px){
  #stage{height:calc(100vh - 64px);height:calc(100dvh - 64px);min-height:520px}
- .tb{position:absolute;left:12px;top:12px;z-index:5;flex-direction:column;padding:0;background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;width:236px}
+ .tb{position:absolute;left:12px;top:12px;z-index:5;flex-direction:column;padding:0;background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;width:252px}
  .bar{position:absolute;left:12px;right:12px;bottom:12px;justify-content:center;flex-wrap:wrap;padding:0 140px;pointer-events:none;z-index:5}
  .zoom{position:absolute;left:0}
  .bar>*{pointer-events:auto}
@@ -94,11 +114,13 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
 </head>
 <body>
 <header><h1>Geometriska kroppar</h1></header>
-<div class="wrap">
+<div class="gl" id="popNote" style="display:none"><p style="margin:0 0 8px">Figuren visas i ett eget fönster som ligger överst.</p><button id="popNoteBtn">Lägg tillbaka här</button></div>
+<div class="wrap" id="app">
  <div class="tb" id="tb">
-  <section class="gl pn" aria-label="Figur"><div class="hd"><h2>Figur</h2>
-   <select id="fig" aria-label="Välj figur"><option value="rb">Rätblock</option><option value="kub">Kub</option><option value="pr">Triangulärt prisma</option><option value="p5">Femhörnigt prisma</option><option value="p6">Sexhörnigt prisma</option><option value="py">Rektangulär pyramid</option></select></div>
-   <div class="hd"><label class="chk" id="lieWrap" style="display:none"><input type="checkbox" id="sLie"> Liggande</label><button id="defB" style="margin-left:auto">Definition</button></div></section>
+  <section class="gl pn" aria-label="Figur"><div class="hd"><h2>Figur</h2><button id="defB" title="Visa definition">Definition</button></div>
+   <div id="icons" class="icons"></div>
+   <div class="hd" id="varRow" style="display:none"><h2>Basyta</h2><select id="var" aria-label="Variant"></select></div>
+   <div class="hd"><label class="chk" id="lieWrap" style="display:none"><input type="checkbox" id="sLie"> Liggande</label></div></section>
   <section class="gl pn" aria-label="Mått">
    <div class="hd"><h2>Mått</h2>
     <select id="unit" aria-label="Enhet"><option>m</option><option>dm</option><option selected>cm</option><option>mm</option></select></div>
@@ -113,13 +135,16 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
    <label class="chk"><input type="checkbox" id="sWalls"> Väggar</label>
    <div class="sub">Synlighet <input type="range" id="wallOp" min="20" max="100" value="75" aria-label="Väggarnas synlighet"></div>
    <label class="chk"><input type="checkbox" id="sFocus"> Fokusera golvytan</label>
+   <label class="chk" id="trRow" style="display:none"><input type="checkbox" id="sTr"> Genomskinliga sidor</label>
+   <label class="chk" id="hoRow" style="display:none"><input type="checkbox" id="sHo"> Höjd utanför (hjälplinje)</label>
   </section>
  </div>
+ <div class="gl" id="cap" role="status"></div>
  <div id="stage" aria-label="Rätblockets nät. Dra för att vrida."><div id="scene"></div><div class="tip">Dra för att vrida figuren</div></div>
  <div class="bar">
   <section class="gl pn fold" aria-label="Vik"><button class="main" id="play">Vik ihop</button>Nät <input type="range" id="fold" min="0" max="100" value="100" aria-label="Hur hopvikt nätet är"> Kropp</section>
   <div class="gl zoom" aria-label="Zoom"><button id="zo" aria-label="Zooma ut" title="Zooma ut">−</button><button id="zr" aria-label="Återställ vy" title="Återställ vy (kamera och zoom)">100 %</button><button id="zi" aria-label="Zooma in" title="Zooma in">+</button></div>
-  <section class="gl pn vy" aria-label="Vy"><button id="reset">Återställ vy</button><button id="below">Se basytan</button></section>
+  <section class="gl pn vy" aria-label="Vy"><button id="reset">Återställ vy</button><button id="below">Se golvytan</button><button id="pop" title="Lyft ut figuren i ett eget fönster som ligger överst">Pop ut</button></section>
   <button class="gl" id="openC" aria-expanded="false" aria-controls="drawer">Beräkningar</button>
  </div>
  <aside class="gl" id="defCard" aria-label="Definition"><div class="hd"><h2 id="defT"></h2><button id="defX" aria-label="Stäng definition">✕</button></div><div id="defBody"></div></aside>
@@ -129,9 +154,11 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
   <div id="res"></div>
  </aside>
 </div>
+<div class="gl" id="toast" role="status"></div>
 
 <script>
-const $=id=>document.getElementById(id);
+let DOC=document,pop=null;
+const $=id=>DOC.getElementById(id),raf=f=>DOC.defaultView.requestAnimationFrame(f),caf=i=>DOC.defaultView.cancelAnimationFrame(i);
 const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
 //PURE
 const D=Math.PI/180,MAX=12;
@@ -145,15 +172,18 @@ const I3=[[1,0,0],[0,1,0],[0,0,1]];
 const cen=P=>[P.reduce((a,q)=>a+q[0],0)/P.length,P.reduce((a,q)=>a+q[1],0)/P.length];
 const FIG={rb:{P:[['l','Längd'],['b','Bredd'],['h','Höjd']]},kub:{P:[['l','Sida']]},
  pr:{lie:1,P:[['tb','Triangel bas'],['th','Triangel höjd'],['ph','Prisma höjd']]},
+ pe:{lie:1,P:[['a','Sida a',10],['ph','Prisma höjd']]},
  p5:{lie:1,P:[['a','Sida a',8],['ph','Prisma höjd']]},p6:{lie:1,P:[['a','Sida a',8],['ph','Prisma höjd']]},
- py:{P:[['l','Bas längd'],['b','Bas bredd'],['h','Höjd']]}};
-let fig='rb',lie=false;
-const dm={rb:{l:4,b:3,h:2},kub:{l:3},pr:{tb:3,th:4,ph:5},p5:{a:3,ph:5},p6:{a:3,ph:5},py:{l:4,b:4,h:3}};
+ py:{P:[['l','Bas längd'],['b','Bas bredd'],['h','Höjd']]},
+ cy:{P:[['r','Radie r',8],['h','Höjd h']]},ko:{P:[['r','Radie r',8],['h','Höjd h']]},kl:{P:[['r','Radie r',8]]}};
+let fig='rb',lie=false,prevFig='rb';
+const dm={rb:{l:4,b:3,h:2},kub:{l:3},pr:{tb:3,th:4,ph:5},pe:{a:4,ph:6},p5:{a:3,ph:5},p6:{a:3,ph:5},py:{l:4,b:4,h:3},cy:{r:2,h:5},ko:{r:3,h:4},kl:{r:3}};
+const NR=20;
 const TE='#66C7C2',AM='#F4A261',PK='#EC6095',BL='#8FB0F7';
 const fm2=x=>String(Math.round(x*100)/100).replace('.',','),gi=x=>Math.abs(x-Math.round(x))<1e-9?1:0;
 const reg=(n,a)=>{const P=[[0,0]];for(let k=0;k<n-1;k++){const q=P[k],e=2*Math.PI/n*k;P.push([q[0]+a*Math.cos(e),q[1]+a*Math.sin(e)])}return P};
 const RF=(id,p,hinge,pts,fold,c,ltr,mt,ar,g,grp)=>({id,p,hinge,pts,fold,c,ltr,mt,ar,g,grp});
-function prism(P0,p,LT,CL,mtB){
+function prism(P0,p,LT,CL,mtB,AL){
  const n=P0.length,R=RF,gp=n===3?1:0,F=[];
  const w=i=>Math.hypot(P0[(i+1)%n][0]-P0[i][0],P0[(i+1)%n][1]-P0[i][1]);
  const ang=i=>{const a=P0[(i+n-1)%n],b=P0[i],c=P0[(i+1)%n],x1=a[0]-b[0],y1=a[1]-b[1],x2=c[0]-b[0],y2=c[1]-b[1];return Math.abs(Math.atan2(x1*y2-y1*x2,x1*x2+y1*y2))/D};
@@ -178,6 +208,7 @@ function prism(P0,p,LT,CL,mtB){
   X=0;pv='base';
   for(let j=1;j<=nl;j++){const i=n-j,L=w(i);F.push(R('l'+j,pv,[[X,0],[X,p]],[[X-L,0],[X,0],[X,p],[X-L,p]],180-ang((i+1)%n),CL[i],LT[i],mt(i),L*p,gi(L),'sid'));X-=L;pv='l'+j}
  }
+ if(AL){const mxv=lie?0:Math.min(...P0.map(q=>q[0])),mp={base:q=>[q[0]-mxv,q[1]],lid:q=>[q[0],-p-q[1]],pb:q=>[q[0],p+q[1]],pt:q=>[q[0],-q[1]]};F.forEach(f=>{if(f.grp==='bas')f.alt=AL.map(mp[f.id])})}
  return {faces:F,ctr,H,Ar};
 }
 function geo(){
@@ -199,21 +230,73 @@ function geo(){
  }
  if(fig==='py'){
   const l=d.l,b=d.b,h=d.h,sl=Math.hypot(h,b/2),sb=Math.hypot(h,l/2),fl=180-Math.atan2(h,b/2)/D,fb=180-Math.atan2(h,l/2)/D,tl=`${l} · ${fm(sl)} / 2`,tbm=`${b} · ${fm(sb)} / 2`;
-  return {ctr:[l/2,b/2],H:h,
+  const PY={ctr:[l/2,b/2],H:h,mark:{x:l/2,y:b/2,h},
    faces:[R('base',0,0,[[0,0],[l,0],[l,b],[0,b]],0,TE,'B',`${l} × ${b}`,l*b,1,'bas'),
     R('front','base',[[0,b],[l,b]],[[0,b],[l,b],[l/2,b+sl]],fl,AM,'x',tl,l*sl/2,0,'sid'),
     R('back','base',[[0,0],[l,0]],[[0,0],[l,0],[l/2,-sl]],fl,AM,'x',tl,l*sl/2,0,'sid'),
     R('left','base',[[0,0],[0,b]],[[0,0],[0,b],[-sb,b/2]],fb,PK,'y',tbm,b*sb/2,0,'sid'),
     R('right','base',[[l,0],[l,b]],[[l,0],[l,b],[l+sb,b/2]],fb,PK,'y',tbm,b*sb/2,0,'sid')],
-   E:[{f:'base',pt:[l/2,b],txt:`l = ${l}`,dx:0,dy:16},{f:'base',pt:[l,b/2],txt:`b = ${b}`,dx:22,dy:0},{f:'base',pt:[l/2,b/2],z:h/2,txt:`h = ${h}`,dx:0,dy:0}],
+   E:[{f:'base',pt:[l/2,b],txt:`l = ${l}`,dx:0,dy:16},{f:'base',pt:[l,b/2],txt:`b = ${b}`,dx:22,dy:0},{f:'base',pt:[l/2,b/2],z:h/2,txt:`h = ${h}`,dx:26,dy:0}],
    def:{t:'Rektangulär pyramid',text:'En pyramid har en basyta som är en månghörning (här en rektangel). Alla sidoytor är trianglar som möts i en spets.',groups:[['bas','Basyta (1 st): rektangel'],['sid','Sidoytor (4 st): trianglar']]},
    info:{vol:'pyr',shape:l===b?'kvadrat':'rektangel',bs:'l · b',be:`${l} · ${b}`,B:l*b,h,V:l*b*h/3,approx:!(gi(sl)&&gi(sb)),
     note:u=>`Sidohöjderna är ${fm(sl)} ${u} och ${fm(sb)} ${u} (Pythagoras).`,
     areas:[{k:'B',c:TE,m:1,e:`${l} · ${b}`,v:l*b},{k:'x',c:AM,m:2,e:frac(`${l} · ${fm(sl)}`,'2'),v:r1(l*sl/2)},{k:'y',c:PK,m:2,e:frac(`${b} · ${fm(sb)}`,'2'),v:r1(b*sb/2)}]}};
+  PY.faces.slice(1).forEach(f=>f.op=.6);return PY;
+ }
+
+ if(fig==='cy'||fig==='ko'||fig==='kl'){
+  const r=d.r,h=d.h,N=NR,PI=3.14,Bv=r1(PI*r*r),mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  if(fig==='kl'){
+   const V=r1(4*PI*r*r*r/3),A=r1(4*PI*r*r),P=reg(8,.5).map(q=>[q[0]+r-.25,q[1]+r-.4]),b0=R('base',0,0,P,0,TE,'',' ',0,0,'');b0.nol=1;b0.sw=1;
+   return {ctr:[r,r],H:2*r,ext:r+1,bb:[0,0,2*r,2.6*r],nonet:1,sphere:{r},faces:[b0],
+    E:[],
+    def:{t:'Klot',text:'Ett klot är en kropp där alla punkter på ytan ligger lika långt från mitten. Avståndet är radien r. Ett klot har ingen basyta och inget nät – den krökta ytan går inte att vika ut platt.',groups:[]},
+    info:{vol:'sph',r,V,A,approx:true,areas:[]}};
+  }
+  const c=2*r*Math.sin(Math.PI/N),P0=reg(N,c),mx=Math.min(...P0.map(q=>q[0])),P=P0.map(q=>[q[0]-mx,q[1]]),ctr=cen(P),x0=P[0][0],x1=P[1][0];
+  const nr=Math.ceil((N-1)/2),nl=N-1-nr,rim=P[3],F=[R('base',0,0,P,0,TE,'B',`3,14 · ${r} · ${r}`,PI*r*r,0,'bas')];
+  F[0].rad=[ctr,rim];
+  if(fig==='cy'){
+   const Mv=r1(2*PI*r*h),fa=360/N;
+   F.push(R('s0','base',[P[0],P[1]],[[x0,0],[x1,0],[x1,-h],[x0,-h]],90,AM,'x',`2 · π · ${r} × ${h}`,2*PI*r*h,0,'sid'));
+   let pv='s0';for(let i=1;i<=nr;i++){const X=x1+(i-1)*c;F.push(R('s'+i,pv,[[X,-h],[X,0]],[[X,0],[X+c,0],[X+c,-h],[X,-h]],fa,AM,'x','',0,0,'sid'));pv='s'+i}
+   pv='s0';for(let j=1;j<=nl;j++){const X=x0-(j-1)*c;F.push(R('u'+j,pv,[[X,-h],[X,0]],[[X-c,0],[X,0],[X,-h],[X-c,-h]],fa,AM,'x','',0,0,'sid'));pv='u'+j}
+   const lid=R('lid','s0',[[x0,-h],[x1,-h]],P.map(q=>[q[0],-h-q[1]]),90,TE,'B',`3,14 · ${r} · ${r}`,PI*r*r,0,'bas');lid.rad=[[ctr[0],-h-ctr[1]],[rim[0],-h-rim[1]]];F.push(lid);
+   F.forEach(f=>{if(f.id!=='base')f.op=.6;if(f.grp==='sid'){f.sw=2;if(f.id!=='s0')f.nol=1}});
+   return {ctr,H:h,faces:F,mark:{x:ctr[0],y:ctr[1],h,hx0:ctr[0]+r},
+    E:[{f:'base',pt:mid(ctr,rim),txt:`r = ${r}`,dx:0,dy:14},{f:'base',pt:ctr,z:h/2,txt:`h = ${h}`,dx:26,dy:0}],
+    def:{t:'Cylinder',text:'En cylinder har två basytor som är lika stora cirklar och en krökt sidoyta som kallas mantelytan. Rullar man ut mantelytan blir den en rektangel: bredden är cirkelns omkrets och höjden är cylinderns höjd.',groups:[['bas','Basytor (2 st): cirklar'],['sid','Mantelytan (1 st): krökt, en rektangel i nätet']]},
+    info:{vol:'prism',shape:'cirkel',bs:'π · r · r',be:`3,14 · ${r} · ${r}`,B:Bv,h,V:Bv*h,approx:true,
+     note:u=>`Mantelytan blir en rektangel med bredden 2 · π · r ≈ ${fm(2*PI*r)} ${u} (cirkelns omkrets). Vi räknar med π ≈ 3,14.`,
+     areas:[{k:'B',c:TE,m:2,e:`3,14 · ${r} · ${r}`,v:Bv},{k:'x',c:AM,m:1,e:`2 · 3,14 · ${r} · ${h}`,v:Mv}]}};
+  }
+  const s=Math.hypot(h,r),sh=Math.sqrt(s*s-c*c/4),ap=r*Math.cos(Math.PI/N),fb=180-Math.atan2(h,ap)/D,fn=Math.acos((h*h*Math.cos(2*Math.PI/N)+ap*ap)/(h*h+ap*ap))/D,gam=2*Math.asin(c/(2*s));
+  const A=[(x0+x1)/2,-sh],rot=(v,g)=>{const dx=v[0]-A[0],dy=v[1]-A[1],cs=Math.cos(g),sn=Math.sin(g);return [A[0]+dx*cs-dy*sn,A[1]+dx*sn+dy*cs]};
+  const Mv=r1(PI*r*s);
+  F.push(R('t0','base',[P[0],P[1]],[[x0,0],[x1,0],A],fb,AM,'x',`π · ${r} · ${fm(s)}`,PI*r*s,0,'sid'));
+  let vr=[x1,0],pv='t0';for(let i=1;i<=nr;i++){const vn=rot(vr,-gam);F.push(R('t'+i,pv,[A,vr],[A,vr,vn],fn,AM,'x','',0,0,'sid'));vr=vn;pv='t'+i}
+  let vl=[x0,0];pv='t0';for(let j=1;j<=nl;j++){const vn=rot(vl,gam);F.push(R('u'+j,pv,[A,vl],[A,vl,vn],fn,AM,'x','',0,0,'sid'));vl=vn;pv='u'+j}
+  F.forEach(f=>{if(f.grp==='sid'){f.op=.6;f.sw=2;if(f.id!=='t0')f.nol=1}});
+  return {ctr,H:h,faces:F,mark:{x:ctr[0],y:ctr[1],h},
+   E:[{f:'base',pt:mid(ctr,rim),txt:`r = ${r}`,dx:0,dy:14},{f:'base',pt:ctr,z:h/2,txt:`h = ${h}`,dx:26,dy:0},{f:'t0',pt:mid(A,[x0,0]),txt:`s = ${fm(s)}`,dx:-26,dy:0}],
+   def:{t:'Kon',text:'En kon har en basyta som är en cirkel och en krökt sidoyta (mantelytan) som slutar i en spets. Höjden h är vinkelrät mot basytan upp till spetsen. Mantellinjen s går från spetsen ner till cirkelns kant.',groups:[['bas','Basyta (1 st): cirkel'],['sid','Mantelytan (1 st): krökt, en cirkelsektor i nätet']]},
+   info:{vol:'pyr',shape:'cirkel',bs:'π · r · r',be:`3,14 · ${r} · ${r}`,B:Bv,h,V:Bv*h/3,approx:true,
+    note:u=>`Mantellinjen s = √(r · r + h · h) ≈ ${fm(s)} ${u} (Pythagoras). Vi räknar med π ≈ 3,14.`,
+    areas:[{k:'B',c:TE,m:1,e:`3,14 · ${r} · ${r}`,v:Bv},{k:'x',c:AM,m:1,e:`3,14 · ${r} · ${fm(s)}`,v:Mv}]}};
  }
  // prismor: triangel, femhörning, sexhörning
- const n=fig==='pr'?3:fig==='p5'?5:6,p=d.ph,pl=n===3?'trianglar':n===5?'femhörningar':'sexhörningar',nm=n===3?'Triangulärt prisma':n===5?'Femhörnigt prisma':'Sexhörnigt prisma';
- const df={t:nm,text:`Ett prisma har två basytor som är lika stora månghörningar (här ${pl}). Alla andra sidoytor är rektanglar. Prismat får sitt namn av basytan. Basytorna behöver inte vara botten och lock – ett prisma kan ligga ner!`,groups:[['bas',`Basytor (2 st): ${pl}`],['sid',`Sidoytor (${n} st): rektanglar`]]};
+ const n=fig==='pr'||fig==='pe'?3:fig==='p5'?5:6,p=d.ph,pl=n===3?'trianglar':n===5?'femhörningar':'sexhörningar',nm=n===3?'Triangulärt prisma':n===5?'Femhörnigt prisma':'Sexhörnigt prisma';
+ const df={t:nm,text:`Ett prisma har två basytor som är lika stora månghörningar (här ${pl}). Alla andra sidoytor är rektanglar. Prismat får sitt namn av basytan. Basytorna behöver inte vara botten och lock – ett prisma kan ligga ner!`,pl,groups:[['bas',`Basytor (2 st): ${pl}`],['sid',`Sidoytor (${n} st): rektanglar`]]};
+ if(fig==='pe'){
+  const a=d.a,ht=a*Math.sqrt(3)/2,F=prism(reg(3,a),p,['x','x','x'],[AM,AM,AM],`(${a} · ${fm2(ht)}) / 2`,[[a/2,0],[a/2,ht]]),Br=r1(a*ht/2),bf=frac(`${a} · ${fm2(ht)}`,'2');
+  F.E=lie?[{f:'base',pt:[a/2,p],txt:`a = ${a}`,dx:0,dy:16},{f:'pb',pt:[a/2,p+ht/2],txt:`triangelns höjd = ${fm2(ht)}`,dx:80,dy:0},{f:'base',pt:[0,p/2],txt:`prismans höjd = ${p}`,dx:-70,dy:0}]
+        :[{f:'base',pt:[a/2,0],txt:`a = ${a}`,dx:0,dy:-14},{f:'base',pt:[a/2,ht/2],txt:`triangelns höjd = ${fm2(ht)}`,dx:80,dy:0},{f:'r0',pt:[0,-p/2],txt:`prismans höjd = ${p}`,dx:-70,dy:0}];
+  F.def={...df,text:df.text+' Här är basytorna liksidiga trianglar.'};
+  F.info={vol:'prism',shape:'liksidig triangel',bs:frac('b · h','2'),be:bf,B:Br,h:p,V:Br*p,approx:true,
+   note:u=>`Triangelns höjd räknas med Pythagoras: h ≈ ${fm2(ht)} ${u}. Den är vinkelrät mot sidan a.`,
+   areas:[{k:'B',c:TE,m:2,e:bf,v:Br},{k:'x',c:AM,m:3,e:`${a} · ${p}`,v:a*p}]};
+  return F;
+ }
  if(n===3){
   const a=d.tb,b=d.th,c=Math.hypot(a,b),Bv=a*b/2,F=prism([[0,0],[a,0],[0,b]],p,['x','z','y'],[AM,BL,PK],`(${a} · ${b}) / 2`);
   F.E=lie?[{f:'base',pt:[a/2,p],txt:`bas = ${a}`,dx:0,dy:16},{f:'pb',pt:[0,p+b/2],txt:`höjd = ${b}`,dx:-30,dy:0},{f:'base',pt:[0,p/2],txt:`prismans höjd = ${p}`,dx:-70,dy:0}]
@@ -256,6 +339,7 @@ function layout(G){
   for(let p=0;p<360;p+=5){const u=mv(f.M,[-Math.sin(p*D),-Math.cos(p*D),0]),sc=u[0]*tg[0]+u[1]*tg[1]+u[2]*tg[2];if(sc>bs){bs=sc;best=p}}
   f.phi=best;
  });
+ if(G.mark){const m=G.mark;m.xo=Math.max(...G.faces[0].pts.map(q=>q[0]))+1.5;if(m.hx0===undefined)m.hx0=m.x;G.E.push({k:'out',f:'base',pt:[m.xo,m.y],z:m.h/2,txt:`h = ${m.h}`,dx:26,dy:0})}
  G.by=by;return G;
 }
 function pos(f,q,tt){
@@ -274,39 +358,58 @@ function nodeHTML(f){
  const pts=f.loc.map(q=>`${(q[0]-x0)*S},${(q[1]-y0)*S}`).join(' '),cp=f.loc.map(q=>`${(q[0]-x0)*S}px ${(q[1]-y0)*S}px`).join(',');
  const c=cen(f.loc),cx=(c[0]-x0)*S,cy=(c[1]-y0)*S;
  const bg=f.g?`background-size:${S}px ${S}px;background-position:${mod(-x0*S,S)}px ${mod(-y0*S,S)}px;`:'background-image:none;';
+ let dec='';
+ if(f.alt){
+  const cv=q=>{const x=q[0]-f.o[0],y=q[1]-f.o[1],k=Math.cos(f.al),s=Math.sin(f.al);return [((x*k+y*s)-x0)*S,((-x*s+y*k)-y0)*S]};
+  const F0=cv(f.alt[0]),T0=cv(f.alt[1]),dx=T0[0]-F0[0],dy=T0[1]-F0[1],L=Math.hypot(dx,dy),vx=dx/L,vy=dy/L,ux=-vy,uy=vx,sq=Math.min(.35*S,L/3);
+  dec=`<line x1="${F0[0]}" y1="${F0[1]}" x2="${T0[0]}" y2="${T0[1]}" stroke="#306BF0" stroke-width="3" stroke-dasharray="7 5"/><polyline points="${F0[0]+ux*sq},${F0[1]+uy*sq} ${F0[0]+ux*sq+vx*sq},${F0[1]+uy*sq+vy*sq} ${F0[0]+vx*sq},${F0[1]+vy*sq}" fill="none" stroke="#306BF0" stroke-width="2.5"/>`;
+ }
+ if(f.rad){
+  const cv=q=>{const x=q[0]-f.o[0],y=q[1]-f.o[1],k=Math.cos(f.al),s=Math.sin(f.al);return [((x*k+y*s)-x0)*S,((-x*s+y*k)-y0)*S]};
+  const C0=cv(f.rad[0]),R0=cv(f.rad[1]);
+  dec+=`<line x1="${C0[0]}" y1="${C0[1]}" x2="${R0[0]}" y2="${R0[1]}" stroke="#306BF0" stroke-width="3" stroke-dasharray="7 5"/><circle cx="${C0[0]}" cy="${C0[1]}" r="3.5" fill="#306BF0"/>`;
+ }
  return `<div class="nd" id="nd_${f.id}"><div class="f${f.p?'':' base'}" data-id="${f.id}" data-g="${f.grp}" style="--c:${f.c};left:${x0*S}px;top:${y0*S}px;width:${w}px;height:${h}px">`+
-  `<div class="sh" style="${bg}clip-path:polygon(${cp})"><svg width="${w}" height="${h}" style="position:absolute;left:0;top:0;overflow:visible"><polygon points="${pts}" fill="none" stroke="#100e28" stroke-width="4" stroke-linejoin="round"/></svg></div>`+
+  `<div class="sh" style="${bg}opacity:${f.op&&$('sTr').checked?f.op:1};clip-path:polygon(${cp})"><svg width="${w}" height="${h}" style="position:absolute;left:0;top:0;overflow:visible"><polygon points="${pts}" fill="none" stroke="#100e28" stroke-width="${f.sw||4}" stroke-linejoin="round"/>${dec}</svg></div>`+
   `<i class="a" style="left:${cx}px;top:${cy}px;transform:rotateZ(${-f.al/D}deg) translateZ(1px)"></i>`+
   `<i class="b" style="left:${cx}px;top:${cy}px;transform:rotateY(180deg) rotateZ(${f.phi}deg) translateZ(1px)"></i></div>`+
   G.faces.filter(g=>g.p===f.id).map(nodeHTML).join('')+`</div>`;
+}
+function sphHTML(r){
+ const z=(k,w)=>`<div class="ring" style="left:${r*S}px;top:${r*S}px;width:${2*w*S}px;height:${2*w*S}px;transform:translate3d(0,0,${k*S}px) translate(-50%,-50%)"></div>`,rh=r*Math.sqrt(3)/2;
+ let h=z(r,r)+z(r+r/2,rh)+z(r-r/2,rh);
+ for(let k=0;k<4;k++)h+=`<div class="ring" style="left:${r*S}px;top:${r*S}px;width:${2*r*S}px;height:${2*r*S}px;transform:translate3d(0,0,${r*S}px) rotateZ(${k*45}deg) rotateX(90deg) translate(-50%,-50%)"></div>`;
+ return h+`<div id="spf" class="spf${$('sTr').checked?'':' solid'}" style="width:${2*r*S}px;height:${2*r*S}px"><div class="rl2"></div><em class="rlab"></em></div>`;
 }
 function build(){
  G=layout(geo());
  const all=G.faces.flatMap(f=>f.pts),ex=all.map(q=>q[0]),ey=all.map(q=>q[1]);
  const nx0=Math.min(...ex),nx1=Math.max(...ex),ny0=Math.min(...ey),ny1=Math.max(...ey);
- G.nc=[(nx0+nx1)/2,(ny0+ny1)/2];
- const desk=getComputedStyle(tb).position==='absolute',offX=desk?tb.offsetWidth+36:0,offY=desk?64:0;
- S=Math.max(6,Math.min(40,(stage.clientWidth-offX-24)/(nx1-nx0),(stage.clientHeight-offY-48)/(ny1-ny0)));
+ const bb=G.bb||[nx0,ny0,nx1,ny1];G.nc=G.bb?G.ctr:[(nx0+nx1)/2,(ny0+ny1)/2];if(G.nonet)t=1;
+ const desk=DOC.defaultView.getComputedStyle(tb).position==='absolute',offX=desk?tb.offsetWidth+36:0,offY=desk?64:0;
+ S=Math.max(6,Math.min(40,(stage.clientWidth-offX-24)/(bb[2]-bb[0]),(stage.clientHeight-offY-48)/(bb[3]-bb[1])));
  scene.style.left=`calc(50% + ${offX/2}px)`;scene.style.top=`calc(50% - ${offY/2}px)`;
- const c=G.ctr,ext=Math.max(...all.map(q=>Math.hypot(q[0]-c[0],q[1]-c[1]))),R1=(ext+1)*S,R2=R1+8*S,fl=c[0]*S-R2,ft=c[1]*S-R2;
+ const c=G.ctr,ext=G.ext||Math.max(...all.map(q=>Math.hypot(q[0]-c[0],q[1]-c[1]))),R1=(ext+1)*S,R2=R1+8*S,fl=c[0]*S-R2,ft=c[1]*S-R2;
  const mk=`radial-gradient(circle at ${R2}px ${R2}px,#000 ${R1}px,transparent ${R2}px)`;
  const floor=`<div id="floor" style="left:${fl}px;top:${ft}px;width:${2*R2}px;height:${2*R2}px;background-size:${S}px ${S}px;background-position:${mod(-fl,S)}px ${mod(-ft,S)}px;-webkit-mask-image:${mk};mask-image:${mk};transform:translateZ(-1px)"></div>`;
  const bx=G.faces[0].pts.map(q=>q[0]),by=G.faces[0].pts.map(q=>q[1]),bw=Math.max(...bx),bh=Math.max(...by),Hw=G.H+3;
  const walls=`<div class="wall" id="wB" style="width:${(bw+3)*S}px;height:${Hw*S}px;background-size:${S}px ${S}px"></div><div class="wall" id="wL" style="width:${Hw*S}px;height:${(bh+3)*S}px;background-size:${S}px ${S}px"></div>`;
- scene.innerHTML=`<div id="root" style="position:absolute;left:${-c[0]*S}px;top:${-c[1]*S}px">${floor}${walls}${nodeHTML(G.faces[0])}${G.E.map((e,i)=>`<div class="eb" id="e${i}"></div>`).join('')}</div>`;
+ scene.innerHTML=`<div id="root" style="position:absolute;left:${-c[0]*S}px;top:${-c[1]*S}px">${floor}${walls}${nodeHTML(G.faces[0])}${G.sphere?sphHTML(G.sphere.r):''}${G.E.map((e,i)=>`<div class="eb" id="e${i}"></div>`).join('')}${G.mark?`<div id="ho" class="hm" style="left:${G.mark.xo*S}px;top:${G.mark.y*S}px;height:${G.mark.h*S}px"></div><div id="hr2" class="hr" style="left:${G.mark.xo*S}px;top:${G.mark.y*S}px;width:${Math.min(.5,G.mark.h*.25)*S}px;height:${Math.min(.5,G.mark.h*.25)*S}px"></div><div id="hh" class="hh" style="left:${G.mark.hx0*S}px;top:${G.mark.y*S}px;width:${(G.mark.xo-G.mark.hx0)*S}px;transform:translate3d(0,0,${G.mark.h*S}px)"></div><div id="hm" class="hm" style="left:${G.mark.x*S}px;top:${G.mark.y*S}px;height:${G.mark.h*S}px"></div><div id="hr" class="hr" style="left:${G.mark.x*S}px;top:${G.mark.y*S}px;width:${Math.min(.5,G.mark.h*.25)*S}px;height:${Math.min(.5,G.mark.h*.25)*S}px"></div>`:''}</div>`;
  labels();apply();
 }
 function labels(){
  const u=$('unit').value,m=$('sMeas').checked,a=$('sAns').checked,fo=$('sFocus').checked;
- document.querySelectorAll('.u').forEach(e=>e.textContent=u);
- document.querySelectorAll('.f').forEach(e=>{
+ DOC.querySelectorAll('.u').forEach(e=>e.textContent=u);
+ DOC.querySelectorAll('.f').forEach(e=>{
   const f=G.by[e.dataset.id];let txt;
+  if(f.nol){e.querySelector('i.a').innerHTML='';e.querySelector('i.b').innerHTML='';return}
   if(!f.p&&fo)txt=(f.grp==='bas'?`Basyta`:`Golvyta`)+(m?`<br>${f.mt}`:'')+(a?`<br>B = ${fm(f.ar)} ${u}²`:'');
-  else{txt=`<b>${f.ltr}</b>`+(m?` = ${f.mt}`:'');if(a)txt+=m?`<br>= ${fm(f.ar)} ${u}²`:` = ${fm(f.ar)} ${u}²`}
+  else{txt=(f.ltr==='B'?`<b>B</b> (basyta)`:`<b>${f.ltr}</b>`)+(m?` = ${f.mt}`:'');if(a)txt+=m?`<br>= ${fm(f.ar)} ${u}²`:` = ${fm(f.ar)} ${u}²`}
   const h=`<em>${txt}</em>`;e.querySelector('i.a').innerHTML=h;e.querySelector('i.b').innerHTML=h;
  });
  const ed=$('sEdge').checked;
- G.E.forEach((e,i)=>{const n=$('e'+i);n.textContent=`${e.txt} ${u}`;n.style.display=ed?'block':'none'});
+ G.E.forEach((e,i)=>{const n=$('e'+i);n.textContent=`${e.txt} ${u}`;n.style.display=(e.k==='out'?$('sHo').checked:ed)?'block':'none'});
+ if(G.sphere){const l=$('spf').querySelector('.rlab');l.textContent=`r = ${G.sphere.r} ${u}`;l.style.display=ed?'block':'none'}
  $('floor').style.backgroundImage=$('sFloor').checked?'linear-gradient(rgba(130,120,200,.45) 1px,transparent 1px),linear-gradient(90deg,rgba(130,120,200,.45) 1px,transparent 1px)':'none';
 }
 function apply(){
@@ -315,17 +418,27 @@ function apply(){
  const wo=$('sWalls').checked?Math.max(0,(t-0.15)/0.85)*($('wallOp').value/100)*($('sFocus').checked?0.3:1):0;
  const W=(id,tr)=>{const e=$(id);e.style.transform=tr;e.style.opacity=wo;e.style.display=wo?'block':'none'};
  W('wB','translate3d(0,-1px,0) rotateX(90deg)');W('wL','translate3d(-1px,0,0) rotateY(-90deg)');
+ if(G.sphere){const r=G.sphere.r;$('spf').style.transform=`translate3d(${r*S}px,${r*S}px,${r*S}px) rotateZ(${-rzE}deg) rotateX(${-tilt}deg) translate(-50%,-50%)`}
+ $('play').disabled=$('fold').disabled=!!G.nonet;
+ if(G.mark){const mo=Math.max(0,(t-.8)/.2);['hm','hr'].forEach(id=>{const e=$(id);e.style.transform='rotateX(90deg)';e.style.opacity=mo;e.style.display=mo?'block':'none'});
+  const so=$('sHo').checked?mo:0;['ho','hr2'].forEach(id=>{const e=$(id);e.style.transform='rotateX(90deg)';e.style.opacity=so;e.style.display=so?'block':'none'});const hh=$('hh');hh.style.opacity=so;hh.style.display=so?'block':'none'}
  G.E.forEach((e,i)=>{const p=pos(G.by[e.f],e.pt,t);
   $('e'+i).style.transform=`translate3d(${p[0]*S}px,${p[1]*S}px,${(p[2]+(e.z||0)*t)*S}px) rotateZ(${-rzE}deg) rotateX(${-tilt}deg) translateZ(30px) translate(-50%,-50%) translate(${e.dx}px,${e.dy}px)`});
  scene.style.transform=`scale(${zm}) translate(${-(1-t)*(G.nc[0]-G.ctr[0])*S}px,${-(1-t)*(G.nc[1]-G.ctr[1])*S+t*G.H*S*0.4}px) rotateX(${tilt}deg) rotateZ(${rzE}deg)`;
  $('fold').value=Math.round(t*100);
  $('zr').textContent=Math.round(zm*100)+' %';
- $('play').textContent=t>0.5?'Vik ut':'Vik ihop';
+ $('play').textContent=G.nonet?'Inget nät':t>0.5?'Vik ut':'Vik ihop';
  $('below').textContent=tilt>110?'Tillbaka':'Se golvytan';
 }
 const R=(n,x)=>`<div class="rw"><span class="n">${n}</span><div>${x}</div></div>`,pl=(x,c)=>`<span class="pl" style="background:${c}">${x}</span>`;
 function results(){
  const u=$('unit').value,c=$('sCalc').checked,q='<span class="q">?</span>',I=G.info;let x='';
+ if(I.vol==='sph'){
+  const r=I.r;
+  x=tab==='V'?R(1,`V = ${frac('4 · π · r · r · r','3')}`)+R(2,c?`r = ${r} ${u}`:`r = ${q}`)+R(3,c?`V = ${frac(`4 · 3,14 · ${r} · ${r} · ${r}`,'3')}<br>V = ${frac(fm(4*3.14*r*r*r),'3')}<br>V ≈ ${fm(I.V)} ${u}³`:`V = ${q}`)+R(4,c?`Svar: Volymen är ungefär <span class="ans">${fm(I.V)} ${u}³</span>.`:`Svar: ${q}`)
+   :`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan. Ett klot har en enda krökt yta.</div>`+R(1,'B.Y. = 4 · π · r · r')+R(2,c?`r = ${r} ${u}`:`r = ${q}`)+R(3,c?`B.Y. = 4 · 3,14 · ${r} · ${r}<br>B.Y. ≈ ${fm(I.A)} ${u}²`:`B.Y. = ${q}`)+R(4,c?`Svar: Begränsningsytan är ungefär <span class="ans">${fm(I.A)} ${u}²</span>.`:`Svar: ${q}`);
+  $('res').innerHTML=x;return;
+ }
  if(tab==='V'){
   const py=I.vol==='pyr',B=I.B,h=I.h,ap=I.approx?'≈':'=';
   x=R(1,py?`V = ${frac('B · h','3')}`:'V = B · h')+
@@ -360,31 +473,43 @@ function defUI(){
  $('defBody').innerHTML=`<p style="margin:0 0 8px">${D.text}</p><div class="chips">${D.groups.map(([k,l])=>`<button data-k="${k}" aria-pressed="${hl===k}">${l}</button>`).join('')}</div>`;
  $('defBody').querySelectorAll('button').forEach(b=>b.onclick=()=>setHl(hl===b.dataset.k?'':b.dataset.k));
 }
-function all(){build();results();defUI()}
-$('fig').onchange=()=>{fig=$('fig').value;hl='';delete scene.dataset.hl;dimsUI();all()};
+function all(){build();results();defUI();$('trRow').style.display=(G.mark||G.sphere)?'flex':'none';$('hoRow').style.display=G.mark?'flex':'none';const ly=lie&&!!FIG[fig].lie;scene.classList.toggle('lying',ly);const cp=$('cap');cp.style.display=ly?'block':'none';if(ly)cp.textContent=`Prismat ligger ner: basytorna är de två ${G.def.pl}, inte ytan på golvet.`}
+const FAM=[['rb','Rätblock',['rb']],['kub','Kub',['kub']],['pri','Prisma',['pr','pe','p5','p6']],['py','Pyramid',['py']],['cy','Cylinder',['cy']],['ko','Kon',['ko']],['kl','Klot',['kl']]];
+const VN={pr:'Rätvinklig triangel',pe:'Liksidig triangel',p5:'Regelbunden femhörning',p6:'Regelbunden sexhörning'};
+const ICON={rb:'<path d="M2 10l6-3h14l-6 3zM2 10v8h14v-8M16 10l6-3v8l-6 3"/>',kub:'<path d="M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8"/>',pri:'<path d="M3 18l5-10 5 10zM8 8l8-4 5 10M13 18l8-4"/>',py:'<path d="M12 3L3 17l9 4 9-4zM12 3v18"/>',cy:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/>',ko:'<path d="M12 3L5 17M12 3l7 14M5 17c0 2.2 3.1 4 7 4s7-1.8 7-4"/>',kl:'<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/><path d="M12 3c-3 3-3 15 0 18M12 3c3 3 3 15 0 18"/>'};
+let lastPri='pr';
+const famOf=f=>FAM.find(x=>x[2].includes(f))[0];
+function famUI(){
+ $('icons').innerHTML=FAM.map(([k,n])=>`<button data-f="${k}" aria-label="${n}" title="${n}" aria-pressed="${famOf(fig)===k}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${ICON[k]}</svg></button>`).join('');
+ $('icons').querySelectorAll('button').forEach(b=>b.onclick=()=>selectFig(b.dataset.f==='pri'?lastPri:b.dataset.f));
+ const pri=famOf(fig)==='pri';$('varRow').style.display=pri?'flex':'none';if(pri){lastPri=fig;$('var').value=fig}
+}
+$('var').innerHTML=Object.entries(VN).map(([k,n])=>`<option value="${k}">${n}</option>`).join('');
+$('var').onchange=()=>selectFig($('var').value);
+function selectFig(f){prevFig=fig;fig=f;if(fig==='pe')lie=true;else if(prevFig==='pe')lie=false;$('sLie').checked=lie;hl='';delete scene.dataset.hl;famUI();dimsUI();all()}
 $('sLie').onchange=()=>{lie=$('sLie').checked;all()};
 $('defB').onclick=()=>openDef(!$('defCard').classList.contains('on'));
 $('defX').onclick=()=>openDef(false);
 ['unit','sEdge','sMeas','sAns','sFloor'].forEach(i=>$(i).onchange=()=>{labels();results()});
-$('sWalls').onchange=apply;$('wallOp').oninput=apply;
+$('sWalls').onchange=apply;$('sTr').onchange=build;$('sHo').onchange=()=>{labels();apply()};$('wallOp').oninput=apply;
 $('sFocus').onchange=()=>{scene.classList.toggle('focus',$('sFocus').checked);labels();apply()};
 $('sCalc').onchange=results;
 function cam(rxT,rzT,T,zT){
- cancelAnimationFrame(camA);const a=rx,b=rz,z0=zm,t0=performance.now();
- const run=n=>{const p=Math.min(1,(n-t0)/T),e=ease(p);rx=a+(rxT-a)*e;rz=b+(rzT-b)*e;if(zT!==undefined)zm=z0+(zT-z0)*e;apply();if(p<1)camA=requestAnimationFrame(run)};
- camA=requestAnimationFrame(run);
+ caf(camA);const a=rx,b=rz,z0=zm,t0=performance.now();
+ const run=n=>{const p=Math.min(1,(n-t0)/T),e=ease(p);rx=a+(rxT-a)*e;rz=b+(rzT-b)*e;if(zT!==undefined)zm=z0+(zT-z0)*e;apply();if(p<1)camA=raf(run)};
+ camA=raf(run);
 }
 const ZC=v=>Math.min(3,Math.max(.4,v));
 $('reset').onclick=$('zr').onclick=()=>cam(0,0,800,1);
 $('zi').onclick=()=>cam(rx,rz,220,ZC(zm*1.25));
 $('zo').onclick=()=>cam(rx,rz,220,ZC(zm/1.25));
-stage.addEventListener('wheel',e=>{e.preventDefault();cancelAnimationFrame(camA);zm=ZC(zm*Math.exp(-e.deltaY*0.0015));apply()},{passive:false});
+stage.addEventListener('wheel',e=>{e.preventDefault();caf(camA);zm=ZC(zm*Math.exp(-e.deltaY*0.0015));apply()},{passive:false});
 $('below').onclick=()=>{const tilt=Math.min(180,Math.max(0,t*55+rx));tilt>110?cam(0,0,1100):cam(165-t*55,0,1400)};
-$('fold').oninput=e=>{cancelAnimationFrame(anim);t=e.target.value/100;apply()};
+$('fold').oninput=e=>{caf(anim);t=e.target.value/100;apply()};
 function go(to,T){
- cancelAnimationFrame(anim);const from=t,t0=performance.now();
- const run=n=>{const p=Math.min(1,(n-t0)/T);t=from+(to-from)*ease(p);apply();if(p<1)anim=requestAnimationFrame(run)};
- anim=requestAnimationFrame(run);
+ caf(anim);const from=t,t0=performance.now();
+ const run=n=>{const p=Math.min(1,(n-t0)/T);t=from+(to-from)*ease(p);apply();if(p<1)anim=raf(run)};
+ anim=raf(run);
 }
 $('play').onclick=()=>go(t>0.5?0:1,1800);
 $('openC').onclick=()=>{const on=$('drawer').classList.toggle('on');$('openC').setAttribute('aria-expanded',on);$('openC').textContent=on?'Dölj beräkningar':'Beräkningar'};
@@ -392,7 +517,7 @@ $('openC').onclick=()=>{const on=$('drawer').classList.toggle('on');$('openC').s
 let drag=null,pinch=null,dn=null;const ptr=new Map();
 stage.onpointerdown=e=>{
  const ff=e.target.closest&&e.target.closest('.f');dn={x:e.clientX,y:e.clientY,id:ff?ff.dataset.id:null};
- cancelAnimationFrame(camA);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});stage.setPointerCapture(e.pointerId);stage.style.cursor='grabbing';
+ caf(camA);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});stage.setPointerCapture(e.pointerId);stage.style.cursor='grabbing';
  if(ptr.size===2){const [a,b]=[...ptr.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,z:zm};drag=null}
  else drag={x:e.clientX,y:e.clientY,rz,rx};
 };
@@ -402,10 +527,33 @@ stage.onpointermove=e=>{
  if(!drag)return;
  rz=drag.rz+(e.clientX-drag.x)*.5;rx=Math.max(-t*55,Math.min(180-t*55,drag.rx-(e.clientY-drag.y)*.5));apply();
 };
-stage.onpointerup=e=>{if(dn&&dn.id&&ptr.size===1&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<5){const g=G.by[dn.id].grp;setHl(hl===g?'':g);$('defCard').classList.add('on');defUI()}dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
+stage.onpointerup=e=>{if(dn&&dn.id&&ptr.size===1&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<5){const g=G.by[dn.id].grp;if(g)setHl(hl===g?'':g);$('defCard').classList.add('on');defUI()}dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 stage.onpointercancel=e=>{dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 window.onresize=build;
-dimsUI();all();
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none'},8000)}
+async function popOut(){
+ if(pop){pop.close();return}
+ const app=document.getElementById('app');let w=null;
+ try{if(window.documentPictureInPicture)w=await documentPictureInPicture.requestWindow({width:Math.round(Math.min(1000,screen.availWidth*.8)),height:Math.round(Math.min(700,screen.availHeight*.8))})}catch(e){w=null}
+ if(!w){try{w=window.open('','geometri','popup=yes,width=1000,height=700')}catch(e){w=null}}
+ if(!w||!w.document){toast('Det gick inte att öppna ett eget fönster härifrån. Öppna sidan direkt i Edge eller Chrome (inte inbäddad i en annan sida) och försök igen.');return}
+ document.head.querySelectorAll('link[rel=stylesheet],style').forEach(n=>w.document.head.appendChild(n.cloneNode(true)));
+ w.document.title='Geometriska kroppar';w.document.body.className='pop';
+ w.document.body.appendChild(app);
+ DOC=w.document;pop=w;
+ document.getElementById('popNote').style.display='block';
+ $('pop').textContent='Lägg tillbaka';
+ w.addEventListener('pagehide',restore);w.addEventListener('resize',build);
+ setTimeout(build,80);
+}
+function restore(){
+ if(!pop)return;
+ const app=DOC.getElementById('app'),note=document.getElementById('popNote');
+ pop=null;DOC=document;note.style.display='none';note.after(app);$('pop').textContent='Pop ut';setTimeout(build,50);
+}
+$('pop').onclick=popOut;
+document.getElementById('popNoteBtn').onclick=()=>{if(pop)pop.close()};
+famUI();dimsUI();all();
 </script>
 </body>
 </html>
