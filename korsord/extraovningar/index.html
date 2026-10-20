@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Begreppsträning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Sora:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ff;--surface2:#eae6ff;--border:#ccc5f0;--text:#100e28;--muted:#585078;--accent:#306BF0;--rosa:#b03070;--ok:#0f7a35;--okbg:#e6f6ec;--nobg:#fde8e8;--no:#b01818;--gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%)}
+*{box-sizing:border-box}
+body{margin:0;font-family:Sora,system-ui,sans-serif;color:var(--text);background:var(--bg);min-height:100vh}
+.amb{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.amb i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55}
+.amb i:nth-child(1){width:420px;height:420px;background:#66C7C2;top:-80px;left:-100px}
+.amb i:nth-child(2){width:380px;height:380px;background:#F4A261;top:35%;right:-120px}
+.amb i:nth-child(3){width:400px;height:400px;background:#EC6095;bottom:-120px;left:25%}
+header{background:var(--gradient);height:64px;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,.18);display:flex;align-items:center;padding:0 24px}
+header h1{margin:0;font:700 1.4rem Montserrat,sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+main{max-width:820px;margin:0 auto;padding:20px 14px;display:grid;gap:20px}
+.panel{background:rgba(255,255,255,.72);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.9);border-radius:20px;padding:22px;box-shadow:0 8px 24px rgba(48,107,240,.12);min-width:0}
+h2{font:700 1.05rem Montserrat,sans-serif;margin:0 0 10px;overflow-wrap:anywhere}
+label{font-weight:600;font-size:.88rem;display:block;margin-top:10px}
+select,textarea,input[type=text],button{font:inherit}
+select,textarea,input[type=text]{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px;background:#fff;color:var(--text)}
+textarea{min-height:120px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.row select{flex:1 1 200px;width:auto}
+button{border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer;background:var(--surface2);color:var(--accent);border:1.5px solid var(--border);min-height:44px}
+button.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+button[aria-pressed=true]{background:var(--text);color:#fff;border-color:var(--text)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hint,.msg{font-size:.85rem;color:var(--muted);margin:8px 0 0}
+.msg{color:var(--rosa);min-height:1.3em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ck{display:flex;gap:8px;align-items:center;font-weight:400}
+.ck input{width:22px;height:22px}
+#link{margin-top:10px}
+body.stu .tonly,body.foc .tonly{display:none!important}
+.fonly{display:none}body.foc .fonly{display:flex}
+body:not(.stu) .stuonly{display:none}
+#play[hidden]{display:none}
+.q{font:600 1.15rem/1.5 Sora,sans-serif;margin:14px 0;overflow-wrap:anywhere}
+.q:focus{outline:none}
+progress{width:100%;height:10px;accent-color:var(--accent)}
+.opts{display:grid;gap:10px;margin:14px 0}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;background:#fff;color:var(--text);border:2px solid var(--border);border-radius:14px;padding:12px 14px;min-height:52px;width:100%}
+.opt b{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;font:700 .85rem Montserrat,sans-serif}
+.opt[aria-disabled=true]{cursor:default}
+.opt.ok{background:var(--okbg);border:3px solid #18a348;color:var(--ok);font-weight:700}
+.opt.no{background:var(--nobg);border:3px dashed #e02020;color:var(--no);font-weight:700;text-decoration:line-through}
+.opt small{margin-left:auto;font-weight:700;text-decoration:none;display:inline-block}
+.fb{padding:12px 14px;border-radius:14px;font-weight:600;margin:10px 0;background:#fff;border:2px solid var(--border)}
+.score{font:800 2rem Montserrat,sans-serif;margin:6px 0}
+.wl{padding-left:20px;margin:8px 0}.wl li{margin:6px 0;overflow-wrap:anywhere}
+.mix{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.mix span{width:40px;height:44px;display:grid;place-items:center;background:#fff;border:2px solid var(--accent);border-radius:10px;font:800 1.2rem Montserrat,sans-serif}
+.fb.ok{border:3px solid #18a348;color:var(--ok);background:var(--okbg)}.fb.no{border:3px dashed #e02020;color:var(--no);background:var(--nobg)}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:14px 0}
+.mc{min-height:104px;padding:10px;border-radius:14px;border:2px solid var(--accent);background:rgba(255,255,255,.72);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);color:var(--accent);box-shadow:0 4px 14px rgba(48,107,240,.12);font:800 1.8rem Montserrat,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;overflow-wrap:anywhere;width:100%;cursor:pointer}
+@media(prefers-reduced-motion:no-preference){.mc{transition:transform .15s,box-shadow .15s}.mc:hover:not([aria-disabled=true]){transform:translateY(-2px);box-shadow:0 8px 20px rgba(48,107,240,.2)}}
+.mc.up,.mc.ok{background:#fff;color:var(--text);font:600 .82rem/1.3 Sora,sans-serif;border:2px solid var(--border);border-top:6px solid #2a9490}
+.mc.ex.up,.mc.ex.ok{border-top-color:#b5621a}
+.mc.ok{border:3px double #18a348;border-top:6px solid #18a348}
+.mc.ex.ok,.mc.tm.ok{border-top-color:#18a348}
+.mc.tm.up span,.mc.tm.ok span{font:700 .95rem Montserrat,sans-serif}
+.mc small{font:700 .65rem Sora,sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.mc[aria-disabled=true]{cursor:default}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:6px}
+.md{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:#fff;color:var(--text);border:2px solid var(--border);border-radius:14px;padding:12px 14px;min-height:78px}
+.md b{font:700 .95rem Montserrat,sans-serif}.md small{font:400 .78rem/1.3 Sora,sans-serif;color:var(--muted)}
+.md[aria-pressed=true]{background:#fff;color:var(--accent);border:3px solid var(--accent)}
+.md[aria-pressed=true] b::after{content:" ✓"}
+.mc img{max-width:70%;max-height:60px;object-fit:contain;pointer-events:none}
+#pa{display:none}
+.pfn{display:none}
+@media print{
+html,body{background:#fff!important;margin:0}
+header,main,.amb,#live{display:none!important}
+#pa{display:block;color:#000;font:10.5pt/1.35 Sora,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#pa h1{font:700 17pt Montserrat,sans-serif;margin:0 0 1.5mm}
+#pa .nm{font-size:10pt;margin-bottom:4mm}
+#pa .band{height:2.2mm;border-radius:1.2mm;margin-bottom:5mm;background:var(--gradient)}
+#pa .qs{column-count:2;column-gap:8mm}
+#pa .qi{break-inside:avoid;margin:0 0 4.5mm}
+#pa .qi p{margin:0 0 1.2mm;font-weight:600}
+#pa .po{padding-left:2mm;margin:.6mm 0}
+#pa .bx{display:inline-block;width:3.4mm;height:3.4mm;border:.3mm solid #000;border-radius:50%;margin-right:2mm;vertical-align:-.5mm}
+#pa .mxp{font:800 13pt Montserrat,sans-serif;letter-spacing:1mm;margin:1mm 0}
+#pa .ln{border-bottom:.3mm solid #444;height:7mm;margin-top:1mm}
+body.nm #pa{padding:14mm;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+body.nm.fnon .pfn{display:flex;align-items:center;gap:2mm;position:fixed;left:14mm;right:14mm;bottom:5mm;font:400 7pt Sora,sans-serif;color:#444}
+.pfn img{height:4.5mm}
+#pa .one{display:block}
+#pa .ins{font-size:10pt;margin:0 0 4mm}
+#pa .mt{display:grid;grid-template-columns:1fr 36%;gap:3mm 8mm;break-inside:avoid;margin-bottom:8mm}
+#pa .mt h2{grid-column:1/-1;margin:0;font:700 11pt Montserrat,sans-serif}
+#pa .mt p{margin:0 0 3mm}
+#pa .bx2{display:inline-block;width:9mm;height:6.5mm;border:.3mm solid #000;vertical-align:middle;margin-right:2mm}
+#pa .mr p{border-left:.8mm solid #000;padding-left:2.5mm}
+#pa .cards{display:grid;grid-template-columns:repeat(3,1fr)}
+#pa .cd{height:58mm;border:.3mm dashed #444;padding:3mm;overflow:hidden;break-inside:avoid;display:flex;flex-direction:column;justify-content:center;text-align:center;font-size:9pt;line-height:1.3}
+#pa .cd small{font:600 6.5pt Sora,sans-serif;text-transform:uppercase;letter-spacing:.4mm;color:#444;margin-bottom:2mm}
+#pa .cd b{font:700 12pt Montserrat,sans-serif}
+#pa .cd.ex{text-align:left;justify-content:flex-start;padding-top:5mm}
+#pa .cd .lg{font-size:8pt}
+#pa .pk{break-before:page;page-break-before:always}
+#pa ol{margin:0;padding-left:7mm;column-count:2;column-gap:8mm}
+#pa ol li{break-inside:avoid;margin:1mm 0}
+}
+</style>
+<style id="pgs"></style>
+</head>
+<body>
+<div class="amb" aria-hidden="true"><i></i><i></i><i></i></div>
+<header><h1 id="ht">Begreppsträning</h1></header>
+<main>
+<section class="panel tonly" aria-labelledby="h1s">
+  <h2 id="h1s">1. Välj begrepp</h2>
+  <div id="bankbox" hidden>
+    <label for="bank">Från Korsordsbyggaren (läses bara, ändras aldrig)</label>
+    <div class="row"><select id="bank"></select><button id="load" type="button">Hämta begrepp</button></div>
+  </div>
+  <p class="hint" id="nobank" hidden>Ingen begreppsbank hittades på den här adressen. Klistra in en egen lista nedan.</p>
+  <label for="paste">Begrepp; förklaring (ett per rad)</label>
+  <textarea id="paste" placeholder="Fotosyntes; Process där växter bildar socker av ljus, vatten och koldioxid"></textarea>
+  <p class="hint">Rader utan förklaring hoppas över, eftersom förklaringen är frågan.</p>
+  <div class="row"><button id="demo" type="button">Demo: slumpa 10 begrepp</button></div>
+</section>
+<section class="panel tonly" aria-labelledby="h2s">
+  <h2 id="h2s">2. Inställningar</h2>
+  <label for="ttl">Rubrik</label><input type="text" id="ttl" placeholder="T.ex. Begrepp i biologi">
+  <label id="lbm">Läge</label><div class="seg" id="seg" role="group" aria-labelledby="lbm"></div><select id="mode" hidden></select>
+  <label for="kopt">Antal svarsalternativ i quizen</label><select id="kopt"><option>3</option><option selected>4</option><option>5</option></select>
+  <label class="ck"><input type="checkbox" id="lock" checked> Lås elevlänken till det valda läget</label>
+  <label for="ptype">Arbetsblad att skriva ut</label><select id="ptype"></select>
+  <label class="ck"><input type="checkbox" id="pkey" checked> Facit/rättningsnyckel på egen sida</label>
+  <label class="ck"><input type="checkbox" id="nm" checked> Dölj datum och filsökväg i utskriften</label>
+  <label class="ck"><input type="checkbox" id="fnote" checked> Fotnot med logotyp och avsändare</label>
+  <p class="hint">Gäller Chrome och Edge. I Firefox och Safari: stäng av "Sidhuvuden och sidfötter" i utskriftsdialogen.</p>
+  <div class="row"><button class="pri" id="try" type="button">Prova</button><button id="mk" type="button">Skapa elevlänk</button><button id="pr" type="button">Skriv ut arbetsblad</button></div>
+  <div class="msg" id="msg" role="status"></div>
+  <div id="lk" hidden><label for="link">Elevlänk</label><input type="text" id="link" readonly><div class="row"><button id="cp" type="button">Kopiera länk</button></div></div>
+</section>
+<section class="panel" id="play" hidden aria-label="Träning">
+  <div class="row fonly" style="margin:0 0 12px"><button id="back" type="button">← Tillbaka till inställningar</button></div>
+  <div class="row" id="mb" style="margin:0 0 8px"></div>
+  <div id="pl"></div>
+  <div class="stuonly"><button id="clr" type="button">Rensa mina framsteg</button></div>
+</section>
+</main>
+<div id="pa"></div>
+<div class="pfn" aria-hidden="true"><img src="pt_logo.png" alt="" onerror="this.remove()"><span>Verktyg skapat av Patrick Tegnefur · Förstelärare &amp; IT-pedagog Alfred Dalinskolan</span></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+(()=>{
+// Logotyp på memorykortens baksida: lägg filen bredvid den här HTML-filen. Byt filnamn här om den heter något annat.
+const LOGO='pt_logo.png';
+const backFace=()=>`<img src="${LOGO}" alt="" onerror="this.replaceWith(document.createTextNode('?'))">`;
+const KEY='pt-korsord-amnesbanker',$=id=>document.getElementById(id);
+const shuf=a=>{a=a.slice();for(let i=a.length;i>1;){const j=Math.random()*i|0;i--;[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const say=t=>{$('live').textContent='';setTimeout(()=>$('live').textContent=t,30)};
+const enc=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const dec=t=>JSON.parse(decodeURIComponent(escape(atob(t.replace(/-/g,'+').replace(/_/g,'/')))));
+let S=null,P={r:{},s:{}},cur='',banks=null;
+
+/* ---- Läs delad bank (endast läsning) ---- */
+try{const raw=localStorage.getItem(KEY);if(raw){const b=JSON.parse(raw);if(b&&b.subjects)banks=b}}catch(e){}
+if(banks){
+  const sel=$('bank'),order=(banks.subjectOrder||Object.keys(banks.subjects)).filter(s=>banks.subjects[s]);
+  const cats=[...new Set(order.map(s=>banks.subjects[s].category).filter(Boolean))];
+  const g=(l,os)=>{if(!os.length)return;const og=document.createElement('optgroup');og.label=l;os.forEach(o=>og.appendChild(o));sel.appendChild(og)};
+  const opt=(v,t)=>{const o=document.createElement('option');o.value=v;o.textContent=t;return o};
+  g('Kategorier',cats.map(c=>opt('c:'+c,'Hela kategorin: '+c)));
+  g('Listor',order.map(s=>{const x=banks.subjects[s],gr=(x.grades||[]).length?' (åk '+x.grades.join(', ')+')':'';return opt('s:'+s,(x.category?x.category+' › ':'')+(x.name||s)+gr)}));
+  $('bankbox').hidden=!sel.options.length;$('nobank').hidden=!!sel.options.length;
+}else $('nobank').hidden=false;
+$('load').onclick=()=>{
+  const v=$('bank').value;if(!v)return;
+  const subs=v.startsWith('s:')?[banks.subjects[v.slice(2)]]:Object.values(banks.subjects).filter(s=>s.category===v.slice(2));
+  const L=[];subs.forEach(s=>(s.words||[]).forEach(w=>{if(w&&w.term&&w.selected!==false)L.push(w.clue?w.term+'; '+w.clue:w.term)}));
+  $('paste').value=L.join('\n');
+  if(!$('ttl').value.trim()){const n=v.startsWith('s:')?(subs[0].printTitle||subs[0].name):v.slice(2);if(n)$('ttl').value=n}
+  $('msg').textContent=L.length?L.length+' rader hämtade.':'Inga valda begrepp i den listan.';
+};
+function parse(txt){
+  const seen=new Set(),out=[];
+  txt.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;const i=l.search(/\t|;/),t=(i<0?l:l.slice(0,i)).trim(),c=i<0?'':l.slice(i+1).trim(),n=t.toLowerCase();if(!t||!c||seen.has(n))return;seen.add(n);out.push([t,c])});
+  return out;
+}
+
+/* ---- Gemensam kärna: framsteg (per omgång + per begrepp, delas mellan lägen) ---- */
+const load=()=>{try{return Object.assign({r:{},s:{}},JSON.parse(localStorage.getItem(S.key)))}catch(e){return{r:{},s:{}}}};
+const save=()=>{if(S.key)try{localStorage.setItem(S.key,JSON.stringify(P))}catch(e){}};
+const stat=(x,ok)=>{const s=P.s[x]||(P.s[x]=[0,0,0]);ok?s[0]++:s[1]++;s[2]=ok?1:0};
+const mastered=()=>Object.values(P.s).filter(v=>v[2]).length;
+
+/* ---- Lägesregister: nya lägen läggs till här (memory, bokstavsmix) ---- */
+const MODES={};
+MODES.quiz={name:'Begreppsquiz',
+ round(){const n=S.w.length,k=Math.min(S.k,n),all=[...Array(n).keys()],o=shuf(all);
+  return{o,q:o.map(x=>shuf([x,...shuf(all.filter(y=>y!==x)).slice(0,k-1)])),a:[],i:0}},
+ render(el,foc){
+  let R=P.r.quiz;if(!R||R.o.length!==S.w.length)R=P.r.quiz=this.round();
+  const n=R.o.length,i=R.i,W=S.w;
+  if(i>=n){
+   el.onkeydown=null;const wrong=R.o.filter((x,j)=>R.a[j]!==x),sc=n-wrong.length;
+   el.innerHTML=`<h2 id="rs" tabindex="-1">Klart!</h2><p class="score">${sc} av ${n} rätt</p><p>Du har klarat ${mastered()} av ${n} begrepp vid senaste försöket.</p>`+
+    (wrong.length?`<h2>Att öva mer på</h2><ul class="wl">${wrong.map(x=>`<li><b>${esc(W[x][0])}</b> – ${esc(W[x][1])}</li>`).join('')}</ul>`:'<p><b>Alla rätt. Snyggt!</b></p>')+
+    `<div class="row"><button class="pri" id="nr" type="button">Ny omgång</button></div>`;
+   $('nr').onclick=()=>{P.r.quiz=this.round();save();this.render(el,1)};
+   if(foc)$('rs').focus();say('Omgången är klar. '+sc+' av '+n+' rätt.');return}
+  const x=R.o[i],ans=R.a[i],done=ans!==undefined;
+  el.innerHTML=`<p id="qc" class="hint" style="margin:0">Fråga ${i+1} av ${n}</p><progress max="${n}" value="${i}" aria-labelledby="qc"></progress>
+  <h2 class="q" id="q" tabindex="-1">${esc(W[x][1])}</h2>
+  <div class="opts" role="group" aria-labelledby="q">${R.q[i].map((y,j)=>{
+   const c=!done?'':y===x?' ok':y===ans?' no':'',t=!done?'':y===x?'✓ Rätt svar':y===ans?'✗ Ditt val':'';
+   return`<button type="button" class="opt${c}" data-y="${y}" aria-disabled="${done}"><b aria-hidden="true">${'ABCDE'[j]}</b><span>${esc(W[y][0])}</span>${t?`<small>${t}</small>`:''}</button>`}).join('')}</div>
+  <div class="fb" id="fb" ${done?'':'hidden'}>${done?(ans===x?'Rätt!':'Fel. Rätt svar: '+esc(W[x][0])):''}</div>
+  <div class="row"><button class="pri" id="nx" type="button" ${done?'':'hidden'}>${i+1<n?'Nästa fråga':'Se resultat'}</button></div>`;
+  const pick=y=>{if(R.a[i]!==undefined)return;R.a[i]=y;stat(x,y===x);save();this.render(el);$('nx').focus();
+   say(y===x?'Rätt!':'Fel. Rätt svar: '+W[x][0])};
+  el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.y));
+  el.onkeydown=e=>{const j='12345'.indexOf(e.key);if(j>=0&&R.q[i][j]!==undefined&&!e.ctrlKey&&!e.metaKey)pick(R.q[i][j])};
+  if(done)$('nx').onclick=()=>{R.i++;save();this.render(el,1)};
+  if(foc)$('q').focus();
+ },
+ print(w,k){ // A4: frågor + rättningsnyckel
+  const R=this.round(),t=$('ttl').value.trim()||'Begreppsquiz';let q='',key='';
+  R.o.forEach((x,j)=>{q+=`<div class="qi"><p>${j+1}. ${esc(w[x][1])}</p>${R.q[j].map((y,m)=>`<div class="po"><span class="bx"></span>${'ABCDE'[m]}. ${esc(w[y][0])}</div>`).join('')}</div>`;
+   key+=`<li>${'ABCDE'[R.q[j].indexOf(x)]} – ${esc(w[x][0])}</li>`});
+  return`<div class="nm">Namn: ______________________ Klass: ________ Datum: ____________</div><h1>${esc(t)}</h1><div class="band"></div><div class="qs">${q}</div>`+
+   ($('pkey').checked?`<div class="pk"><h1>Rättningsnyckel – ${esc(t)}</h1><div class="band"></div><ol>${key}</ol></div>`:'')}
+};
+const sheet=(t,q,key,c)=>`<div class="nm">Namn: ______________________ Klass: ________ Datum: ____________</div><h1>${esc(t)}</h1><div class="band"></div><div class="${c||'qs'}">${q}</div>`+($('pkey').checked?`<div class="pk"><h1>Rättningsnyckel – ${esc(t)}</h1><div class="band"></div><ol>${key}</ol></div>`:'');
+const nz=s=>s.toLowerCase().replace(/[\s-]+/g,'');
+MODES.bokstavsmix={name:'Bokstavsmix',
+ mix(t){const L=[...t].filter(c=>/[^\s-]/.test(c));let m=L;for(let k=0;k<20;k++){m=shuf(L);if(m.join('').toLowerCase()!==L.join('').toLowerCase())break}return m.join('').toUpperCase()},
+ pat(t){const n=t.split(/[\s-]+/).filter(Boolean).map(s=>s.length);return n.length>1?n.length+' ord: '+n.join(' + ')+' bokstäver':n[0]+' bokstäver'},
+ round(){const o=shuf([...Array(S.w.length).keys()]);return{o,m:o.map(x=>this.mix(S.w[x][0])),a:[],n:[],h:[],i:0}},
+ render(el,foc){
+  let R=P.r.bokstavsmix;if(!R||R.o.length!==S.w.length)R=P.r.bokstavsmix=this.round();
+  el.onkeydown=null;const n=R.o.length,i=R.i,W=S.w;
+  if(i>=n){
+   const wrong=R.o.filter((x,j)=>R.a[j]!=='ok'),sc=n-wrong.length;
+   el.innerHTML=`<h2 id="rs" tabindex="-1">Klart!</h2><p class="score">${sc} av ${n} utan att se svaret</p><p>Du har klarat ${mastered()} av ${n} begrepp vid senaste försöket.</p>`+
+    (wrong.length?`<h2>Att öva mer på</h2><ul class="wl">${wrong.map(x=>`<li><b>${esc(W[x][0])}</b> – ${esc(W[x][1])}</li>`).join('')}</ul>`:'<p><b>Alla rätt. Snyggt!</b></p>')+
+    `<div class="row"><button class="pri" id="nr" type="button">Ny omgång</button></div>`;
+   $('nr').onclick=()=>{P.r.bokstavsmix=this.round();save();this.render(el,1)};
+   if(foc)$('rs').focus();say('Omgången är klar. '+sc+' av '+n+' utan att se svaret.');return}
+  const x=R.o[i],a=R.a[i],done=a!==undefined,w=W[x][0],tries=R.n[i]||0;
+  el.innerHTML=`<p id="qc" class="hint" style="margin:0">Ord ${i+1} av ${n}</p><progress max="${n}" value="${i}" aria-labelledby="qc"></progress>
+  <h2 class="q" id="q" tabindex="-1">${esc(W[x][1])}</h2>
+  <div class="mix" role="img" aria-label="Blandade bokstäver: ${esc(R.m[i].split('').join(', '))}">${R.m[i].split('').map(c=>`<span aria-hidden="true">${esc(c)}</span>`).join('')}</div>
+  <p class="hint" id="pt">${this.pat(w)}${R.h[i]&&!done?'. Ordet börjar på '+esc(w[0].toUpperCase()):''}</p>
+  <label for="ans">Skriv rätt ord</label><input type="text" id="ans" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="pt fb" ${done?'disabled':''} value="${done?esc(w):''}">
+  <div class="fb ${done?(a==='ok'?'ok':'no'):''}" id="fb" ${done||tries?'':'hidden'}>${done?(a==='ok'?'✓ Rätt!':'✗ Rätt svar: '+esc(w)):'✗ Inte riktigt. Försök igen (försök '+tries+')'}</div>
+  <div class="row">${done?`<button class="pri" id="nx" type="button">${i+1<n?'Nästa ord':'Se resultat'}</button>`:`<button class="pri" id="ck" type="button">Kontrollera</button><button id="hn" type="button">Ledtråd</button><button id="sh" type="button">Visa svaret</button>`}</div>`;
+  const fin=(r,ok)=>{R.a[i]=r;stat(x,ok);save();this.render(el);$('nx').focus();say(ok?'Rätt!':'Rätt svar: '+w)};
+  if(done)$('nx').onclick=()=>{R.i++;save();this.render(el,1)};
+  else{
+   const chk=()=>{const v=$('ans').value;if(!v.trim())return;if(nz(v)===nz(w))return fin('ok',true);
+    R.n[i]=tries+1;save();this.render(el);$('ans').value=v;$('ans').focus();say('Inte riktigt. Försök igen.')};
+   $('ck').onclick=chk;$('ans').onkeydown=e=>{if(e.key==='Enter')chk()};
+   $('hn').onclick=()=>{R.h[i]=1;save();const v=$('ans').value;this.render(el);$('ans').value=v;$('ans').focus();say('Ordet börjar på '+w[0])};
+   $('sh').onclick=()=>fin('shown',false);
+  }
+  if(foc&&!done)$('ans').focus();
+ },
+ print(w){const R=this.round();let q='',key='';
+  R.o.forEach((x,j)=>{q+=`<div class="qi"><p>${j+1}. ${esc(w[x][1])}</p><div class="mxp">${esc(R.m[j].split('').join(' '))}</div><div class="ln"></div></div>`;key+=`<li>${esc(w[x][0])}</li>`});
+  return sheet($('ttl').value.trim()||'Bokstavsmix',q,key)}
+};
+MODES.memory={name:'Memory',
+ round(){const idx=shuf([...Array(S.w.length).keys()]),g=[];for(let i=0;i<idx.length;i+=6)g.push(idx.slice(i,i+6));
+  if(g.length>1&&g[g.length-1].length<3)g[g.length-2]=g[g.length-2].concat(g.pop());
+  const R={t:S.w.length,g,gi:0,w:[]};this.deal(R);return R},
+ deal(R){R.c=shuf(R.g[R.gi].flatMap(x=>['t'+x,'e'+x]));R.m=[];R.f=0;R.b=[]},
+ render(el,foc){
+  let R=P.r.memory;if(!R||R.t!==S.w.length)R=P.r.memory=this.round();
+  el.onkeydown=null;const W=S.w,G=R.g,gi=R.gi;
+  if(gi>=G.length){
+   el.innerHTML=`<h2 id="rs" tabindex="-1">Klart!</h2><p class="score">${S.w.length} par hittade</p><p>Du har klarat ${mastered()} av ${S.w.length} begrepp utan missar vid senaste försöket.</p>`+
+    (R.w.length?`<h2>Att öva mer på</h2><ul class="wl">${R.w.map(x=>`<li><b>${esc(W[x][0])}</b> – ${esc(W[x][1])}</li>`).join('')}</ul>`:'<p><b>Inga missar. Snyggt!</b></p>')+
+    `<div class="row"><button class="pri" id="nr" type="button">Ny omgång</button></div>`;
+   $('nr').onclick=()=>{P.r.memory=this.round();save();this.render(el,1)};
+   if(foc)$('rs').focus();say('Klart! Alla par hittade.');return}
+  const gr=G[gi],done=R.m.length===gr.length;let open=[],lock=false;
+  const hdr=()=>`Del ${gi+1} av ${G.length} · Par: ${R.m.length} av ${gr.length} · Drag: ${R.f}`;
+  const cards=()=>R.c.map((c,k)=>{const x=+c.slice(1),t=c[0]==='t',m=R.m.includes(x),u=m||open.includes(c);
+   return`<button type="button" class="mc ${t?'tm':'ex'}${m?' ok':u?' up':''}" data-c="${c}" aria-disabled="${m}" aria-label="${u?(t?'Begrepp: ':'Förklaring: ')+esc(W[x][t?0:1])+(m?'. Par hittat':''):'Kort '+(k+1)+', nedvänt'}">`+
+   (u?`<small>${t?'Begrepp':'Förklaring'}${m?' ✓':''}</small><span>${esc(W[x][t?0:1])}</span>`:backFace())+'</button>'}).join('');
+  el.innerHTML=`<p id="qc" class="hint" style="margin:0">${hdr()}</p><progress max="${gr.length}" value="${R.m.length}" aria-labelledby="qc"></progress>
+  <div class="mg" role="group" aria-label="Memorykort. Hitta par av begrepp och förklaring">${cards()}</div>
+  ${done?`<div class="fb ok" role="status">✓ Alla par hittade på ${R.f} drag</div><div class="row"><button class="pri" id="nx" type="button">${gi+1<G.length?'Nästa del':'Se resultat'}</button></div>`:''}`;
+  const paint=c=>{const g=el.querySelector('.mg');if(!g)return;g.innerHTML=cards();$('qc').textContent=hdr();const f=c&&g.querySelector('[data-c="'+c+'"]');if(f)f.focus()};
+  if(done){$('nx').onclick=()=>{R.gi++;if(R.gi<G.length)this.deal(R);save();this.render(el,1)};if(foc)$('nx').focus();say('Alla par i delen hittade.');return}
+  el.onclick=e=>{const b=e.target.closest('.mc');if(!b||lock)return;const c=b.dataset.c,x=+c.slice(1);if(R.m.includes(x)||open.includes(c))return;
+   open.push(c);if(open.length<2){paint(c);return}
+   R.f++;const [a,d]=open;
+   if(+a.slice(1)===+d.slice(1)){R.m.push(x);stat(x,!R.b.includes(x));open=[];save();this.render(el);
+    const nx=el.querySelector('#nx')||el.querySelector('.mc:not(.ok)');if(nx)nx.focus();say('Par! '+W[x][0]);return}
+   [a,d].forEach(k=>{const y=+k.slice(1);if(!R.b.includes(y))R.b.push(y);if(!R.w.includes(y))R.w.push(y)});
+   save();lock=true;paint(c);say('Ingen match.');
+   setTimeout(()=>{open=[];lock=false;paint(c)},1400)};
+  if(foc){const f=el.querySelector('.mc');if(f)f.focus()}
+ }
+};
+const PRINTS={quiz:{name:'Begreppsquiz (flerval)',fn:(w,k)=>MODES.quiz.print(w,k)},bokstavsmix:{name:'Bokstavsmix',fn:w=>MODES.bokstavsmix.print(w)}};
+const LET='ABCDEFGHIJKL';
+PRINTS.matcha={name:'Matcha begrepp och förklaring',fn(w){
+ const idx=shuf([...Array(w.length).keys()]),g=[];for(let i=0;i<idx.length;i+=10)g.push(idx.slice(i,i+10));
+ if(g.length>1&&g[g.length-1].length<3)g[g.length-2]=g[g.length-2].concat(g.pop());
+ let q='',key='';
+ g.forEach((c,gi)=>{const r=shuf(c),L=x=>LET[r.indexOf(x)];
+  q+=`<div class="mt">${g.length>1?`<h2>Del ${gi+1}</h2>`:''}<div class="ml">${c.map((x,j)=>`<p><span class="bx2"></span>${j+1}. ${esc(w[x][1])}</p>`).join('')}</div><div class="mr">${r.map((x,j)=>`<p><b>${LET[j]}</b> ${esc(w[x][0])}</p>`).join('')}</div></div>`;
+  key+=c.map((x,j)=>`<li>${g.length>1?'Del '+(gi+1)+': ':''}${j+1} – ${L(x)} (${esc(w[x][0])})</li>`).join('')});
+ return sheet($('ttl').value.trim()||'Matcha begreppen','<p class="ins">Skriv bokstaven för rätt begrepp i rutan framför varje förklaring.</p>'+q,key,'one')}};
+PRINTS.kort={name:'Memorykort att klippa ut',fn(w){
+ const t=$('ttl').value.trim()||'Memorykort',cs=[];
+ w.forEach(([a,b])=>{cs.push(`<div class="cd"><small>Begrepp</small><b>${esc(a)}</b></div>`);cs.push(`<div class="cd ex"><small>Förklaring</small><span class="${b.length>140?'lg':''}">${esc(b)}</span></div>`)});
+ return`<div class="nm">Klipp ut korten längs de streckade linjerna. Para ihop varje begrepp med sin förklaring.</div><h1>${esc(t)}</h1><div class="band"></div><div class="cards">${shuf(cs).join('')}</div>`+
+  ($('pkey').checked?`<div class="pk"><h1>Facit – ${esc(t)}</h1><div class="band"></div><ol>${w.map(([a,b])=>`<li><b>${esc(a)}</b> – ${esc(b)}</li>`).join('')}</ol></div>`:'')}};
+Object.keys(PRINTS).forEach(id=>{const o=document.createElement('option');o.value=id;o.textContent=PRINTS[id].name;$('ptype').appendChild(o)});
+$('mode').onchange=()=>{const m=$('mode').value,pt=m==='memory'?'kort':m;if(PRINTS[pt])$('ptype').value=pt};
+Object.keys(MODES).forEach(id=>{const o=document.createElement('option');o.value=id;o.textContent=MODES[id].name;$('mode').appendChild(o)});
+const MI={quiz:'Välj rätt begrepp till förklaringen',bokstavsmix:'Ordna bokstäverna och skriv ordet',memory:'Para ihop begrepp och förklaring'};
+const segSync=()=>$('seg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===$('mode').value));
+Object.keys(MODES).forEach(id=>{const b=document.createElement('button');b.type='button';b.className='md';b.dataset.m=id;b.innerHTML='<b>'+MODES[id].name+'</b><small>'+(MI[id]||'')+'</small>';b.onclick=()=>{$('mode').value=id;segSync();$('mode').onchange()};$('seg').appendChild(b)});segSync();
+
+/* ---- Start / elev ---- */
+function open(id){cur=id;
+  $('mb').innerHTML='';
+  if(!S.m&&Object.keys(MODES).length>1)Object.keys(MODES).forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=MODES[k].name;b.setAttribute('aria-pressed',k===id);b.onclick=()=>open(k);$('mb').appendChild(b)});
+  $('play').hidden=false;MODES[id].render($('pl'));
+}
+function data(){
+  const w=parse($('paste').value);
+  if(w.length<3){$('msg').textContent='Det behövs minst tre begrepp med förklaring.';return null}
+  $('msg').textContent=w.length+' begrepp används.';
+  return{t:$('ttl').value.trim()||'Begreppsträning',m:'',k:+$('kopt').value,w};
+}
+$('try').onclick=()=>{const d=data();if(!d)return;S=Object.assign(d,{key:''});P={r:{},s:{}};document.body.classList.add('foc');$('ht').textContent=S.t;document.title=S.t;open($('mode').value);scrollTo(0,0)};
+$('back').onclick=()=>{document.body.classList.remove('foc');$('play').hidden=true;$('ht').textContent='Begreppsträning';document.title='Begreppsträning';$('try').focus();scrollTo(0,0)};
+$('mk').onclick=()=>{const d=data();if(!d)return;if($('lock').checked)d.m=$('mode').value;
+  const u=location.href.split('#')[0]+'#e='+enc(d);$('link').value=u;$('lk').hidden=false;$('link').select();
+  $('msg').textContent=u.length>6000?'Länken är lång ('+u.length+' tecken) och kan klippas av i vissa appar. Välj färre begrepp.':'Elevlänk skapad.'};
+$('cp').onclick=async()=>{const o=$('link'),b=$('cp');try{await navigator.clipboard.writeText(o.value)}catch(e){o.select();try{document.execCommand('copy')}catch(x){}}b.textContent='Kopierad ✓';setTimeout(()=>b.textContent='Kopiera länk',2000)};
+$('pr').onclick=()=>{const d=data();if(!d)return;S=Object.assign(d,{key:''});$('pa').innerHTML=PRINTS[$('ptype').value].fn(d.w,d.k);window.print()};
+const pgSet=()=>{const n=$('nm').checked;$('pgs').textContent='@page{size:A4;margin:'+(n?'0':'14mm')+'}';$('fnote').disabled=!n;document.body.classList.toggle('nm',n);document.body.classList.toggle('fnon',n&&$('fnote').checked)};
+$('nm').onchange=$('fnote').onchange=pgSet;pgSet();
+$('clr').onclick=()=>{if(!confirm('Rensa alla dina sparade framsteg i den här övningen?'))return;P={r:{},s:{}};save();open(cur)};
+function student(d,raw){
+  document.body.classList.add('stu');$('ht').textContent=d.t;document.title=d.t;
+  let h=5381;for(const c of raw)h=((h<<5)+h+c.charCodeAt(0))|0;
+  S=Object.assign(d,{key:'pt-begrepp:'+h});P=load();
+  open(MODES[d.m]?d.m:Object.keys(MODES)[0]);
+}
+const DEMO=["Täljare; Talet över bråkstrecket i ett bråk", "Nämnare; Talet under bråkstrecket som visar hur många lika delar helheten är delad i", "Primtal; Heltal större än 1 som bara är delbart med 1 och sig självt", "Variabel; Bokstav som står för ett tal som kan ändras", "Ekvation; Likhet med en okänd som man ska lösa ut", "Medelvärde; Summan av alla värden delad med antalet värden", "Median; Det mittersta värdet när alla värden står i storleksordning", "Omkrets; Sträckan runt en figur, alltså summan av alla sidor", "Area; Hur stor yta en figur täcker, mäts i kvadratenheter", "Hypotenusa; Den längsta sidan i en rätvinklig triangel, mitt emot den räta vinkeln", "Koordinat; Talpar som anger en punkts läge i ett koordinatsystem", "Kvot; Resultatet när man dividerar två tal", "Produkt; Resultatet när man multiplicerar två tal", "Summa; Resultatet när man adderar två eller flera tal", "Differens; Resultatet när man subtraherar ett tal från ett annat", "Faktor; Ett av de tal som multipliceras med varandra", "Procent; Hundradel, ett sätt att uttrycka andelar", "Diameter; Sträcka genom cirkelns medelpunkt från en kant till den andra", "Radie; Sträcka från cirkelns medelpunkt till kanten", "Vinkel; Mått på hur mycket två linjer som möts har vänts från varandra", "Parentes; Tecken som visar vilken uträkning som ska göras först", "Exponent; Litet tal som visar hur många gånger basen multipliceras med sig själv", "Volym; Hur mycket rymd en kropp tar upp, mäts i kubikenheter", "Typvärde; Det värde som förekommer flest gånger"];
+const demo=()=>{$('paste').value=shuf(DEMO).slice(0,10).join('\n');$('ttl').value='Demo: Matematikbegrepp';$('msg').textContent='10 slumpade exempelbegrepp inladdade. Klicka på Prova, Skriv ut eller Skapa elevlänk.'};
+$('demo').onclick=demo;
+if(location.hash==='#demo'){demo();$('try').click()}
+const hm=location.hash.match(/^#e=([\w-]+)$/);
+if(hm){try{student(dec(hm[1]),hm[1])}catch(e){$('msg').textContent='Länken kunde inte läsas.'}}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ordgömman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Sora:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ff;--surface:#fff;--surface2:#eae6ff;--border:#ccc5f0;--text:#100e28;--muted:#585078;--accent:#306BF0;--accent2:#EC6095;
+--gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);--correct:#18a348;--wrong:#e02020;--shadow:rgba(48,107,240,.12);
+--ora-d:#b5621a;--ros-d:#b03070}
+*{box-sizing:border-box}
+body{margin:0;font-family:Sora,system-ui,sans-serif;color:var(--text);background:#f6f4ff;min-height:100vh}
+.amb{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.amb i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55}
+.amb i:nth-child(1){width:420px;height:420px;background:#66C7C2;top:-80px;left:-100px}
+.amb i:nth-child(2){width:380px;height:380px;background:#F4A261;top:35%;right:-120px}
+.amb i:nth-child(3){width:400px;height:400px;background:#EC6095;bottom:-120px;left:25%}
+header{background:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);height:64px;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,.18);display:flex;align-items:center;padding:0 24px}
+header h1{margin:0;font:700 1.5rem Montserrat,sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+main{max-width:1000px;margin:0 auto;padding:24px 16px;display:grid;gap:24px}
+.panel{background:rgba(255,255,255,.72);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.9);border-radius:20px;padding:24px;box-shadow:0 8px 24px var(--shadow),0 2px 6px rgba(16,14,40,.05)}
+h2{font:700 1.05rem Montserrat,sans-serif;margin:0 0 10px}
+label{font-weight:600;font-size:.88rem}
+select,textarea,input[type=text],button{font:inherit}
+select,textarea,input[type=text]{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px;background:#fff;color:var(--text)}
+textarea{min-height:130px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.row>*{flex:0 0 auto}
+.row>button{flex:0 1 auto;max-width:100%;white-space:normal;overflow-wrap:anywhere;text-align:left}
+.row>label{flex:1 1 100%;min-width:0}
+#play>*{min-width:0}
+.pbox,.panel{min-width:0}
+body:not(.stu) .stuonly{display:none}
+.stuonly{margin-top:12px;font-size:.9rem}
+.stuonly summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center}.row select,.row input[type=text]{flex:1 1 220px;width:auto}
+button{border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer;background:var(--surface2);color:var(--accent);border:1.5px solid var(--border);min-height:44px}
+button.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+button[aria-pressed=true]{background:var(--text);color:#fff;border-color:var(--text)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hint{font-size:.82rem;color:var(--muted);margin:8px 0 0}
+#play{display:none;grid-template-columns:auto minmax(200px,1fr);gap:24px;align-items:start}
+#play.on{display:grid}
+@media(max-width:720px){#play.on{grid-template-columns:1fr}}
+#grid{touch-action:none;user-select:none;-webkit-user-select:none;display:inline-block;background:#fff;border:2px solid var(--accent);border-radius:14px;padding:6px}
+.gr{display:flex}
+.c{width:var(--cs,38px);height:var(--cs,38px);display:flex;align-items:center;justify-content:center;font:700 calc(var(--cs,38px)*.5) Montserrat,sans-serif;border-radius:8px;cursor:pointer;border-bottom:3px solid transparent}
+.c.sel{background:#F4A261;color:var(--text);outline:2px dashed var(--ora-d);outline-offset:-3px}
+.c.f{border-bottom-color:currentColor;text-decoration:underline;text-underline-offset:3px;background:var(--fc,#bfeceb)}
+.c.k{border-bottom-color:currentColor;background:#fff3a8;text-decoration:underline wavy}
+.c.kf{outline:3px solid var(--ros-d);outline-offset:-3px}
+#words{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+#words li{padding:0;border-radius:999px;background:#fff;border:1.5px solid var(--border);font-weight:600;font-size:.92rem}
+#words li button{background:none;border:0;border-radius:999px;padding:6px 14px;min-height:44px;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.c.h{outline:3px solid var(--ros-d);outline-offset:-3px;background:#ffe4ef;text-decoration:underline dotted}
+body.stu .tonly{display:none!important}
+#words li.d{text-decoration:line-through;background:#e8f7f7;border-color:#2a9490;color:var(--muted)}
+#done{display:none;margin-top:12px;padding:12px;border-radius:14px;background:#e8f7f7;border:2px solid #2a9490;font-weight:700}
+#done.on{display:block}
+.msg{min-height:1.3em;font-size:.88rem;color:var(--ros-d);margin-top:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.pbox{margin-top:16px;padding-top:14px;border-top:1.5px solid var(--border)}
+#pa{display:none}
+@media print{
+ html,body{background:#fff!important;margin:0}
+ header,main,.amb,#live{display:none!important}
+ #pa{display:block;overflow:hidden;color:#000;font-family:Sora,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #pa h1{font:700 17pt/9mm Montserrat,sans-serif;margin:0 0 1.5mm;height:9mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #pa .band{height:2.2mm;border-radius:1.2mm;margin-bottom:4mm;background:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%)}
+ #pa.nb h1{margin-bottom:4mm}
+ #pa .p1{overflow:hidden}
+ #pa .p2{break-before:page;page-break-before:always}
+ #pa .pb{display:flex;gap:6mm;align-items:flex-start}
+ #pa.port .pb{flex-direction:column}
+ #pa .pg{display:grid;border:.4mm solid #000;flex:none}
+ #pa .pg span{width:var(--s);height:var(--s);display:flex;align-items:center;justify-content:center;font:600 calc(var(--s)*.56) Montserrat,sans-serif}
+ #pa .pg span.kk{background:#d4d4d4;font-weight:800;outline:.25mm solid #000;outline-offset:-.25mm}
+ #pa ol{list-style:none;margin:0;padding:0;column-gap:5mm;column-count:var(--cols);font-size:11pt;line-height:1.3}
+ #pa ol.cl{font-size:10pt;line-height:1.3;counter-reset:n}
+ #pa ol.cl li{counter-increment:n;padding-left:7mm}
+ #pa ol.cl li::before{content:counter(n) ".";border:0;width:auto;height:auto;top:.6mm;font-weight:700}
+ #pa .wl{display:block;height:5.5mm;border-bottom:.3mm solid #444;margin:.5mm 2mm 0 0;font:600 11pt/5mm Sora,sans-serif}
+ #pa.land .pb ol{width:var(--lw);flex:none}
+ #pa li{break-inside:avoid;padding:.6mm 0 .6mm 6mm;position:relative}
+ #pa ol:not(.cl) li{padding-top:1.2mm;padding-bottom:1.2mm}
+ #pa li::before{content:"";position:absolute;left:0;top:1.6mm;width:3.4mm;height:3.4mm;border:.3mm solid #000}
+}
+</style>
+<style>.ck{display:flex;gap:8px;align-items:center;font-weight:400}.ck input{width:22px;height:22px}.pfn{display:none}.pfn img{height:4.5mm}
+@media print{#pa.nm .p1,#pa.nm .p2{padding:12mm}body.nm.fnon .pfn{display:flex;align-items:center;gap:2mm;position:fixed;left:12mm;right:12mm;bottom:4mm;font:400 7pt Sora,sans-serif;color:#444}}</style>
+</head>
+<body>
+<div class="amb" aria-hidden="true"><i></i><i></i><i></i></div>
+<header><h1>Ordgömman</h1></header>
+<main>
+<section class="panel tonly" aria-labelledby="h-src">
+  <h2 id="h-src">1. Välj begrepp</h2>
+  <div id="bankbox" hidden>
+    <label for="bank">Från Korsordsbyggaren (läses bara, ändras aldrig)</label>
+    <div class="row"><select id="bank"></select><button id="load" type="button">Hämta begrepp</button></div>
+  </div>
+  <p class="hint" id="nobank" hidden>Inga sparade listor hittades här. Klistra in dina begrepp nedan.</p>
+  <div style="margin-top:12px">
+    <label for="paste">Begrepp – ett per rad, gärna med förklaring efter tab eller semikolon</label>
+    <textarea id="paste" placeholder="Primtal; Tal som bara är delbart med 1 och sig självt&#10;Kvot&#10;Parentes"></textarea>
+  </div>
+  <div class="row">
+    <label for="diff">Svårighetsgrad</label>
+    <select id="diff"><option value="easy">Lätt: bara åt höger (→) och nedåt (↓)</option><option value="mid">Mellan: höger, nedåt och diagonalt framlänges</option><option value="hard" selected>Svår: alla 8 riktningar, även baklänges</option></select>
+  </div>
+  <div class="row">
+    <button class="pri" id="make" type="button">Skapa ordgömma</button>
+    <button id="demo" type="button">Demo: slumpa 10 begrepp</button>
+    <button id="again" type="button" hidden>↻ Nytt förslag</button>
+  </div>
+  <div class="msg" id="msg" role="status"></div>
+</section>
+
+<section class="panel" id="play" aria-labelledby="h-play">
+  <div>
+    <h2 id="h-play" class="sr">Ordgömma</h2>
+    <div id="grid" role="grid" aria-label="Bokstavsrutnät. Dra över bokstäver för att markera ett ord. Med tangentbord: pilar för att flytta, Enter för att sätta start och slut."></div>
+  </div>
+  <div>
+    <h2 id="h-find">Hitta orden <span id="count"></span></h2>
+    <ul id="words" aria-labelledby="h-find"></ul>
+    <div class="row">
+      <button class="tonly" id="clues" type="button" aria-pressed="false">Visa förklaringar istället för ord</button>
+      <button class="tonly" id="solve" type="button" aria-pressed="false">Visa lösning</button>
+      <button id="reset" type="button">Börja om</button>
+    </div>
+    <div class="pbox tonly">
+      <h2 id="h-pr">Utskrift (A4)</h2>
+      <div class="row" role="group" aria-labelledby="h-pr" style="margin-top:0">
+        <button id="pw" type="button" aria-pressed="true">Ordlista med rutor att kryssa</button>
+        <button id="pc" type="button" aria-pressed="false">Förklaringar på egen sida (svårare)</button>
+      </div>
+      <div class="row"><label for="ptitle">Rubrik (utskrift och elevlänk)</label><input type="text" id="ptitle" placeholder="Hitta orden" maxlength="80"></div>
+      <div class="row"><label><input type="checkbox" id="pband" checked> Färgband under rubriken, med plats för namn och klass ovanför</label></div>
+      <label class="ck"><input type="checkbox" id="nm" checked> Dölj datum och filsökväg i utskriften</label><label class="ck"><input type="checkbox" id="fnote" checked> Fotnot med logotyp och avsändare</label><p class="hint">Gäller Chrome och Edge. I Firefox och Safari: stäng av "Sidhuvuden och sidfötter" i utskriftsdialogen.</p>
+      <div class="row"><button class="pri" id="pprint" type="button">Skriv ut</button><button id="pkey" type="button">Skriv ut facit</button></div>
+      <p class="hint">Med orden får allt plats på en A4. Med förklaringar ligger spelplanen på sida 1 och förklaringarna, med en skrivrad för varje ord, på sida 2. Stående eller liggande väljs automatiskt.</p>
+    </div>
+    <p class="hint">Fastnat? Klicka på ett ord för en ledtråd: första bokstavens ruta lyser upp, och vid ett klick till även den sista.</p>
+    <p class="hint" id="dirhint"></p>
+    <details class="stuonly"><summary>Så här gör du</summary>
+      <p>Dra med fingret eller musen över bokstäverna i ett ord. Orden kan ligga åt flera håll. Hittar du rätt får ordet en bock i listan.</p>
+      <p>Fastnat? Klicka på ordet i listan för en ledtråd. Med tangentbord: pilarna flyttar, Enter sätter start och slut.</p>
+    </details>
+    <div class="pbox tonly">
+      <h2 id="h-sh">Dela med elever</h2>
+      <div class="row" style="margin-top:0"><label for="smode">Eleven ser</label><select id="smode"><option value="words">Orden</option><option value="clues">Förklaringarna</option></select></div>
+      <div class="row"><button class="pri" id="mklink" type="button">Skapa elevlänk</button><button id="cplink" type="button" hidden>Kopiera länk</button></div>
+      <input type="text" id="linkout" readonly hidden aria-label="Elevlänk" style="margin-top:8px">
+      <p class="hint">Eleven får en ren sida med bara spelplanen och orden eller förklaringarna. Markeringarna sparas på elevens egen enhet.</p>
+    </div>
+    <div id="done" role="status"></div>
+  </div>
+</section>
+<div class="sr" id="live" aria-live="polite"></div>
+</main>
+<div id="pa"></div>
+<div class="pfn" aria-hidden="true"><img src="pt_logo.png" alt="" onerror="this.remove()"><span>Verktyg skapat av Patrick Tegnefur · Förstelärare &amp; IT-pedagog Alfred Dalinskolan</span></div>
+<style id="pgs"></style>
+<script>
+(()=>{
+const KEY='pt-korsord-amnesbanker';
+const $=id=>document.getElementById(id);
+const DIRS=[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
+const COLORS=['#bfeceb','#fcd9b6','#f9c2d9','#d6ceff','#c7f0d4','#fff0a8'];
+let DS=DIRS,pmode='words',stu=false,skey='';
+let banks=null,words=[],placed=[],grid=[],N=0,showClues=false,solve=false;
+let drag=null,kstart=null,kfocus={r:0,c:0};
+
+/* ---- Läs delad bank (endast läsning) ---- */
+try{const raw=localStorage.getItem(KEY);if(raw){const b=JSON.parse(raw);if(b&&b.subjects)banks=b}}catch(e){}
+const bankSel=$('bank');
+if(banks){
+  const order=(banks.subjectOrder||Object.keys(banks.subjects)).filter(s=>banks.subjects[s]);
+  const cats=[...new Set(order.map(s=>banks.subjects[s].category).filter(Boolean))];
+  const g=(label,opts)=>{if(!opts.length)return;const og=document.createElement('optgroup');og.label=label;opts.forEach(o=>og.appendChild(o));bankSel.appendChild(og)};
+  const opt=(v,t)=>{const o=document.createElement('option');o.value=v;o.textContent=t;return o};
+  g('Kategorier',cats.map(c=>opt('c:'+c,'Hela kategorin: '+c)));
+  g('Listor',order.map(s=>{const x=banks.subjects[s];const gr=(x.grades||[]).length?' (åk '+x.grades.join(', ')+')':'';return opt('s:'+s,(x.category?x.category+' › ':'')+(x.name||s)+gr)}));
+  $('bankbox').hidden=!bankSel.options.length;$('nobank').hidden=!!bankSel.options.length;
+}else $('nobank').hidden=false;
+$('load').onclick=()=>{
+  const v=bankSel.value;if(!v)return;
+  const subs=v.startsWith('s:')?[banks.subjects[v.slice(2)]]:Object.values(banks.subjects).filter(s=>s.category===v.slice(2));
+  const lines=[];subs.forEach(s=>(s.words||[]).forEach(w=>{if(w&&w.term&&w.selected!==false)lines.push(w.clue?w.term+'; '+w.clue:w.term)}));
+  $('paste').value=lines.join('\n');
+  if(!$('ptitle').value.trim()){const nm=v.startsWith('s:')?(subs[0].printTitle||subs[0].name):v.slice(2);if(nm)$('ptitle').value=nm}
+  $('msg').textContent=lines.length?lines.length+' begrepp hämtade. Klicka på Skapa ordgömma.':'Inga valda begrepp i den listan.';
+};
+
+/* ---- Tolka inklistring ---- */
+const norm=t=>t.toUpperCase().replace(/[^A-ZÅÄÖÉÜ0-9]/g,'');
+function parse(txt){
+  const seen=new Set(),out=[];out.dropped=[];
+  txt.split(/\r?\n/).forEach(l=>{
+    l=l.trim();if(!l)return;
+    const i=l.search(/\t|;/);
+    const term=(i<0?l:l.slice(0,i)).trim(),clue=i<0?'':l.slice(i+1).trim();
+    const n=norm(term);
+    if(n.length<2){out.dropped.push((term||'(tomt)')+' (för kort)');return}
+    if(seen.has(n)){out.dropped.push(term+' (finns redan)');return}
+    seen.add(n);out.push({term,clue,n});
+  });return out;
+}
+
+/* ---- Generera rutnät ---- */
+function tryBuild(ws,size){
+  const g=Array.from({length:size},()=>Array(size).fill(''));const res=[];
+  for(const w of ws){
+    let best=null,bs=-1;
+    for(let t=0;t<250;t++){
+      const [dr,dc]=DS[Math.random()*DS.length|0];
+      const r=Math.random()*size|0,c=Math.random()*size|0;
+      const er=r+dr*(w.n.length-1),ec=c+dc*(w.n.length-1);
+      if(er<0||ec<0||er>=size||ec>=size)continue;
+      let ok=true,ov=0;
+      for(let k=0;k<w.n.length;k++){const x=g[r+dr*k][c+dc*k];if(x===w.n[k])ov++;else if(x){ok=false;break}}
+      if(ok&&ov>=bs){bs=ov;best={r,c,dr,dc}}
+      if(ok&&ov>0&&t>80)break;
+    }
+    if(!best)return null;
+    for(let k=0;k<w.n.length;k++)g[best.r+best.dr*k][best.c+best.dc*k]=w.n[k];
+    res.push({...w,...best,found:false});
+  }
+  return {g,res};
+}
+function make(){
+  const ws=parse($('paste').value);const msg=$('msg');
+  if(ws.length<2){msg.textContent='Skriv eller klistra in minst två begrepp (minst två bokstäver vardera).'+(ws.dropped.length?' Hoppade över: '+ws.dropped.slice(0,6).join(', ')+'.':'');return}
+  const longest=Math.max(...ws.map(w=>w.n.length));
+  if(longest>22){msg.textContent='Ett begrepp har fler än 22 bokstäver. Korta ner det eller ta bort det.';return}
+  DS={easy:[[0,1],[1,0]],mid:[[0,1],[1,0],[1,1],[-1,1]],hard:DIRS}[$('diff').value];
+  ws.sort((a,b)=>b.n.length-a.n.length);
+  const total=ws.reduce((s,w)=>s+w.n.length,0);
+  let size=Math.max(longest,Math.ceil(Math.sqrt(total*1.7)),8),out=null;
+  for(;size<=Math.min(longest+10,24)&&!out;size++){for(let a=0;a<40&&!out;a++)out=tryBuild(ws,size)}
+  if(!out){msg.textContent='Det gick inte att få plats med alla begrepp. Ta bort några eller korta ner dem.';return}
+  N=out.g.length;grid=out.g;placed=out.res;words=ws;
+  const pool=ws.map(w=>w.n).join('')+'AAEEENNTTRRSSIILLDDOOKMGHUVÄÅÖ';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!grid[r][c])grid[r][c]=pool[Math.random()*pool.length|0];
+  placed.sort((a,b)=>a.term.localeCompare(b.term,'sv'));
+  placed.forEach((p,i)=>p.color=COLORS[i%COLORS.length]);
+  solve=false;$('solve').setAttribute('aria-pressed','false');
+  const dr=ws.dropped;msg.textContent=dr.length?dr.length+' begrepp hoppades över: '+dr.slice(0,6).join(', ')+(dr.length>6?' …':'')+'.':'';
+  $('play').classList.add('on');$('again').hidden=false;
+  render();$('live').textContent='Ordgömma skapad med '+placed.length+' ord.';
+}
+$('make').onclick=make;$('again').onclick=make;
+
+/* ---- Rendera ---- */
+const cells=[];
+function render(){
+  const gd=$('grid');gd.innerHTML='';cells.length=0;
+  const cs=Math.max(22,Math.min(44,Math.floor((Math.min(innerWidth,1000)-80)/N)));
+  gd.style.setProperty('--cs',cs+'px');
+  for(let r=0;r<N;r++){
+    const row=document.createElement('div');row.className='gr';row.setAttribute('role','row');
+    cells[r]=[];
+    for(let c=0;c<N;c++){
+      const d=document.createElement('div');d.className='c';d.setAttribute('role','gridcell');
+      d.dataset.r=r;d.dataset.c=c;d.textContent=grid[r][c];
+      d.setAttribute('aria-label','Rad '+(r+1)+', kolumn '+(c+1)+', '+grid[r][c]);
+      d.tabIndex=(r===0&&c===0)?0:-1;
+      row.appendChild(d);cells[r][c]=d;
+    }
+    gd.appendChild(row);
+  }
+  paintFound();wordList();
+}
+function wordList(){
+  const ul=$('words');ul.innerHTML='';
+  const hard=placed.some(p=>p.dc<0||(p.dc===0&&p.dr<0)),mid=placed.some(p=>p.dr&&p.dc);
+  $('dirhint').textContent=hard?'Orden kan ligga vågrätt, lodrätt och diagonalt, även baklänges.':mid?'Orden kan ligga vågrätt, lodrätt och diagonalt, alltid framlänges.':'Orden ligger vågrätt (→) eller lodrätt (↓).';
+  placed.forEach((p,i)=>{
+    const li=document.createElement('li'),b=document.createElement('button');b.type='button';
+    const t=showClues&&p.clue?p.clue:p.term;
+    b.textContent=(p.found?'✓ ':'')+t+(!p.found&&showClues&&p.clue&&p.hint?' ('+p.n.length+' bokstäver, börjar på '+p.n[0]+')':'');
+    if(p.found){li.className='d';b.setAttribute('aria-label','Hittat: '+t)}else b.setAttribute('aria-label','Att hitta: '+t+'. Klicka för ledtråd.');
+    b.onclick=()=>hint(i);li.appendChild(b);ul.appendChild(li);
+  });
+  const n=placed.filter(p=>p.found).length;$('count').textContent='('+n+' av '+placed.length+')';
+  const dn=$('done');
+  if(n===placed.length){dn.textContent='Klart! Du hittade alla '+placed.length+' ord.';dn.classList.add('on')}else dn.classList.remove('on');
+}
+function paintFound(){
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){const e=cells[r][c];e.classList.remove('f','k','sel','kf','h');e.style.removeProperty('--fc')}
+  placed.forEach(p=>{
+    const L=p.n.length;
+    if(p.found){for(let k=0;k<L;k++){const e=cells[p.r+p.dr*k][p.c+p.dc*k];e.classList.add('f');e.style.setProperty('--fc',p.color)}return}
+    if(solve)for(let k=0;k<L;k++)cells[p.r+p.dr*k][p.c+p.dc*k].classList.add('k');
+    if(p.hint){cells[p.r][p.c].classList.add('h');if(p.hint>1)cells[p.r+p.dr*(L-1)][p.c+p.dc*(L-1)].classList.add('h')}
+  });
+}
+function save(){if(!stu)return;try{localStorage.setItem(skey,JSON.stringify({f:placed.map(p=>p.found?[p.r,p.c,p.dr,p.dc]:0),h:placed.map(p=>p.hint||0)}))}catch(e){}}
+function hint(i){
+  const p=placed[i];if(p.found)return;
+  p.hint=Math.min(2,(p.hint||0)+1);save();paintFound();wordList();
+  const q=p.hint===1?{r:p.r,c:p.c,t:'första'}:{r:p.r+p.dr*(p.n.length-1),c:p.c+p.dc*(p.n.length-1),t:'sista'};
+  $('live').textContent='Ledtråd: ordets '+q.t+' bokstav ligger på rad '+(q.r+1)+', kolumn '+(q.c+1)+'.';
+  $('words').children[i].querySelector('button').focus();
+}
+
+/* ---- Markering ---- */
+function line(a,b){
+  const dr=b.r-a.r,dc=b.c-a.c;if(!dr&&!dc)return [a];
+  const k=Math.round(Math.atan2(dr,dc)/(Math.PI/4));
+  const sr=Math.round(Math.sin(k*Math.PI/4)),sc=Math.round(Math.cos(k*Math.PI/4));
+  let len=Math.max(0,Math.round((dr*sr+dc*sc)/(sr*sr+sc*sc)));
+  while(len>0&&(a.r+sr*len<0||a.r+sr*len>=N||a.c+sc*len<0||a.c+sc*len>=N))len--;
+  const out=[];for(let i=0;i<=len;i++)out.push({r:a.r+sr*i,c:a.c+sc*i});return out;
+}
+function preview(ls){
+  paintFound();ls.forEach(p=>cells[p.r][p.c].classList.add('sel'));
+}
+function check(ls){
+  const s=ls.map(p=>grid[p.r][p.c]).join(''),rs=[...s].reverse().join('');
+  const hit=placed.find(p=>!p.found&&(p.n===s||p.n===rs)&&p.n.length===ls.length);
+  if(hit){
+    const dx=ls.length>1?{dr:ls[1].r-ls[0].r,dc:ls[1].c-ls[0].c}:{dr:0,dc:0},z=ls[ls.length-1];
+    if(hit.n===s){hit.r=ls[0].r;hit.c=ls[0].c;hit.dr=dx.dr;hit.dc=dx.dc}else{hit.r=z.r;hit.c=z.c;hit.dr=-dx.dr;hit.dc=-dx.dc}
+    hit.found=true;save();$('live').textContent='Rätt! Du hittade '+hit.term+'.';}
+  paintFound();wordList();return !!hit;
+}
+function cellAt(e){const el=document.elementFromPoint(e.clientX,e.clientY);const c=el&&el.closest&&el.closest('.c');return c?{r:+c.dataset.r,c:+c.dataset.c}:null}
+const gd=$('grid');
+gd.addEventListener('pointerdown',e=>{
+  const p=cellAt(e);if(!p)return;e.preventDefault();
+  drag={a:p,ls:[p]};gd.setPointerCapture(e.pointerId);preview(drag.ls);
+});
+gd.addEventListener('pointermove',e=>{
+  if(!drag)return;const p=cellAt(e);if(!p)return;
+  drag.ls=line(drag.a,p);preview(drag.ls);
+});
+const end=()=>{if(!drag)return;const ls=drag.ls;drag=null;if(ls.length>1)check(ls);else paintFound()};
+gd.addEventListener('pointerup',end);gd.addEventListener('pointercancel',()=>{drag=null;paintFound()});
+
+/* ---- Tangentbord ---- */
+gd.addEventListener('keydown',e=>{
+  const t=e.target.closest('.c');if(!t)return;
+  let r=+t.dataset.r,c=+t.dataset.c;
+  const mv={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];
+  if(mv){e.preventDefault();r=Math.max(0,Math.min(N-1,r+mv[0]));c=Math.max(0,Math.min(N-1,c+mv[1]));focusCell(r,c);
+    if(kstart){const ls=line(kstart,{r,c});preview(ls);cells[kstart.r][kstart.c].classList.add('kf')}return}
+  if(e.key==='Enter'||e.key===' '){
+    e.preventDefault();
+    if(!kstart){kstart={r,c};cells[r][c].classList.add('kf');$('live').textContent='Start satt. Flytta med pilarna och tryck Enter för att välja slut.'}
+    else{const ls=line(kstart,{r,c});const ok=ls.length>1&&check(ls);kstart=null;paintFound();$('live').textContent=ok?$('live').textContent:'Inget ord där. Försök igen.'}
+  }
+  if(e.key==='Escape'){kstart=null;paintFound()}
+});
+function focusCell(r,c){cells.flat().forEach(x=>x.tabIndex=-1);const e=cells[r][c];e.tabIndex=0;e.focus();kfocus={r,c}}
+
+/* ---- Knappar ---- */
+$('clues').onclick=function(){showClues=!showClues;this.setAttribute('aria-pressed',showClues);wordList()};
+$('solve').onclick=function(){solve=!solve;this.setAttribute('aria-pressed',solve);paintFound()};
+$('reset').onclick=()=>{if(stu&&!confirm('Börja om och rensa dina markeringar?'))return;placed.forEach(p=>{p.found=false;p.hint=0});save();solve=false;$('solve').setAttribute('aria-pressed','false');paintFound();wordList()};
+/* ---- Elevlänk ---- */
+const enc=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const dec=t=>JSON.parse(decodeURIComponent(escape(atob(t.replace(/-/g,'+').replace(/_/g,'/')))));
+$('mklink').onclick=()=>{
+  if(!N)return;
+  const d={t:$('ptitle').value.trim()||'Hitta orden',m:$('smode').value,n:N,g:grid.flat().join(''),w:placed.map(p=>[p.term,p.clue,p.r,p.c,p.dr,p.dc])};
+  const o=$('linkout');o.value=location.href.split('#')[0]+'#e='+enc(d);o.hidden=false;$('cplink').hidden=false;o.select();
+  $('live').textContent='Elevlänk skapad.';
+};
+$('cplink').onclick=async()=>{const o=$('linkout'),b=$('cplink');try{await navigator.clipboard.writeText(o.value);b.textContent='Kopierad ✓'}catch(e){o.select();try{document.execCommand('copy');b.textContent='Kopierad ✓'}catch(x){}}setTimeout(()=>b.textContent='Kopiera länk',2000)};
+function startStudent(d,raw){
+  stu=true;document.body.classList.add('stu');
+  N=d.n;grid=[];for(let r=0;r<N;r++)grid.push([...d.g.slice(r*N,r*N+N)]);
+  placed=d.w.map((w,i)=>({term:w[0],clue:w[1],n:norm(w[0]),r:w[2],c:w[3],dr:w[4],dc:w[5],found:false,hint:0,color:COLORS[i%COLORS.length]}));
+  showClues=d.m==='clues';
+  document.querySelector('header h1').textContent=d.t;document.title=d.t;
+  let h=5381;for(const ch of raw)h=((h<<5)+h+ch.charCodeAt(0))|0;skey='pt-ordgomma:'+h;
+  try{const v=JSON.parse(localStorage.getItem(skey));if(v)placed.forEach((p,i)=>{const f=v.f[i];p.found=!!f;if(Array.isArray(f)){p.r=f[0];p.c=f[1];p.dr=f[2];p.dc=f[3]}p.hint=v.h[i]||0})}catch(e){}
+  $('play').classList.add('on');render();
+}
+/* ---- Utskrift ---- */
+const setPm=m=>{pmode=m;$('pw').setAttribute('aria-pressed',m==='words');$('pc').setAttribute('aria-pressed',m==='clues')};
+$('pw').onclick=()=>setPm('words');$('pc').onclick=()=>setPm('clues');
+function printNow(key){
+  if(!N)return;
+  const cl=pmode==='clues',band=$('pband').checked,M=12,PW=210-2*M,PH=297-2*M,T=band?17:14;
+  const title=$('ptitle').value.trim()||'Hitta orden';
+  const items=placed.map(p=>cl&&p.clue?p.clue:p.term);
+  const ih=(t,w)=>cl?Math.ceil(t.length/Math.max(8,Math.floor((w-7)/1.9)))*4.5+8:7.4;
+  const tot=(w,c)=>items.reduce((a,t)=>a+ih(t,w),0)*1.08/c+4;
+  let best=null;
+  for(const o of ['p','l']){
+    const W=o==='p'?PW:PH,H=o==='p'?PH:PW;
+    if(cl){const s=Math.min(Math.min(W,H-T-2)/N,16);if(!best||s>best.s+.01)best={o,s,W,H,c:1,lw:0};continue}
+    for(let c=1;c<=4;c++){
+      let g,lw=0;
+      if(o==='p'){const cw=(W-(c-1)*5)/c;g=Math.min(W,H-T-tot(cw,c)-6)}
+      else{const cw=42;lw=c*cw+(c-1)*5;if(tot(cw,c)>H-T)continue;g=Math.min(W-lw-8,H-T)}
+      if(g<=0)continue;const s=Math.min(g/N,13);
+      if(!best||s>best.s+.01)best={o,c,s,W,H,lw};
+    }
+  }
+  if(!best)best={o:'p',c:4,s:Math.max(3,Math.min(PW,PH-T-80)/N),W:PW,H:PH,lw:0};
+  if(cl){let c=1;for(;c<3;c++){if(tot((best.W-(c-1)*5)/c,c)<=best.H-T-4)break}best.c=c}
+  const pa=$('pa');pa.innerHTML='';pa.className=(best.o==='l'?'land':'port')+(band?'':' nb');
+  pa.style.cssText='--s:'+best.s+'mm;--cols:'+best.c+';--lw:'+best.lw+'mm';
+  const mk=t=>document.createElement(t);
+  const hdr=()=>{const f=document.createDocumentFragment(),h=mk('h1');h.textContent=title;f.appendChild(h);if(band){const b=mk('div');b.className='band';f.appendChild(b)}return f};
+  const mkol=w=>{const ol=mk('ol');if(w)ol.className='cl';placed.forEach((p,i)=>{const li=mk('li');li.textContent=items[i];if(w){const x=mk('span');x.className='wl';if(key)x.textContent=p.term;li.appendChild(x)}ol.appendChild(li)});return ol};
+  const p1=mk('div');p1.className='p1';p1.style.cssText='width:'+best.W+'mm;height:'+(best.H-1)+'mm';p1.appendChild(hdr());
+  const pg=mk('div');pg.className='pg';pg.style.gridTemplateColumns='repeat('+N+',var(--s))';
+  const sp=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++){const e=mk('span');e.textContent=grid[r][c];pg.appendChild(e);sp.push(e)}
+  if(key)placed.forEach(p=>{for(let k=0;k<p.n.length;k++)sp[(p.r+p.dr*k)*N+p.c+p.dc*k].className='kk'});
+  if(cl){pg.style.margin='0 auto';p1.appendChild(pg)}
+  else{const pb=mk('div');pb.className='pb';pb.appendChild(pg);pb.appendChild(mkol(false));p1.appendChild(pb)}
+  pa.appendChild(p1);
+  if(cl){const p2=mk('div');p2.className='p2';p2.style.width=best.W+'mm';p2.appendChild(hdr());p2.appendChild(mkol(true));pa.appendChild(p2)}
+  const nm=$('nm').checked;pa.classList.toggle('nm',nm);document.body.classList.toggle('nm',nm);document.body.classList.toggle('fnon',nm&&$('fnote').checked);$('pgs').textContent='@page{size:A4 '+(best.o==='l'?'landscape':'portrait')+';margin:'+(nm?0:M)+'mm}';
+  window.print();
+}
+$('nm').onchange=()=>{$('fnote').disabled=!$('nm').checked};const POOL=["Täljare; Talet över bråkstrecket i ett bråk", "Nämnare; Talet under bråkstrecket som visar hur många lika delar helheten är delad i", "Primtal; Heltal större än 1 som bara är delbart med 1 och sig självt", "Variabel; Bokstav som står för ett tal som kan ändras", "Ekvation; Likhet med en okänd som man ska lösa ut", "Medelvärde; Summan av alla värden delad med antalet värden", "Median; Det mittersta värdet när alla värden står i storleksordning", "Omkrets; Sträckan runt en figur, alltså summan av alla sidor", "Area; Hur stor yta en figur täcker, mäts i kvadratenheter", "Hypotenusa; Den längsta sidan i en rätvinklig triangel, mitt emot den räta vinkeln", "Koordinat; Talpar som anger en punkts läge i ett koordinatsystem", "Kvot; Resultatet när man dividerar två tal", "Produkt; Resultatet när man multiplicerar två tal", "Summa; Resultatet när man adderar två eller flera tal", "Differens; Resultatet när man subtraherar ett tal från ett annat", "Faktor; Ett av de tal som multipliceras med varandra", "Procent; Hundradel, ett sätt att uttrycka andelar", "Diameter; Sträcka genom cirkelns medelpunkt från en kant till den andra", "Radie; Sträcka från cirkelns medelpunkt till kanten", "Vinkel; Mått på hur mycket två linjer som möts har vänts från varandra", "Parentes; Tecken som visar vilken uträkning som ska göras först", "Exponent; Litet tal som visar hur många gånger basen multipliceras med sig själv", "Volym; Hur mycket rymd en kropp tar upp, mäts i kubikenheter", "Typvärde; Det värde som förekommer flest gånger"];
+$('demo').onclick=()=>{$('paste').value=[...POOL].sort(()=>Math.random()-.5).slice(0,10).join('\n');$('make').click()};
+$('pprint').onclick=()=>printNow(false);$('pkey').onclick=()=>printNow(true);
+addEventListener('resize',()=>{if(N){const c=kfocus;render();}});
+const VK='pt-ordgomma-val';
+const keep=()=>{try{localStorage.setItem(VK,JSON.stringify({d:$('diff').value,b:$('pband').checked,p:pmode,m:$('smode').value,t:$('paste').value,h:$('ptitle').value}))}catch(e){}};
+if(!/^#e=/.test(location.hash)){try{const v=JSON.parse(localStorage.getItem(VK));if(v){$('diff').value=v.d||'hard';$('pband').checked=v.b!==false;setPm(v.p==='clues'?'clues':'words');$('smode').value=v.m||'words';$('paste').value=v.t||'';$('ptitle').value=v.h||''}}catch(e){}
+['diff','pband','smode','paste','ptitle'].forEach(i=>{$(i).addEventListener('input',keep);$(i).addEventListener('change',keep)});$('pw').addEventListener('click',keep);$('pc').addEventListener('click',keep)}
+const ql=new URLSearchParams(location.search).get('lista');
+if(ql&&banks&&banks.subjects[ql]&&!/^#e=/.test(location.hash)){$('ptitle').value='';bankSel.value='s:'+ql;$('load').click();make();keep()}
+const hm=location.hash.match(/^#e=([\w-]+)$/);if(hm){try{startStudent(dec(hm[1]),hm[1])}catch(e){}}
+})();
+</script>
+</body>
+</html>
