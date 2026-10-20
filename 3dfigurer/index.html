@@ -57,7 +57,7 @@ label.chk input{width:16px;height:16px;accent-color:#306BF0;margin:0}
 #cap{display:none;position:absolute;left:50%;transform:translateX(-50%);top:12px;z-index:5;padding:6px 14px;font:600 .85rem 'Sora',sans-serif;color:#100e28;max-width:calc(100% - 24px);text-align:center}
 @media (max-width:759px){#cap{position:static;transform:none;margin:8px}}
 button:disabled{opacity:.5;cursor:default}
-.icons{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:6px 0}
+.icons{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin:6px 0}
 .icons button{padding:0;min-width:0;min-height:32px;height:32px;display:flex;align-items:center;justify-content:center}
 @media (pointer:coarse){.icons{grid-template-columns:repeat(4,1fr)}.icons button{height:44px}}
 .hh{position:absolute;height:0;border-top:2.5px dotted #306BF0;pointer-events:none;display:none}
@@ -80,6 +80,68 @@ kbd{margin-left:auto;font:600 .68rem 'Sora',sans-serif;color:#585078;border:1px 
 .keys b{white-space:nowrap}
 .sig{text-align:center;font-size:.7rem;color:#585078;padding:6px 12px;pointer-events:none}
 @media (min-width:760px){.sig{position:absolute;left:0;right:0;bottom:0;padding:2px 12px;z-index:4}.bar{bottom:22px !important}}
+.preN{flex:1;text-align:center;font-size:.8rem;color:#585078;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#shCard{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:21;width:min(520px,calc(100% - 24px));max-height:92%;overflow:auto;padding:12px 16px}
+#shCard.on{display:block}
+#shCard .hd h2{font-size:.95rem;color:#100e28}
+#expCard{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:21;width:min(840px,calc(100% - 24px));max-height:92%;overflow:auto;padding:12px 16px}
+#expCard.on{display:block}
+#expCard .hd h2{font-size:.95rem;color:#100e28}
+#expPrev{border:1px solid #ccc5f0;border-radius:10px;background:#fff;padding:6px;text-align:center;margin:8px 0}
+#expPrev svg{max-width:100%;height:auto;max-height:300px}
+.exo{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px 14px;font-size:.85rem}
+.exo fieldset{border:1px solid #ccc5f0;border-radius:10px;padding:4px 10px;margin:0}
+.exo legend{font:600 .75rem 'Montserrat',sans-serif;color:#585078;padding:0 4px}
+.exo input{accent-color:#306BF0}
+.ai{width:68px;height:28px;text-align:center;font:600 .85rem 'Sora',sans-serif;color:#100e28;background:#fff;border:1.5px solid #ccc5f0;border-radius:8px;padding:0 4px}
+select.ai{width:auto;max-width:190px;text-align:left}
+.ai.ok{border-color:#18a348;background:#e8f7ed}.ai.bad{border-color:#e02020;background:#fdeaea}
+.mk{font-weight:700;margin-left:4px}.ai.ok~.mk{color:#18a348}.ai.bad~.mk{color:#e02020}
+.fch{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.fc{min-height:30px;padding:2px 10px}
+.f[data-sel="1"] polygon{stroke:#EC6095;stroke-width:7}
+.f[data-sel="ok"] polygon{stroke:#18a348;stroke-width:7}
+.f[data-sel="bad"] polygon{stroke:#e02020;stroke-width:7}
+#qCard{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:22;width:min(560px,calc(100% - 24px));max-height:92%;overflow:auto;padding:12px 16px}
+#qCard.on{display:block}
+#qCard .hd h2{font-size:.95rem;color:#100e28}
+#qSk{border:1px solid #ccc5f0;border-radius:10px;background:#fff;padding:8px;text-align:center}
+#qSk svg{max-width:100%;height:auto;max-height:250px}
+#cap2{display:none;position:absolute;left:50%;transform:translateX(-50%);top:12px;z-index:5;padding:6px 14px;font:600 .85rem 'Sora',sans-serif;color:#100e28;max-width:calc(100% - 24px);text-align:center}
+#app.lock .tbw,#app.lock .tb,#app.lock #modeRow,#app.lock .tabs label.chk{display:none}
+#sheet{display:none}
+.fl{display:inline-block;border-bottom:1px solid #000;min-height:1.25em;vertical-align:baseline;padding:0 4px;text-align:center}
+.fa{color:#0a5a2a;font-weight:600}
+.pg{font:10.5pt/1.45 Arial,Helvetica,sans-serif;color:#000}
+.pg h1{font-size:16pt;margin:0 0 3mm}
+.pgn{display:flex;gap:8mm;margin-bottom:3mm;font-size:10pt}.pgn span{flex:1;border-bottom:1px solid #000}
+.pgimg{margin:2mm 0 3mm;border:1px solid #999;padding:2mm;text-align:center}
+.pgimg svg{max-width:100%;max-height:80mm;height:auto}
+.pg p{margin:2mm 0}
+.rw2{display:grid;grid-template-columns:14mm 1fr;margin:1.4mm 0}
+.pgi{font-size:9.5pt;margin:1mm 0 2mm}
+.pgf{margin-top:4mm;font-size:8pt;color:#555}
+.pl2{display:inline-block;min-width:6mm;padding:0 1.5mm;border:1px solid #000;border-radius:1.5mm;text-align:center;font-weight:700}
+.rw3{display:flex;min-height:8.5mm;align-items:flex-end;margin:.3mm 0}
+.rl{width:24mm;flex:none}.rl,.rv{font-size:10.5pt}.gp{display:inline-block;height:1em}
+.vb.cp{display:grid;grid-template-columns:72mm 1fr;column-gap:5mm;align-items:start;padding-bottom:1mm}
+.vb.cp .vh{grid-column:1/3}.vb.cp .pgimg svg{max-height:42mm}.vb.cp .rw3{min-height:8mm}.vb.cp .pgi{font-size:8.5pt;line-height:1.3}.vb.cp .rl{width:20mm}
+.vb{padding-bottom:1mm}.vb+.vb{border-top:1px dashed #999;padding-top:3mm}
+.vb .pgimg{margin:1mm 0 2mm}.vb .pgimg svg{max-height:40mm}.vh{font-size:11pt;margin:1mm 0}
+#sheet.prev{display:block;position:fixed;inset:0;z-index:60;background:#d9d5ee;overflow:auto;padding:64px 12px 24px}
+#sheet.prev .shbar{position:fixed;top:0;left:0;right:0;z-index:61;background:#fff;border-bottom:1px solid #ccc5f0;padding:8px 12px;display:flex;gap:8px;align-items:center}
+#sheet.prev .shbar span{font-size:.85rem;color:#585078}
+#sheet.prev .pg{background:#fff;width:186mm;min-height:273mm;margin:0 auto 14px;padding:12mm;box-shadow:0 4px 18px rgba(16,14,40,.25);box-sizing:content-box}
+@media print{
+ @page{size:A4;margin:12mm}
+ html,body{background:#fff!important}
+ body>header,#popNote,#toast{display:none!important}
+ #app>*:not(#sheet){display:none!important}
+ #sheet,#sheet.prev{display:block;position:static;background:none;padding:0;overflow:visible}
+ #sheet .shbar{display:none!important}
+ #sheet.prev .pg,.pg{width:auto;min-height:0;margin:0;padding:0;box-shadow:none;page-break-after:always;break-after:page}
+ .pg:last-child{page-break-after:auto;break-after:auto}
+}
+.ft{width:100%;border-collapse:collapse;font-size:10pt;margin:2mm 0}.ft th,.ft td{border:1px solid #000;padding:1.6mm 2mm;text-align:left}.ft th{background:#eee}.ft td:nth-child(n+4),.ft th:nth-child(n+4){white-space:nowrap}.ft td:first-child{text-align:center}
 .sep{height:1px;background:#ccc5f0;margin:4px 0}
 .eb{transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
 @media (pointer:coarse){button,input[type=number],select{min-height:44px;height:44px}label.chk,.ln{min-height:44px}}
@@ -95,7 +157,7 @@ kbd{margin-left:auto;font:600 .68rem 'Sora',sans-serif;color:#585078;border:1px 
 #root,.f,.nd{transform-style:preserve-3d}
 .nd{position:absolute;left:0;top:0;width:0;height:0}
 #floor{position:absolute;background-color:rgba(208,200,244,0.55);pointer-events:none}
-.wall{position:absolute;pointer-events:none;transform-origin:0 0;background-color:rgba(48,107,240,0.20);background-image:linear-gradient(rgba(48,107,240,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(48,107,240,.5) 1px,transparent 1px);-webkit-mask-image:radial-gradient(ellipse 100% 100% at 0 0,#000 30%,transparent 100%);mask-image:radial-gradient(ellipse 100% 100% at 0 0,#000 30%,transparent 100%)}
+.wall{position:absolute;pointer-events:none;transform-origin:0 0;background-color:rgba(48,107,240,0.38);background-image:linear-gradient(rgba(48,107,240,.75) 1px,transparent 1px),linear-gradient(90deg,rgba(48,107,240,.75) 1px,transparent 1px);-webkit-mask-image:radial-gradient(ellipse 100% 100% at 0 0,#000 30%,transparent 100%);mask-image:radial-gradient(ellipse 100% 100% at 0 0,#000 30%,transparent 100%)}
 .f{position:absolute}
 .sh{position:absolute;inset:0;background-color:var(--c);background-image:linear-gradient(rgba(16,14,40,.32) 1px,transparent 1px),linear-gradient(90deg,rgba(16,14,40,.32) 1px,transparent 1px)}
 .f i{position:absolute;width:0;height:0;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;pointer-events:none;font-style:normal}
@@ -113,9 +175,9 @@ kbd{margin-left:auto;font:600 .68rem 'Sora',sans-serif;color:#585078;border:1px 
 .tip{position:absolute;left:14px;bottom:10px;font-size:.78rem;color:#585078;pointer-events:none}
 @media (min-width:760px){.tip{left:auto;right:14px;bottom:58px}}
 /* beräkningar */
-#drawer{display:none;position:absolute;right:12px;bottom:60px;z-index:6;width:min(360px,calc(100% - 24px));max-height:min(70%,560px);overflow:auto;padding:12px 16px}
+#drawer{display:none;position:absolute;right:12px;bottom:60px;z-index:6;width:min(410px,calc(100% - 24px));max-height:min(70%,560px);overflow:auto;padding:12px 16px}
 #drawer.on{display:block}
-.tabs{display:flex;gap:6px;margin-bottom:8px;align-items:center}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;align-items:center}
 .tabs label.chk{margin-left:auto}
 button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
 .rw{display:grid;grid-template-columns:20px 1fr;gap:0 8px;margin:0 0 8px}
@@ -130,10 +192,11 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
 <div class="wrap" id="app">
  <div class="tbw"><button class="gl" id="tbT" aria-pressed="true" aria-controls="tb" title="Visa eller dölj inställningarna (I)">Inställningar</button><button class="gl" id="keysB" aria-label="Kortkommandon" title="Kortkommandon (?)">?</button></div>
  <div class="tb" id="tb">
-  <section class="gl pn" aria-label="Figur"><div class="hd"><h2>Figur</h2><button id="defB" title="Visa definition">Definition</button></div>
+  <section class="gl pn" aria-label="Figur"><div class="hd"><h2>Figur</h2><button id="defB" title="Visa definition (D)">Definition</button></div>
    <div id="icons" class="icons"></div>
    <div class="hd" id="varRow" style="display:none"><h2>Basyta</h2><select id="var" aria-label="Variant"></select></div>
-   <div class="hd"><label class="chk" id="lieWrap" style="display:none"><input type="checkbox" id="sLie"> Liggande</label></div></section>
+   <div class="hd" id="preRow"><button id="preP" aria-label="Föregående preset" title="Föregående preset (,)">◀</button><span id="preN" class="preN" aria-live="polite"></span><button id="preNx" aria-label="Nästa preset" title="Nästa preset (.)">▶</button></div>
+   <div class="hd"><label class="chk" id="lieWrap" style="display:none"><input type="checkbox" id="sLie"> Liggande</label><button id="qOpen" style="margin-left:auto" title="Nät-övning (O)">Övning</button><button id="expB" title="Exportera bild som SVG (X)">Exportera</button></div></section>
   <section class="gl pn" aria-label="Mått">
    <div class="hd"><h2>Mått</h2>
     <select id="unit" aria-label="Enhet"><option>m</option><option>dm</option><option selected>cm</option><option>mm</option></select></div>
@@ -146,34 +209,88 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
    <div class="sep"></div>
    <label class="chk"><input type="checkbox" id="sFloor" checked> Golvrutor<kbd>4</kbd></label>
    <label class="chk"><input type="checkbox" id="sWalls"> Väggar<kbd>5</kbd></label>
-   <div class="sub">Synlighet <input type="range" id="wallOp" min="20" max="100" value="75" aria-label="Väggarnas synlighet"></div>
+   <div class="sub" id="wallSub" style="display:none">Synlighet <input type="range" id="wallOp" min="20" max="100" value="75" aria-label="Väggarnas synlighet"></div>
    <label class="chk"><input type="checkbox" id="sFocus"> Fokusera golvytan<kbd>6</kbd></label>
    <label class="chk" id="trRow" style="display:none"><input type="checkbox" id="sTr"> Genomskinliga sidor<kbd>7</kbd></label>
    <label class="chk" id="hoRow" style="display:none"><input type="checkbox" id="sHo"> Höjd utanför (hjälplinje)<kbd>8</kbd></label>
+   <div class="sep"></div>
+   <div class="hd" style="gap:6px;margin:2px 0 0;flex-wrap:wrap"><button id="linkB" title="Kopiera länk till den här vyn (K)">Länk</button><button id="linkE" title="Kopiera elevlänk: låst elevläge med den här figuren och fliken (Shift+K)">Elevlänk</button><button id="shOpen" title="Skapa arbetsblad för utskrift (W)">Arbetsblad</button></div>
   </section>
  </div>
  <div class="gl" id="cap" role="status"></div>
  <div id="stage" aria-label="Rätblockets nät. Dra för att vrida."><div id="scene"></div><div class="tip">Dra för att vrida figuren</div></div>
  <div class="bar">
-  <section class="gl pn fold" aria-label="Vik"><button class="main" id="play">Vik ihop</button>Nät <input type="range" id="fold" min="0" max="100" value="100" aria-label="Hur hopvikt nätet är"> Kropp</section>
+  <section class="gl pn fold" aria-label="Vik"><button class="main" id="play">Vik ihop</button>Kropp <input type="range" id="fold" min="0" max="100" value="0" aria-label="Från kropp (0 %) till nät (100 %)"> Nät</section>
   <div class="gl zoom" aria-label="Zoom"><button id="zo" aria-label="Zooma ut" title="Zooma ut">−</button><button id="zr" aria-label="Återställ vy" title="Återställ vy (kamera och zoom)">100 %</button><button id="zi" aria-label="Zooma in" title="Zooma in">+</button></div>
   <section class="gl pn vy" aria-label="Vy"><button id="reset" title="Återställ vy (R)">Återställ vy</button><button id="read" title="Läsbar vy: framifrån, texten rakt (L)">Läsbar vy</button><button id="below">Se golvytan</button><button id="pop" title="Lyft ut figuren i ett eget fönster som ligger överst">Pop ut</button></section>
   <button class="gl" id="openC" aria-expanded="false" aria-controls="drawer">Beräkningar</button>
  </div>
- <div class="sig">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
+ <div class="gl" id="toast" role="status"></div>
+ <div id="sheet"></div>
+ <div class="sig" title="Version 2026-10-17 l">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
+ <div class="gl" id="cap2" role="status"></div>
+ <aside class="gl" id="qCard" aria-label="Nät-övning">
+  <div class="hd"><h2>Nät-övning</h2><button id="qX" aria-label="Stäng">✕</button></div>
+  <div class="tabs"><button id="qA" aria-pressed="true">Fungerar skissen?</button><button id="qB" aria-pressed="false">Vilken kropp blir det?</button><span id="qScore" class="q" style="margin-left:auto;font-size:.8rem"></span></div>
+  <p id="qQ" style="margin:6px 0;font-weight:600"></p>
+  <div id="qSk"></div>
+  <div id="qOpts" class="fch"></div>
+  <div id="qFb" style="margin-top:8px;min-height:1.4em"></div>
+  <div class="row" style="margin-top:8px"><button id="qShow" disabled>Visa hur den viks</button><button class="main" id="qNew">Ny uppgift</button></div>
+ </aside>
+ <aside class="gl" id="shCard" aria-label="Arbetsblad">
+  <div class="hd"><h2>Arbetsblad för utskrift (A4)</h2><button id="shX" aria-label="Stäng">✕</button></div>
+  <p style="margin:4px 0 0;font-size:.8rem;color:#585078">Välj vad som ska skrivas ut. Elevbladen har inga ledtrådar utöver måtten, och facit läggs sist.</p>
+  <fieldset class="exo" style="display:block;margin-top:6px;border:1px solid #ccc5f0;border-radius:10px;padding:4px 10px"><legend style="font:600 .75rem 'Montserrat',sans-serif;color:#585078;padding:0 4px">Arbetsblad (utskrift, A4)</legend>
+   <label class="chk"><input type="radio" name="shS" id="shS1" checked> Den här figuren med de här måtten</label>
+   <label class="chk"><input type="radio" name="shS" id="shS2"> Figurens alla presets (4 blad)</label>
+   <label class="chk"><input type="radio" name="shS" id="shS3"> Alla figurer (ett blad var)</label>
+   <label class="chk"><input type="radio" name="shS" id="shS4"> Slumpa en uppgift per kropp (7 st)</label>
+   <label class="chk"><input type="radio" name="shC" id="shC1" checked> Hela arbetsbladet</label>
+   <label class="chk"><input type="radio" name="shC" id="shC2"> Bara volym (2 uppgifter per sida)</label>
+   <label class="chk"><input type="checkbox" id="shFa" checked> Facit sist</label>
+   <label class="chk"><input type="checkbox" id="shCol"> Färgade bilder</label>
+   <label class="chk"><input type="checkbox" id="shDia"> Ange diametern i stället för radien (cylinder, kon, klot)</label>
+   <label class="chk"><input type="checkbox" id="shSc" checked> Skrivstöd (V =, B =, h = …)</label>
+   <label class="chk"><input type="checkbox" id="shCp"> Kompakt: figur till vänster, räkna till höger (bara volym, 3 per sida)</label>
+   <div class="row" style="margin:4px 0"><button id="shPrev">Förhandsgranska</button><button class="main" id="shGo">Skriv ut arbetsblad</button></div></fieldset>
+ </aside>
+ <aside class="gl" id="expCard" aria-label="Exportera bild">
+  <div class="hd"><h2>Exportera bild (SVG): kropp och nät</h2><button id="expX" aria-label="Stäng">✕</button></div>
+  <div id="expPrev"></div>
+  <div class="exo">
+   <fieldset><legend>Visa</legend>
+    <label class="chk"><input type="radio" name="exP" id="exP1" checked> Kropp och nät</label>
+    <label class="chk"><input type="radio" name="exP" id="exP2"> Bara kroppen</label>
+    <label class="chk"><input type="radio" name="exP" id="exP3"> Bara nätet</label></fieldset>
+   <fieldset><legend>Sidoytor</legend>
+    <label class="chk"><input type="radio" name="exC" id="exC1" checked> Färgade</label>
+    <label class="chk"><input type="radio" name="exC" id="exC2"> Utan färg (eleven identifierar)</label>
+    <label class="chk"><input type="checkbox" id="exGrid" checked> Rutnät</label>
+    <label class="chk"><input type="checkbox" id="exTr"> Genomskinliga sidor</label>
+    <label class="chk"><input type="checkbox" id="exBase"> Markera basytorna</label></fieldset>
+   <fieldset><legend>Etiketter</legend>
+    <label class="chk"><input type="checkbox" id="exEdge" checked> Kantmått (en av varje sort)</label>
+    <label class="chk"><input type="checkbox" id="exLtr"> Bokstäver (x, y, z, B)</label>
+    <label class="chk"><input type="checkbox" id="exSide"> Sidomått (x = 4 × 3)</label>
+    <label class="chk"><input type="checkbox" id="exArea"> Areor (= 12 cm²)</label></fieldset>
+  </div>
+  
+  <div class="row" style="margin-top:10px"><button class="main" id="expD">Ladda ned SVG</button><button id="expS" title="Fyra filer med samma storlek och placering: konturer, + färger, + bokstäver och sidomått, + areor">Ladda ned lagerserie (4 filer)</button></div>
+  <p class="hint" style="margin:8px 0 0;font-size:.78rem;color:#585078">Alla bilder för samma figur får exakt samma storlek och placering, oavsett vilka alternativ du väljer. Då kan du lägga dem som lager i PowerPoint.</p>
+ </aside>
  <aside class="gl" id="keysCard" aria-label="Kortkommandon"><div class="hd"><h2>Kortkommandon</h2><button onclick="this.closest('#keysCard').classList.remove('on')" aria-label="Stäng">✕</button></div>
   <div class="keys"><b>← → ↑ ↓</b><span>Vrid figuren (Shift = större steg)</span><b>Mellanslag</b><span>Vik ut / vik ihop</span><b>+ / −</b><span>Zooma</span><b>R eller 0</b><span>Återställ vy</span><b>L</b><span>Läsbar vy (framifrån)</span><b>G</b><span>Se golvytan</span>
   <b>1 – 8</b><span>Mått på kanterna, Mått på sidoytorna, Svar, Golvrutor, Väggar, Fokusera golvytan, Genomskinliga sidor, Höjd utanför</span>
-  <b>I</b><span>Inställningar</span><b>B</b><span>Beräkningar</span><b>U</b><span>Uträkning</span><b>V / A</b><span>Volym / Begränsningsyta</span><b>D</b><span>Definition</span><b>P</b><span>Pop ut</span><b>[ ]</b><span>Föregående / nästa figur</span><b>?</b><span>Den här hjälpen (Esc stänger)</span></div></aside>
+  <b>I</b><span>Inställningar</span><b>B</b><span>Beräkningar</span><b>U</b><span>Uträkning</span><b>V / A / Y</b><span>Volym / Begränsningsyta / Basytan</span><b>D</b><span>Definition</span><b>P</b><span>Pop ut</span><b>[ ]</b><span>Föregående / nästa figur</span><b>, .</b><span>Föregående / nästa preset</span><b>K / Shift+K</b><span>Kopiera länk / elevlänk</span><b>X</b><span>Exportera bild (SVG)</span><b>W</b><span>Arbetsblad för utskrift</span><b>O</b><span>Nät-övning</span><b>E</b><span>Eleven räknar (elevläge)</span><b>?</b><span>Den här hjälpen (Esc stänger)</span></div></aside>
  <aside class="gl" id="defCard" aria-label="Definition"><div class="hd"><h2 id="defT"></h2><button id="defX" aria-label="Stäng definition">✕</button></div><div id="defBody"></div></aside>
  <aside class="gl" id="drawer" aria-label="Beräkningar">
-  <div class="tabs"><button id="tV" aria-pressed="true">Volym</button><button id="tA" aria-pressed="false">Begränsningsyta</button>
-   <label class="chk"><input type="checkbox" id="sCalc"> Uträkning</label></div>
+  <div class="tabs" id="modeRow"><button id="mG" aria-pressed="true" title="Läraren visar uträkningen">Genomgång</button><button id="mE" aria-pressed="false" title="Eleven fyller i egna fält (E)">Eleven räknar</button></div>
+  <div class="tabs"><button id="tV" aria-pressed="true">Volym</button><button id="tA" aria-pressed="false">Begränsningsyta</button><button id="tB" aria-pressed="false" title="Hitta basytan (Y)">Basytan</button>
+   <label class="chk"><input type="checkbox" id="sCalc"> <span id="calcLbl">Uträkning</span></label></div>
   <div id="res"></div>
  </aside>
 </div>
-<div class="gl" id="toast" role="status"></div>
-
 <script>
 let DOC=document,pop=null;
 const $=id=>DOC.getElementById(id),raf=f=>DOC.defaultView.requestAnimationFrame(f),caf=i=>DOC.defaultView.cancelAnimationFrame(i);
@@ -193,10 +310,12 @@ const FIG={rb:{P:[['l','Längd'],['b','Bredd'],['h','Höjd']]},kub:{P:[['l','Sid
  pe:{lie:1,P:[['a','Sida a',10],['ph','Prisma höjd']]},
  p5:{lie:1,P:[['a','Sida a',8],['ph','Prisma höjd']]},p6:{lie:1,P:[['a','Sida a',8],['ph','Prisma höjd']]},
  py:{P:[['l','Bas längd'],['b','Bas bredd'],['h','Höjd']]},
- cy:{P:[['r','Radie r',8],['h','Höjd h']]},ko:{P:[['r','Radie r',8],['h','Höjd h']]},kl:{P:[['r','Radie r',8]]}};
+ cy:{P:[['r','Radie r',8],['h','Höjd h']]},ko:{P:[['r','Radie r',8],['h','Höjd h']]},kl:{P:[['r','Radie r',8]]},cn:{P:[['n','Nät nr',17],['a','Sida a',6]]},
+ py3:{P:[['a','Sida a',8],['h','Höjd h']]},py5:{P:[['a','Sida a',8],['h','Höjd h']]},py6:{P:[['a','Sida a',8],['h','Höjd h']]}};
 let fig='rb',lie=false,prevFig='rb';
-const dm={rb:{l:4,b:3,h:2},kub:{l:3},pr:{tb:3,th:4,ph:5},pe:{a:4,ph:6},p5:{a:3,ph:5},p6:{a:3,ph:5},py:{l:4,b:4,h:3},cy:{r:2,h:5},ko:{r:3,h:4},kl:{r:3}};
+const dm={rb:{l:4,b:3,h:2},kub:{l:3},pr:{tb:3,th:4,ph:5},pe:{a:4,ph:6},p5:{a:3,ph:5},p6:{a:3,ph:5},py:{l:4,b:4,h:3},cy:{r:2,h:5},ko:{r:3,h:4},kl:{r:3},cn:{n:5,a:3},py3:{a:4,h:4},py5:{a:3,h:4},py6:{a:3,h:4}};
 const NR=20;
+const CNETS=[{c:[[0,0],[0,1],[1,1],[2,1],[3,1],[0,2]],ok:true},{c:[[1,0],[0,1],[1,1],[2,1],[3,1],[0,2]],ok:true},{c:[[2,0],[0,1],[1,1],[2,1],[3,1],[0,2]],ok:true},{c:[[3,0],[0,1],[1,1],[2,1],[3,1],[0,2]],ok:true},{c:[[1,0],[0,1],[1,1],[2,1],[3,1],[1,2]],ok:true},{c:[[2,0],[0,1],[1,1],[2,1],[3,1],[1,2]],ok:true},{c:[[0,0],[1,0],[1,1],[2,1],[3,1],[1,2]],ok:true},{c:[[2,0],[1,1],[2,1],[3,1],[0,2],[1,2]],ok:true},{c:[[2,0],[3,0],[0,1],[1,1],[2,1],[0,2]],ok:true},{c:[[2,0],[3,0],[4,0],[0,1],[1,1],[2,1]],ok:true},{c:[[2,0],[1,1],[2,1],[0,2],[1,2],[0,3]],ok:true},{c:[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],ok:false},{c:[[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]],ok:false},{c:[[0,0],[1,0],[2,0],[3,0],[0,1],[1,1]],ok:false},{c:[[0,0],[1,0],[2,0],[3,0],[0,1],[0,2]],ok:false},{c:[[0,0],[0,1],[1,1],[2,1],[0,2],[2,2]],ok:false},{c:[[0,0],[1,0],[2,0],[3,0],[4,0],[2,1]],ok:false}];
 const TE='#66C7C2',AM='#F4A261',PK='#EC6095',BL='#8FB0F7';
 const fm2=x=>String(Math.round(x*100)/100).replace('.',','),gi=x=>Math.abs(x-Math.round(x))<1e-9?1:0;
 const reg=(n,a)=>{const P=[[0,0]];for(let k=0;k<n-1;k++){const q=P[k],e=2*Math.PI/n*k;P.push([q[0]+a*Math.cos(e),q[1]+a*Math.sin(e)])}return P};
@@ -231,6 +350,22 @@ function prism(P0,p,LT,CL,mtB,AL){
 }
 function geo(){
  const d=dm[fig],R=RF;
+ if(fig==='cn'){
+  const N=CNETS[Math.min(CNETS.length,Math.max(1,d.n))-1],a=d.a,cells=N.c,key=c=>c[0]+','+c[1],at=new Map(cells.map(c=>[key(c),c]));
+  const sq=c=>[[c[0]*a,c[1]*a],[(c[0]+1)*a,c[1]*a],[(c[0]+1)*a,(c[1]+1)*a],[c[0]*a,(c[1]+1)*a]];
+  const nb=c=>[[1,0],[-1,0],[0,1],[0,-1]].map(([x,y])=>[c[0]+x,c[1]+y]).filter(q=>at.has(key(q)));
+  let root=cells[0];cells.forEach(c=>{if(nb(c).length>nb(root).length)root=c});
+  const order=[root],par={[key(root)]:null},idOf={[key(root)]:'f0'};
+  for(let i=0;i<order.length;i++)for(const q of nb(order[i]))if(!(key(q) in par)){par[key(q)]=order[i];idOf[key(q)]='f'+order.length;order.push(at.get(key(q)))}
+  const CP=[TE,AM,PK,BL,'#9bd6ab','#c9b6f2'],ed=P=>P.map((q,i)=>[q,P[(i+1)%4]]),same=(e,f)=>(e[0][0]===f[0][0]&&e[0][1]===f[0][1]&&e[1][0]===f[1][0]&&e[1][1]===f[1][1])||(e[0][0]===f[1][0]&&e[0][1]===f[1][1]&&e[1][0]===f[0][0]&&e[1][1]===f[0][1]);
+  const faces=order.map((c,i)=>{const P=sq(c),pc=par[key(c)];let hinge=0;if(pc){const PP=sq(pc);hinge=ed(P).find(e=>ed(PP).some(f=>same(e,f)))}
+   const f=R('f'+i,pc?idOf[key(pc)]:0,hinge,P,pc?90:0,CP[i],'x',`${a} × ${a}`,a*a,1,'sid');f.nol=1;return f});
+  const rc=sq(root);
+  return {ctr:[rc[0][0]+a/2,rc[0][1]+a/2],H:a,faces,cube:{ok:N.ok},
+   E:[{f:'f0',pt:[rc[0][0]+a/2,rc[2][1]],txt:`a = ${a}`,dx:0,dy:16}],
+   def:{t:'Kubens nät',text:`Det finns 11 olika nät som viks ihop till en kub. Det här är nät nr ${d.n} av ${CNETS.length}: ${N.ok?'det fungerar och viks ihop till en kub.':'det fungerar inte – två sidor hamnar på samma plats och en sida saknas.'}`,groups:[],pl:''},
+   info:{vol:'prism',shape:'kvadrat',bs:'s · s',be:`${a} · ${a}`,B:a*a,h:a,V:a*a*a,areas:[{k:'x',c:TE,m:6,e:`${a} · ${a}`,v:a*a}]}};
+ }
  if(fig==='rb'||fig==='kub'){
   const k=fig==='kub',l=d.l,b=k?l:d.b,h=k?l:d.h,lb=`${l} × ${b}`,lh=`${l} × ${h}`,hb=`${h} × ${b}`,s=k?['s','s','s']:['l','b','h'];
   return {ctr:[l/2,b/2],H:h,
@@ -245,6 +380,26 @@ function geo(){
         :{t:'Rätblock',text:'Ett rätblock har sex sidoytor som alla är rektanglar. Motstående sidoytor är lika stora. Ett rätblock är ett slags prisma.',groups:[['bas','Basytor (2 st): rektanglar'],['sid','Sidoytor (4 st): rektanglar']]},
    info:{vol:'prism',shape:l===b?'kvadrat':'rektangel',bs:'l · b',be:`${l} · ${b}`,B:l*b,h,V:l*b*h,
     areas:[{k:'x',c:TE,m:2,e:`${l} · ${b}`,v:l*b},{k:'y',c:PK,m:2,e:`${h} · ${b}`,v:b*h},{k:'z',c:AM,m:2,e:`${l} · ${h}`,v:l*h}]}};
+ }
+ if(fig==='py3'||fig==='py5'||fig==='py6'){
+  const n=fig==='py3'?3:fig==='py5'?5:6,a=d.a,h=d.h,P0=reg(n,a),mx0=Math.min(...P0.map(q=>q[0])),P=P0.map(q=>[q[0]-mx0,q[1]]),ctr=cen(P);
+  const kk=a/(2*Math.tan(Math.PI/n)),sl=Math.hypot(h,kk),fo=180-Math.atan2(h,kk)/D,ht=a*Math.sqrt(3)/2;
+  const Ar=Math.abs(P.reduce((q,v,i)=>{const r=P[(i+1)%n];return q+v[0]*r[1]-r[0]*v[1]},0))/2,tri=n===3,Br=r1(tri?a*ht/2:Ar);
+  const faces=[R('base',0,0,P,0,TE,'B',tri?`(${a} · ${fm2(ht)}) / 2`:`${n} · ${a} · ${fm2(kk)} / 2`,tri?a*ht/2:Ar,tri?1:0,'bas')];
+  let alt0=null;
+  for(let i=0;i<n;i++){
+   const A=P[i],B=P[(i+1)%n],md=[(A[0]+B[0])/2,(A[1]+B[1])/2];let nx=(B[1]-A[1])/a,ny=-(B[0]-A[0])/a;
+   if(nx*(md[0]-ctr[0])+ny*(md[1]-ctr[1])<0){nx=-nx;ny=-ny}
+   const ap=[md[0]+nx*sl,md[1]+ny*sl],f=R('t'+i,'base',[A,B],[A,B,ap],fo,AM,'x',`${a} · ${fm(sl)} / 2`,a*sl/2,0,'sid');f.op=.6;
+   if(i===0){f.alt=[md,ap];alt0=[md,ap]}faces.push(f);
+  }
+  const sh=tri?'liksidig triangel':`regelbunden ${n===5?'femhörning':'sexhörning'}`,nm=n===3?'Triangulär pyramid':n===5?'Femhörnig pyramid':'Sexhörnig pyramid',be=tri?frac(`${a} · ${fm2(ht)}`,'2'):`${n} · ${frac(`${a} · ${fm2(kk)}`,'2')}`;
+  return {ctr,H:h,faces,mark:{x:ctr[0],y:ctr[1],h},
+   E:[{f:'base',pt:[(P[1][0]+P[2%n][0])/2,(P[1][1]+P[2%n][1])/2],txt:`a = ${a}`,dx:18,dy:0},{f:'base',pt:ctr,z:h/2,txt:`h = ${h}`,dx:26,dy:0},{f:'t0',pt:[(alt0[0][0]+alt0[1][0])/2,(alt0[0][1]+alt0[1][1])/2],txt:`s = ${fm(sl)}`,dx:-30,dy:0}],
+   def:{t:nm,text:`En pyramid har en basyta som är en månghörning (här en ${sh}) och sidoytor som är trianglar som möts i en spets. Höjden går vinkelrätt från basytan upp till spetsen. Sidohöjden s är höjden i en av sidotrianglarna.`,pl:'',groups:[['bas',`Basyta (1 st): ${sh}`],['sid',`Sidoytor (${n} st): trianglar`]]},
+   info:{vol:'pyr',shape:sh,bs:tri?frac('b · h','2'):`${n} · ${frac('a · k','2')}`,be,B:Br,h,V:Br*h/3,approx:true,
+    note:u=>`Sidohöjden s = ${fm(sl)} ${u} (Pythagoras).${tri?` Triangelns höjd ≈ ${fm2(ht)} ${u}.`:` k ≈ ${fm2(kk)} ${u}.`}`,
+    areas:[{k:'B',c:TE,m:1,e:be,v:Br},{k:'x',c:AM,m:n,e:frac(`${a} · ${fm(sl)}`,'2'),v:r1(a*sl/2)}]}};
  }
  if(fig==='py'){
   const l=d.l,b=d.b,h=d.h,sl=Math.hypot(h,b/2),sb=Math.hypot(h,l/2),fl=180-Math.atan2(h,b/2)/D,fb=180-Math.atan2(h,l/2)/D,tl=`${l} · ${fm(sl)} / 2`,tbm=`${b} · ${fm(sb)} / 2`;
@@ -367,7 +522,7 @@ function pos(f,q,tt){
  return p;
 }
 //ENDPURE
-let t=1,rz=0,rx=0,zm=1,aTok=0,cTok=0,S=20,tab='V',G=null;
+let t=1,rz=0,rx=0,zm=1,aTok=0,cTok=0,S=20,tab='V',G=null,emode='G',ans={},lastSig='',locked=false;
 const stage=$('stage'),scene=$('scene'),tb=$('tb');
 const mod=(a,n)=>((a%n)+n)%n;
 
@@ -388,7 +543,7 @@ function nodeHTML(f){
   dec+=`<line x1="${C0[0]}" y1="${C0[1]}" x2="${R0[0]}" y2="${R0[1]}" stroke="#306BF0" stroke-width="3" stroke-dasharray="7 5"/><circle cx="${C0[0]}" cy="${C0[1]}" r="3.5" fill="#306BF0"/>`;
  }
  return `<div class="nd" id="nd_${f.id}"><div class="f${f.p?'':' base'}" data-id="${f.id}" data-g="${f.grp}" style="--c:${f.c};left:${x0*S}px;top:${y0*S}px;width:${w}px;height:${h}px">`+
-  `<div class="sh" style="${bg}opacity:${f.op&&$('sTr').checked?f.op:1};clip-path:polygon(${cp})"><svg width="${w}" height="${h}" style="position:absolute;left:0;top:0;overflow:visible"><polygon points="${pts}" fill="none" stroke="#100e28" stroke-width="${f.sw||4}" stroke-linejoin="round"/>${dec}</svg></div>`+
+  `<div class="sh" style="${bg}opacity:${f.op&&$('sTr').checked?f.op:1};clip-path:polygon(${cp})"><svg width="${w}" height="${h}" style="position:absolute;left:0;top:0;overflow:visible"><polygon points="${pts}" fill="none" stroke="${f.sw===2&&!$('sTr').checked?f.c:'#100e28'}" stroke-width="${f.sw||4}" stroke-linejoin="round"/>${dec}</svg></div>`+
   `<i class="a" style="left:${cx}px;top:${cy}px;transform:rotateZ(${-f.al/D}deg) translateZ(1px)"></i>`+
   `<i class="b" style="left:${cx}px;top:${cy}px;transform:rotateY(180deg) rotateZ(${f.phi}deg) translateZ(1px)"></i></div>`+
   G.faces.filter(g=>g.p===f.id).map(nodeHTML).join('')+`</div>`;
@@ -431,8 +586,10 @@ function labels(){
  $('floor').style.backgroundImage=$('sFloor').checked?'linear-gradient(rgba(130,120,200,.45) 1px,transparent 1px),linear-gradient(90deg,rgba(130,120,200,.45) 1px,transparent 1px)':'none';
 }
 function apply(){
+ if(!(t>=0))t=0;if(t>1)t=1;if(!(zm>0))zm=1;
  const tilt=Math.min(180,Math.max(0,t*55+rx)),rzE=t*30+rz;
  G.faces.forEach(f=>{if(f.p)$('nd_'+f.id).style.transform=`translate(${f.rel.x*S}px,${f.rel.y*S}px) rotate(${f.rel.a/D}deg) rotateX(${f.fold*t}deg)`});
+ $('wallSub').style.display=$('sWalls').checked?'flex':'none';
  const wo=$('sWalls').checked?Math.max(0,(t-0.15)/0.85)*($('wallOp').value/100)*($('sFocus').checked?0.3:1):0;
  const W=(id,tr)=>{const e=$(id);e.style.transform=tr;e.style.opacity=wo;e.style.display=wo?'block':'none'};
  W('wB','translate3d(0,-1px,0) rotateX(90deg)');W('wL','translate3d(-1px,0,0) rotateY(-90deg)');
@@ -443,14 +600,84 @@ function apply(){
  G.E.forEach((e,i)=>{const p=pos(G.by[e.f],e.pt,t);
   $('e'+i).style.transform=`translate3d(${p[0]*S}px,${p[1]*S}px,${(p[2]+(e.z||0)*t+.5)*S}px) rotateZ(${-rzE}deg) rotateX(${-tilt}deg) translateZ(30px) translate(-50%,-50%) translate(${e.dx}px,${e.dy}px)`});
  scene.style.transform=`scale(${zm}) translate(${-(1-t)*(G.nc[0]-G.ctr[0])*S}px,${-(1-t)*(G.nc[1]-G.ctr[1])*S+t*G.H*S*0.4}px) rotateX(${tilt}deg) rotateZ(${rzE}deg)`;
- $('fold').value=Math.round(t*100);
+ $('fold').value=Math.round((1-t)*100);
  $('zr').textContent=Math.round(zm*100)+' %';
  $('play').textContent=G.nonet?'Inget nät':t>0.5?'Vik ut':'Vik ihop';
  $('below').textContent=tilt>110?'Tillbaka':'Se golvytan';
 }
 const R=(n,x)=>`<div class="rw"><span class="n">${n}</span><div>${x}</div></div>`,pl=(x,c)=>`<span class="pl" style="background:${c}">${x}</span>`;
+const numOK=(sv,e)=>{const v=parseFloat(String(sv).replace(',','.'));return isFinite(v)&&Math.abs(v-e)<=Math.max(.15,Math.abs(e)*.015)};
+function syncMode(){$('mG').setAttribute('aria-pressed',emode==='G');$('mE').setAttribute('aria-pressed',emode==='E');$('calcLbl').textContent=emode==='E'?'Visa facit':'Uträkning'}
+function elev(I,u,facit){
+ const key=k=>tab+'_'+k,mk=st=>`<span class="mk">${st==='ok'?'✓':st==='bad'?'✗':''}</span>`,has=kk=>ans[kk]!==undefined&&ans[kk]!=='';
+ const fx=(k,e,suf)=>{const kk=key(k),st=facit?'ok':has(kk)?(numOK(ans[kk],e)?'ok':'bad'):'';return `<input class="ai ${st}" data-k="${kk}" data-e="${e}" value="${facit?fm(e):(ans[kk]??'')}" ${facit?'disabled':''} inputmode="decimal" aria-label="Fyll i svar">${suf?' '+suf:''}${mk(st)}`};
+ const shapes=['kvadrat','rektangel','triangel','liksidig triangel','regelbunden femhörning','regelbunden sexhörning','cirkel'];
+ const sel=()=>{const kk=key('sh'),st=facit?'ok':has(kk)?(ans[kk]===I.shape?'ok':'bad'):'',cur=facit?I.shape:(ans[kk]||'');return `<select class="ai" data-k="${kk}" data-s="${I.shape}" ${facit?'disabled':''} aria-label="Basytans form"><option value="">välj …</option>${shapes.map(x=>`<option${x===cur?' selected':''}>${x}</option>`).join('')}</select>${mk(st)}`.replace('class="ai"',`class="ai ${st}"`)};
+ const forms=['V = B · h',`V = ${frac('B · h','3')}`,`V = ${frac('4 · π · r · r · r','3')}`],ci=I.vol==='pyr'?1:I.vol==='sph'?2:0;
+ const choices=()=>{const kk=key('f'),cur=facit?ci:ans[kk];return `<div class="fch">${forms.map((f,i)=>`<button class="fc" data-i="${i}" aria-pressed="${cur===i}" ${facit?'disabled':''}>${f}</button>`).join('')}${facit?mk('ok'):cur===undefined?'':mk(cur===ci?'ok':'bad')}</div>`};
+ let x='';
+ if(I.vol==='sph'){
+  x=tab==='V'?R(1,choices())+R(2,`r = ${fx('r',I.r,u)}`)+R(3,`Svar: Volymen är ${fx('V',I.V,u+'³')}`)
+   :`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan. Ett klot har en enda krökt yta.</div>`+R(1,'B.Y. = 4 · π · r · r')+R(2,`r = ${fx('r',I.r,u)}`)+R(3,`Svar: B.Y. är ${fx('t',I.A,u+'²')}`);
+ }else if(tab==='V'){
+  const py=I.vol==='pyr';
+  x=R(1,choices())+R(2,`Basytan är en ${sel()}<br>B = ${fx('B',I.B,u+'²')}`)+R(3,`h = ${fx('h',I.h,u)}`)+
+   R(4,py?`V = ${frac(`${fx('sB',I.B)} · ${fx('sh',I.h)}`,'3')}`:`V = ${fx('sB',I.B)} · ${fx('sh',I.h)}`)+R(5,`Svar: Volymen är ${fx('V',I.V,u+'³')}`);
+ }else{
+  const T=I.areas,tot=T.reduce((a,t)=>a+t.m*t.v,0),term=(a,v)=>`<span class="nb">${a.m>1?a.m+' · ':''}${v}</span>`;
+  x=`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan${I.note?'<br>'+I.note(u):''}</div>`+R(1,'B.Y. = '+T.map(a=>term(a,pl(a.k,a.c))).join(' + '))+
+   T.map((a,i)=>R(i+2,`${pl(a.k,a.c)} = ${fx('a'+i,a.v,u+'²')}`)).join('')+R(T.length+2,`Svar: B.Y. är ${fx('t',tot,u+'²')}`);
+ }
+ $('res').innerHTML=x;
+ const mkOf=el=>{let n=el.nextSibling;while(n&&!(n.classList&&n.classList.contains('mk')))n=n.nextSibling;return n};
+ $('res').querySelectorAll('input.ai').forEach(el=>{el.onchange=()=>{ans[el.dataset.k]=el.value;const st=el.value===''?'':numOK(el.value,+el.dataset.e)?'ok':'bad';el.className='ai '+st;const m=mkOf(el);if(m)m.textContent=st==='ok'?'✓':st==='bad'?'✗':''}});
+ $('res').querySelectorAll('select.ai').forEach(el=>{el.onchange=()=>{ans[el.dataset.k]=el.value;const st=el.value===''?'':el.value===el.dataset.s?'ok':'bad';el.className='ai '+st;const m=mkOf(el);if(m)m.textContent=st==='ok'?'✓':st==='bad'?'✗':''}});
+ $('res').querySelectorAll('button.fc').forEach(b=>{b.onclick=()=>{ans[key('f')]=+b.dataset.i;results()}});
+}
+const SHAPES=['kvadrat','rektangel','triangel','liksidig triangel','regelbunden femhörning','regelbunden sexhörning','cirkel'];
+const AREAF={'kvadrat':0,'rektangel':1,'triangel':2,'liksidig triangel':2,'cirkel':3,'regelbunden femhörning':4,'regelbunden sexhörning':4};
+const AREAOPT=()=>['s · s','b · h',frac('b · h','2'),'π · r · r',`n · ${frac('a · k','2')}`];
+function expSets(){return (fig==='rb'||fig==='kub')?[['base','top'],['back','front'],['left','right']]:[G.faces.filter(f=>f.grp==='bas').map(f=>f.id)]}
+function shapeOf(ids){if(fig==='rb'||fig==='kub'){const n=G.by[ids[0]].mt.split('×').map(x=>parseFloat(x));return n[0]===n[1]?'kvadrat':'rektangel'}return G.info.shape}
+function selUI(){const sel=new Set(tab==='B'?(ans.B_sel||[]):[]),ok=ans.B_ok1;DOC.querySelectorAll('.f').forEach(e=>{const id=e.dataset.id;e.dataset.sel=sel.has(id)?(ok===true?'ok':ok===false?'bad':'1'):''})}
+function toggleSel(id){
+ if(G.sphere||!G.by[id]||!G.by[id].grp)return;
+ const a=ans.B_sel||[],i=a.indexOf(id);if(i<0)a.push(id);else a.splice(i,1);
+ ans.B_sel=a;delete ans.B_ok1;delete ans.B_shape;delete ans.B_sh;delete ans.B_ar;results();
+}
+function checkSel(){
+ const E=expSets(),S=new Set(ans.B_sel||[]),ok=E.some(q=>q.length===S.size&&q.every(i=>S.has(i)));
+ ans.B_ok1=ok;if(ok)ans.B_shape=shapeOf([...S]);results();
+}
+function taskB(I,facit){
+ if(fig==='cn'){$('res').innerHTML='<div class="q" style="margin:0 0 6px">Kuben har sex lika stora kvadrater, och vilka två som är basytor spelar ingen roll. Välj Kuben i figurlistan om du vill öva på basytor.</div>';return}
+ if(G.sphere){$('res').innerHTML='<div class="q" style="margin:0 0 6px">Ett klot har ingen basyta och inget nät. Därför räknar vi inte volymen med V = B · h utan med en egen formel (se fliken Volym).</div>';return}
+ const E=expSets();
+ if(facit){ans.B_sel=E[0].slice();ans.B_ok1=true;ans.B_shape=shapeOf(E[0]);ans.B_sh=ans.B_shape;ans.B_ar=AREAF[ans.B_shape]}
+ const sel=ans.B_sel||[],ok1=ans.B_ok1,mk=st=>`<span class="mk" style="color:${st==='ok'?'#18a348':'#e02020'}">${st==='ok'?'✓':'✗'}</span>`;
+ let x=`<div class="q" style="font-size:.78rem;margin:0 0 6px">Klicka på ytorna i figuren. Det går bra både när den är hopvikt och som nät.</div>`;
+ x+=R(1,`Klicka på <b>basytorna</b> i figuren (det finns ${E[0].length} st). Valda: <b>${sel.length}</b> <button id="bChk" ${sel.length?'':'disabled'}>Rätta</button> ${ok1===true?mk('ok'):ok1===false?mk('bad')+' <span class="q">Det stämmer inte. Basytorna är ${E[0].length} st, och de är lika stora och motstående.</span>':''}`);
+ if(ok1===true){
+  const sh=ans.B_sh,st=facit?'ok':sh?(sh===ans.B_shape?'ok':'bad'):'';
+  x+=R(2,`Basytan är en <select class="ai ${st}" ${facit?'disabled':''} aria-label="Basytans form"><option value="">välj …</option>${SHAPES.map(v=>`<option${v===(facit?ans.B_shape:sh)?' selected':''}>${v}</option>`).join('')}</select> ${st?mk(st):''}`);
+  if(sh===ans.B_shape){
+   const ar=ans.B_ar,right=AREAF[ans.B_shape],opts=AREAOPT();
+   x+=R(3,`Hur räknar man basytans area?<div class="fch" style="margin-top:4px">${opts.map((o,i)=>`<button class="fc" data-i="${i}" aria-pressed="${ar===i}" ${facit?'disabled':''}>A = ${o}</button>`).join('')}${ar===undefined?'':mk(ar===right?'ok':'bad')}</div>`);
+   if(ar===right)x+=R(4,`<span class="ans">Rätt!</span> Nu kan du räkna B och V i fliken <button id="bGo">Volym</button>`);
+  }
+ }
+ $('res').innerHTML=x;
+ const c=$('bChk');if(c)c.onclick=checkSel;
+ const sh=$('res').querySelector('select.ai');if(sh)sh.onchange=()=>{ans.B_sh=sh.value;results()};
+ $('res').querySelectorAll('button.fc').forEach(b=>{b.onclick=()=>{ans.B_ar=+b.dataset.i;results()}});
+ const g=$('bGo');if(g)g.onclick=()=>$('tV').click();
+}
 function results(){
  const u=$('unit').value,c=$('sCalc').checked,q='<span class="q">?</span>',I=G.info;let x='';
+ const sg=JSON.stringify([fig,dm[fig],lie]);if(sg!==lastSig){ans={};lastSig=sg}
+ if(tab==='B'){taskB(I,c);selUI();return}
+ selUI();
+ if(emode==='E'){elev(I,u,c);return}
  if(I.vol==='sph'){
   const r=I.r;
   x=tab==='V'?R(1,`V = ${frac('4 · π · r · r · r','3')}`)+R(2,c?`r = ${r} ${u}`:`r = ${q}`)+R(3,c?`V = ${frac(`4 · 3,14 · ${r} · ${r} · ${r}`,'3')}<br>V = ${frac(fm(4*3.14*r*r*r),'3')}<br>V ≈ ${fm(I.V)} ${u}³`:`V = ${q}`)+R(4,c?`Svar: Volymen är ungefär <span class="ans">${fm(I.V)} ${u}³</span>.`:`Svar: ${q}`)
@@ -491,19 +718,21 @@ function defUI(){
  $('defBody').innerHTML=`<p style="margin:0 0 8px">${D.text}</p><div class="chips">${D.groups.map(([k,l])=>`<button data-k="${k}" aria-pressed="${hl===k}">${l}</button>`).join('')}</div>`;
  $('defBody').querySelectorAll('button').forEach(b=>b.onclick=()=>setHl(hl===b.dataset.k?'':b.dataset.k));
 }
-function all(){build();results();defUI();$('trRow').style.display=(G.mark||G.sphere)?'flex':'none';$('hoRow').style.display=G.mark?'flex':'none';const ly=lie&&!!FIG[fig].lie;scene.classList.toggle('lying',ly);const cp=$('cap');cp.style.display=ly?'block':'none';if(ly)cp.textContent=`Prismat ligger ner: basytorna är de två ${G.def.pl}, inte ytan på golvet.`}
-const FAM=[['rb','Rätblock',['rb']],['kub','Kub',['kub']],['pri','Prisma',['pr','pe','p5','p6']],['py','Pyramid',['py']],['cy','Cylinder',['cy']],['ko','Kon',['ko']],['kl','Klot',['kl']]];
-const VN={pr:'Rätvinklig triangel',pe:'Liksidig triangel',p5:'Regelbunden femhörning',p6:'Regelbunden sexhörning'};
-const ICON={rb:'<path d="M2 10l6-3h14l-6 3zM2 10v8h14v-8M16 10l6-3v8l-6 3"/>',kub:'<path d="M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8"/>',pri:'<path d="M3 18l5-10 5 10zM8 8l8-4 5 10M13 18l8-4"/>',py:'<path d="M12 3L3 17l9 4 9-4zM12 3v18"/>',cy:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/>',ko:'<path d="M12 3L5 17M12 3l7 14M5 17c0 2.2 3.1 4 7 4s7-1.8 7-4"/>',kl:'<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/><path d="M12 3c-3 3-3 15 0 18M12 3c3 3 3 15 0 18"/>'};
-let lastPri='pr';
+function all(){presetUI();const c2=$('cap2');if(c2&&c2.dataset.sig!==fig+JSON.stringify(dm[fig])+lie)c2.style.display='none';build();results();defUI();$('trRow').style.display=(G.mark||G.sphere)?'flex':'none';$('hoRow').style.display=G.mark?'flex':'none';const ly=lie&&!!FIG[fig].lie;scene.classList.toggle('lying',ly);const cp=$('cap');cp.style.display=ly?'block':'none';if(ly)cp.textContent=`Prismat ligger ner: basytorna är de två ${G.def.pl}, inte ytan på golvet.`}
+const FAM=[['rb','Rätblock',['rb']],['kub','Kub',['kub']],['pri','Prisma',['pr','pe','p5','p6']],['py','Pyramid',['py','py3','py5','py6']],['cy','Cylinder',['cy']],['ko','Kon',['ko']],['kl','Klot',['kl']],['cn','Kubens nät',['cn']]];
+const VN={py:'Rektangel (eller kvadrat)',py3:'Liksidig triangel',py5:'Regelbunden femhörning',py6:'Regelbunden sexhörning',pr:'Rätvinklig triangel',pe:'Liksidig triangel',p5:'Regelbunden femhörning',p6:'Regelbunden sexhörning'};
+const ICON={rb:'<path d="M2 10l6-3h14l-6 3zM2 10v8h14v-8M16 10l6-3v8l-6 3"/>',kub:'<path d="M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8"/>',pri:'<path d="M3 18l5-10 5 10zM8 8l8-4 5 10M13 18l8-4"/>',py:'<path d="M12 3L3 17l9 4 9-4zM12 3v18"/>',cy:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/>',ko:'<path d="M12 3L5 17M12 3l7 14M5 17c0 2.2 3.1 4 7 4s7-1.8 7-4"/>',cn:'<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6zM9 9h6v6H9z"/>',kl:'<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/><path d="M12 3c-3 3-3 15 0 18M12 3c3 3 3 15 0 18"/>'};
+const last={pri:'pr',py:'py'};
 const famOf=f=>FAM.find(x=>x[2].includes(f))[0];
 function famUI(){
- $('icons').innerHTML=FAM.map(([k,n])=>`<button data-f="${k}" aria-label="${n}" title="${n}" aria-pressed="${famOf(fig)===k}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${ICON[k]}</svg></button>`).join('');
- $('icons').querySelectorAll('button').forEach(b=>b.onclick=()=>selectFig(b.dataset.f==='pri'?lastPri:b.dataset.f));
- const pri=famOf(fig)==='pri';$('varRow').style.display=pri?'flex':'none';if(pri){lastPri=fig;$('var').value=fig}
+ $('icons').innerHTML=FAM.map(([k,n])=>`<button data-f="${k}" aria-label="${n}" title="${n}" aria-pressed="${famOf(fig)===k}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${ICON[k]}</svg></button>`).join('');
+ $('icons').querySelectorAll('button').forEach(b=>b.onclick=()=>{const F=FAM.find(x=>x[0]===b.dataset.f);selectFig(F[2].length>1?(last[F[0]]||F[2][0]):F[0])});
+ const F=FAM.find(x=>x[0]===famOf(fig)),vs=F[2];
+ $('varRow').style.display=vs.length>1?'flex':'none';
+ if(vs.length>1){$('var').innerHTML=vs.map(k=>`<option value="${k}">${VN[k]}</option>`).join('');last[F[0]]=fig;$('var').value=fig}
 }
-$('var').innerHTML=Object.entries(VN).map(([k,n])=>`<option value="${k}">${n}</option>`).join('');
 $('var').onchange=()=>selectFig($('var').value);
+
 function selectFig(f){prevFig=fig;fig=f;if(fig==='pe')lie=true;else if(prevFig==='pe')lie=false;$('sLie').checked=lie;hl='';delete scene.dataset.hl;famUI();dimsUI();all()}
 $('sLie').onchange=()=>{lie=$('sLie').checked;all()};
 $('defB').onclick=()=>openDef(!$('defCard').classList.contains('on'));
@@ -512,10 +741,12 @@ $('defX').onclick=()=>openDef(false);
 $('sWalls').onchange=apply;$('sTr').onchange=build;$('sHo').onchange=()=>{labels();apply()};$('wallOp').oninput=apply;
 $('sFocus').onchange=()=>{scene.classList.toggle('focus',$('sFocus').checked);labels();apply()};
 $('sCalc').onchange=results;
+$('mG').onclick=()=>{emode='G';syncMode();results()};$('mE').onclick=()=>{emode='E';syncMode();results()};
+const tm=n=>(typeof n==='number'&&isFinite(n))?n:DOC.defaultView.performance.now();
 const wrapA=a=>((a%360)+540)%360-180;
 function cam(rxT,rzT,T,zT){
  const my=++cTok;rz=wrapA(rz);const a=rx,b=rz,dz=wrapA(rzT-b),z0=zm;let t0=null;
- const run=n=>{if(my!==cTok)return;if(t0===null)t0=n;const p=Math.max(0,Math.min(1,(n-t0)/T)),e=ease(p);rx=a+(rxT-a)*e;rz=b+dz*e;if(zT!==undefined)zm=z0+(zT-z0)*e;apply();if(p<1)raf(run)};
+ const run=n=>{if(my!==cTok)return;n=tm(n);if(t0===null)t0=n;const p=Math.max(0,Math.min(1,(n-t0)/T)),e=ease(p);rx=a+(rxT-a)*e;rz=b+dz*e;if(zT!==undefined)zm=z0+(zT-z0)*e;apply();if(p<1)raf(run)};
  raf(run);
 }
 const ZC=v=>Math.min(3,Math.max(.4,v));
@@ -524,15 +755,16 @@ $('zi').onclick=()=>cam(rx,rz,220,ZC(zm*1.25));
 $('zo').onclick=()=>cam(rx,rz,220,ZC(zm/1.25));
 stage.addEventListener('wheel',e=>{e.preventDefault();cTok++;zm=ZC(zm*Math.exp(-e.deltaY*0.0015));apply()},{passive:false});
 $('below').onclick=()=>{const tilt=Math.min(180,Math.max(0,t*55+rx));tilt>110?cam(0,0,1100):cam(165-t*55,0,1400)};
-$('fold').oninput=e=>{aTok++;t=e.target.value/100;apply()};
+$('fold').oninput=e=>{aTok++;t=1-e.target.value/100;apply()};
 function go(to,T){
  const my=++aTok,from=t;let t0=null;
- const run=n=>{if(my!==aTok)return;if(t0===null)t0=n;const p=Math.max(0,Math.min(1,(n-t0)/T));t=from+(to-from)*ease(p);apply();if(p<1)raf(run)};
+ const run=n=>{if(my!==aTok)return;n=tm(n);if(t0===null)t0=n;const p=Math.max(0,Math.min(1,(n-t0)/T));t=from+(to-from)*ease(p);apply();if(p<1)raf(run)};
  raf(run);
 }
 $('play').onclick=()=>go(t>0.5?0:1,1800);
 $('openC').onclick=()=>{const on=$('drawer').classList.toggle('on');$('openC').setAttribute('aria-expanded',on);$('openC').textContent=on?'Dölj beräkningar':'Beräkningar'};
-[['tV','V'],['tA','A']].forEach(([id,k])=>$(id).onclick=()=>{tab=k;$('tV').setAttribute('aria-pressed',k==='V');$('tA').setAttribute('aria-pressed',k==='A');results()});
+function syncTabs(){[['tV','V'],['tA','A'],['tB','B']].forEach(([id,k])=>$(id).setAttribute('aria-pressed',tab===k))}
+[['tV','V'],['tA','A'],['tB','B']].forEach(([id,k])=>$(id).onclick=()=>{tab=k;syncTabs();results()});
 let drag=null,pinch=null,dn=null;const ptr=new Map();
 stage.onpointerdown=e=>{
  const ff=e.target.closest&&e.target.closest('.f');dn={x:e.clientX,y:e.clientY,id:ff?ff.dataset.id:null};
@@ -546,14 +778,14 @@ stage.onpointermove=e=>{
  if(!drag)return;
  rz=drag.rz+(e.clientX-drag.x)*.5;rx=Math.max(-t*55,Math.min(180-t*55,drag.rx-(e.clientY-drag.y)*.5));apply();
 };
-stage.onpointerup=e=>{if(dn&&dn.id&&ptr.size===1&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<5){const g=G.by[dn.id].grp;if(g)setHl(hl===g?'':g);$('defCard').classList.add('on');defUI()}dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
+stage.onpointerup=e=>{if(dn&&dn.id&&ptr.size===1&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<5){if(tab==='B'&&$('drawer').classList.contains('on'))toggleSel(dn.id);else{const g=G.by[dn.id].grp;if(g)setHl(hl===g?'':g);$('defCard').classList.add('on');defUI()}}dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 stage.onpointercancel=e=>{dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 window.onresize=build;
 let pref='1';try{pref=localStorage.getItem('gk_panels')||'1'}catch(e){}
 function setPanels(open){$('app').classList.toggle('min',!open);$('tbT').setAttribute('aria-pressed',open)}
 $('tbT').onclick=()=>{const open=$('app').classList.contains('min');setPanels(open);if(!pop){pref=open?'1':'0';try{localStorage.setItem('gk_panels',pref)}catch(e){}}build()};
 setPanels(pref==='1');
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none'},8000)}
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none'},8000)}
 async function popOut(){
  if(pop){pop.close();return}
  const app=document.getElementById('app');let w=null;
@@ -576,7 +808,7 @@ function restore(){
 }
 $('pop').onclick=popOut;
 document.getElementById('popNoteBtn').onclick=()=>{if(pop)pop.close()};
-const ORDER=['rb','kub','pr','pe','p5','p6','py','cy','ko','kl'];
+const ORDER=['rb','kub','pr','pe','p5','p6','py','py3','py5','py6','cy','ko','kl','cn'];
 $('read').onclick=()=>cam(5*t,-30*t,700);
 $('keysB').onclick=()=>$('keysCard').classList.toggle('on');
 function toggleCk(id){const c=$(id),l=c.closest('label');if(l.style.display==='none')return;c.click()}
@@ -586,6 +818,7 @@ function key(e){
  if(tag==='select'||tag==='textarea'||(tag==='input'&&ty!=='checkbox'&&ty!=='range'))return;
  if(tag==='input'&&ty==='range'&&k.startsWith('Arrow'))return;
  const btn=tag==='button'||(tag==='input'&&ty==='checkbox'),lk=k.length===1?k.toLowerCase():k,st=e.shiftKey?3:1;
+ if(locked&&!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','+','=','-','_','r','0','l','g','b','v','a','y','?','Escape'].includes(lk))return;
  const rxs=v=>Math.max(-t*55,Math.min(180-t*55,v));let ok=true;
  switch(lk){
   case 'ArrowLeft':rz-=15*st;apply();break;
@@ -603,16 +836,366 @@ function key(e){
   case 'd':$('defB').click();break;
   case 'p':$('pop').click();break;
   case 'u':if(!$('drawer').classList.contains('on'))$('openC').click();$('sCalc').click();break;
-  case 'v':case 'a':if(!$('drawer').classList.contains('on'))$('openC').click();$(lk==='v'?'tV':'tA').click();break;
+  case 'v':case 'a':case 'y':if(!$('drawer').classList.contains('on'))$('openC').click();$(lk==='v'?'tV':lk==='a'?'tA':'tB').click();break;
   case '[':case ']':{const i=ORDER.indexOf(fig),n=ORDER.length;selectFig(ORDER[(i+(lk===']'?1:-1)+n)%n]);break}
+  case ',':stepPreset(-1);break;
+  case '.':stepPreset(1);break;
+  case 'k':copyLink(e.shiftKey);break;
+  case 'x':$('expB').click();break;
+  case 'w':$('shOpen').click();break;
+  case 'o':$('qOpen').click();break;
+  case 'e':if(!$('drawer').classList.contains('on'))$('openC').click();$(emode==='E'?'mG':'mE').click();break;
   case '?':$('keysCard').classList.toggle('on');break;
-  case 'Escape':$('keysCard').classList.remove('on');if($('defCard').classList.contains('on'))openDef(false);break;
+  case 'Escape':$('keysCard').classList.remove('on');$('expCard').classList.remove('on');$('qCard').classList.remove('on');$('shCard').classList.remove('on');if($('defCard').classList.contains('on'))openDef(false);break;
   default:if(lk>='1'&&lk<='8')toggleCk(['sEdge','sMeas','sAns','sFloor','sWalls','sFocus','sTr','sHo'][+lk-1]);else ok=false;
  }
  if(ok)e.preventDefault();
 }
 document.addEventListener('keydown',key);
-famUI();dimsUI();all();
+// ---------- SVG-export (kropp + nät, samma storlek och placering oavsett alternativ) ----------
+function svgExport(o){
+ const G=layout(geo()),u=$('unit').value,sph=!!G.sphere,tl=(()=>{let t=({cy:62})[fig]||55;if(G.mark&&(fig==='ko'||fig[0]==='p'&&fig[1]==='y')){const R=Math.max(...G.faces[0].pts.map(q=>Math.hypot(q[0]-G.ctr[0],q[1]-G.ctr[1])));t=Math.min(82,Math.max(62,Math.atan(1.5*R/G.H)/D))}return t})(),Rm=mm(RX(tl*D),RZ(30*D)),pr=p=>mv(Rm,p),faces=sph?[]:G.faces;
+ const esc=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),f1=x=>x.toFixed(1),mn=a=>Math.min(...a),mx=a=>Math.max(...a);let K=o.fs||1;
+ faces.forEach(f=>{f.P=f.pts.map(q=>pr(pos(f,q,1)))});
+ const bx=[],by=[];faces.forEach(f=>f.P.forEach(p=>{bx.push(p[0]);by.push(p[1])}));
+ if(G.mark){const m=G.mark;[[m.xo,m.y,0],[m.xo,m.y,m.h],[m.hx0,m.y,m.h],[m.x,m.y,m.h]].forEach(w=>{const p=pr(w);bx.push(p[0]);by.push(p[1])})}
+ if(sph){const r=G.sphere.r,c=pr([r,r,r]);bx.push(c[0]-r,c[0]+r);by.push(c[1]-r,c[1]+r)}
+ const hasNet=!sph&&!(o.compact&&o.part==='body'),nx=[],ny=[];if(hasNet)G.faces.forEach(f=>f.pts.forEach(q=>{nx.push(q[0]);ny.push(q[1])}));
+ const bw=mx(bx)-mn(bx),bh=mx(by)-mn(by),nw=hasNet?mx(nx)-mn(nx):0,nh=hasNet?mx(ny)-mn(ny):0,gap=3;
+ const totW=bw+(hasNet?gap+nw:0),totH=Math.max(bh,nh),sc=Math.min(60,1300/totW,640/totH),M=70;
+ const W=Math.round(totW*sc+2*M),H=Math.round(totH*sc+2*M);
+ if(o.box)K=Math.max(1,(o.pt||8)*0.3528*Math.max(W/o.box[0],H/o.box[1])/12);
+ const bO=[M-mn(bx)*sc,M+(totH-bh)/2*sc-mn(by)*sc],nO=hasNet?[M+(bw+gap)*sc-mn(nx)*sc,M+(totH-nh)/2*sc-mn(ny)*sc]:[0,0];
+ const bp=p=>[bO[0]+p[0]*sc,bO[1]+p[1]*sc],np=q=>[nO[0]+q[0]*sc,nO[1]+q[1]*sc];
+ const poly=P=>P.map(p=>f1(p[0])+','+f1(p[1])).join(' '),fill=f=>o.col?f.c:'#ffffff';
+ const grid=(f,map)=>{
+  if(!f.g||!o.grid)return '';
+  const xs=f.loc.map(q=>q[0]),ys=f.loc.map(q=>q[1]),x0=mn(xs),x1=mx(xs),y0=mn(ys),y1=mx(ys),k=Math.cos(f.al),s=Math.sin(f.al),ab=(a,b)=>[f.o[0]+a*k-b*s,f.o[1]+a*s+b*k];
+  let d='';const ln=(A,B)=>{const p=map(A),q=map(B);d+=`M${f1(p[0])} ${f1(p[1])}L${f1(q[0])} ${f1(q[1])}`};
+  for(let a=Math.ceil(x0-1e-9);a<=x1+1e-9;a++)ln(ab(a,y0),ab(a,y1));
+  for(let b=Math.ceil(y0-1e-9);b<=y1+1e-9;b++)ln(ab(x0,b),ab(x1,b));
+  return d?`<path d="${d}" fill="none" stroke="#100e28" stroke-opacity=".3" stroke-width=".8"/>`:'';
+ };
+ const faceSVG=(f,pts,map,id,body)=>{
+  const op=(o.tr&&f.op&&body)?f.op:1,hl=o.base&&f.grp==='bas',sw=f.sw===2?.8:1.6,seam=f.sw===2&&!o.tr;
+  return `<clipPath id="${id}"><polygon points="${poly(pts)}"/></clipPath><polygon points="${poly(pts)}" fill="${fill(f)}" fill-opacity="${op}"${seam?` stroke="${fill(f)}" stroke-width="1"`:''}/><g clip-path="url(#${id})">${grid(f,map)}</g>${seam?'':`<polygon points="${poly(pts)}" fill="none" stroke="${hl?'#306BF0':'#100e28'}" stroke-width="${(hl?3.5:sw)*K}" stroke-linejoin="round"/>`}`;
+ };
+ const outline=(list,toS)=>{
+  if(o.tr||!list.some(f=>f.sw===2))return '';
+  const m=new Map();
+  list.forEach(f=>{const P=toS(f);P.forEach((a,i)=>{const b=P[(i+1)%P.length],k=[a,b].map(q=>q.map(v=>v.toFixed(1)).join(',')).sort().join('|'),e=m.get(k);if(e){e.n++;e.f.push(f)}else m.set(k,{a,b,n:1,f:[f]})})});
+  let d='';m.forEach(e=>{if(e.f.some(f=>f.sw===2)&&(e.n===1||e.f.some(f=>f.sw!==2)))d+=`M${f1(e.a[0])} ${f1(e.a[1])}L${f1(e.b[0])} ${f1(e.b[1])}`});
+  return d?`<path d="${d}" fill="none" stroke="#100e28" stroke-width="${1.6*K}" stroke-linecap="round" stroke-linejoin="round"/>`:'';
+ };
+ const lab=f=>{if(f.nol)return null;if(o.noB&&f.ltr==='B')return null;const L=[];let a='';if(o.ltr)a+=f.ltr;if(o.side)a+=(a?' = ':'')+f.mt;if(a)L.push(a);if(o.area)L.push((L.length?'= ':'')+fm(f.ar)+' '+u+'²');return L.length?L:null};
+ const box=(cx,cy,L)=>{const w=(mx(L.map(x=>x.length))*7.2+14)*K,h=(L.length*15+6)*K;cx=Math.min(W-w/2-4,Math.max(w/2+4,cx));cy=Math.min(H-h/2-4,Math.max(h/2+4,cy));return `<rect x="${f1(cx-w/2)}" y="${f1(cy-h/2)}" width="${f1(w)}" height="${f1(h)}" rx="${5*K}" fill="#ffffff" fill-opacity=".9"/><text x="${f1(cx)}" y="${f1(cy-h/2+15*K)}" text-anchor="middle" font-size="${12*K}" font-weight="600" fill="#100e28">`+L.map((x,i)=>`<tspan x="${f1(cx)}" dy="${i?15*K:0}">${esc(x)}</tspan>`).join('')+'</text>'};
+ const chip=(x,y,t)=>{const w=(t.length*7+14)*K;x=Math.min(W-w/2-4,Math.max(w/2+4,x));y=Math.min(H-9*K-4,Math.max(9*K+4,y));return `<rect x="${f1(x-w/2)}" y="${f1(y-9*K)}" width="${f1(w)}" height="${18*K}" rx="${5*K}" fill="#ffffff" stroke="#100e28" stroke-width="${1.2*K}"/><text x="${f1(x)}" y="${f1(y+4*K)}" text-anchor="middle" font-size="${12*K}" font-weight="600" fill="#100e28">${esc(t)}</text>`};
+ const line=(a,b,dash)=>{const p=bp(pr(a)),q=bp(pr(b));return `<line x1="${f1(p[0])}" y1="${f1(p[1])}" x2="${f1(q[0])}" y2="${f1(q[1])}" stroke="#306BF0" stroke-width="2.4" stroke-dasharray="${dash}"/>`};
+ const radEnds=f=>o.dia?[[2*f.rad[0][0]-f.rad[1][0],2*f.rad[0][1]-f.rad[1][1]],f.rad[1]]:[f.rad[0],f.rad[1]];
+ const deco=(f,map)=>{
+  let r='';const ln=(a,b)=>{const p=map(a),q=map(b);return `<line x1="${f1(p[0])}" y1="${f1(p[1])}" x2="${f1(q[0])}" y2="${f1(q[1])}" stroke="#306BF0" stroke-width="2.4" stroke-dasharray="7 5"/>`};
+  if(f.alt&&!(o.noS&&f.grp==='sid')){const [a,b]=f.alt,L=Math.hypot(b[0]-a[0],b[1]-a[1]),v=[(b[0]-a[0])/L,(b[1]-a[1])/L],w=[-v[1],v[0]],q=Math.min(.35,L/3);
+   r+=ln(a,b)+`<polyline points="${poly([[a[0]+w[0]*q,a[1]+w[1]*q],[a[0]+(w[0]+v[0])*q,a[1]+(w[1]+v[1])*q],[a[0]+v[0]*q,a[1]+v[1]*q]].map(map))}" fill="none" stroke="#306BF0" stroke-width="2"/>`}
+  if(f.rad){const re=radEnds(f);r+=ln(re[0],re[1]);const c=map(f.rad[0]);r+=`<circle cx="${f1(c[0])}" cy="${f1(c[1])}" r="3" fill="#306BF0"/>`}
+  return r;
+ };
+ const val=x=>{const m=String(x).split('=')[1];return m?parseFloat(m.replace(',','.')):NaN};
+ const conv=e=>o.dia&&/^r =/.test(e.txt)?{...e,txt:`d = ${fm(2*val(e.txt))}`}:e;
+ const unit2=(dx,dy,k)=>{const L=Math.hypot(dx,dy)||1;return [dx/L*k,dy/L*k]};
+ const edgeCand=(A,B,len,cc)=>{const mid=[(A[0]+B[0])/2,(A[1]+B[1])/2];let n=unit2(-(B[1]-A[1]),B[0]-A[0],18);if(n[0]*(mid[0]-cc[0])+n[1]*(mid[1]-cc[1])<0)n=[-n[0],-n[1]];return {a:A,b:B,len,t:.5,n}};
+ const lineCands=(f,map,out)=>{
+  if(f.alt){const A=map(f.alt[0]),B=map(f.alt[1]);out.push({a:A,b:B,len:Math.hypot(f.alt[1][0]-f.alt[0][0],f.alt[1][1]-f.alt[0][1]),t:.8,n:unit2(-(B[1]-A[1]),B[0]-A[0],20)})}
+  if(f.rad){const re=radEnds(f),A=map(re[0]),B=map(re[1]);out.push({a:A,b:B,len:Math.hypot(re[1][0]-re[0][0],re[1][1]-re[0][1]),t:.65,n:unit2(-(B[1]-A[1]),B[0]-A[0],16)})}
+ };
+ const snap=(items,cands)=>{
+  const used=new Set(),placed=[],posOf=c=>[c.a[0]+(c.b[0]-c.a[0])*c.t+c.n[0],c.a[1]+(c.b[1]-c.a[1])*c.t+c.n[1]];
+  return items.map(e=>{
+   const v=val(e.txt);let best=-1,bd=-1;
+   for(const tol of [.02,.06]){cands.forEach((c,i)=>{if(used.has(i)||Math.abs(c.len-v)>tol)return;const q=posOf(c),d=placed.length?Math.min(...placed.map(r=>Math.hypot(r[0]-q[0],r[1]-q[1]))):1e9;if(d>bd){bd=d;best=i}});if(best>=0)break}
+   if(best<0)return {e,pos:null};used.add(best);const q=posOf(cands[best]);placed.push(q);return {e,pos:q};
+  });
+ };
+ let body='',net='';
+ if(o.part!=='net'){
+  if(sph){
+   const r=G.sphere.r,c=bp(pr([r,r,r])),R=r*sc;
+   body+=`<circle cx="${f1(c[0])}" cy="${f1(c[1])}" r="${f1(R)}" fill="${o.col?'url(#sg)':'#ffffff'}" fill-opacity="${o.tr?.55:1}" stroke="#100e28" stroke-width="1.6"/><ellipse cx="${f1(c[0])}" cy="${f1(c[1])}" rx="${f1(R)}" ry="${f1(R*Math.cos(tl*D))}" fill="none" stroke="#100e28" stroke-opacity=".45" stroke-width="1"/><line x1="${f1(c[0]-(o.dia?R:0))}" y1="${f1(c[1])}" x2="${f1(c[0]+R)}" y2="${f1(c[1])}" stroke="#306BF0" stroke-width="2.4" stroke-dasharray="7 5"/>`;
+   if(o.edge)body+=chip(c[0]+R/2,c[1]-14,`${o.dia?`d = ${2*r}`:`r = ${r}`} ${u}`);
+  }else{
+   let L=faces.map((f,i)=>{const n=mv(f.M,[0,0,1]).map(v=>-v);return {f,i,vis:mv(Rm,n)[2]>1e-3,d:f.P.reduce((a,p)=>a+p[2],0)/f.P.length}});
+   if(!o.tr)L=L.filter(x=>x.vis);
+   L.sort((a,b)=>a.d-b.d).forEach(({f,i})=>{body+=faceSVG(f,f.P.map(bp),w=>bp(pr(pos(f,w,1))),'b'+i,true)});
+   body+=outline(L.filter(x=>x.vis).map(x=>x.f),f=>f.P.map(bp));
+   L.filter(x=>x.vis).forEach(({f})=>{body+=deco(f,w=>bp(pr(pos(f,w,1))))});
+   L.filter(x=>x.vis).forEach(({f})=>{const t=lab(f);if(t){const c=cen(f.P.map(bp));body+=box(c[0],c[1],t)}});
+   if(G.mark){
+    const m=G.mark,rs=Math.min(.5,m.h*.25),ra=(x)=>`<polyline points="${poly([[x+rs,m.y,0],[x+rs,m.y,rs],[x,m.y,rs]].map(w=>bp(pr(w))))}" fill="none" stroke="#306BF0" stroke-width="2"/>`;
+    if(o.tr)body+=line([m.x,m.y,0],[m.x,m.y,m.h],'7 5')+ra(m.x);
+    else body+=line([m.xo,m.y,0],[m.xo,m.y,m.h],'7 5')+line([m.hx0,m.y,m.h],[m.xo,m.y,m.h],'2 5')+ra(m.xo);
+   }
+   if(o.edge){
+    const vf=L.filter(x=>x.vis),cnt=new Map(),bc=[];
+    vf.forEach(({f})=>f.pts.forEach((a,k)=>{const b=f.pts[(k+1)%f.pts.length],wa=pos(f,a,1),wb=pos(f,b,1),key=[wa,wb].map(w=>w.map(v=>v.toFixed(2)).join(',')).sort().join('|'),e=cnt.get(key);if(e)e.n++;else cnt.set(key,{f,wa,wb,n:1,len:Math.hypot(a[0]-b[0],a[1]-b[1])})}));
+    cnt.forEach(e=>{if(e.n===1)bc.push(edgeCand(bp(pr(e.wa)),bp(pr(e.wb)),e.len,cen(e.f.P.map(bp))))});
+    vf.forEach(({f})=>lineCands(f,w=>bp(pr(pos(f,w,1))),bc));
+    const free=G.E.filter(e=>e.k!=='out'&&e.z===undefined&&!(o.noS&&/^s =/.test(e.txt))).map(conv);
+    snap(free,bc).forEach(r=>{if(r.pos)body+=chip(r.pos[0],r.pos[1],`${r.e.txt} ${u}`);else if(vf.some(x=>x.f.id===r.e.f)){const w=pos(G.by[r.e.f],r.e.pt,1),q=bp(pr(w));body+=chip(q[0]+r.e.dx*.7,q[1]+r.e.dy*.7-8,`${r.e.txt} ${u}`)}});
+    G.E.filter(e=>e.k==='out'?(!o.tr&&G.mark):(e.k!=='out'&&e.z!==undefined&&o.tr)).forEach(e=>{const w=pos(G.by[e.f],e.pt,1),q=bp(pr([w[0],w[1],w[2]+(e.z||0)]));body+=chip(q[0]+e.dx*.7,q[1]+e.dy*.7-8,`${e.txt} ${u}`)});
+   }
+  }
+ }
+ if(hasNet&&o.part!=='body'){
+  G.faces.forEach((f,i)=>{net+=faceSVG(f,f.pts.map(np),np,'n'+i,false)});
+  net+=outline(G.faces,f=>f.pts.map(np));
+  G.faces.forEach(f=>{net+=deco(f,np)});
+  G.faces.forEach(f=>{const t=lab(f);if(t){const c=cen(f.pts.map(np));net+=box(c[0],c[1],t)}});
+  if(o.edge){
+   const cnt=new Map(),nc=[];
+   G.faces.forEach(f=>f.pts.forEach((a,k)=>{const b=f.pts[(k+1)%f.pts.length],key=[a,b].map(q=>q.map(v=>v.toFixed(3)).join(',')).sort().join('|'),e=cnt.get(key);if(e)e.n++;else cnt.set(key,{f,a,b,n:1})}));
+   cnt.forEach(e=>{if(e.n===1)nc.push(edgeCand(np(e.a),np(e.b),Math.hypot(e.a[0]-e.b[0],e.a[1]-e.b[1]),cen(e.f.pts.map(np))))});
+   G.faces.forEach(f=>lineCands(f,np,nc));
+   snap(G.E.filter(e=>e.k!=='out'&&e.z===undefined&&!(o.noS&&/^s =/.test(e.txt))).map(conv),nc).forEach(r=>{if(r.pos)net+=chip(r.pos[0],r.pos[1],`${r.e.txt} ${u}`);else{const q=np(r.e.pt);net+=chip(q[0]+r.e.dx*.7,q[1]+r.e.dy*.7,`${r.e.txt} ${u}`)}});
+  }
+ }
+ const defs='<radialGradient id="sg" cx="35%" cy="30%"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#9fdcd8"/><stop offset="1" stop-color="#8FB0F7"/></radialGradient>';
+ return {W,H,svg:`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Sora, 'Segoe UI', Arial, sans-serif"><title>${esc(G.def.t)}</title><defs>${defs}</defs><g id="kropp">${body}</g><g id="nat">${net}</g></svg>`};
+}
+const EXIDS=['exP1','exP2','exP3','exC1','exC2','exTr','exGrid','exBase','exEdge','exLtr','exSide','exArea'];
+function expOpts(){return {part:$('exP2').checked?'body':$('exP3').checked?'net':'both',col:$('exC1').checked,tr:$('exTr').checked,grid:$('exGrid').checked,base:$('exBase').checked,edge:$('exEdge').checked,ltr:$('exLtr').checked,side:$('exSide').checked,area:$('exArea').checked}}
+function expRender(){$('expPrev').innerHTML=svgExport(expOpts()).svg}
+EXIDS.forEach(i=>{$(i).onchange=expRender});
+function openExp(on){$('expCard').classList.toggle('on',on);if(on){$('exBase').checked=lie&&!!FIG[fig].lie;expRender()}}
+$('expB').onclick=()=>openExp(!$('expCard').classList.contains('on'));$('expX').onclick=()=>openExp(false);
+function expName(tag){return `${fig}${lie&&FIG[fig].lie?'-liggande':''}_${Object.entries(dm[fig]).map(([k,v])=>k+v).join('-')}_${$('unit').value}_${tag}.svg`}
+function dlSVG(name,svg){const W=DOC.defaultView,a=DOC.createElement('a');a.href=W.URL.createObjectURL(new W.Blob([svg],{type:'image/svg+xml'}));a.download=name;DOC.body.appendChild(a);a.click();a.remove();setTimeout(()=>W.URL.revokeObjectURL(a.href),3000)}
+$('expD').onclick=()=>{const o=expOpts(),tag=[o.part==='both'?'':o.part,o.col?'farg':'utan-farg',o.tr?'genomskinlig':'',o.edge?'kantmatt':'',o.ltr?'bokstaver':'',o.side?'sidomatt':'',o.area?'areor':''].filter(Boolean).join('_');dlSVG(expName(tag),svgExport(o).svg)};
+$('expS').onclick=()=>{
+ const b=expOpts(),st=[['1-konturer',{col:false,edge:true,ltr:false,side:false,area:false}],['2-farger',{col:true,edge:true,ltr:false,side:false,area:false}],['3-bokstaver-sidomatt',{col:true,edge:true,ltr:true,side:true,area:false}],['4-areor',{col:true,edge:true,ltr:true,side:true,area:true}]];
+ st.forEach(([tag,x],i)=>setTimeout(()=>dlSVG(expName(tag),svgExport({...b,...x}).svg),i*450));
+};
+// ---------- Nät-övning ----------
+let qm='A',qs={n:0,ok:0},qcur=null,qdone=false;
+const QOPT=[['kub','Kub'],['rb','Rätblock'],['tri','Triangulärt prisma'],['p5','Femhörnigt prisma'],['p6','Sexhörnigt prisma'],['py','Pyramid'],['cy','Cylinder'],['ko','Kon']];
+const pickR=a=>a[Math.floor(Math.random()*a.length)];
+function sketchSVG(g){
+ const xs=[],ys=[];g.faces.forEach(f=>f.pts.forEach(q=>{xs.push(q[0]);ys.push(q[1])}));
+ const x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0,h=Math.max(...ys)-y0,sc=Math.min(60,420/w,230/h),M=8,f1=v=>v.toFixed(1);
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="${f1(w*sc+2*M)}" height="${f1(h*sc+2*M)}" viewBox="0 0 ${f1(w*sc+2*M)} ${f1(h*sc+2*M)}">`+g.faces.map(f=>`<polygon points="${f.pts.map(q=>f1((q[0]-x0)*sc+M)+','+f1((q[1]-y0)*sc+M)).join(' ')}" fill="#ffffff" stroke="#100e28" stroke-width="2" stroke-linejoin="round"/>`).join('')+'</svg>';
+}
+function netSketch(f,d,lv){
+ const sf=fig,sl=lie,sd=dm[f];fig=f;lie=lv;dm[f]={...dm[f],...d};
+ try{return sketchSVG(layout(geo()))}finally{fig=sf;lie=sl;dm[f]=sd}
+}
+function newQ(){
+ qdone=false;
+ if(qm==='A'){let n;do{n=1+Math.floor(Math.random()*CNETS.length)}while(qcur&&qcur.mode==='A'&&n===qcur.n);qcur={mode:'A',n,ok:CNETS[n-1].ok}}
+ else{
+  const k=pickR(QOPT)[0].slice();let f=k,d={},lv=false;
+  if(k==='kub')d={l:pickR([2,3,4])};
+  else if(k==='rb'){const l=pickR([4,5,6]);d={l,b:pickR([2,3]),h:pickR([2,3,4].filter(x=>x!==l))}}
+  else if(k==='tri'){f=pickR(['pr','pe']);d=f==='pr'?{tb:pickR([3,4]),th:pickR([3,4]),ph:pickR([4,5])}:{a:pickR([3,4]),ph:pickR([4,5])};lv=Math.random()<.5}
+  else if(k==='p5'||k==='p6'){d={a:pickR([2,3]),ph:pickR([4,5])};lv=Math.random()<.5}
+  else if(k==='py')d={l:4,b:pickR([4,6]),h:pickR([3,4])};
+  else if(k==='cy')d={r:pickR([2,3]),h:pickR([4,5])};
+  else d={r:3,h:4};
+  qcur={mode:'B',key:k,f,d,lie:lv}
+ }
+ renderQ();
+}
+function renderQ(){
+ if(!qcur)return;
+ $('qA').setAttribute('aria-pressed',qm==='A');$('qB').setAttribute('aria-pressed',qm==='B');
+ $('qScore').textContent=qs.n?`${qs.ok} av ${qs.n} rätt`:'';
+ $('qQ').textContent=qm==='A'?'Kan den här skissen vikas ihop till en kub?':'Vilken kropp får man om man viker ihop nätet?';
+ $('qSk').innerHTML=qm==='A'?netSketch('cn',{n:qcur.n,a:1},false):netSketch(qcur.f,qcur.d,qcur.lie);
+ const opts=qm==='A'?[['ja','Ja, det blir en kub'],['nej','Nej, det går inte']]:QOPT;
+ $('qOpts').innerHTML=opts.map(([k,l])=>`<button class="fc" data-k="${k}" ${qdone?'disabled':''}>${l}</button>`).join('');
+ $('qOpts').querySelectorAll('button').forEach(b=>{b.onclick=()=>answerQ(b.dataset.k)});
+ $('qShow').disabled=!qdone;$('qFb').innerHTML=qcur.fb||'';
+}
+function answerQ(v){
+ if(qdone)return;qdone=true;qs.n++;
+ let ok,exp;
+ if(qcur.mode==='A'){ok=(v==='ja')===qcur.ok;exp=qcur.ok?'Det här nätet fungerar: det viks ihop till en kub.':'Det här nätet fungerar inte: två sidor hamnar på samma plats och en sida blir kvar utan motstycke.'}
+ else{ok=v===qcur.key;const nm=QOPT.find(o=>o[0]===qcur.key)[1];exp=`Det är ett nät till ${nm.toLowerCase()}.`}
+ if(ok)qs.ok++;
+ qcur.fb=`<b style="color:${ok?'#18a348':'#e02020'}">${ok?'✓ Rätt!':'✗ Inte riktigt.'}</b> ${exp} Tryck <i>Visa hur den viks</i> för att kontrollera.`;qcur.exp=exp;
+ renderQ();
+}
+function showQ(){
+ if(!qcur)return;
+ if(qcur.mode==='A')setState({f:'cn',d:{n:qcur.n,a:3},lie:false,k:100,tab:'V'});else setState({f:qcur.f,d:qcur.d,lie:qcur.lie,k:100,tab:'V'});
+ const c=$('cap2');c.textContent=qcur.exp;c.dataset.sig=fig+JSON.stringify(dm[fig])+lie;c.style.display='block';
+ $('qCard').classList.remove('on');setTimeout(()=>go(1,2600),350);
+}
+function openQ(on){$('qCard').classList.toggle('on',on);if(on){if(!qcur)newQ();else renderQ()}}
+$('qOpen').onclick=()=>openQ(!$('qCard').classList.contains('on'));$('qX').onclick=()=>openQ(false);
+$('qA').onclick=()=>{qm='A';newQ()};$('qB').onclick=()=>{qm='B';newQ()};
+$('qNew').onclick=newQ;$('qShow').onclick=showQ;
+// ---------- Arbetsblad (utskrift) ----------
+const plain=h=>String(h).replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'($1) / $2').replace(/<[^>]+>/g,'');
+const AREATXT={'kvadrat':'s · s','rektangel':'b · h','triangel':'(b · h) / 2','liksidig triangel':'(b · h) / 2','cirkel':'π · r · r','regelbunden femhörning':'n · (a · k) / 2','regelbunden sexhörning':'n · (a · k) / 2'};
+let sheetDia=false;
+const dimsOf=(f,u)=>FIG[f].P.map(([k,lab])=>sheetDia&&k==='r'?`diameter d = ${2*dm[f][k]} ${u}`:`${lab.toLowerCase()} = ${dm[f][k]} ${u}`).join(' · ');
+function withState(f,d,lv,fn){const sf=fig,sl=lie,sd=dm[f];fig=f;lie=lv;dm[f]={...dm[f],...d};try{return fn()}finally{fig=sf;lie=sl;dm[f]=sd}}
+const rowS=(l,f,facit,scaf)=>`<div class="rw3"><span class="rl">${scaf||facit?l:''}</span><div class="rv">${facit?`<span class="fa">${f}</span>`:''}</div></div>`;
+const esc2=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const NAMEOF={rb:'Rätblock',kub:'Kub',pr:'Triangulärt prisma',pe:'Triangulärt prisma',p5:'Femhörnigt prisma',p6:'Sexhörnigt prisma',py:'Pyramid',py3:'Triangulär pyramid',py5:'Femhörnig pyramid',py6:'Sexhörnig pyramid',cy:'Cylinder',ko:'Kon',kl:'Klot'};
+function volRows(I,u,facit,scaf,sph){
+ const ap=I.approx?'≈':'=';let R;
+ if(sph){const r=I.r;R=[['V =','(4 · π · r · r · r) / 3'],['r =',`${fm(r)} ${u}`],['V =',`(4 · 3,14 · ${r} · ${r} · ${r}) / 3 ≈ ${fm(I.V)} ${u}³`],['Svar:',`Volymen är ungefär ${fm(I.V)} ${u}³.`]]}
+ else{const vf=I.vol==='pyr'?'(B · h) / 3':'B · h',ins=I.vol==='pyr'?`(${fm(I.B)} · ${fm(I.h)}) / 3`:`${fm(I.B)} · ${fm(I.h)}`;
+  R=[['V =',vf],['B =',`${plain(I.be)} ${ap} ${fm(I.B)} ${u}²`],['h =',`${fm(I.h)} ${u}`],['V =',`${ins} ${ap} ${fm(I.V)} ${u}³`],['Svar:',`Volymen är ${I.approx?'ungefär ':''}${fm(I.V)} ${u}³.`]]}
+ return R.map(([l,f])=>rowS(l,f,facit,scaf)).join('');
+}
+function areaRows(I,u,facit,scaf,sph,col){
+ const ap=I.approx?'≈':'=',T=I.areas||[];
+ if(sph)return [['B.Y. =','4 · π · r · r'],['B.Y. =',`4 · 3,14 · ${I.r} · ${I.r} ≈ ${fm(I.A)} ${u}²`],['Svar:',`Begränsningsytan är ungefär ${fm(I.A)} ${u}².`]].map(([l,f])=>rowS(l,f,facit,scaf)).join('');
+ const tot=T.reduce((x,t)=>x+t.m*t.v,0),pill=x=>`<span class="pl2" style="background:${col?x.c:'#fff'}">${x.k}</span>`;
+ const R=T.map(x=>[pill(x)+' =',`${plain(x.e)} ${I.approx&&x.e.includes('frac')?'≈':'='} ${fm(x.v)} ${u}²`]);
+ R.push(['B.Y. =',T.map(x=>(x.m>1?x.m+' · ':'')+x.k).join(' + ')]);
+ R.push(['B.Y. =',`${T.map(x=>(x.m>1?x.m+' · ':'')+fm(x.v)).join(' + ')} ${ap} ${fm(tot)} ${u}²`]);
+ R.push(['Svar:',`Begränsningsytan är ${I.approx?'ungefär ':''}${fm(tot)} ${u}².`]);
+ return R.map(([l,f])=>rowS(l,f,facit,scaf)).join('');
+}
+const SIGN='<div class="pgf">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>';
+function sheetPage(f,d,lv,col,facit,scaf){
+ return withState(f,d,lv,()=>{
+  const G=layout(geo()),I=G.info,u=$('unit').value,sph=!!G.sphere;
+  const pic=svgExport({part:'both',col,tr:false,grid:true,base:false,edge:true,ltr:true,side:false,area:false,noB:true,box:[178,80],pt:8,dia:sheetDia}).svg;
+  const gp=(t,w)=>facit?`<span class="fa">${t}</span>`:`<span class="gp" style="min-width:${w}em"></span>`;
+  const dims=dimsOf(f,u);
+  const nb=G.faces.filter(x=>x.grp==='bas').length,round=['cy','ko','kl'].includes(f);let n=0,q='';
+  if(!sph){
+   q+=`<p><b>${++n}.</b> Färglägg ${nb>1?'de två <b>basytorna</b>':'<b>basytan</b>'} i nätet. ${nb>1?'Basytorna':'Basytan'} är en ${gp(I.shape,12)}</p>`;
+   q+=`<p><b>${++n}.</b> Hur räknar man basytans area?${scaf||facit?' A =':''} ${gp(AREATXT[I.shape],10)}</p>`;
+  }
+  q+=`<p><b>${++n}.</b> Beräkna volymen.</p>`+volRows(I,u,facit,scaf,sph);
+  q+=`<p><b>${++n}.</b> Beräkna begränsningsytan.</p>`+areaRows(I,u,facit,scaf,sph,col);
+  const info=`Mått: ${dims}.${round?' Räkna med π ≈ 3,14.':''}${I.approx?' Avrunda till en decimal.':''}`;
+  return `<section class="pg"><h1>${facit?'Facit: ':''}${esc2(G.def.t)}${lv&&FIG[f].lie?' (liggande)':''}</h1>${facit?'':'<div class="pgn"><span>Namn:</span><span>Klass:</span><span>Datum:</span></div>'}<div class="pgimg">${pic}</div><div class="pgi">${info}</div>${q}${SIGN}</section>`;
+ });
+}
+function volBlock(f,d,lv,col,facit,idx,scaf,cp){
+ return withState(f,d,lv,()=>{
+  const G=layout(geo()),I=G.info,u=$('unit').value,sph=!!G.sphere,round=['cy','ko','kl'].includes(f);
+  const pic=svgExport({part:'body',compact:true,col,tr:false,grid:false,base:false,edge:true,ltr:false,side:false,area:false,box:cp?[70,42]:[178,40],pt:cp?7:8,dia:sheetDia,noS:true}).svg;
+  const dims=dimsOf(f,u);
+  const info=`Mått: ${dims}.${round?' Räkna med π ≈ 3,14.':''}${I.approx?' Avrunda till en decimal.':''}`;
+  const hd=`<div class="vh"><b>Uppgift ${idx}.</b> ${esc2(G.def.t)}${lv&&FIG[f].lie?' (liggande)':''}</div>`,rows=volRows(I,u,facit,scaf,sph);
+  return cp?`<div class="vb cp">${hd}<div class="vl"><div class="pgimg">${pic}</div><div class="pgi">${info}</div></div><div class="vr">${rows}</div></div>`
+           :`<div class="vb">${hd}<div class="pgimg">${pic}</div><div class="pgi">${info}</div>${rows}</div>`;
+ });
+}
+function facitPage(L){
+ const rows=L.map((x,i)=>withState(x[0],x[1],x[2],()=>{
+  const G=layout(geo()),I=G.info,u=$('unit').value,sph=!!G.sphere,ap=I.approx?'≈ ':'';
+  const dims=FIG[x[0]].P.map(([k,lab])=>sheetDia&&k==='r'?`diameter d = ${2*dm[x[0]][k]}`:`${lab.toLowerCase()} = ${dm[x[0]][k]}`).join(', ')+' '+u;
+  return `<tr><td>${i+1}</td><td>${esc2(G.def.t)}${x[2]&&FIG[x[0]].lie?' (liggande)':''}</td><td>${dims}</td><td>${sph?'–':ap+fm(I.B)+' '+u+'²'}</td><td>${sph?'–':fm(I.h)+' '+u}</td><td><b>${ap}${fm(I.V)} ${u}³</b></td></tr>`;
+ })).join('');
+ return `<section class="pg"><h1>Facit: Beräkna volymen</h1><table class="ft"><tr><th>Uppg.</th><th>Kropp</th><th>Mått</th><th>B</th><th>h</th><th>V (svar)</th></tr>${rows}</table><p class="pgi">≈ betyder att svaret är ett närmevärde (räknat med π ≈ 3,14 eller avrundad sidolängd). Små avvikelser från avrundning är okej.</p>${SIGN}</section>`;
+}
+function volPages(L,col,facit,scaf,cp){
+ const per=cp?3:2;let h='';
+ for(let i=0;i<L.length;i+=per){
+  const bl=L.slice(i,i+per).map((x,k)=>volBlock(x[0],x[1],x[2],col,facit,i+k+1,scaf,cp)).join('');
+  h+=`<section class="pg"><h1>${facit?'Facit: ':''}Beräkna volymen</h1>${facit?'':'<div class="pgn"><span>Namn:</span><span>Klass:</span><span>Datum:</span></div>'}${bl}${SIGN}</section>`;
+ }
+ return h;
+}
+function rndEx(per){
+ const r=a=>a[Math.floor(Math.random()*a.length)],t=r([[3,4],[4,3],[5,12],[6,8],[8,6],[12,5]]),k=r([[3,4],[6,8],[5,12]]);
+ const rb={l:r([4,5,6,7,8]),b:r([2,3,4,5]),h:r([2,3,4,6])};
+ const pl=r([3,4,6]),pb=r([3,4,6]),pyr=Math.random()<.25?['py3',(()=>{const a=r([4,6]);return {a,h:a===6?6:r([3,6])}})(),false]:['py',{l:pl,b:pb,h:r([3,6,9].filter(h=>h>=Math.max(pl,pb)*.75))},false];
+ const L=[['rb',rb,false],['kub',{l:r([2,3,4,5,6])},false],['pr',{tb:t[0],th:t[1],ph:r([3,4,5,6,8])},Math.random()<.5],['cy',{r:r([2,3,4]),h:r([3,4,5,6,8])},false],['ko',{r:k[0],h:k[1]},false],pyr,['kl',{r:r([2,3,4,5,6])},false]];
+ const used=new Set(L.map(x=>x[0])),pool=[['p5',{a:r([2,3]),ph:r([4,5,6])},Math.random()<.5],['p6',{a:r([2,3]),ph:r([4,5,6])},Math.random()<.5],['pe',{a:r([2,4,6]),ph:r([4,5,6])},true],['py5',{a:r([2,3,4]),h:r([4,6])},false],['py6',{a:r([2,3,4]),h:r([4,6])},false],['py3',{a:r([2,3,4]),h:r([4,6])},false]].filter(x=>!used.has(x[0])).sort(()=>Math.random()-.5);
+ while(per>1&&L.length%per&&pool.length)L.push(pool.shift());
+ return L;
+}
+function sheetList(sc,per){
+ if(sc==='rnd')return rndEx(per||1);
+ if(sc==='cur')return fig==='cn'?[]:[[fig,{...dm[fig]},lie&&!!FIG[fig].lie]];
+ if(sc==='pre')return fig==='cn'?[]:PRE[fig].map(q=>[fig,q.d,!!q.lie]);
+ return ORDER.filter(f=>f!=='cn').map(f=>[f,PRE[f][0].d,!!PRE[f][0].lie]);
+}
+function buildSheets(){
+ sheetDia=$('shDia').checked;
+ const sc=$('shS2').checked?'pre':$('shS3').checked?'all':$('shS4').checked?'rnd':'cur',col=$('shCol').checked,fa=$('shFa').checked,vo=$('shC2').checked,L=sheetList(sc,vo&&$('shCp').checked?3:vo?2:1);
+ if(!L.length){toast('Det finns inga arbetsblad för kubens nät. Välj en annan figur.');return null}
+ const sc2=$('shSc').checked,cp=$('shCp').checked,mk=facit=>vo?volPages(L,col,facit,sc2,cp):L.map(x=>sheetPage(x[0],x[1],x[2],col,facit,sc2)).join('');
+ return mk(false)+(fa?(vo?facitPage(L):mk(true)):'');
+}
+function previewSheets(){
+ const h=buildSheets();if(!h)return;
+ const sh=$('sheet'),n=(h.match(/<section class="pg"/g)||[]).length;
+ sh.innerHTML=`<div class="shbar"><button class="main" id="shPrint">Skriv ut</button><button id="shClose">Stäng förhandsvisning</button><span>${n} ${n===1?'sida':'sidor'} (A4)</span></div>`+h;
+ sh.classList.add('prev');
+ $('shPrint').onclick=()=>DOC.defaultView.print();
+ $('shClose').onclick=()=>{sh.classList.remove('prev');sh.innerHTML=''};
+}
+function printSheets(){
+ const sh=$('sheet');if(sh.classList.contains('prev')){DOC.defaultView.print();return}
+ const h=buildSheets();if(!h)return;
+ sh.innerHTML=h;setTimeout(()=>DOC.defaultView.print(),150);
+}
+$('shGo').onclick=printSheets;$('shPrev').onclick=previewSheets;
+$('shOpen').onclick=()=>$('shCard').classList.toggle('on');$('shX').onclick=()=>$('shCard').classList.remove('on');
+const PRE={
+ rb:[{n:'Standard',d:{l:4,b:3,h:2}},{n:'Låg platta',d:{l:6,b:4,h:1}},{n:'Hög pelare',d:{l:2,b:2,h:6}},{n:'Stor',d:{l:8,b:5,h:3}}],
+ kub:[{n:'Sida 2',d:{l:2}},{n:'Sida 3',d:{l:3}},{n:'Sida 4',d:{l:4}},{n:'Sida 5',d:{l:5}}],
+ pr:[{n:'3-4-5',d:{tb:3,th:4,ph:5}},{n:'3-4-5 liggande',d:{tb:3,th:4,ph:5},lie:1},{n:'5-12-13',d:{tb:5,th:12,ph:4}},{n:'Närmevärde',d:{tb:2,th:4,ph:6}}],
+ pe:[{n:'Liggande',d:{a:4,ph:6},lie:1},{n:'Stående',d:{a:4,ph:6}},{n:'Smal och lång',d:{a:2,ph:8},lie:1},{n:'Stor',d:{a:6,ph:5},lie:1}],
+ p5:[{n:'Stående',d:{a:3,ph:5}},{n:'Liggande',d:{a:3,ph:5},lie:1},{n:'Platt',d:{a:4,ph:2}},{n:'Lång och liggande',d:{a:2,ph:9},lie:1}],
+ p6:[{n:'Stående',d:{a:3,ph:5}},{n:'Liggande',d:{a:3,ph:5},lie:1},{n:'Platt',d:{a:4,ph:2}},{n:'Lång och liggande',d:{a:2,ph:9},lie:1}],
+ py:[{n:'Kvadratisk 6×6',d:{l:6,b:6,h:4}},{n:'Låg 4×4',d:{l:4,b:4,h:2}},{n:'Rektangel 8×6',d:{l:8,b:6,h:3}},{n:'Hög 4×4',d:{l:4,b:4,h:6}}],
+ cy:[{n:'Standard',d:{r:2,h:5}},{n:'Bred och låg',d:{r:4,h:2}},{n:'Smal och hög',d:{r:1,h:8}},{n:'Stor',d:{r:5,h:6}}],
+ ko:[{n:'3-4-5 (s = 5)',d:{r:3,h:4}},{n:'4-3-5 (s = 5)',d:{r:4,h:3}},{n:'5-12-13 (s = 13)',d:{r:5,h:12}},{n:'Platt',d:{r:6,h:2}}],
+ kl:[{n:'r = 2',d:{r:2}},{n:'r = 3',d:{r:3}},{n:'r = 5',d:{r:5}},{n:'r = 8',d:{r:8}}],
+ py3:[{n:'a = 4, h = 4',d:{a:4,h:4}},{n:'Låg',d:{a:6,h:2}},{n:'Hög',d:{a:4,h:7}},{n:'Stor',d:{a:8,h:6}}],
+ py5:[{n:'a = 3, h = 4',d:{a:3,h:4}},{n:'Låg',d:{a:4,h:2}},{n:'Hög',d:{a:2,h:6}},{n:'Stor',d:{a:5,h:5}}],
+ py6:[{n:'a = 3, h = 4',d:{a:3,h:4}},{n:'Låg',d:{a:4,h:2}},{n:'Hög',d:{a:2,h:6}},{n:'Stor',d:{a:5,h:5}}],
+ cn:[{n:'Korset',d:{n:5,a:3}},{n:'Trappan',d:{n:11,a:3}},{n:'Två och tre',d:{n:10,a:3}},{n:'Fungerar inte (2×3)',d:{n:13,a:3}}]};
+function presetIdx(){return (PRE[fig]||[]).findIndex(p=>Object.entries(p.d).every(([k,v])=>dm[fig][k]===v)&&(!FIG[fig].lie||!!p.lie===lie))}
+function presetUI(){const L=PRE[fig]||[],i=presetIdx();$('preN').textContent=i>=0?`${i+1}/${L.length} · ${L[i].n}`:'Egna mått'}
+function stepPreset(dir){
+ const L=PRE[fig],n=L.length,i=presetIdx(),j=i<0?(dir>0?0:n-1):(i+dir+n)%n,p=L[j];
+ Object.assign(dm[fig],p.d);if(FIG[fig].lie){lie=!!p.lie;$('sLie').checked=lie}
+ dimsUI();all();
+}
+$('preP').onclick=()=>stepPreset(-1);$('preNx').onclick=()=>stepPreset(1);
+// ---- uppgiftsformat: en vy som data (samma format för presets, länkar, export och elevuppgifter) ----
+const FLAGS=[['sEdge','e'],['sMeas','m'],['sAns','a'],['sFloor','f'],['sWalls','w'],['sFocus','o'],['sTr','t'],['sHo','h'],['sCalc','c']];
+function getState(){return {f:fig,d:{...dm[fig]},lie:lie&&!!FIG[fig].lie,u:$('unit').value,s:FLAGS.filter(([id])=>$(id).checked).map(x=>x[1]).join(''),k:Math.round((1-t)*100),tab,m:emode}}
+function toHash(S){const p=new URLSearchParams();p.set('f',S.f);p.set('d',Object.entries(S.d).map(([k,v])=>k+':'+v).join(','));if(S.lie)p.set('l','1');if(S.lock)p.set('lock','1');p.set('u',S.u);p.set('s',S.s);p.set('k',S.k);p.set('tab',S.tab);if(S.m==='E')p.set('m','E');return '#'+p.toString()}
+function parseHash(){
+ const h=location.hash.slice(1);if(!h)return null;
+ try{const p=new URLSearchParams(h),d={};(p.get('d')||'').split(',').forEach(x=>{const [k,v]=x.split(':');if(k&&v)d[k]=v});
+  return {f:p.get('f'),d,lie:p.get('l')==='1',u:p.get('u'),s:p.has('s')?p.get('s'):undefined,k:p.get('k'),tab:p.get('tab'),m:p.get('m'),lock:p.get('lock')==='1'}}catch(e){return null}
+}
+function applyLock(on){locked=on;$('app').classList.toggle('lock',on);if(on){emode='E';syncMode();if(!$('drawer').classList.contains('on'))$('openC').click();setPanels(false)}}
+function setState(S){
+ if(!S||!FIG[S.f])return;
+ fig=S.f;
+ FIG[fig].P.forEach(([k,,m])=>{if(S.d&&S.d[k]!==undefined){const v=parseInt(S.d[k],10);if(v>=1&&v<=(m||MAX))dm[fig][k]=v}});
+ lie=!!S.lie&&!!FIG[fig].lie;$('sLie').checked=lie;
+ if(['m','dm','cm','mm'].includes(S.u))$('unit').value=S.u;
+ if(S.s!==undefined)FLAGS.forEach(([id,c])=>{$(id).checked=S.s.includes(c)});
+ if(S.k!==undefined&&S.k!==null&&!isNaN(+S.k))t=1-Math.min(100,Math.max(0,+S.k))/100;
+ if(['A','V','B'].includes(S.tab)){tab=S.tab;syncTabs()}
+ if(S.m!==undefined){emode=S.m==='E'?'E':'G';syncMode()}
+ if(S.lock!==undefined)applyLock(!!S.lock);
+ hl='';delete scene.dataset.hl;scene.classList.toggle('focus',$('sFocus').checked);
+ famUI();dimsUI();all();
+}
+async function copyLink(stu){
+ const S=getState();if(stu){S.m='E';S.s=S.s.replace('c','');S.lock=true}
+ const url=location.href.split('#')[0]+toHash(S),W=DOC.defaultView;
+ try{await W.navigator.clipboard.writeText(url);toast(stu?'Elevlänken är kopierad.':'Länken är kopierad.')}catch(e){W.prompt('Kopiera länken:',url)}
+}
+$('linkB').onclick=()=>copyLink(false);$('linkE').onclick=()=>copyLink(true);
+window.addEventListener('hashchange',()=>setState(parseHash()));
+const H0=parseHash();
+if(H0&&FIG[H0.f])setState(H0);else{famUI();dimsUI();all()}
 </script>
 </body>
 </html>
