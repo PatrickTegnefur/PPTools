@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sammansatta figurer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Sora:wght@400;500;600&display=swap">
+<style>
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:#f6f4ff;color:#100e28;font:15px/1.45 'Sora',sans-serif;min-height:100vh}
+.amb{position:fixed;border-radius:50%;filter:blur(70px);opacity:.5;pointer-events:none;z-index:0}
+.a1{width:440px;height:440px;background:#66C7C2;top:-100px;left:-120px}
+.a2{width:380px;height:380px;background:#F4A261;right:-120px;top:32%}
+.a3{width:420px;height:420px;background:#EC6095;bottom:-160px;left:28%}
+header{position:sticky;top:0;z-index:100;height:64px;display:flex;align-items:center;padding:0 24px;background:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);box-shadow:0 4px 24px rgba(0,0,0,.18);color:#fff}
+header h1{font:700 20px 'Montserrat',sans-serif;margin:0;color:#fff}
+header span{margin-left:14px;font-size:13px;color:rgba(255,255,255,.9)}
+main{position:relative;z-index:1;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:350px 1fr;gap:16px;padding:16px 24px 32px;align-items:start}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:16px}
+.card{background:rgba(255,255,255,.72);backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.9);border-radius:20px;padding:18px;box-shadow:0 10px 22px rgba(48,107,240,.12),0 2px 6px rgba(16,14,40,.05)}
+h2{font:700 14px 'Montserrat',sans-serif;margin:0 0 8px}
+label{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0;font-size:13px;color:#585078}
+input[type=text],select{width:150px;min-height:36px;padding:4px 8px;border:1.5px solid #ccc5f0;border-radius:8px;background:#fff;color:#100e28;font:inherit;font-size:13px}
+input[type=color]{width:48px;height:36px;border:1.5px solid #ccc5f0;border-radius:8px;background:#fff;padding:2px}
+input[type=range]{width:150px}
+input[type=checkbox]{width:20px;height:20px;accent-color:#306BF0}
+.tp{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.tp button{min-height:40px;padding:0 12px;border:1.5px solid #ccc5f0;background:#eae6ff;color:#306BF0;border-radius:8px;cursor:pointer;font:600 12px 'Sora',sans-serif}
+.btn{min-height:44px;border:0;background:#306BF0;color:#fff;padding:0 18px;border-radius:8px;cursor:pointer;font:600 13px 'Sora',sans-serif;margin:4px 6px 4px 0}
+.btn.alt{background:#eae6ff;color:#306BF0;border:1.5px solid #ccc5f0}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #306BF0;outline-offset:2px}
+#cv{width:100%;height:auto;background:#fff;border-radius:14px;border:1px solid #ccc5f0;touch-action:none;display:block;user-select:none}
+.hint{font-size:13px;color:#585078;margin:0 0 6px}
+#wrap{position:relative}
+#pop{position:absolute;z-index:5;display:none;width:290px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px) saturate(160%);border:1px solid #ccc5f0;border-radius:14px;padding:10px 12px;box-shadow:0 10px 22px rgba(48,107,240,.2)}
+#pop .pr{display:flex;gap:6px;margin-bottom:8px}
+#pop .pb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:44px;padding:4px;border:1.5px solid #ccc5f0;border-radius:8px;background:#eae6ff;color:#306BF0;cursor:pointer;font:600 11px 'Sora',sans-serif}
+#pop .pcs{flex-wrap:wrap}#pop .pcs .pb{flex:1 1 28%}
+#pop .pb.on{background:#306BF0;color:#fff;border-color:#306BF0}
+#pop input[type=text],#pop select{width:110px}
+</style>
+</head>
+<body>
+<div class="amb a1"></div><div class="amb a2"></div><div class="amb a3"></div>
+<header><h1>Sammansatta figurer</h1><span>Bygg egna figurer med hörn, hjälplinjer, vinklar och flyttbara etiketter</span></header>
+<main>
+<div class="col">
+<div class="card"><h2>Börja med</h2>
+<div class="tp" id="ps"></div>
+<button class="btn alt" id="bcut">Hjälplinje mellan två hörn</button><button class="btn alt" id="bcir">+ Cirkel</button><button class="btn alt" id="btxt">+ Egen text</button>
+<div style="margin-top:6px"><button class="btn alt" id="bun">Ångra</button><button class="btn alt" id="bre">Gör om</button><button class="btn alt" id="bsv">Spara figur</button><button class="btn alt" id="bop">Öppna figur</button><input type="file" id="fo" accept=".json,application/json" hidden></div></div>
+<div class="card"><h2>Markerat</h2><p class="hint" id="hint"></p><div id="insp"></div></div>
+<div class="card"><h2>Mått och utseende</h2>
+<label>Enhet<input type="text" id="unit" value="cm"></label>
+<label>Längd per ruta<input type="text" id="per" value="1"></label>
+<label>Visa längder<input type="checkbox" id="len" checked></label>
+<label>Visa hörnnamn<input type="checkbox" id="names" checked></label>
+<label>Hörnpunkter<input type="checkbox" id="dots"></label>
+<label>Fastna på<select id="snap"><option value="1">Hela rutor</option><option value=".5">Halva rutor</option></select></label>
+<label>Visa rutnät<input type="checkbox" id="grid" checked></label>
+<label>Fyllning på<input type="checkbox" id="fillon"></label>
+<label>Fyllning<input type="color" id="fill" value="#cdeeec"></label>
+<label>Linjefärg<input type="color" id="stroke" value="#100e28"></label>
+<label>Linjetjocklek<input type="range" id="sw" min="1" max="6" step=".5" value="2"></label>
+<label>Textstorlek<input type="range" id="fs" min="12" max="28" value="17"></label>
+<label>Storlek på markeringar<input type="range" id="ms" min="10" max="40" value="20"></label>
+<label>Svartvit utskrift<input type="checkbox" id="bw"></label>
+<label>Genomskinlig bakgrund<input type="checkbox" id="tp"></label>
+</div>
+</div>
+<div class="card"><div id="wrap"><svg id="cv" viewBox="0 0 640 480"></svg><div id="pop"></div></div>
+<div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button></div></div>
+</main>
+<script>
+const W=640,H=480,C=40,OX=40,OY=40,ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const $=id=>document.getElementById(id),fmt=n=>String(+n.toFixed(2)).replace('.',','),num=s=>parseFloat(String(s).replace(',','.'));
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const gr=c=>{if(!c||c=='none')return c;const n=parseInt(c.slice(1),16),y=.3*(n>>16)+.59*(n>>8&255)+.11*(n&255),v=Math.round(255-(255-y)*.55);return'#'+(v*65793).toString(16).padStart(6,'0')};
+const PS={'Rektangel':[[5,3],[11,3],[11,7],[5,7]],'Kvadrat':[[6,3],[10,3],[10,7],[6,7]],'L-form':[[1,1],[4,1],[4,4],[8,4],[8,7],[1,7]],'T-form':[[1,1],[9,1],[9,3],[6,3],[6,8],[4,8],[4,3],[1,3]],'Hus':[[1,4],[5,1],[9,4],[9,8],[1,8]],'Trapets':[[1,7],[10,7],[8,2],[3,2]],'Triangel':[[1,7],[9,7],[4,2]],'Port':[[2,7],[2,3],[8,3],[8,7]],'Stadion':[[3,2],[9,2],[9,6],[3,6]],'Cirkel':[[6,5],[10,5]]};
+const PB={'Port':{1:1},'Stadion':{1:1,3:1},'Cirkel':{0:1,1:1}};
+let N,E,K,A,O,TX,CIR=[],SEL=null,MODE=null,pend=null,drag=null,DEF={};
+let hist=[],redo=[];
+const snapJ=()=>JSON.stringify({N,E,K,A,O,TX,CIR});
+function push(){if(!N)return;hist.push(snapJ());if(hist.length>80)hist.shift();redo=[]}
+function setS(j){const d=JSON.parse(j);if(!Array.isArray(d.N)||d.N.length<2||!Array.isArray(d.E)||d.E.length!=d.N.length)throw 0;N=d.N;E=d.E;K=d.K||[];A=d.A||{};O=d.O||{};TX=d.TX||[];CIR=d.CIR||[];SEL=null;MODE=null;pend=null;ui();render()}
+function undo(){if(!hist.length)return;redo.push(snapJ());setS(hist.pop())}
+function redoF(){if(!redo.length)return;hist.push(snapJ());setS(redo.pop())}
+function asg(Ns){return Ns.reduce((t,a,k)=>{const c=Ns[(k+1)%Ns.length];return t+a.x*c.y-c.x*a.y},0)>=0?1:-1}
+function arcPts(a,c,bu,sg,k){k=k||10;const L=Math.hypot(c.x-a.x,c.y-a.y);if(!L)return[];const q=Math.abs(bu)==2,r=q?L/Math.SQRT2:L/2,m={x:(a.x+c.x)/2,y:(a.y+c.y)/2},u=[(c.x-a.x)/L,(c.y-a.y)/L],sb=Math.sign(bu),bd=[sg*u[1]*sb,-sg*u[0]*sb],h=q?L/2:0,cen={x:m.x-bd[0]*h,y:m.y-bd[1]*h},th=q?Math.PI/2:Math.PI,a0=Math.atan2(a.y-cen.y,a.x-cen.x);
+const pmx=cen.x+r*Math.cos(a0+th/2),pmy=cen.y+r*Math.sin(a0+th/2),sgn=((pmx-m.x)*bd[0]+(pmy-m.y)*bd[1])>0?1:-1,out=[];
+for(let t=1;t<k;t++){const an=a0+sgn*th*t/k;out.push({x:cen.x+r*Math.cos(an),y:cen.y+r*Math.sin(an)})}return out}
+const arcs=P=>{const n=N.length,sg=asg(N);return E.flatMap((e,i)=>e.bu?arcPts(N[i],N[(i+1)%n],e.bu,sg,12).map(px):[])};
+const px=n=>[OX+n.x*C,OY+n.y*C],un=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;return[dx/l,dy/l]};
+const ar=P=>P.reduce((s,p,i)=>{const q=P[(i+1)%P.length];return s+p[0]*q[1]-q[0]*p[1]},0);
+function load(n){push();N=PS[n].map(([x,y])=>({x,y}));E=N.map((_,i)=>({st:0,t:'',bu:(PB[n]||{})[i]||0}));K=[];A={};O={};TX=[];CIR=[];if(n=='Cirkel')E[1].t='-';SEL=null;MODE=null;pend=null;ui();render()}
+function opts(){const bw=$('bw').checked,f=$('fillon').checked?$('fill').value:'none';return{fill:bw?gr(f):f,s:bw?'#000000':$('stroke').value,w:+$('sw').value,fs:+$('fs').value,ms:+$('ms').value,len:$('len').checked,names:$('names').checked,dots:$('dots').checked,unit:$('unit').value,per:num($('per').value)||1}}
+function figure(o,ui){const P=N.map(px),n=P.length,sg=ar(P)>=0?1:-1,labs=[];DEF={};
+const add=(key,x,y,t,an)=>{if(t===''||t==null)return;DEF[key]={x,y};const f=O[key]||{dx:0,dy:0};labs.push({key,x:x+f.dx,y:y+f.dy,t,an:an||'middle'})};
+const sw=`stroke="${o.s}" stroke-width="${o.w}" stroke-linecap="round"`,ds=' stroke-dasharray="7 6"',ln=(a,c,st)=>`<line x1="${a[0]}" y1="${a[1]}" x2="${c[0]}" y2="${c[1]}" ${sw}${st?ds:''}/>`;
+const pa=i=>{const a=P[i],c=P[(i+1)%n];if(!E[i].bu)return`L${c[0]} ${c[1]}`;const r=Math.hypot(c[0]-a[0],c[1]-a[1])/(Math.abs(E[i].bu)==2?Math.SQRT2:2);return`A${r} ${r} 0 0 ${(E[i].bu>0)==(sg>0)?1:0} ${c[0]} ${c[1]}`};
+const pdp=`M${P[0][0]} ${P[0][1]}${P.map((_,i)=>pa(i)).join('')}Z`,cs=CIR.map(c=>({x:OX+c.x*C,y:OY+c.y*C,r:c.r*C,m:c.m})),adds=cs.filter(c=>!c.m),subs=cs.filter(c=>c.m);
+const mk=(id,inner,bg)=>`<mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${bg||'#fff'}"/>${inner}</mask>`,cc=(c,f)=>`<circle cx="${c.x}" cy="${c.y}" r="${c.r}" fill="${f}"/>`,pf=f=>`<path d="${pdp}" fill="${f}"/>`;
+let defs='';
+if(subs.length)defs+=mk('mS',subs.map(c=>cc(c,'#000')).join(''));
+if(cs.length)defs+=mk('m1',cs.map(c=>cc(c,'#000')).join(''));
+adds.forEach((c,k)=>{defs+=mk('mA'+k,pf('#000')+adds.filter(x=>x!=c).map(x=>cc(x,'#000')).join('')+subs.map(x=>cc(x,'#000')).join(''))});
+subs.forEach((c,k)=>{defs+=mk('mB'+k,pf('#fff')+adds.map(x=>cc(x,'#fff')).join('')+subs.filter(x=>x!=c).map(x=>cc(x,'#000')).join(''),'#000')});
+let b=(defs?`<defs>${defs}</defs>`:'')+`<g${subs.length?' mask="url(#mS)"':''}><path d="${pdp}" fill="${o.fill}"/>${adds.map(c=>cc(c,o.fill)).join('')}</g>`;
+let eg='';E.forEach((e,i)=>{if(e.st!=2)eg+=`<path d="M${P[i][0]} ${P[i][1]}${pa(i)}" fill="none" ${sw}${e.st==1?ds:''}/>`});
+b+=`<g${cs.length?' mask="url(#m1)"':''}>${eg}</g>`;
+adds.forEach((c,k)=>b+=`<circle cx="${c.x}" cy="${c.y}" r="${c.r}" fill="none" ${sw} mask="url(#mA${k})"/>`);
+subs.forEach((c,k)=>b+=`<circle cx="${c.x}" cy="${c.y}" r="${c.r}" fill="none" ${sw} mask="url(#mB${k})"/>`);
+K.forEach(k=>b+=ln(P[k.a],P[k.b],k.st));
+const G=P.map((p,i)=>{let a=un(p,P[(i+1)%n]),c=un(p,P[(i+n-1)%n]);if(sg<0){const t=a;a=c;c=t}let th=Math.atan2(a[0]*c[1]-a[1]*c[0],a[0]*c[0]+a[1]*c[1]);if(th<0)th+=2*Math.PI;const h=th/2;return{a,c,th,bi:[a[0]*Math.cos(h)-a[1]*Math.sin(h),a[0]*Math.sin(h)+a[1]*Math.cos(h)]}});
+const lt=(l,u)=>(o.len?fmt(l/C*o.per)+(o.unit?' '+o.unit:''):'');
+E.forEach((e,i)=>{const a=P[i],c=P[(i+1)%n],dx=c[0]-a[0],dy=c[1]-a[1],l=Math.hypot(dx,dy)||1,d=16+o.ms*.3+(e.bu==1?l/2:e.bu==2?l*.207:0);add('e'+i,(a[0]+c[0])/2+sg*dy/l*d,(a[1]+c[1])/2-sg*dx/l*d,e.t==='-'?'':e.t||lt(l))});
+K.forEach((k,j)=>{const a=P[k.a],c=P[k.b],dx=c[0]-a[0],dy=c[1]-a[1],l=Math.hypot(dx,dy)||1;add('c'+j,(a[0]+c[0])/2+dy/l*14,(a[1]+c[1])/2-dx/l*14,k.t==='-'?'':k.t||lt(l))});
+P.forEach((p,i)=>{const g=G[i],an=A[i];if(!an||!an.on)return;const deg=g.th*180/Math.PI,s=o.ms;
+if(Math.abs(deg-90)<.05){b+=`<path d="M${p[0]+g.a[0]*s} ${p[1]+g.a[1]*s} L${p[0]+(g.a[0]+g.c[0])*s} ${p[1]+(g.a[1]+g.c[1])*s} L${p[0]+g.c[0]*s} ${p[1]+g.c[1]*s}" fill="none" ${sw}/>`;const d=s*1.5+o.fs*.5;add('a'+i,p[0]+g.bi[0]*d,p[1]+g.bi[1]*d,an.t||'')}
+else{const k=s*1.3,d=k+o.fs*.8+6;b+=`<path d="M${p[0]+g.a[0]*k} ${p[1]+g.a[1]*k} A${k} ${k} 0 ${g.th>Math.PI?1:0} 1 ${p[0]+g.c[0]*k} ${p[1]+g.c[1]*k}" fill="none" ${sw}/>`;add('a'+i,p[0]+g.bi[0]*d,p[1]+g.bi[1]*d,an.t||fmt(Math.round(deg*10)/10)+'°')}});
+if(o.names)P.forEach((p,i)=>{const d=16+o.fs*.5;add('n'+i,p[0]-G[i].bi[0]*d,p[1]-G[i].bi[1]*d,N[i].n||ABC[i%26])});
+if(o.dots)P.forEach(p=>b+=`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="${o.s}"/>`);
+CIR.forEach((c,j)=>{const cx=OX+c.x*C,cy=OY+c.y*C,r=c.r*C,mt=+c.mt,tx=(p,v)=>c.t==='-'?'':c.t||p+fmt(v*o.per)+(o.unit?' '+o.unit:'');
+if(mt==1){b+=ln([cx,cy],[cx+r,cy],0)+`<circle cx="${cx}" cy="${cy}" r="3" fill="${o.s}"/>`;add('k'+j,cx+r/2,cy-14,tx('r = ',c.r))}
+else if(mt==2){b+=ln([cx-r,cy],[cx+r,cy],0)+`<circle cx="${cx}" cy="${cy}" r="3" fill="${o.s}"/>`;add('k'+j,cx,cy-14,tx('d = ',2*c.r))}
+else if(c.t&&c.t!=='-')add('k'+j,cx,cy,c.t)});
+TX.forEach((t,i)=>{DEF['t'+i]={x:t.x,y:t.y};labs.push({key:'t'+i,x:t.x,y:t.y,t:t.t||'text',an:'middle'})});
+const l=labs.map(q=>{const sel=ui&&SEL&&SEL.t=='l'&&SEL.key==q.key;return`<text x="${q.x.toFixed(1)}" y="${q.y.toFixed(1)}" text-anchor="${q.an}" dominant-baseline="central" font-size="${o.fs}" fill="${sel?'#306BF0':o.s}" font-family="Arial,Helvetica,sans-serif"${ui?` data-k="lab:${q.key}" style="cursor:move"`:''}>${esc(q.t)}</text>`}).join('');
+return[b,l,labs]}
+const svg=$('cv');
+function render(){const o=opts(),[b,l]=figure(o,1),P=N.map(px),n=P.length;let g='',hit='';
+if($('grid').checked)for(let i=0;i<=15;i++)for(let j=0;j<=11;j++)g+=`<circle cx="${OX+i*C}" cy="${OY+j*C}" r="1.4" fill="#c9c2e8"/>`;
+const hl=(a,c,k,sel)=>`<line x1="${a[0]}" y1="${a[1]}" x2="${c[0]}" y2="${c[1]}" stroke="${sel?'rgba(48,107,240,.35)':'transparent'}" stroke-width="${sel?9:14}" data-k="${k}" style="cursor:pointer"/>`;
+CIR.forEach((c,j)=>{const s=SEL&&SEL.t=='k'&&SEL.i==j;hit+=`<circle cx="${OX+c.x*C}" cy="${OY+c.y*C}" r="${c.r*C}" fill="${s?'rgba(48,107,240,.08)':'rgba(0,0,0,0)'}" stroke="${s?'rgba(48,107,240,.5)':'none'}" stroke-width="3" data-k="cir:${j}" style="cursor:move"/>`});
+E.forEach((e,i)=>hit+=hl(P[i],P[(i+1)%n],'edge:'+i,SEL&&SEL.t=='e'&&SEL.i==i));K.forEach((k,j)=>hit+=hl(P[k.a],P[k.b],'cut:'+j,SEL&&SEL.t=='c'&&SEL.i==j));
+const hs=P.map((p,i)=>{const s=SEL&&SEL.t=='n'&&SEL.i==i;return`<circle cx="${p[0]}" cy="${p[1]}" r="${s||pend==i?10:7}" fill="${pend==i?'#EC6095':s?'#306BF0':'#fff'}" stroke="#306BF0" stroke-width="2" data-k="node:${i}" style="cursor:grab"/>`}).join('');
+let ex='';if(SEL&&SEL.t=='e'&&E[SEL.i]&&!E[SEL.i].bu){const a=P[SEL.i],c=P[(SEL.i+1)%n],x=(a[0]+c[0])/2,y=(a[1]+c[1])/2;ex=`<path d="M${x} ${y-9} L${x+9} ${y} L${x} ${y+9} L${x-9} ${y} Z" fill="#EC6095" stroke="#fff" stroke-width="2" data-k="mv:${SEL.i}" style="cursor:move"/>`}
+CIR.forEach((c,j)=>{if(SEL&&SEL.t=='k'&&SEL.i==j)ex+=`<circle cx="${OX+(c.x+c.r)*C}" cy="${OY+c.y*C}" r="7" fill="#EC6095" stroke="#fff" stroke-width="2" data-k="crd:${j}" style="cursor:ew-resize"/>`});
+svg.innerHTML=`<rect width="${W}" height="${H}" fill="#fff"/>`+g+b+hit+l+hs+ex;posPop();try{localStorage.setItem('sf_last',snapJ())}catch(e){}}
+const snap=v=>{const s=+$('snap').value;return Math.round(v/s)*s};
+const pt=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());return[q.x,q.y]};
+svg.addEventListener('pointerdown',e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k){SEL=null;pend=null;ui();render();return}
+const[t,i]=k.split(':');
+if(MODE=='cut'&&t=='node'){const m=+i;if(pend==null)pend=m;else if(pend!=m){push();K.push({a:pend,b:m,st:1,t:''});SEL={t:'c',i:K.length-1};MODE=null;pend=null;ui()}render();return}
+svg.setPointerCapture(e.pointerId);
+if(t=='node'){push();SEL={t:'n',i:+i};drag={t:'n',i:+i}}else if(t=='lab'){push();SEL={t:'l',key:i};drag={t:'l',key:i}}else if(t=='cir'){push();const q=pt(e),c=CIR[+i];SEL={t:'k',i:+i};drag={t:'k',i:+i,o:[c.x-(q[0]-OX)/C,c.y-(q[1]-OY)/C]}}
+else if(t=='crd'){push();SEL={t:'k',i:+i};drag={t:'kr',i:+i}}
+else if(t=='mv'){push();const q=pt(e);SEL={t:'e',i:+i};drag={t:'m',i:+i,s:[(q[0]-OX)/C,(q[1]-OY)/C],N0:N.map(p=>({...p}))}}
+else if(t=='edge')SEL={t:'e',i:+i};else if(t=='cut')SEL={t:'c',i:+i};
+ui();render()});
+svg.addEventListener('pointermove',e=>{if(!drag)return;const p=pt(e),gx=(p[0]-OX)/C,gy=(p[1]-OY)/C;
+if(drag.t=='k'){const c=CIR[drag.i];c.x=Math.max(0,Math.min(15,snap(gx+drag.o[0])));c.y=Math.max(0,Math.min(11,snap(gy+drag.o[1])))}
+else if(drag.t=='kr'){const c=CIR[drag.i];c.r=Math.max(+$('snap').value,snap(Math.hypot(gx-c.x,gy-c.y)))}
+else if(drag.t=='m')moveEdge(drag,gx,gy);
+else if(drag.t=='n'){N[drag.i].x=Math.max(0,Math.min(15,snap((p[0]-OX)/C)));N[drag.i].y=Math.max(0,Math.min(11,snap((p[1]-OY)/C)))}
+else if(drag.key[0]=='t'){const t=TX[+drag.key.slice(1)];t.x=p[0];t.y=p[1]}
+else if(DEF[drag.key])O[drag.key]={dx:p[0]-DEF[drag.key].x,dy:p[1]-DEF[drag.key].y};
+render()});
+['pointerup','pointercancel'].forEach(v=>svg.addEventListener(v,()=>drag=null));
+let PM=0,PW='',PH='2',PP=0,PD=0;
+const msg=t=>{$('hint').textContent=t},PIC={rect:'<rect x="3" y="6" width="18" height="12"/>',tri:'<path d="M3 19L12 5l9 14Z"/>',semi:'<path d="M3 18a9 9 0 0 1 18 0Z"/>',quart:'<path d="M4 19V5a14 14 0 0 1 14 14Z"/>',circ:'<circle cx="12" cy="12" r="8"/>'};
+function selfX(Ns,Es){const n=Ns.length,sg=asg(Ns),S=[];
+for(let k=0;k<n;k++){const a=Ns[k],c=Ns[(k+1)%n],bu=Es[k].bu;if(!bu){S.push([a,c,k]);continue}let pr=a;[...arcPts(a,c,bu,sg),c].forEach(p=>{S.push([pr,p,k]);pr=p})}
+const o=(a,b,c)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x),X=(p,q,r,s)=>o(p,q,r)*o(p,q,s)<-1e-9&&o(r,s,p)*o(r,s,q)<-1e-9;
+for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++)if(S[i][2]!=S[j][2]&&X(S[i][0],S[i][1],S[j][0],S[j][1]))return true;return false}
+const inB=p=>p.x>=-1e-6&&p.x<=15+1e-6&&p.y>=-1e-6&&p.y<=11+1e-6;
+function attach(i,type){const n=N.length,a=N[i],c=N[(i+1)%n];if(E[i].bu){msg('Gör sidan rak först (Form: Rak).');return}
+const dx=c.x-a.x,dy=c.y-a.y,L=Math.hypot(dx,dy);if(!L)return;const u=[dx/L,dy/L],sg=ar(N.map(px))>=0?1:-1,no=[sg*u[1],-sg*u[0]],d=PM?[-no[0],-no[1]]:no,rd=x=>Math.round(x*1000)/1000,pt=t=>({x:rd(a.x+u[0]*t),y:rd(a.y+u[1]*t)}),q=(p,k)=>({x:rd(p.x+d[0]*k),y:rd(p.y+d[1]*k)});
+let w=PW===''?L:num(PW);if(!(w>0))w=L;w=Math.min(w,L);
+if(type=='circ'){const r=w/2,cs=PP==2?L-r:PP==1?r:L/2,ce=q(pt(cs),r);if(!inB({x:ce.x-r,y:ce.y-r})||!inB({x:ce.x+r,y:ce.y+r})){msg('Cirkeln får inte plats där. Prova en mindre bredd.');return}
+push();CIR.push({x:ce.x,y:ce.y,r:rd(r),m:PM?1:0,mt:1,t:''});SEL={t:'k',i:CIR.length-1};ui();render();msg((PM?'Dragit bort':'Lagt till')+' en cirkel. Dra i den för att flytta, eller i den rosa pricken för att ändra storlek.');return}
+const h=type=='semi'?w/2:num(PH);if(type!='quart'&&!(h>0)){msg('Skriv en höjd större än 0.');return}
+const oEnd=PP==2,s=oEnd?L-w:PP==1?0:(L-w)/2,pre=s>1e-6,post=s+w<L-1e-6,p0=pt(s),p1=pt(s+w),rem=()=>({st:E[i].st,t:'',bu:0}),ps=()=>({st:0,t:'',bu:0}),ns=[],es=[];
+if(pre){ns.push({...p0});es.push(rem())}
+if(type=='rect'){ns.push(q(p0,h),q(p1,h));es.push(ps(),ps(),ps())}
+else if(type=='tri'){ns.push(q(pt(s+w/2),h));es.push(ps(),ps())}
+else if(type=='semi')es.push({st:0,t:'',bu:PM?-1:1});
+else{const sgn=PM?-2:2;if(oEnd){ns.push(q(p1,w));es.push({st:0,t:'',bu:sgn},ps())}else{ns.push(q(p0,w));es.push(ps(),{st:0,t:'',bu:sgn})}}
+if(post){ns.push({...p1});es.push(rem())}
+const N2=[...N.slice(0,i+1),...ns,...N.slice(i+1)],E2=[...E.slice(0,i),...es,...E.slice(i+1)],sg2=asg(N2),pts=N2.slice();E2.forEach((e,k)=>{if(e.bu)pts.push(...arcPts(N2[k],N2[(k+1)%N2.length],e.bu,sg2,8))});
+if(!pts.every(inB)||selfX(N2,E2)){msg('Figuren får inte plats där: den skulle gå utanför rutnätet eller korsa sig själv. Prova en lägre höjd eller smalare bredd.');return}
+push();N=N2;E=E2;remap(x=>x>i?x+ns.length:x);
+if(PD)K.push({a:pre?i+1:i,b:post?i+ns.length:(i+1+ns.length)%N.length,st:1,t:''});
+SEL=null;ui();render();msg((PM?'Dragit bort ':'Lagt till ')+({rect:'en rektangel',tri:'en triangel',semi:'en halvcirkel',quart:'en kvartscirkel'})[type]+'. Klicka på en annan sida för att fortsätta.')}
+function moveEdge(dr,gx,gy){const{i,N0}=dr,n=N0.length,a=N0[i],c=N0[(i+1)%n],L=Math.hypot(c.x-a.x,c.y-a.y)||1,u=[(c.x-a.x)/L,(c.y-a.y)/L],nr=[-u[1],u[0]],st=+$('snap').value,dl=Math.round(((gx-dr.s[0])*nr[0]+(gy-dr.s[1])*nr[1])/st)*st;
+const hit=(p,pn)=>{const d1=[p.x-pn.x,p.y-pn.y],cr=d1[0]*u[1]-d1[1]*u[0],tp={x:p.x+nr[0]*dl,y:p.y+nr[1]*dl};if(Math.abs(cr)<1e-6)return tp;const t=((tp.x-pn.x)*u[1]-(tp.y-pn.y)*u[0])/cr;return{x:pn.x+d1[0]*t,y:pn.y+d1[1]*t}};
+const rd=x=>Math.round(x*1000)/1000,na=hit(a,N0[(i+n-1)%n]),nc=hit(c,N0[(i+2)%n]),N2=N0.map((p,k)=>{const r=k==i?na:k==(i+1)%n?nc:p;return{...p,x:rd(r.x),y:rd(r.y)}});
+if(N2.every(inB)&&!selfX(N2,E))N=N2}
+function popBuild(){const p=$('pop');p.innerHTML='';if(!SEL||SEL.t!='e'||MODE){p.style.display='none';return}p.style.display='block';const i=SEL.i;
+const row=()=>{const d=document.createElement('div');d.className='pr';p.appendChild(d);return d},bt=(h,fn,on)=>{const b=document.createElement('button');b.className='pb'+(on?' on':'');b.innerHTML=h;b.onclick=fn;return b};
+const r1=row();r1.appendChild(bt('+ Lägg till',()=>{PM=0;popBuild();posPop()},!PM));r1.appendChild(bt('− Dra bort',()=>{PM=1;popBuild();posPop()},PM));
+const r2=row();r2.className='pr pcs';[['rect','Rektangel'],['tri','Triangel'],['semi','Halvcirkel'],['quart','Kvartscirkel'],['circ','Cirkel']].forEach(([k,t])=>r2.appendChild(bt(`<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">${PIC[k]}</svg><span>${t}</span>`,()=>attach(i,k))));
+const f=(lb,el)=>{const l=document.createElement('label');l.textContent=lb;l.appendChild(el);p.appendChild(l)},tx=(v,ph,fn)=>{const e=document.createElement('input');e.type='text';e.value=v;e.placeholder=ph;e.oninput=()=>fn(e.value);return e};
+f('Bredd (rutor)',tx(PW,'hela sidan',v=>PW=v));f('Höjd (rutor)',tx(PH,'2',v=>PH=v));
+const s=document.createElement('select');['Mitten','Början','Slutet'].forEach((x,k)=>s.add(new Option(x,k)));s.value=PP;s.onchange=()=>PP=+s.value;f('Plats på sidan',s);
+const c=document.createElement('input');c.type='checkbox';c.checked=!!PD;c.onchange=()=>PD=c.checked?1:0;f('Streckad skiljelinje',c)}
+function posPop(){const p=$('pop');if(p.style.display!='block'||!SEL||SEL.t!='e'||!N[SEL.i])return;const P=N.map(px),a=P[SEL.i],c=P[(SEL.i+1)%P.length],r=svg.getBoundingClientRect(),w=$('wrap').getBoundingClientRect(),k=r.width/W;
+let x=(a[0]+c[0])/2*k+(r.left-w.left)+14,y=(a[1]+c[1])/2*k+(r.top-w.top)+14;x=Math.max(4,Math.min(x,w.width-p.offsetWidth-4));y=Math.max(4,Math.min(y,w.height-p.offsetHeight-4));p.style.left=x+'px';p.style.top=y+'px'}
+window.addEventListener('resize',posPop);
+function remap(f){K=K.filter(k=>f(k.a)>=0&&f(k.b)>=0).map(k=>({...k,a:f(k.a),b:f(k.b)}));const B={};for(const k in A){const m=f(+k);if(m>=0)B[m]=A[k]}A=B;for(const k in O)if('ena'.includes(k[0]))delete O[k]}
+function delNode(i){push();N.splice(i,1);E.splice(i,1);remap(x=>x==i?-1:x>i?x-1:x);SEL=null;ui();render()}
+function insNode(i){if(E[i].bu){msg('Gör sidan rak först (Form: Rak).');return}push();const a=N[i],c=N[(i+1)%N.length];N.splice(i+1,0,{x:(a.x+c.x)/2,y:(a.y+c.y)/2});E[i].t='';E[i].bu=0;E.splice(i+1,0,{st:E[i].st,t:'',bu:0});remap(x=>x>i?x+1:x);SEL={t:'n',i:i+1};ui();render()}
+function ui(){const el=$('insp');el.innerHTML='';popBuild();$('hint').textContent=MODE=='cut'?'Klicka på två hörn för att dra en hjälplinje.':SEL?'':'Klicka på en sida för att lägga till eller dra bort en figur där. Dra i hörn och etiketter för att flytta dem.';
+const row=(lb,i)=>{const l=document.createElement('label');l.textContent=lb;l.appendChild(i);el.appendChild(l)};
+const txt=(v,fn,ph)=>{const i=document.createElement('input');i.type='text';i.value=v;if(ph)i.placeholder=ph;i.onfocus=push;i.oninput=()=>{fn(i.value);render()};return i};
+const chk=(v,fn)=>{const i=document.createElement('input');i.type='checkbox';i.checked=!!v;i.onchange=()=>{push();fn(i.checked);render()};return i};
+const sel=(op,v,fn)=>{const i=document.createElement('select');op.forEach((x,k)=>i.add(new Option(x,k)));i.value=v;i.onchange=()=>{push();fn(+i.value);render()};return i};
+const btn=(t,fn,alt)=>{const b=document.createElement('button');b.className='btn'+(alt?' alt':'');b.textContent=t;b.onclick=fn;el.appendChild(b)};
+if(!SEL)return;
+if(SEL.t=='n'){const i=SEL.i;row('Hörnnamn',txt(N[i].n||'',v=>N[i].n=v,ABC[i%26]));row('Vinkelmarkering',chk(A[i]&&A[i].on,v=>{A[i]=A[i]||{};A[i].on=v?1:0}));row('Vinkeltext',txt(A[i]&&A[i].t||'',v=>{A[i]=A[i]||{};A[i].t=v},'automatiskt'));if(N.length>3)btn('Ta bort hörnet',()=>delNode(i),1)}
+else if(SEL.t=='e'){const i=SEL.i;row('Etikett',txt(E[i].t,v=>E[i].t=v,'automatiskt, - = ingen'));row('Linje',sel(['Heldragen','Streckad','Dold'],E[i].st,v=>E[i].st=v));row('Form',sel(['Rak','Halvcirkel utåt','Halvcirkel inåt','Kvartscirkel utåt','Kvartscirkel inåt'],[0,1,-1,2,-2].indexOf(E[i].bu||0),v=>E[i].bu=[0,1,-1,2,-2][v]));btn('Lägg till hörn på sidan',()=>insNode(i));btn('Återställ etikettens plats',()=>{delete O['e'+i];render()},1)}
+else if(SEL.t=='c'){const j=SEL.i;row('Etikett',txt(K[j].t,v=>K[j].t=v,'automatiskt, - = ingen'));row('Linje',sel(['Streckad','Heldragen'],K[j].st?0:1,v=>K[j].st=v?0:1));btn('Ta bort hjälplinjen',()=>{push();K.splice(j,1);delete O['c'+j];SEL=null;ui();render()},1)}
+else if(SEL.t=='k'){const j=SEL.i,c=CIR[j];row('Läge',sel(['Tillägg','Hål'],c.m,v=>c.m=v));row('Radie (rutor)',txt(String(c.r).replace('.',','),v=>{const r=num(v);if(r>0)c.r=r}));row('Visa mått',sel(['Inget','Radie','Diameter'],c.mt,v=>c.mt=v));row('Etikett',txt(c.t,v=>c.t=v,'automatiskt, - = ingen'));btn('Ta bort cirkeln',()=>{push();CIR.splice(j,1);SEL=null;ui();render()},1)}
+else if(SEL.t=='l'){const k=SEL.key;if(k[0]=='t'){const j=+k.slice(1);row('Text',txt(TX[j].t,v=>TX[j].t=v));btn('Ta bort texten',()=>{push();TX.splice(j,1);SEL=null;ui();render()},1)}else btn('Återställ etikettens plats',()=>{delete O[k];render()},1)}}
+function exp(){const o=opts(),[b,l,labs]=figure(o,0),P=N.map(px),xs=P.map(p=>p[0]).concat(labs.map(q=>q.x),arcs(P).map(q=>q[0]),CIR.flatMap(c=>[OX+(c.x-c.r)*C,OX+(c.x+c.r)*C])),ys=P.map(p=>p[1]).concat(labs.map(q=>q.y),arcs(P).map(q=>q[1]),CIR.flatMap(c=>[OY+(c.y-c.r)*C,OY+(c.y+c.r)*C])),x0=Math.min(...xs)-50,y0=Math.min(...ys)-50,w=Math.max(...xs)+50-x0,h=Math.max(...ys)+50-y0;
+return{w,h,svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0} ${y0} ${w} ${h}" width="${w}" height="${h}">${$('tp').checked?'':`<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#fff"/>`}${b}${l}</svg>`}}
+function toPng(cb){const e=exp(),img=new Image(),u=URL.createObjectURL(new Blob([e.svg],{type:'image/svg+xml'}));img.onload=()=>{const c=document.createElement('canvas');c.width=e.w*3;c.height=e.h*3;c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(cb)};img.src=u}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+$('png').onclick=()=>toPng(b=>dl(b,'figur.png'));
+$('svg').onclick=()=>dl(new Blob([exp().svg],{type:'image/svg+xml'}),'figur.svg');
+$('cp').onclick=()=>toPng(async b=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);$('cp').textContent='Kopierad!'}catch(e){$('cp').textContent='Gick inte – ladda ner istället'}setTimeout(()=>$('cp').textContent='Kopiera bild',2200)});
+$('bcut').onclick=()=>{MODE='cut';pend=null;SEL=null;ui();render()};
+$('btxt').onclick=()=>{push();TX.push({x:W/2,y:H-30,t:'Text'});SEL={t:'l',key:'t'+(TX.length-1)};ui();render()};
+$('bcir').onclick=()=>{push();CIR.push({x:8,y:5,r:1.5,m:1,mt:1,t:''});SEL={t:'k',i:CIR.length-1};ui();render()};
+$('bun').onclick=undo;$('bre').onclick=redoF;
+$('bsv').onclick=()=>dl(new Blob([JSON.stringify({v:1,N,E,K,A,O,TX,CIR,unit:$('unit').value,per:$('per').value})],{type:'application/json'}),'figur.json');
+$('bop').onclick=()=>$('fo').click();
+$('fo').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);push();setS(t);if(d.unit!=null)$('unit').value=d.unit;if(d.per!=null)$('per').value=d.per;render()}catch(x){hist.pop();$('hint').textContent='Filen kunde inte öppnas.'}});e.target.value=''};
+document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||/INPUT|SELECT/.test(e.target.tagName))return;const k=e.key.toLowerCase();if(k=='z'&&!e.shiftKey){e.preventDefault();undo()}else if(k=='y'||(k=='z'&&e.shiftKey)){e.preventDefault();redoF()}});
+Object.keys(PS).forEach(n=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>load(n);$('ps').appendChild(b)});
+['unit','per','len','names','dots','snap','grid','fillon','fill','stroke','sw','fs','ms','bw','tp'].forEach(i=>$(i).oninput=render);
+let sv=null;try{sv=localStorage.getItem('sf_last')}catch(e){}
+if(sv){try{setS(sv)}catch(e){load('Rektangel')}}else load('Rektangel');
+</script>
+</body>
+</html>
