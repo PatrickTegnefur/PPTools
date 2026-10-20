@@ -52,7 +52,6 @@ label.chk input{width:16px;height:16px;accent-color:#306BF0;margin:0}
 .hr{position:absolute;border-right:2.5px solid #306BF0;border-bottom:2.5px solid #306BF0;transform-origin:0 0;pointer-events:none;display:none}
 .ring{transform-origin:0 0;position:absolute;box-sizing:border-box;border:1.5px solid rgba(16,14,40,.5);border-radius:50%;pointer-events:none}
 .spf{transform-origin:0 0;position:absolute;left:0;top:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.75),rgba(102,199,194,.45) 55%,rgba(48,107,240,.35))}
-.rl{position:absolute;height:0;border-top:3px dashed #306BF0;pointer-events:none}
 #scene.lying .f[data-g="bas"] polygon{stroke:#306BF0;stroke-width:7}
 #cap{display:none;position:absolute;left:50%;transform:translateX(-50%);top:12px;z-index:5;padding:6px 14px;font:600 .85rem 'Sora',sans-serif;color:#100e28;max-width:calc(100% - 24px);text-align:center}
 @media (max-width:759px){#cap{position:static;transform:none;margin:8px}}
@@ -122,9 +121,9 @@ select.ai{width:auto;max-width:190px;text-align:left}
 .pgf{margin-top:4mm;font-size:8pt;color:#555}
 .pl2{display:inline-block;min-width:6mm;padding:0 1.5mm;border:1px solid #000;border-radius:1.5mm;text-align:center;font-weight:700}
 .rw3{display:flex;min-height:8.5mm;align-items:flex-end;margin:.3mm 0}
-.rl{width:24mm;flex:none}.rl,.rv{font-size:10.5pt}.gp{display:inline-block;height:1em}
+.wl{width:24mm;flex:none}.wl,.wv{font-size:10.5pt}.gp{display:inline-block;height:1em}
 .vb.cp{display:grid;grid-template-columns:72mm 1fr;column-gap:5mm;align-items:start;padding-bottom:1mm}
-.vb.cp .vh{grid-column:1/3}.vb.cp .pgimg svg{max-height:42mm}.vb.cp .rw3{min-height:8mm}.vb.cp .pgi{font-size:8.5pt;line-height:1.3}.vb.cp .rl{width:20mm}
+.vb.cp .vh{grid-column:1/3}.vb.cp .pgimg svg{max-height:42mm}.vb.cp .rw3{min-height:8mm}.vb.cp .pgi{font-size:8.5pt;line-height:1.3}.vb.cp .wl{width:20mm}
 .vb{padding-bottom:1mm}.vb+.vb{border-top:1px dashed #999;padding-top:3mm}
 .vb .pgimg{margin:1mm 0 2mm}.vb .pgimg svg{max-height:40mm}.vh{font-size:11pt;margin:1mm 0}
 #sheet.prev{display:block;position:fixed;inset:0;z-index:60;background:#d9d5ee;overflow:auto;padding:64px 12px 24px}
@@ -227,7 +226,7 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
  </div>
  <div class="gl" id="toast" role="status"></div>
  <div id="sheet"></div>
- <div class="sig" title="Version 2026-10-17 l">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
+ <div class="sig" title="Version 2026-10-17 n">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
  <div class="gl" id="cap2" role="status"></div>
  <aside class="gl" id="qCard" aria-label="Nät-övning">
   <div class="hd"><h2>Nät-övning</h2><button id="qX" aria-label="Stäng">✕</button></div>
@@ -888,8 +887,11 @@ function svgExport(o){
   return d?`<path d="${d}" fill="none" stroke="#100e28" stroke-width="${1.6*K}" stroke-linecap="round" stroke-linejoin="round"/>`:'';
  };
  const lab=f=>{if(f.nol)return null;if(o.noB&&f.ltr==='B')return null;const L=[];let a='';if(o.ltr)a+=f.ltr;if(o.side)a+=(a?' = ':'')+f.mt;if(a)L.push(a);if(o.area)L.push((L.length?'= ':'')+fm(f.ar)+' '+u+'²');return L.length?L:null};
- const box=(cx,cy,L)=>{const w=(mx(L.map(x=>x.length))*7.2+14)*K,h=(L.length*15+6)*K;cx=Math.min(W-w/2-4,Math.max(w/2+4,cx));cy=Math.min(H-h/2-4,Math.max(h/2+4,cy));return `<rect x="${f1(cx-w/2)}" y="${f1(cy-h/2)}" width="${f1(w)}" height="${f1(h)}" rx="${5*K}" fill="#ffffff" fill-opacity=".9"/><text x="${f1(cx)}" y="${f1(cy-h/2+15*K)}" text-anchor="middle" font-size="${12*K}" font-weight="600" fill="#100e28">`+L.map((x,i)=>`<tspan x="${f1(cx)}" dy="${i?15*K:0}">${esc(x)}</tspan>`).join('')+'</text>'};
- const chip=(x,y,t)=>{const w=(t.length*7+14)*K;x=Math.min(W-w/2-4,Math.max(w/2+4,x));y=Math.min(H-9*K-4,Math.max(9*K+4,y));return `<rect x="${f1(x-w/2)}" y="${f1(y-9*K)}" width="${f1(w)}" height="${18*K}" rx="${5*K}" fill="#ffffff" stroke="#100e28" stroke-width="${1.2*K}"/><text x="${f1(x)}" y="${f1(y+4*K)}" text-anchor="middle" font-size="${12*K}" font-weight="600" fill="#100e28">${esc(t)}</text>`};
+ const occ=[],isFree=(x,y,w,h)=>!occ.some(r=>x<r[0]+r[2]+2&&x+w+2>r[0]&&y<r[1]+r[3]+2&&y+h+2>r[1]);
+ const box=(cx,cy,L)=>{const w=(mx(L.map(x=>x.length))*7.2+14)*K,h=(L.length*15+6)*K;cx=Math.min(W-w/2-4,Math.max(w/2+4,cx));cy=Math.min(H-h/2-4,Math.max(h/2+4,cy));occ.push([cx-w/2,cy-h/2,w,h]);return `<rect x="${f1(cx-w/2)}" y="${f1(cy-h/2)}" width="${f1(w)}" height="${f1(h)}" rx="${5*K}" fill="#ffffff" fill-opacity=".9"/><text x="${f1(cx)}" y="${f1(cy-h/2+15*K)}" text-anchor="middle" font-size="${12*K}" font-weight="600" fill="#100e28">`+L.map((x,i)=>`<tspan x="${f1(cx)}" dy="${i?15*K:0}">${esc(x)}</tspan>`).join('')+'</text>'};
+ const chip=(x,y,t)=>{const w=(t.length*7+14)*K,ch=18*K;x=Math.min(W-w/2-4,Math.max(w/2+4,x));y=Math.min(H-9*K-4,Math.max(9*K+4,y));
+  {const st=ch+3;let done=false;for(const dy of [0,st,-st,2*st,-2*st,3*st,-3*st]){const yy=Math.min(H-9*K-4,Math.max(9*K+4,y+dy));if(isFree(x-w/2,yy-9*K,w,ch)){y=yy;done=true;break}}if(!done){for(const dx of [w*.7,-w*.7]){const xx=Math.min(W-w/2-4,Math.max(w/2+4,x+dx));if(isFree(xx-w/2,y-9*K,w,ch)){x=xx;break}}}}
+  occ.push([x-w/2,y-9*K,w,ch]);return `<rect x="${f1(x-w/2)}" y="${f1(y-9*K)}" width="${f1(w)}" height="${18*K}" rx="${5*K}" fill="#ffffff" stroke="#100e28" stroke-width="${1.2*K}"/><text x="${f1(x)}" y="${f1(y+4*K)}" text-anchor="middle" font-size="${12*K}" font-weight="600" fill="#100e28">${esc(t)}</text>`};
  const line=(a,b,dash)=>{const p=bp(pr(a)),q=bp(pr(b));return `<line x1="${f1(p[0])}" y1="${f1(p[1])}" x2="${f1(q[0])}" y2="${f1(q[1])}" stroke="#306BF0" stroke-width="2.4" stroke-dasharray="${dash}"/>`};
  const radEnds=f=>o.dia?[[2*f.rad[0][0]-f.rad[1][0],2*f.rad[0][1]-f.rad[1][1]],f.rad[1]]:[f.rad[0],f.rad[1]];
  const deco=(f,map)=>{
@@ -1038,7 +1040,7 @@ const AREATXT={'kvadrat':'s · s','rektangel':'b · h','triangel':'(b · h) / 2'
 let sheetDia=false;
 const dimsOf=(f,u)=>FIG[f].P.map(([k,lab])=>sheetDia&&k==='r'?`diameter d = ${2*dm[f][k]} ${u}`:`${lab.toLowerCase()} = ${dm[f][k]} ${u}`).join(' · ');
 function withState(f,d,lv,fn){const sf=fig,sl=lie,sd=dm[f];fig=f;lie=lv;dm[f]={...dm[f],...d};try{return fn()}finally{fig=sf;lie=sl;dm[f]=sd}}
-const rowS=(l,f,facit,scaf)=>`<div class="rw3"><span class="rl">${scaf||facit?l:''}</span><div class="rv">${facit?`<span class="fa">${f}</span>`:''}</div></div>`;
+const rowS=(l,f,facit,scaf)=>`<div class="rw3"><span class="wl">${scaf||facit?l:''}</span><div class="wv">${facit?`<span class="fa">${f}</span>`:''}</div></div>`;
 const esc2=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const NAMEOF={rb:'Rätblock',kub:'Kub',pr:'Triangulärt prisma',pe:'Triangulärt prisma',p5:'Femhörnigt prisma',p6:'Sexhörnigt prisma',py:'Pyramid',py3:'Triangulär pyramid',py5:'Femhörnig pyramid',py6:'Sexhörnig pyramid',cy:'Cylinder',ko:'Kon',kl:'Klot'};
 function volRows(I,u,facit,scaf,sph){
