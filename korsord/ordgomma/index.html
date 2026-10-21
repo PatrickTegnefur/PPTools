@@ -76,15 +76,15 @@ body.stu .tonly{display:none!important}
  #pa .pg{display:grid;border:.4mm solid #000;flex:none}
  #pa .pg span{width:var(--s);height:var(--s);display:flex;align-items:center;justify-content:center;font:600 calc(var(--s)*.56) Montserrat,sans-serif}
  #pa .pg span.kk{background:#d4d4d4;font-weight:800;outline:.25mm solid #000;outline-offset:-.25mm}
- #pa ol{list-style:none;margin:0;padding:0;column-gap:5mm;column-count:var(--cols);font-size:11pt;line-height:1.3}
+ #pa ol{list-style:none;margin:0;padding:0;column-gap:5mm;column-count:var(--cols);font-size:calc(11pt*var(--k,1));line-height:1.3}
  #pa ol.cl{font-size:10pt;line-height:1.3;counter-reset:n}
  #pa ol.cl li{counter-increment:n;padding-left:7mm}
  #pa ol.cl li::before{content:counter(n) ".";border:0;width:auto;height:auto;top:.6mm;font-weight:700}
  #pa .wl{display:block;height:5.5mm;border-bottom:.3mm solid #444;margin:.5mm 2mm 0 0;font:600 11pt/5mm Sora,sans-serif}
  #pa.land .pb ol{width:var(--lw);flex:none}
- #pa li{break-inside:avoid;padding:.6mm 0 .6mm 6mm;position:relative}
- #pa ol:not(.cl) li{padding-top:1.2mm;padding-bottom:1.2mm}
- #pa li::before{content:"";position:absolute;left:0;top:1.6mm;width:3.4mm;height:3.4mm;border:.3mm solid #000}
+ #pa li{break-inside:avoid;padding:.6mm 0 .6mm calc(6mm*var(--k,1));position:relative}
+ #pa ol:not(.cl) li{padding-top:calc(1.2mm*var(--k,1));padding-bottom:calc(1.2mm*var(--k,1))}
+ #pa li::before{content:"";position:absolute;left:0;top:calc(1.6mm*var(--k,1));width:calc(3.4mm*var(--k,1));height:calc(3.4mm*var(--k,1));border:.3mm solid #000}
 }
 </style>
 <style>.ck{display:flex;gap:8px;align-items:center;font-weight:400}.ck input{width:22px;height:22px}.pfn{display:none}.pfn img{height:4.5mm}
@@ -108,6 +108,9 @@ body.stu .tonly{display:none!important}
   <div class="row">
     <label for="diff">Svårighetsgrad</label>
     <select id="diff"><option value="easy">Lätt: bara åt höger (→) och nedåt (↓)</option><option value="mid">Mellan: höger, nedåt och diagonalt framlänges</option><option value="hard" selected>Svår: alla 8 riktningar, även baklänges</option></select>
+    <label for="gsz">Spelplanens storlek</label>
+    <select id="gsz"><option value="0">Anpassad efter antal begrepp</option><option value="3">Något större (+3 rutor)</option><option value="6">Större (+6 rutor)</option><option value="10">Mycket större (+10 rutor)</option></select>
+    <p class="hint">Större plan ger fler bokstäver att söka bland utan att fler begrepp behövs, och blir svårare.</p>
   </div>
   <div class="row">
     <button class="pri" id="make" type="button">Skapa ordgömma</button>
@@ -238,8 +241,9 @@ function make(){
   DS={easy:[[0,1],[1,0]],mid:[[0,1],[1,0],[1,1],[-1,1]],hard:DIRS}[$('diff').value];
   ws.sort((a,b)=>b.n.length-a.n.length);
   const total=ws.reduce((s,w)=>s+w.n.length,0);
-  let size=Math.max(longest,Math.ceil(Math.sqrt(total*1.7)),8),out=null;
-  for(;size<=Math.min(longest+10,24)&&!out;size++){for(let a=0;a<40&&!out;a++)out=tryBuild(ws,size)}
+  const ex=+$('gsz').value||0,cap=Math.min(32,Math.max(longest+10,Math.ceil(Math.sqrt(total*2.4)))+ex);
+  let size=Math.min(cap,Math.max(longest,Math.ceil(Math.sqrt(total*1.7)),8)+ex),out=null;
+  for(;size<=cap&&!out;size++){for(let a=0;a<40&&!out;a++)out=tryBuild(ws,size)}
   if(!out){msg.textContent='Det gick inte att få plats med alla begrepp. Ta bort några eller korta ner dem.';return}
   N=out.g.length;grid=out.g;placed=out.res;words=ws;
   const pool=ws.map(w=>w.n).join('')+'AAEEENNTTRRSSIILLDDOOKMGHUVÄÅÖ';
@@ -257,7 +261,7 @@ $('make').onclick=make;$('again').onclick=make;
 const cells=[];
 function render(){
   const gd=$('grid');gd.innerHTML='';cells.length=0;
-  const cs=Math.max(22,Math.min(44,Math.floor((Math.min(innerWidth,1000)-80)/N)));
+  const cs=Math.max(N>20?12:22,Math.min(44,Math.floor((Math.min(innerWidth,1000)-80)/N)));
   gd.style.setProperty('--cs',cs+'px');
   for(let r=0;r<N;r++){
     const row=document.createElement('div');row.className='gr';row.setAttribute('role','row');
@@ -390,22 +394,29 @@ function printNow(key){
   const items=placed.map(p=>cl&&p.clue?p.clue:p.term);
   const ih=(t,w)=>cl?Math.ceil(t.length/Math.max(8,Math.floor((w-7)/1.9)))*4.5+8:7.4;
   const tot=(w,c)=>items.reduce((a,t)=>a+ih(t,w),0)*1.08/c+4;
-  let best=null;
-  for(const o of ['p','l']){
-    const W=o==='p'?PW:PH,H=o==='p'?PH:PW;
-    if(cl){const s=Math.min(Math.min(W,H-T-2)/N,16);if(!best||s>best.s+.01)best={o,s,W,H,c:1,lw:0};continue}
-    for(let c=1;c<=4;c++){
-      let g,lw=0;
-      if(o==='p'){const cw=(W-(c-1)*5)/c;g=Math.min(W,H-T-tot(cw,c)-6)}
-      else{const cw=42;lw=c*cw+(c-1)*5;if(tot(cw,c)>H-T)continue;g=Math.min(W-lw-8,H-T)}
-      if(g<=0)continue;const s=Math.min(g/N,13);
-      if(!best||s>best.s+.01)best={o,c,s,W,H,lw};
-    }
-  }
-  if(!best)best={o:'p',c:4,s:Math.max(3,Math.min(PW,PH-T-80)/N),W:PW,H:PH,lw:0};
+  const L=Math.max(...items.map(t=>t.length));
+  const fit=k=>{let best=null;
+    const tt=(w,c)=>items.reduce((a,t)=>a+(cl?ih(t,w):7.44*k),0)*1.08/c+4;
+    for(const o of ['p','l']){
+      const W=o==='p'?PW:PH,H=o==='p'?PH:PW;
+      if(cl){const s=Math.min(Math.min(W-1,H-T-3)/N,16);if(!best||s>best.s+.01)best={o,s,W,H,c:1,lw:0,k:1};continue}
+      for(let c=1;c<=4;c++){
+        const cw=o==='p'?(W-(c-1)*5)/c:42;
+        if(L*2.2*k>cw-6*k+.5)continue;
+        let g,lw=0;
+        if(o==='p'){g=Math.min(W,H-T-tt(cw,c)-6)}
+        else{lw=c*cw+(c-1)*5;if(tt(cw,c)>H-T)continue;g=Math.min(W-lw-8,H-T)}
+        if(g<=1)continue;const s=Math.min((g-1)/N,13);
+        if(!best||s>best.s+.01)best={o,c,s,W,H,lw,k};
+      }
+    }return best};
+  let best=null,clip=false;
+  for(const k of cl?[1]:[1,.9,.8,.7,.6]){const b=fit(k);if(b){if(!best||b.s>best.s+.01||b.s>=6.5)best=b;if(b.s>=6.5)break}}
+  if(!best){clip=true;best={o:'p',c:4,s:Math.max(2.8,Math.min(PW-1,PH-T-60)/N),W:PW,H:PH,lw:0,k:.6}}
+  if(clip)$('msg').textContent='Alla begrepp ryms inte på en sida i utskriften. Ta bort några begrepp eller dela upp listan.';
   if(cl){let c=1;for(;c<3;c++){if(tot((best.W-(c-1)*5)/c,c)<=best.H-T-4)break}best.c=c}
   const pa=$('pa');pa.innerHTML='';pa.className=(best.o==='l'?'land':'port')+(band?'':' nb');
-  pa.style.cssText='--s:'+best.s+'mm;--cols:'+best.c+';--lw:'+best.lw+'mm';
+  pa.style.cssText='--k:'+(best.k||1)+';--s:'+best.s+'mm;--cols:'+best.c+';--lw:'+best.lw+'mm';
   const mk=t=>document.createElement(t);
   const hdr=()=>{const f=document.createDocumentFragment(),h=mk('h1');h.textContent=title;f.appendChild(h);if(band){const b=mk('div');b.className='band';f.appendChild(b)}return f};
   const mkol=w=>{const ol=mk('ol');if(w)ol.className='cl';placed.forEach((p,i)=>{const li=mk('li');li.textContent=items[i];if(w){const x=mk('span');x.className='wl';if(key)x.textContent=p.term;li.appendChild(x)}ol.appendChild(li)});return ol};
@@ -425,9 +436,9 @@ $('demo').onclick=()=>{$('paste').value=[...POOL].sort(()=>Math.random()-.5).sli
 $('pprint').onclick=()=>printNow(false);$('pkey').onclick=()=>printNow(true);
 addEventListener('resize',()=>{if(N){const c=kfocus;render();}});
 const VK='pt-ordgomma-val';
-const keep=()=>{try{localStorage.setItem(VK,JSON.stringify({d:$('diff').value,b:$('pband').checked,p:pmode,m:$('smode').value,t:$('paste').value,h:$('ptitle').value}))}catch(e){}};
-if(!/^#e=/.test(location.hash)){try{const v=JSON.parse(localStorage.getItem(VK));if(v){$('diff').value=v.d||'hard';$('pband').checked=v.b!==false;setPm(v.p==='clues'?'clues':'words');$('smode').value=v.m||'words';$('paste').value=v.t||'';$('ptitle').value=v.h||''}}catch(e){}
-['diff','pband','smode','paste','ptitle'].forEach(i=>{$(i).addEventListener('input',keep);$(i).addEventListener('change',keep)});$('pw').addEventListener('click',keep);$('pc').addEventListener('click',keep)}
+const keep=()=>{try{localStorage.setItem(VK,JSON.stringify({d:$('diff').value,b:$('pband').checked,p:pmode,m:$('smode').value,t:$('paste').value,h:$('ptitle').value,g:$('gsz').value}))}catch(e){}};
+if(!/^#e=/.test(location.hash)){try{const v=JSON.parse(localStorage.getItem(VK));if(v){$('diff').value=v.d||'hard';$('gsz').value=v.g||'0';$('pband').checked=v.b!==false;setPm(v.p==='clues'?'clues':'words');$('smode').value=v.m||'words';$('paste').value=v.t||'';$('ptitle').value=v.h||''}}catch(e){}
+['diff','gsz','pband','smode','paste','ptitle'].forEach(i=>{$(i).addEventListener('input',keep);$(i).addEventListener('change',keep)});$('pw').addEventListener('click',keep);$('pc').addEventListener('click',keep)}
 const ql=new URLSearchParams(location.search).get('lista');
 if(ql&&banks&&banks.subjects[ql]&&!/^#e=/.test(location.hash)){$('ptitle').value='';bankSel.value='s:'+ql;$('load').click();make();keep()}
 const hm=location.hash.match(/^#e=([\w-]+)$/);if(hm){try{startStudent(dec(hm[1]),hm[1])}catch(e){}}
