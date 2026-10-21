@@ -28,7 +28,7 @@ input[type=color]{width:48px;height:36px;border:1.5px solid #ccc5f0;border-radiu
 input[type=range]{width:150px}
 input[type=checkbox]{width:20px;height:20px;accent-color:#306BF0}
 .tp{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.tp button{min-height:40px;padding:0 12px;border:1.5px solid #ccc5f0;background:#eae6ff;color:#306BF0;border-radius:8px;cursor:pointer;font:600 12px 'Sora',sans-serif}
+.tp button{min-height:30px;padding:0 8px;border:1.5px solid #ccc5f0;background:#eae6ff;color:#306BF0;border-radius:7px;cursor:pointer;font:600 11px 'Sora',sans-serif}
 .tp button.on{background:#306BF0;color:#fff;border-color:#306BF0}
 .add{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
 .add button{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px;padding:4px;border:1.5px solid #ccc5f0;background:#eae6ff;color:#306BF0;border-radius:10px;cursor:pointer;font:600 11px 'Sora',sans-serif}
@@ -37,7 +37,12 @@ input[type=checkbox]{width:20px;height:20px;accent-color:#306BF0}
 .pre{display:flex;gap:8px;align-items:center}
 .pre button{width:26px;height:26px;border-radius:50%;border:2px solid #ccc5f0;cursor:pointer;padding:0}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #306BF0;outline-offset:2px}
-#cv{width:100%;height:auto;background:#fff;border-radius:14px;border:1px solid #ccc5f0;display:block}
+#cv{width:100%;height:auto;background:#fff;border-radius:14px;border:1px solid #ccc5f0;display:block;touch-action:none}
+.lab{cursor:move;user-select:none;-webkit-user-select:none}.lab:hover{fill:#306BF0}
+details{border-top:1px solid #e3def8}details:first-of-type{border-top:0}
+summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font:700 13px 'Montserrat',sans-serif;color:#100e28;min-height:44px}
+summary::-webkit-details-marker{display:none}summary::after{content:'\25BE';color:#306BF0;transition:transform .2s}details[open]>summary::after{transform:rotate(180deg)}
+details>.dbody{padding:0 2px 10px}
 .hint{font-size:13px;color:#585078;margin:6px 0 0;min-height:20px}
 </style>
 </head>
@@ -50,23 +55,31 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <h2>Delar (klicka för att välja)</h2><div class="tp" id="lst"></div>
 <h2>Lägg ovanpå</h2><div class="add" id="add"></div><p class="hint" id="msg"></p></div>
 <div class="card"><h2>Markerad del</h2><div id="insp"></div></div>
-<div class="card"><h2>Utseende</h2>
+<div class="card">
+<details open><summary>Visning</summary><div class="dbody">
 <label>Enhet<input type="text" id="unit" value="cm"></label>
+<label>Enhet visas<select id="um"><option value="0">Vid måtten</option><option value="1">I parentes ovanför figuren</option></select></label>
 <label>Visa namn på delarna<input type="checkbox" id="nm"></label>
 <label>Visa mått<input type="checkbox" id="md" checked></label>
 <label>Höjdmått<select id="hm"><option value="0">Inga</option><option value="1" selected>Varje del</option><option value="2">Totalhöjd</option></select></label>
 <label>Streckad skiljelinje<input type="checkbox" id="sep" checked></label>
 <label>Visa resten av klotet (streckat)<input type="checkbox" id="rest" checked></label>
 <label>Visa dolda kanter i hål<input type="checkbox" id="hid" checked></label>
+</div></details>
+<details><summary>Linjer och text</summary><div class="dbody">
 <label>Linjefärg<input type="color" id="stroke" value="#100e28"></label>
 <label>Linjetjocklek<input type="range" id="sw" min="1" max="6" step=".5" value="2"></label>
 <label>Textstorlek<input type="range" id="fs" min="12" max="28" value="16"></label>
+</div></details>
+<details><summary>Utskrift</summary><div class="dbody">
 <label>Svartvit utskrift<input type="checkbox" id="bw"></label>
 <label>Genomskinlig bakgrund (PNG/SVG)<input type="checkbox" id="tpb"></label>
+</div></details>
 </div>
 </div>
-<div class="card"><svg id="cv" viewBox="0 0 640 480"></svg>
-<div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button></div></div>
+<div class="card" title="Klicka på en del för att markera den. Dra i en etikett för att flytta den."><svg id="cv" viewBox="0 0 640 480"></svg>
+<div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn alt" id="rl" title="Lägger tillbaka flyttade etiketter">Återställ etikettpositioner</button></div>
+</div>
 </main>
 <script>
 const W=640,H=480,KC=.5*Math.cos(.7),KS=.5*Math.sin(.7),U=[-KC,1,-KS],RY=.3;
@@ -74,24 +87,27 @@ const $=id=>document.getElementById(id),num=s=>parseFloat(String(s).replace(',',
 const sub=(a,b)=>a.map((z,i)=>z-b[i]),dot=(a,b)=>a.reduce((s,z,i)=>s+z*b[i],0),cr=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const gr=c=>{if(!c||c=='none')return c;const n=parseInt(c.slice(1),16),y=.3*(n>>16)+.59*(n>>8&255)+.11*(n&255),v=Math.round(255-(255-y)*.55);return'#'+(v*65793).toString(16).padStart(6,'0')};
 const mix=(c,k)=>{const n=parseInt(c.slice(1),16),f=v=>Math.round(v+(255-v)*k);return'#'+((1<<24)+(f(n>>16)<<16)+(f(n>>8&255)<<8)+f(n&255)).toString(16).slice(1)};
-const TY={box:'Rätblock',prism:'Prisma',pyr:'Pyramid',cyl:'Cylinder',cone:'Kon',hemi:'Halvklot',sph:'Klot'},POLY=['box','prism','pyr'],FLAT={box:1,cyl:1};
-const DEF={box:{w:5,d:4,h:3},prism:{w:5,d:4,h:3},pyr:{w:4,d:4,h:4},cyl:{r:2,h:4},cone:{r:2,h:3},hemi:{r:2},sph:{r:2}};
+const TY={box:'Rätblock',prism:'Prisma',pyr:'Pyramid',cyl:'Cylinder',cone:'Kon',icone:'Kon upp och ned',hemi:'Halvklot',sph:'Klot'},POLY=['box','prism','pyr'],FLAT={box:1,cyl:1,icone:1};
+const DEF={box:{w:5,d:4,h:3},prism:{w:5,d:4,h:3},pyr:{w:4,d:4,h:4},cyl:{r:2,h:4},cone:{r:2,h:3},icone:{r:2,h:3},hemi:{r:2},sph:{r:2}};
 const PAL=['#66C7C2','#F4A261','#EC6095','#306BF0','#bfbfbf','#ffffff'];
-const IC={box:'<path d="M5 12h16v16H5ZM5 12l6-6h16l-6 6M21 12l6-6v16l-6 6"/>',prism:'<path d="M4 26h14l-7-14ZM11 12l10-6M18 26l10-6M21 6l7 14"/>',pyr:'<path d="M4 24h16l8-6H12ZM16 5L4 24M16 5l4 19M16 5l12 13"/>',cyl:'<ellipse cx="16" cy="8" rx="10" ry="4"/><path d="M6 8v16a10 4 0 0 0 20 0V8"/>',cone:'<path d="M6 24a10 4 0 0 0 20 0M16 4L6 24M16 4l10 20"/>',hemi:'<path d="M4 22a12 12 0 0 1 24 0Z"/><path d="M4 22a12 4 0 0 0 24 0" stroke-dasharray="3 3"/>',sph:'<circle cx="16" cy="16" r="12"/><path d="M4 16a12 4 0 0 0 24 0"/>'};
-let S=[],SEL=0;
+const IC={box:'<path d="M5 12h16v16H5ZM5 12l6-6h16l-6 6M21 12l6-6v16l-6 6"/>',prism:'<path d="M4 26h14l-7-14ZM11 12l10-6M18 26l10-6M21 6l7 14"/>',pyr:'<path d="M4 24h16l8-6H12ZM16 5L4 24M16 5l4 19M16 5l12 13"/>',cyl:'<ellipse cx="16" cy="8" rx="10" ry="4"/><path d="M6 8v16a10 4 0 0 0 20 0V8"/>',cone:'<path d="M6 24a10 4 0 0 0 20 0M16 4L6 24M16 4l10 20"/>',icone:'<ellipse cx="16" cy="8" rx="10" ry="4"/><path d="M6 8L16 28L26 8"/>',hemi:'<path d="M4 22a12 12 0 0 1 24 0Z"/><path d="M4 22a12 4 0 0 0 24 0" stroke-dasharray="3 3"/>',sph:'<circle cx="16" cy="16" r="12"/><path d="M4 16a12 4 0 0 0 24 0"/>'};
+let S=[],SEL=0,TI=0,OFF={};
+const UF={mm:.001,cm:.01,dm:.1,m:1,km:1000},cvu=(v,a,b)=>{const x=UF[String(a).trim().toLowerCase()],y=UF[String(b).trim().toLowerCase()];return x&&y?v*x/y:v},labU=(o,v,own,nu)=>{own=(own||'').trim();const x=own?cvu(v,o.unit,own):v,un=own||(o.um==0?o.unit:'');return fmt(x)+(un&&!nu?' '+un:'')};
 const mk=(t,c,o)=>({t,...DEF[t],c:c||PAL[S.length%4],lab:'',lh:'',hole:{t:0,r:1,dp:''},...o});
 const ht=p=>p.t=='hemi'?p.r:p.t=='sph'?2*p.r:p.h;
-const PS={'Cylinder på rätblock':()=>[mk('box',PAL[0],{w:6,d:4,h:3}),mk('cyl',PAL[1],{r:1.5,h:3})],'Halvklot på cylinder':()=>[mk('cyl',PAL[0],{r:2,h:4}),mk('hemi',PAL[1],{r:2})],'Kon på cylinder':()=>[mk('cyl',PAL[0],{r:2,h:3}),mk('cone',PAL[1],{r:2,h:3})],'Pyramid på kub':()=>[mk('box',PAL[0],{w:4,d:4,h:4}),mk('pyr',PAL[1],{w:4,d:4,h:3})],'Kub med hål':()=>[mk('box',PAL[0],{w:5,d:5,h:5,hole:{t:1,r:1.2,dp:'3'}})],'Rätblock':()=>[mk('box',PAL[0])]};
-function opts(){const bw=$('bw').checked;return{unit:$('unit').value,nm:$('nm').checked,md:$('md').checked,hm:+$('hm').value,sep:$('sep').checked,rest:$('rest').checked,hid:$('hid').checked,s:bw?'#000000':$('stroke').value,w:+$('sw').value,fs:+$('fs').value,bw}}
-function fig(o){const Z=[];let z=0;S.forEach(p=>{Z.push(z);z+=ht(p)});const pts=[];
+const PS={'Cylinder på rätblock':()=>[mk('box',PAL[0],{w:6,d:4,h:3}),mk('cyl',PAL[1],{r:1.5,h:3})],'Halvklot på cylinder':()=>[mk('cyl',PAL[0],{r:2,h:4}),mk('hemi',PAL[1],{r:2})],'Kon på cylinder':()=>[mk('cyl',PAL[0],{r:2,h:3}),mk('cone',PAL[1],{r:2,h:3})],'Glasstrut':()=>[mk('icone',PAL[1],{r:2,h:4}),mk('hemi',PAL[2],{r:2})],'Pyramid på kub':()=>[mk('box',PAL[0],{w:4,d:4,h:4}),mk('pyr',PAL[1],{w:4,d:4,h:3})],'Kub med hål':()=>[mk('box',PAL[0],{w:5,d:5,h:5,hole:{t:1,r:1.2,dp:'3'}})],'Rätblock':()=>[mk('box',PAL[0])]};
+function opts(){const bw=$('bw').checked;return{unit:$('unit').value,um:+$('um').value,nm:$('nm').checked,md:$('md').checked,hm:+$('hm').value,sep:$('sep').checked,rest:$('rest').checked,hid:$('hid').checked,s:bw?'#000000':$('stroke').value,w:+$('sw').value,fs:+$('fs').value,bw}}
+function fig(o){TI=0;const Z=[];let z=0;S.forEach(p=>{Z.push(z);z+=ht(p)});const pts=[];
 S.forEach((p,i)=>{const a=Z[i],b=a+ht(p);
 if(POLY.includes(p.t)){const w=p.w/2,d=p.d/2;[[-w,-d],[w,-d],[w,d],[-w,d]].forEach(([x,y])=>{pts.push([x+y*KC,a+y*KS]);if(p.t!='pyr')pts.push([x+y*KC,b+y*KS])});if(p.t=='pyr')pts.push([0,b])}
 else if(p.t=='sph')pts.push([-p.r,a+p.r],[p.r,a+p.r],[0,a],[0,b]);
+else if(p.t=='icone')pts.push([-p.r,b],[p.r,b],[0,b+RY*p.r],[0,a]);
 else{pts.push([-p.r,a],[p.r,a],[0,a-RY*p.r]);if(p.t=='cyl')pts.push([-p.r,b],[p.r,b],[0,b+RY*p.r]);else pts.push([0,b])}});
 const xs=pts.map(p=>p[0]),zs=pts.map(p=>p[1]),minx=Math.min(...xs),maxx=Math.max(...xs),minz=Math.min(...zs),maxz=Math.max(...zs),
 s=Math.min((W-230)/((maxx-minx)||1),(H-110)/((maxz-minz)||1)),ox=W/2-s*(minx+maxx)/2,oy=H/2+s*(minz+maxz)/2,P3=(x,y,zz)=>[ox+s*(x+y*KC),oy-s*(zz+y*KS)];
 const sw=`stroke="${o.s}" stroke-width="${o.w}"`,dsh=' stroke-dasharray="6 5"',u=o.unit?' '+o.unit:'',fc=p=>{const c=mix(p.c,.45);return o.bw?gr(c):c};
-const T=(x,y,t,a)=>`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${a||'middle'}" dominant-baseline="central" font-size="${o.fs}" fill="${o.s}" font-family="Arial,Helvetica,sans-serif">${String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</text>`;
+const lab=(v,own,nu)=>labU(o,v,own,nu);
+const T=(x,y,t,a)=>{const k=TI++,f=OFF[k]||{dx:0,dy:0};return`<text class="lab" data-k="${k}" x="${(x+f.dx).toFixed(1)}" y="${(y+f.dy).toFixed(1)}" text-anchor="${a||'middle'}" dominant-baseline="central" font-size="${o.fs}" fill="${o.s}" font-family="Arial,Helvetica,sans-serif">${String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</text>`};
 const L=(a,b,c,d,x)=>`<line x1="${a.toFixed(1)}" y1="${b.toFixed(1)}" x2="${c.toFixed(1)}" y2="${d.toFixed(1)}" ${sw} ${x||''}/>`;
 const ah=(x,y,dy)=>`<path d="M${x} ${y} L${x-3.5} ${y-dy*9} L${x+3.5} ${y-dy*9}Z" fill="${o.s}"/>`;
 const poly=(V,F,col)=>{const Pp=V.map(v=>P3(...v)),c=V.reduce((a,v)=>a.map((q,k)=>q+v[k]/V.length),[0,0,0]);let r='';
@@ -105,31 +121,33 @@ else if(p.t=='prism')g=poly([[-w,-d,a],[w,-d,a],[0,d,a],[-w,-d,b],[w,-d,b],[0,d,
 else g=poly([[-w,-d,a],[w,-d,a],[w,d,a],[-w,d,a],[0,0,b]],[[0,1,2,3],[0,1,4],[1,2,4],[2,3,4],[3,0,4]],col)}
 else{const[cx,yb]=P3(0,0,a),yt=P3(0,0,b)[1],R=p.r*s,ry=R*RY,front=`<path d="M${cx-R} ${yb} A${R} ${ry} 0 0 0 ${cx+R} ${yb}" fill="none" ${sw}${dash?dsh:''}/>`;
 if(p.t=='cyl')g=`<path d="M${cx-R} ${yt} V${yb} A${R} ${ry} 0 0 0 ${cx+R} ${yb} V${yt} Z" fill="${col}"/>`+L(cx-R,yt,cx-R,yb)+L(cx+R,yt,cx+R,yb)+front+`<ellipse cx="${cx}" cy="${yt}" rx="${R}" ry="${ry}" fill="${mix(col,.25)}" ${sw}/>`;
+else if(p.t=='icone')g=`<path d="M${cx-R} ${yt} L${cx} ${yb} L${cx+R} ${yt}Z" fill="${col}"/>`+L(cx-R,yt,cx,yb)+L(cx+R,yt,cx,yb)+`<ellipse cx="${cx}" cy="${yt}" rx="${R}" ry="${ry}" fill="${mix(col,.25)}" ${sw}/>`;
 else if(p.t=='cone')g=`<path d="M${cx-R} ${yb} A${R} ${ry} 0 0 0 ${cx+R} ${yb} L${cx} ${yt} Z" fill="${col}"/>`+L(cx-R,yb,cx,yt)+L(cx+R,yb,cx,yt)+front;
 else if(p.t=='hemi'){g=`<path d="M${cx-R} ${yb} A${R} ${R} 0 0 1 ${cx+R} ${yb} A${R} ${ry} 0 0 1 ${cx-R} ${yb}Z" fill="${col}"/><path d="M${cx-R} ${yb} A${R} ${R} 0 0 1 ${cx+R} ${yb}" fill="none" ${sw}/>`+front;
 if(o.rest)g+=`<path d="M${cx-R} ${yb} A${R} ${R} 0 0 0 ${cx+R} ${yb}" fill="none" ${sw}${dsh} opacity=".7"/>`}
 else{const cy=P3(0,0,a+p.r)[1];g=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${col}" ${sw}/><path d="M${cx-R} ${cy} A${R} ${ry} 0 0 0 ${cx+R} ${cy}" fill="none" ${sw}/><path d="M${cx-R} ${cy} A${R} ${ry} 0 0 1 ${cx+R} ${cy}" fill="none" ${sw}${dsh} opacity=".7"/>`}}
-if(i==S.length-1&&p.hole.t&&FLAT[p.t]){const T0=P3(0,0,b),mr=p.t=='cyl'?p.r:Math.min(p.w,p.d)/2,rr=Math.min(p.hole.r,mr*.95)*s,r2=rr*RY,hh=ht(p),dp=Math.min(num(p.hole.dp)>0?num(p.hole.dp):hh,hh),dd=(p.hole.t==3?Math.min(p.hole.r,mr*.95):dp)*s;
+if(i==S.length-1&&p.hole.t&&FLAT[p.t]){const T0=P3(0,0,b),mr=p.t=='cyl'||p.t=='icone'?p.r:Math.min(p.w,p.d)/2,rr=Math.min(p.hole.r,mr*.95)*s,r2=rr*RY,hh=ht(p),dp=Math.min(num(p.hole.dp)>0?num(p.hole.dp):hh,hh),dd=(p.hole.t==3?Math.min(p.hole.r,mr*.95):dp)*s;
 g+=`<ellipse cx="${T0[0]}" cy="${T0[1]}" rx="${rr}" ry="${r2}" fill="${o.bw?'#e8e8e8':'#d9d9d9'}" ${sw}/>`;
 if(o.hid){if(p.hole.t==1)g+=L(T0[0]-rr,T0[1],T0[0]-rr,T0[1]+dd,dsh)+L(T0[0]+rr,T0[1],T0[0]+rr,T0[1]+dd,dsh)+`<path d="M${T0[0]-rr} ${T0[1]+dd} A${rr} ${r2} 0 0 0 ${T0[0]+rr} ${T0[1]+dd}" fill="none" ${sw}${dsh}/>`;
 else if(p.hole.t==2)g+=L(T0[0]-rr,T0[1],T0[0],T0[1]+dd,dsh)+L(T0[0]+rr,T0[1],T0[0],T0[1]+dd,dsh);
 else g+=`<path d="M${T0[0]-rr} ${T0[1]} A${rr} ${rr} 0 0 0 ${T0[0]+rr} ${T0[1]}" fill="none" ${sw}${dsh}/>`}}
 out+=`<g data-i="${i}" style="cursor:pointer">${g}</g>`});
 const xl=ox+s*minx-46,xr=ox+s*maxx+18,dimv=(y2,y1,t,x)=>L(x,y2,x,y1)+ah(x,y2,-1)+ah(x,y1,1)+T(x-8,(y1+y2)/2,t,'end');
-if(o.hm==1)S.forEach((p,i)=>{if(p.t=='hemi'||p.t=='sph')return;out+=dimv(oy-s*(Z[i]+p.h),oy-s*Z[i],p.lh||fmt(p.h)+u,xl)});
-else if(o.hm==2){const zt=S.reduce((q,p)=>q+ht(p),0);out+=dimv(oy-s*zt,oy,fmt(zt)+u,xl)}
+if(o.hm==1)S.forEach((p,i)=>{if(p.t=='hemi'||p.t=='sph')return;out+=dimv(oy-s*(Z[i]+p.h),oy-s*Z[i],p.lh||lab(p.h,p.uh),xl)});
+else if(o.hm==2){const zt=S.reduce((q,p)=>q+ht(p),0);out+=dimv(oy-s*zt,oy,lab(zt,''),xl)}
 S.forEach((p,i)=>{const ln=[];if(o.nm)ln.push(TY[p.t]);
-if(o.md){let d=p.lab;if(!d)d=POLY.includes(p.t)?fmt(p.w)+' × '+fmt(p.d)+u:'r = '+fmt(p.r)+u;if(d!=='-')ln.push(d);
-if(i==S.length-1&&p.hole.t&&FLAT[p.t])ln.push('Hål: r = '+fmt(p.hole.r)+u+(p.hole.t==3?'':', '+(num(p.hole.dp)>0&&num(p.hole.dp)<ht(p)?'djup '+fmt(num(p.hole.dp))+u:'genomgående')))}
+if(o.md){let d=p.lab;if(!d)d=POLY.includes(p.t)?lab(p.w,p.un,1)+' × '+lab(p.d,p.un):'r = '+lab(p.r,p.un);if(d!=='-')ln.push(d);
+if(i==S.length-1&&p.hole.t&&FLAT[p.t])ln.push('Hål: r = '+lab(p.hole.r,p.un)+(p.hole.t==3?'':', '+(num(p.hole.dp)>0&&num(p.hole.dp)<ht(p)?'djup '+lab(num(p.hole.dp),p.un):'genomgående')))}
 const ym=oy-s*(Z[i]+ht(p)/2);ln.forEach((t,k)=>out+=T(xr,ym+(k-(ln.length-1)/2)*o.fs*1.3,t,'start'))});
+if(o.um==1&&o.unit)out+=T(ox+s*maxx,oy-s*maxz-18,'('+o.unit+')','end');
 return out}
 const svg=$('cv');
 function render(){svg.innerHTML=`<rect width="${W}" height="${H}" fill="#fff"/>`+fig(opts());try{localStorage.setItem('sk_last',JSON.stringify({S,SEL}))}catch(e){}}
 const msg=t=>{$('msg').textContent=t};
 function lst(){const el=$('lst');el.innerHTML='';for(let i=S.length-1;i>=0;i--){const b=document.createElement('button');b.className=i==SEL?'on':'';b.textContent=(i+1)+'. '+TY[S[i].t];b.onclick=()=>{SEL=i;ui();render()};el.appendChild(b)}}
 function add(t){const q=S[S.length-1];if(!FLAT[q.t]){msg('Det går bara att lägga något ovanpå en cylinder eller ett rätblock.');return}
-const fw=q.t=='cyl'?2*q.r:q.w,fd=q.t=='cyl'?2*q.r:q.d,o={};if(POLY.includes(t)){o.w=Math.min(DEF[t].w,fw);o.d=Math.min(DEF[t].d,fd)}else o.r=Math.min(DEF[t].r,Math.min(fw,fd)/2);
-q.hole={t:0,r:1,dp:''};S.push(mk(t,PAL[S.length%4],o));SEL=S.length-1;msg('');ui();render()}
+const rn=q.t=='cyl'||q.t=='icone',fw=rn?2*q.r:q.w,fd=rn?2*q.r:q.d,o={};if(POLY.includes(t)){o.w=Math.min(DEF[t].w,fw);o.d=Math.min(DEF[t].d,fd)}else o.r=Math.min(DEF[t].r,Math.min(fw,fd)/2);
+OFF={};q.hole={t:0,r:1,dp:''};S.push(mk(t,PAL[S.length%4],o));SEL=S.length-1;msg('');ui();render()}
 function ui(){lst();const el=$('insp');el.innerHTML='';const p=S[SEL];if(!p)return;
 const row=(lb,i)=>{const l=document.createElement('label');l.textContent=lb;l.appendChild(i);el.appendChild(l)},
 txt=(v,fn,ph)=>{const i=document.createElement('input');i.type='text';i.value=v;if(ph)i.placeholder=ph;i.oninput=()=>{fn(i.value);render()};return i},
@@ -138,9 +156,9 @@ nf=(lb,k)=>row(lb,txt(String(p[k]).replace('.',','),v=>{const n=num(v);if(n>0)p[
 if(POLY.includes(p.t)){nf('Bredd','w');nf('Djup','d');nf('Höjd','h')}else if(p.t=='cyl'||p.t=='cone'){nf('Radie','r');nf('Höjd','h')}else nf('Radie','r');
 const sp=document.createElement('span');sp.className='pre';PAL.forEach(c=>{const b=document.createElement('button');b.style.background=mix(c,.45);b.setAttribute('aria-label','Färg');b.onclick=()=>{p.c=c;render()};sp.appendChild(b)});
 const ci=document.createElement('input');ci.type='color';ci.value=p.c;ci.oninput=()=>{p.c=ci.value;render()};sp.appendChild(ci);row('Färg',sp);
-row('Måttetikett',txt(p.lab,v=>p.lab=v,'automatiskt, - = ingen'));if(p.t!='hemi'&&p.t!='sph')row('Höjdetikett',txt(p.lh,v=>p.lh=v,'automatiskt'));
-if(SEL==S.length-1&&FLAT[p.t]){row('Hål uppifrån',sel(['Inget','Cylinder','Kon','Halvklot'],p.hole.t,v=>p.hole.t=v));row('Hålets radie',txt(String(p.hole.r).replace('.',','),v=>{const n=num(v);if(n>0)p.hole.r=n}));row('Hålets djup',txt(p.hole.dp,v=>p.hole.dp=v,'genomgående'))}
-if(S.length>1){const b=document.createElement('button');b.className='btn alt';b.textContent='Ta bort delen';b.onclick=()=>{S.splice(SEL,1);SEL=Math.min(SEL,S.length-1);ui();render()};el.appendChild(b)}}
+row('Måttetikett',txt(p.lab,v=>p.lab=v,'automatiskt, - = ingen'));row('Enhet för mått',txt(p.un||'',v=>p.un=v.trim(),'allmän'));if(p.t!='hemi'&&p.t!='sph'){row('Höjdetikett',txt(p.lh,v=>p.lh=v,'automatiskt'));row('Enhet för höjd',txt(p.uh||'',v=>p.uh=v.trim(),'allmän'))}
+if(SEL==S.length-1&&FLAT[p.t]){row('Hål uppifrån',sel(['Inget','Cylinder','Kon','Halvklot'],p.hole.t,v=>{p.hole.t=v;OFF={}}));row('Hålets radie',txt(String(p.hole.r).replace('.',','),v=>{const n=num(v);if(n>0)p.hole.r=n}));row('Hålets djup',txt(p.hole.dp,v=>p.hole.dp=v,'genomgående'))}
+if(S.length>1){const b=document.createElement('button');b.className='btn alt';b.textContent='Ta bort delen';b.onclick=()=>{OFF={};S.splice(SEL,1);SEL=Math.min(SEL,S.length-1);ui();render()};el.appendChild(b)}}
 function exp(){return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${$('tpb').checked?'':`<rect width="${W}" height="${H}" fill="#fff"/>`}${fig(opts())}</svg>`}
 function toPng(cb){const img=new Image(),u=URL.createObjectURL(new Blob([exp()],{type:'image/svg+xml'}));img.onload=()=>{const c=document.createElement('canvas');c.width=W*3;c.height=H*3;c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(cb)};img.src=u}
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
@@ -148,9 +166,14 @@ $('png').onclick=()=>toPng(b=>dl(b,'kroppar.png'));
 $('svg').onclick=()=>dl(new Blob([exp()],{type:'image/svg+xml'}),'kroppar.svg');
 $('cp').onclick=()=>toPng(async b=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);$('cp').textContent='Kopierad!'}catch(e){$('cp').textContent='Gick inte – ladda ner istället'}setTimeout(()=>$('cp').textContent='Kopiera bild',2200)});
 svg.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('[data-i]');if(g){SEL=+g.dataset.i;ui();render()}});
-Object.keys(PS).forEach(n=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{S=PS[n]();SEL=S.length-1;msg('');ui();render()};$('ps').appendChild(b)});
+Object.keys(PS).forEach(n=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{OFF={};S=PS[n]();SEL=S.length-1;msg('');ui();render()};$('ps').appendChild(b)});
 Object.keys(TY).forEach(t=>{const b=document.createElement('button');b.innerHTML=`<svg viewBox="0 0 32 32" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">${IC[t]}</svg><span>${TY[t]}</span>`;b.onclick=()=>add(t);$('add').appendChild(b)});
-['unit','nm','md','hm','sep','rest','hid','stroke','sw','fs','bw','tpb'].forEach(i=>$(i).oninput=render);
+['unit','um','nm','md','hm','sep','rest','hid','stroke','sw','fs','bw','tpb'].forEach(i=>$(i).oninput=()=>{if(['nm','md','hm'].includes(i))OFF={};render()});
+let dg=null;const sp=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());return[q.x,q.y]};
+svg.addEventListener('pointerdown',e=>{const t=e.target;if(!t.classList||!t.classList.contains('lab'))return;const k=t.dataset.k,f=OFF[k]||(OFF[k]={dx:0,dy:0});dg={f,p:sp(e),dx:f.dx,dy:f.dy};svg.setPointerCapture(e.pointerId);e.preventDefault()});
+svg.addEventListener('pointermove',e=>{if(!dg)return;const p=sp(e);dg.f.dx=dg.dx+p[0]-dg.p[0];dg.f.dy=dg.dy+p[1]-dg.p[1];render()});
+['pointerup','pointercancel'].forEach(v=>svg.addEventListener(v,()=>dg=null));
+$('rl').onclick=()=>{OFF={};render()};
 let sv=null;try{sv=JSON.parse(localStorage.getItem('sk_last'))}catch(e){}
 if(sv&&Array.isArray(sv.S)&&sv.S.length&&sv.S.every(p=>TY[p.t]&&p.hole)){S=sv.S;SEL=Math.min(sv.SEL||0,S.length-1)}else S=PS['Cylinder på rätblock']();
 ui();render();
