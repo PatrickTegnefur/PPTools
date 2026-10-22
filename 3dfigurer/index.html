@@ -39,7 +39,8 @@ label.chk input{width:16px;height:16px;accent-color:#306BF0;margin:0}
 .zoom button{min-width:32px;padding:0 8px}
 #zr{min-width:56px}
 .nb{white-space:nowrap}
-#defCard{display:none;position:absolute;right:12px;top:12px;z-index:6;width:min(320px,calc(100% - 24px));padding:12px 16px;font-size:.9rem}
+#openC{margin:8px 12px}
+#defCard{display:none;position:absolute;right:12px;top:56px;z-index:6;width:min(320px,calc(100% - 24px));padding:12px 16px;font-size:.9rem}
 #defCard.on{display:block}
 #defCard .hd h2{font-size:.95rem;color:#100e28}
 .chips{display:flex;flex-direction:column;gap:6px}.chips button{text-align:left;min-height:32px;padding:4px 10px}
@@ -141,6 +142,19 @@ select.ai{width:auto;max-width:190px;text-align:left}
  .pg:last-child{page-break-after:auto;break-after:auto}
 }
 .ft{width:100%;border-collapse:collapse;font-size:10pt;margin:2mm 0}.ft th,.ft td{border:1px solid #000;padding:1.6mm 2mm;text-align:left}.ft th{background:#eee}.ft td:nth-child(n+4),.ft th:nth-child(n+4){white-space:nowrap}.ft td:first-child{text-align:center}
+#evPanel{display:none}
+#app.ev #stage{width:58%}
+#app.ev .tb,#app.ev .tbw,#app.ev #openC,#app.ev .vy,#app.ev #drawer,#app.ev #cap,#app.ev #cap2,#app.ev #defCard{display:none!important}
+#app.ev .bar{right:calc(42% + 12px)}
+#app.ev .sig{right:42%}
+#app.ev #evPanel{display:block;position:absolute;top:0;right:0;bottom:0;width:42%;overflow:auto;background:#fff;border-left:1.5px solid #ccc5f0;padding:14px 16px;z-index:8;font-size:.92rem}
+@media (max-width:759px){#app.ev #stage{width:100%;height:46vh;min-height:0}#app.ev #evPanel{position:static;width:auto;border-left:0;border-top:1.5px solid #ccc5f0}#app.ev .sig{right:0}}
+.evh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.evt{font:700 1.05rem 'Montserrat',sans-serif}
+.evprog{margin:6px 0}.evprog span{display:inline-block;width:12px;height:12px;border-radius:50%;border:1.5px solid #ccc5f0;margin-right:5px}
+.evprog .on{border-color:#306BF0;box-shadow:0 0 0 2px rgba(48,107,240,.25)}.evprog .dn{background:#18a348;border-color:#18a348}
+.evs{margin:10px 0;padding:8px 12px;border:1px solid #ccc5f0;border-radius:12px;background:#faf9ff}
+.evsh{margin-bottom:6px}.evr{margin:6px 0}
+.evok{margin:12px 0;padding:10px 12px;border-radius:12px;background:#e8f7ed;border:1.5px solid #18a348;font-weight:600}
 .sep{height:1px;background:#ccc5f0;margin:4px 0}
 .eb{transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
 @media (pointer:coarse){button,input[type=number],select{min-height:44px;height:44px}label.chk,.ln{min-height:44px}}
@@ -150,7 +164,7 @@ select.ai{width:auto;max-width:190px;text-align:left}
  .bar{position:absolute;left:12px;right:12px;bottom:12px;justify-content:center;flex-wrap:wrap;padding:0 140px;pointer-events:none;z-index:5}
  .zoom{position:absolute;left:0}
  .bar>*{pointer-events:auto}
- #openC{position:absolute;right:0}
+ #openC{position:absolute;right:12px;top:12px;z-index:7;margin:0}
 }
 /* figur, golv, väggar */
 #root,.f,.nd{transform-style:preserve-3d}
@@ -174,7 +188,7 @@ select.ai{width:auto;max-width:190px;text-align:left}
 .tip{position:absolute;left:14px;bottom:10px;font-size:.78rem;color:#585078;pointer-events:none}
 @media (min-width:760px){.tip{left:auto;right:14px;bottom:58px}}
 /* beräkningar */
-#drawer{display:none;position:absolute;right:12px;bottom:60px;z-index:6;width:min(410px,calc(100% - 24px));max-height:min(70%,560px);overflow:auto;padding:12px 16px}
+#drawer{display:none;position:absolute;right:12px;top:56px;z-index:6;width:min(410px,calc(100% - 24px));max-height:calc(100% - 130px);overflow:auto;padding:12px 16px}
 #drawer.on{display:block}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;align-items:center}
 .tabs label.chk{margin-left:auto}
@@ -213,20 +227,20 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
    <label class="chk" id="trRow" style="display:none"><input type="checkbox" id="sTr"> Genomskinliga sidor<kbd>7</kbd></label>
    <label class="chk" id="hoRow" style="display:none"><input type="checkbox" id="sHo"> Höjd utanför (hjälplinje)<kbd>8</kbd></label>
    <div class="sep"></div>
-   <div class="hd" style="gap:6px;margin:2px 0 0;flex-wrap:wrap"><button id="linkB" title="Kopiera länk till den här vyn (K)">Länk</button><button id="linkE" title="Kopiera elevlänk: låst elevläge med den här figuren och fliken (Shift+K)">Elevlänk</button><button id="shOpen" title="Skapa arbetsblad för utskrift (W)">Arbetsblad</button></div>
+   <div class="hd" style="gap:6px;margin:2px 0 0;flex-wrap:wrap"><button id="linkB" title="Kopiera länk till den här vyn (K)">Länk</button><button id="linkE" title="Kopiera elevlänk: låst elevläge med den här figuren och fliken (Shift+K)">Elevlänk</button><button id="shOpen" title="Skapa arbetsblad för utskrift (W)">Arbetsblad</button><button id="evOpen" title="Elevvy: figur och uppgifter steg för steg (S)">Elevvy</button></div>
   </section>
  </div>
  <div class="gl" id="cap" role="status"></div>
  <div id="stage" aria-label="Rätblockets nät. Dra för att vrida."><div id="scene"></div><div class="tip">Dra för att vrida figuren</div></div>
+ <div id="evPanel"></div>
  <div class="bar">
   <section class="gl pn fold" aria-label="Vik"><button class="main" id="play">Vik ihop</button>Kropp <input type="range" id="fold" min="0" max="100" value="0" aria-label="Från kropp (0 %) till nät (100 %)"> Nät</section>
   <div class="gl zoom" aria-label="Zoom"><button id="zo" aria-label="Zooma ut" title="Zooma ut">−</button><button id="zr" aria-label="Återställ vy" title="Återställ vy (kamera och zoom)">100 %</button><button id="zi" aria-label="Zooma in" title="Zooma in">+</button></div>
   <section class="gl pn vy" aria-label="Vy"><button id="reset" title="Återställ vy (R)">Återställ vy</button><button id="read" title="Läsbar vy: framifrån, texten rakt (L)">Läsbar vy</button><button id="below">Se golvytan</button><button id="pop" title="Lyft ut figuren i ett eget fönster som ligger överst">Pop ut</button></section>
-  <button class="gl" id="openC" aria-expanded="false" aria-controls="drawer">Beräkningar</button>
  </div>
  <div class="gl" id="toast" role="status"></div>
  <div id="sheet"></div>
- <div class="sig" title="Version 2026-10-17 n">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
+ <div class="sig" title="Version 2026-10-18 b">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
  <div class="gl" id="cap2" role="status"></div>
  <aside class="gl" id="qCard" aria-label="Nät-övning">
   <div class="hd"><h2>Nät-övning</h2><button id="qX" aria-label="Stäng">✕</button></div>
@@ -249,6 +263,7 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
    <label class="chk"><input type="radio" name="shC" id="shC2"> Bara volym (2 uppgifter per sida)</label>
    <label class="chk"><input type="checkbox" id="shFa" checked> Facit sist</label>
    <label class="chk"><input type="checkbox" id="shCol"> Färgade bilder</label>
+   <label class="chk"><input type="checkbox" id="shEdge" checked> Måtten står i bilden (annars bara i texten)</label>
    <label class="chk"><input type="checkbox" id="shDia"> Ange diametern i stället för radien (cylinder, kon, klot)</label>
    <label class="chk"><input type="checkbox" id="shSc" checked> Skrivstöd (V =, B =, h = …)</label>
    <label class="chk"><input type="checkbox" id="shCp"> Kompakt: figur till vänster, räkna till höger (bara volym, 3 per sida)</label>
@@ -275,14 +290,16 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
     <label class="chk"><input type="checkbox" id="exArea"> Areor (= 12 cm²)</label></fieldset>
   </div>
   
+  <div class="row" style="margin-top:8px"><label class="chk">Textstorlek&nbsp;<select id="exFs" aria-label="Textstorlek"><option value="1">Normal</option><option value="1.6" selected>Stor</option><option value="2.2">Extra stor</option></select></label><button id="exNone" title="Stäng av alla etiketter så att bilden blir ren">Utan etiketter</button><label class="chk"><input type="checkbox" id="exSerLen" checked> Kantmått i lagerserien</label></div>
   <div class="row" style="margin-top:10px"><button class="main" id="expD">Ladda ned SVG</button><button id="expS" title="Fyra filer med samma storlek och placering: konturer, + färger, + bokstäver och sidomått, + areor">Ladda ned lagerserie (4 filer)</button></div>
   <p class="hint" style="margin:8px 0 0;font-size:.78rem;color:#585078">Alla bilder för samma figur får exakt samma storlek och placering, oavsett vilka alternativ du väljer. Då kan du lägga dem som lager i PowerPoint.</p>
  </aside>
  <aside class="gl" id="keysCard" aria-label="Kortkommandon"><div class="hd"><h2>Kortkommandon</h2><button onclick="this.closest('#keysCard').classList.remove('on')" aria-label="Stäng">✕</button></div>
   <div class="keys"><b>← → ↑ ↓</b><span>Vrid figuren (Shift = större steg)</span><b>Mellanslag</b><span>Vik ut / vik ihop</span><b>+ / −</b><span>Zooma</span><b>R eller 0</b><span>Återställ vy</span><b>L</b><span>Läsbar vy (framifrån)</span><b>G</b><span>Se golvytan</span>
   <b>1 – 8</b><span>Mått på kanterna, Mått på sidoytorna, Svar, Golvrutor, Väggar, Fokusera golvytan, Genomskinliga sidor, Höjd utanför</span>
-  <b>I</b><span>Inställningar</span><b>B</b><span>Beräkningar</span><b>U</b><span>Uträkning</span><b>V / A / Y</b><span>Volym / Begränsningsyta / Basytan</span><b>D</b><span>Definition</span><b>P</b><span>Pop ut</span><b>[ ]</b><span>Föregående / nästa figur</span><b>, .</b><span>Föregående / nästa preset</span><b>K / Shift+K</b><span>Kopiera länk / elevlänk</span><b>X</b><span>Exportera bild (SVG)</span><b>W</b><span>Arbetsblad för utskrift</span><b>O</b><span>Nät-övning</span><b>E</b><span>Eleven räknar (elevläge)</span><b>?</b><span>Den här hjälpen (Esc stänger)</span></div></aside>
+  <b>I</b><span>Inställningar</span><b>B</b><span>Beräkningar</span><b>U</b><span>Uträkning</span><b>V / A / Y</b><span>Volym / Begränsningsyta / Basytan</span><b>D</b><span>Definition</span><b>P</b><span>Pop ut</span><b>[ ]</b><span>Föregående / nästa figur</span><b>, .</b><span>Föregående / nästa preset</span><b>K / Shift+K</b><span>Kopiera länk / elevlänk</span><b>X</b><span>Exportera bild (SVG)</span><b>W</b><span>Arbetsblad för utskrift</span><b>S</b><span>Elevvy (uppgifter steg för steg)</span><b>O</b><span>Nät-övning</span><b>E</b><span>Eleven räknar (elevläge)</span><b>?</b><span>Den här hjälpen (Esc stänger)</span></div></aside>
  <aside class="gl" id="defCard" aria-label="Definition"><div class="hd"><h2 id="defT"></h2><button id="defX" aria-label="Stäng definition">✕</button></div><div id="defBody"></div></aside>
+ <button class="gl" id="openC" aria-expanded="false" aria-controls="drawer">Beräkningar</button>
  <aside class="gl" id="drawer" aria-label="Beräkningar">
   <div class="tabs" id="modeRow"><button id="mG" aria-pressed="true" title="Läraren visar uträkningen">Genomgång</button><button id="mE" aria-pressed="false" title="Eleven fyller i egna fält (E)">Eleven räknar</button></div>
   <div class="tabs"><button id="tV" aria-pressed="true">Volym</button><button id="tA" aria-pressed="false">Begränsningsyta</button><button id="tB" aria-pressed="false" title="Hitta basytan (Y)">Basytan</button>
@@ -602,6 +619,7 @@ function apply(){
  $('fold').value=Math.round((1-t)*100);
  $('zr').textContent=Math.round(zm*100)+' %';
  $('play').textContent=G.nonet?'Inget nät':t>0.5?'Vik ut':'Vik ihop';
+ const ep=$('evPlay');if(ep)ep.textContent=t>0.5?'Öppna nät':'Stäng nät';
  $('below').textContent=tilt>110?'Tillbaka':'Se golvytan';
 }
 const R=(n,x)=>`<div class="rw"><span class="n">${n}</span><div>${x}</div></div>`,pl=(x,c)=>`<span class="pl" style="background:${c}">${x}</span>`;
@@ -617,14 +635,14 @@ function elev(I,u,facit){
  let x='';
  if(I.vol==='sph'){
   x=tab==='V'?R(1,choices())+R(2,`r = ${fx('r',I.r,u)}`)+R(3,`Svar: Volymen är ${fx('V',I.V,u+'³')}`)
-   :`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan. Ett klot har en enda krökt yta.</div>`+R(1,'B.Y. = 4 · π · r · r')+R(2,`r = ${fx('r',I.r,u)}`)+R(3,`Svar: B.Y. är ${fx('t',I.A,u+'²')}`);
+   :`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan.${facit?' Ett klot har en enda krökt yta.':''}</div>`+R(1,'B.Y. = 4 · π · r · r')+R(2,`r = ${fx('r',I.r,u)}`)+R(3,`Svar: B.Y. är ${fx('t',I.A,u+'²')}`);
  }else if(tab==='V'){
   const py=I.vol==='pyr';
   x=R(1,choices())+R(2,`Basytan är en ${sel()}<br>B = ${fx('B',I.B,u+'²')}`)+R(3,`h = ${fx('h',I.h,u)}`)+
    R(4,py?`V = ${frac(`${fx('sB',I.B)} · ${fx('sh',I.h)}`,'3')}`:`V = ${fx('sB',I.B)} · ${fx('sh',I.h)}`)+R(5,`Svar: Volymen är ${fx('V',I.V,u+'³')}`);
  }else{
   const T=I.areas,tot=T.reduce((a,t)=>a+t.m*t.v,0),term=(a,v)=>`<span class="nb">${a.m>1?a.m+' · ':''}${v}</span>`;
-  x=`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan${I.note?'<br>'+I.note(u):''}</div>`+R(1,'B.Y. = '+T.map(a=>term(a,pl(a.k,a.c))).join(' + '))+
+  x=`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan${facit&&I.note?'<br>'+I.note(u):''}</div>`+R(1,'B.Y. = '+T.map(a=>term(a,pl(a.k,a.c))).join(' + '))+
    T.map((a,i)=>R(i+2,`${pl(a.k,a.c)} = ${fx('a'+i,a.v,u+'²')}`)).join('')+R(T.length+2,`Svar: B.Y. är ${fx('t',tot,u+'²')}`);
  }
  $('res').innerHTML=x;
@@ -638,15 +656,15 @@ const AREAF={'kvadrat':0,'rektangel':1,'triangel':2,'liksidig triangel':2,'cirke
 const AREAOPT=()=>['s · s','b · h',frac('b · h','2'),'π · r · r',`n · ${frac('a · k','2')}`];
 function expSets(){return (fig==='rb'||fig==='kub')?[['base','top'],['back','front'],['left','right']]:[G.faces.filter(f=>f.grp==='bas').map(f=>f.id)]}
 function shapeOf(ids){if(fig==='rb'||fig==='kub'){const n=G.by[ids[0]].mt.split('×').map(x=>parseFloat(x));return n[0]===n[1]?'kvadrat':'rektangel'}return G.info.shape}
-function selUI(){const sel=new Set(tab==='B'?(ans.B_sel||[]):[]),ok=ans.B_ok1;DOC.querySelectorAll('.f').forEach(e=>{const id=e.dataset.id;e.dataset.sel=sel.has(id)?(ok===true?'ok':ok===false?'bad':'1'):''})}
+function selUI(){const sel=new Set(tab==='B'||evMode?(ans.B_sel||[]):[]),ok=ans.B_ok1;DOC.querySelectorAll('.f').forEach(e=>{const id=e.dataset.id;e.dataset.sel=sel.has(id)?(ok===true?'ok':ok===false?'bad':'1'):''})}
 function toggleSel(id){
  if(G.sphere||!G.by[id]||!G.by[id].grp)return;
  const a=ans.B_sel||[],i=a.indexOf(id);if(i<0)a.push(id);else a.splice(i,1);
- ans.B_sel=a;delete ans.B_ok1;delete ans.B_shape;delete ans.B_sh;delete ans.B_ar;results();
+ ans.B_sel=a;delete ans.B_ok1;delete ans.B_shape;delete ans.B_sh;delete ans.B_ar;refresh();
 }
 function checkSel(){
  const E=expSets(),S=new Set(ans.B_sel||[]),ok=E.some(q=>q.length===S.size&&q.every(i=>S.has(i)));
- ans.B_ok1=ok;if(ok)ans.B_shape=shapeOf([...S]);results();
+ ans.B_ok1=ok;if(ok)ans.B_shape=shapeOf([...S]);refresh();
 }
 function taskB(I,facit){
  if(fig==='cn'){$('res').innerHTML='<div class="q" style="margin:0 0 6px">Kuben har sex lika stora kvadrater, och vilka två som är basytor spelar ingen roll. Välj Kuben i figurlistan om du vill öva på basytor.</div>';return}
@@ -654,14 +672,14 @@ function taskB(I,facit){
  const E=expSets();
  if(facit){ans.B_sel=E[0].slice();ans.B_ok1=true;ans.B_shape=shapeOf(E[0]);ans.B_sh=ans.B_shape;ans.B_ar=AREAF[ans.B_shape]}
  const sel=ans.B_sel||[],ok1=ans.B_ok1,mk=st=>`<span class="mk" style="color:${st==='ok'?'#18a348':'#e02020'}">${st==='ok'?'✓':'✗'}</span>`;
- let x=`<div class="q" style="font-size:.78rem;margin:0 0 6px">Klicka på ytorna i figuren. Det går bra både när den är hopvikt och som nät.</div>`;
+ let x=`<div class="q" style="font-size:.78rem;margin:0 0 6px">Klicka på ytorna i figuren. <button id="bNet" style="min-height:26px;padding:0 10px">Öppna / stäng nät</button></div>`;
  x+=R(1,`Klicka på <b>basytorna</b> i figuren (det finns ${E[0].length} st). Valda: <b>${sel.length}</b> <button id="bChk" ${sel.length?'':'disabled'}>Rätta</button> ${ok1===true?mk('ok'):ok1===false?mk('bad')+' <span class="q">Det stämmer inte. Basytorna är ${E[0].length} st, och de är lika stora och motstående.</span>':''}`);
  if(ok1===true){
   const sh=ans.B_sh,st=facit?'ok':sh?(sh===ans.B_shape?'ok':'bad'):'';
   x+=R(2,`Basytan är en <select class="ai ${st}" ${facit?'disabled':''} aria-label="Basytans form"><option value="">välj …</option>${SHAPES.map(v=>`<option${v===(facit?ans.B_shape:sh)?' selected':''}>${v}</option>`).join('')}</select> ${st?mk(st):''}`);
   if(sh===ans.B_shape){
    const ar=ans.B_ar,right=AREAF[ans.B_shape],opts=AREAOPT();
-   x+=R(3,`Hur räknar man basytans area?<div class="fch" style="margin-top:4px">${opts.map((o,i)=>`<button class="fc" data-i="${i}" aria-pressed="${ar===i}" ${facit?'disabled':''}>A = ${o}</button>`).join('')}${ar===undefined?'':mk(ar===right?'ok':'bad')}</div>`);
+   x+=R(3,`Hur räknar man basytans area?<div class="fch" style="margin-top:4px">${opts.map((o,i)=>i===4&&right!==4?'':`<button class="fc" data-i="${i}" aria-pressed="${ar===i}" ${facit?'disabled':''}>A = ${o}</button>`).join('')}${ar===undefined?'':mk(ar===right?'ok':'bad')}</div>`);
    if(ar===right)x+=R(4,`<span class="ans">Rätt!</span> Nu kan du räkna B och V i fliken <button id="bGo">Volym</button>`);
   }
  }
@@ -670,6 +688,7 @@ function taskB(I,facit){
  const sh=$('res').querySelector('select.ai');if(sh)sh.onchange=()=>{ans.B_sh=sh.value;results()};
  $('res').querySelectorAll('button.fc').forEach(b=>{b.onclick=()=>{ans.B_ar=+b.dataset.i;results()}});
  const g=$('bGo');if(g)g.onclick=()=>$('tV').click();
+ const bn=$('bNet');if(bn)bn.onclick=()=>go(t>0.5?0:1,1500);
 }
 function results(){
  const u=$('unit').value,c=$('sCalc').checked,q='<span class="q">?</span>',I=G.info;let x='';
@@ -680,7 +699,7 @@ function results(){
  if(I.vol==='sph'){
   const r=I.r;
   x=tab==='V'?R(1,`V = ${frac('4 · π · r · r · r','3')}`)+R(2,c?`r = ${r} ${u}`:`r = ${q}`)+R(3,c?`V = ${frac(`4 · 3,14 · ${r} · ${r} · ${r}`,'3')}<br>V = ${frac(fm(4*3.14*r*r*r),'3')}<br>V ≈ ${fm(I.V)} ${u}³`:`V = ${q}`)+R(4,c?`Svar: Volymen är ungefär <span class="ans">${fm(I.V)} ${u}³</span>.`:`Svar: ${q}`)
-   :`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan. Ett klot har en enda krökt yta.</div>`+R(1,'B.Y. = 4 · π · r · r')+R(2,c?`r = ${r} ${u}`:`r = ${q}`)+R(3,c?`B.Y. = 4 · 3,14 · ${r} · ${r}<br>B.Y. ≈ ${fm(I.A)} ${u}²`:`B.Y. = ${q}`)+R(4,c?`Svar: Begränsningsytan är ungefär <span class="ans">${fm(I.A)} ${u}²</span>.`:`Svar: ${q}`);
+   :`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan.${c?' Ett klot har en enda krökt yta.':''}</div>`+R(1,'B.Y. = 4 · π · r · r')+R(2,c?`r = ${r} ${u}`:`r = ${q}`)+R(3,c?`B.Y. = 4 · 3,14 · ${r} · ${r}<br>B.Y. ≈ ${fm(I.A)} ${u}²`:`B.Y. = ${q}`)+R(4,c?`Svar: Begränsningsytan är ungefär <span class="ans">${fm(I.A)} ${u}²</span>.`:`Svar: ${q}`);
   $('res').innerHTML=x;return;
  }
  if(tab==='V'){
@@ -692,7 +711,7 @@ function results(){
    R(5,c?`Svar: Volymen är ${I.approx?'ungefär ':''}<span class="ans">${fm(I.V)} ${u}³</span>.`:`Svar: ${q}`);
  }else{
   const T=I.areas,tot=T.reduce((a,t)=>a+t.m*t.v,0),term=(a,v)=>`<span class="nb">${a.m>1?a.m+' · ':''}${v}</span>`;
-  x=`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan${I.note?'<br>'+I.note(u):''}</div>`+
+  x=`<div class="q" style="font-size:.78rem;margin:0 0 6px">B.Y. = begränsningsytan${c&&I.note?'<br>'+I.note(u):''}</div>`+
    R(1,'B.Y. = '+T.map(a=>term(a,pl(a.k,a.c))).join(' + '))+
    T.map((a,i)=>R(i+2,c?`${pl(a.k,a.c)} = ${a.e} = ${fm(a.v)} ${u}²`:`${pl(a.k,a.c)} = ${q}`)).join('')+
    R(T.length+2,c?`B.Y. = ${T.map(a=>term(a,pl(fm(a.v),a.c))).join(' + ')}<br>= ${T.map(a=>pl(fm(a.m*a.v),a.c)).join(' + ')}<br>${I.approx?'≈':'='} ${fm(tot)} ${u}²`:`B.Y. = ${q}`)+
@@ -777,7 +796,7 @@ stage.onpointermove=e=>{
  if(!drag)return;
  rz=drag.rz+(e.clientX-drag.x)*.5;rx=Math.max(-t*55,Math.min(180-t*55,drag.rx-(e.clientY-drag.y)*.5));apply();
 };
-stage.onpointerup=e=>{if(dn&&dn.id&&ptr.size===1&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<5){if(tab==='B'&&$('drawer').classList.contains('on'))toggleSel(dn.id);else{const g=G.by[dn.id].grp;if(g)setHl(hl===g?'':g);$('defCard').classList.add('on');defUI()}}dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
+stage.onpointerup=e=>{if(dn&&dn.id&&ptr.size===1&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<5){if(evMode){if(ans.B_ok1!==true)toggleSel(dn.id)}else if(tab==='B'&&$('drawer').classList.contains('on'))toggleSel(dn.id);else{const g=G.by[dn.id].grp;if(g)setHl(hl===g?'':g);$('defCard').classList.add('on');defUI()}}dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 stage.onpointercancel=e=>{dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 window.onresize=build;
 let pref='1';try{pref=localStorage.getItem('gk_panels')||'1'}catch(e){}
@@ -842,6 +861,7 @@ function key(e){
   case 'k':copyLink(e.shiftKey);break;
   case 'x':$('expB').click();break;
   case 'w':$('shOpen').click();break;
+  case 's':$('evOpen').click();break;
   case 'o':$('qOpen').click();break;
   case 'e':if(!$('drawer').classList.contains('on'))$('openC').click();$(emode==='E'?'mG':'mE').click();break;
   case '?':$('keysCard').classList.toggle('on');break;
@@ -962,17 +982,18 @@ function svgExport(o){
  const defs='<radialGradient id="sg" cx="35%" cy="30%"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#9fdcd8"/><stop offset="1" stop-color="#8FB0F7"/></radialGradient>';
  return {W,H,svg:`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Sora, 'Segoe UI', Arial, sans-serif"><title>${esc(G.def.t)}</title><defs>${defs}</defs><g id="kropp">${body}</g><g id="nat">${net}</g></svg>`};
 }
-const EXIDS=['exP1','exP2','exP3','exC1','exC2','exTr','exGrid','exBase','exEdge','exLtr','exSide','exArea'];
-function expOpts(){return {part:$('exP2').checked?'body':$('exP3').checked?'net':'both',col:$('exC1').checked,tr:$('exTr').checked,grid:$('exGrid').checked,base:$('exBase').checked,edge:$('exEdge').checked,ltr:$('exLtr').checked,side:$('exSide').checked,area:$('exArea').checked}}
+const EXIDS=['exFs','exP1','exP2','exP3','exC1','exC2','exTr','exGrid','exBase','exEdge','exLtr','exSide','exArea'];
+function expOpts(){return {part:$('exP2').checked?'body':$('exP3').checked?'net':'both',col:$('exC1').checked,tr:$('exTr').checked,grid:$('exGrid').checked,base:$('exBase').checked,edge:$('exEdge').checked,ltr:$('exLtr').checked,side:$('exSide').checked,area:$('exArea').checked,fs:+$('exFs').value}}
 function expRender(){$('expPrev').innerHTML=svgExport(expOpts()).svg}
 EXIDS.forEach(i=>{$(i).onchange=expRender});
+$('exNone').onclick=()=>{['exEdge','exLtr','exSide','exArea'].forEach(i=>{$(i).checked=false});expRender()};
 function openExp(on){$('expCard').classList.toggle('on',on);if(on){$('exBase').checked=lie&&!!FIG[fig].lie;expRender()}}
 $('expB').onclick=()=>openExp(!$('expCard').classList.contains('on'));$('expX').onclick=()=>openExp(false);
 function expName(tag){return `${fig}${lie&&FIG[fig].lie?'-liggande':''}_${Object.entries(dm[fig]).map(([k,v])=>k+v).join('-')}_${$('unit').value}_${tag}.svg`}
 function dlSVG(name,svg){const W=DOC.defaultView,a=DOC.createElement('a');a.href=W.URL.createObjectURL(new W.Blob([svg],{type:'image/svg+xml'}));a.download=name;DOC.body.appendChild(a);a.click();a.remove();setTimeout(()=>W.URL.revokeObjectURL(a.href),3000)}
 $('expD').onclick=()=>{const o=expOpts(),tag=[o.part==='both'?'':o.part,o.col?'farg':'utan-farg',o.tr?'genomskinlig':'',o.edge?'kantmatt':'',o.ltr?'bokstaver':'',o.side?'sidomatt':'',o.area?'areor':''].filter(Boolean).join('_');dlSVG(expName(tag),svgExport(o).svg)};
 $('expS').onclick=()=>{
- const b=expOpts(),st=[['1-konturer',{col:false,edge:true,ltr:false,side:false,area:false}],['2-farger',{col:true,edge:true,ltr:false,side:false,area:false}],['3-bokstaver-sidomatt',{col:true,edge:true,ltr:true,side:true,area:false}],['4-areor',{col:true,edge:true,ltr:true,side:true,area:true}]];
+ const b=expOpts(),le=$('exSerLen').checked,st=[['1-konturer',{col:false,edge:le,ltr:false,side:false,area:false}],['2-farger',{col:true,edge:le,ltr:false,side:false,area:false}],['3-bokstaver-sidomatt',{col:true,edge:le,ltr:true,side:true,area:false}],['4-areor',{col:true,edge:le,ltr:true,side:true,area:true}]];
  st.forEach(([tag,x],i)=>setTimeout(()=>dlSVG(expName(tag),svgExport({...b,...x}).svg),i*450));
 };
 // ---------- Nät-övning ----------
@@ -1060,30 +1081,31 @@ function areaRows(I,u,facit,scaf,sph,col){
  R.push(['Svar:',`Begränsningsytan är ${I.approx?'ungefär ':''}${fm(tot)} ${u}².`]);
  return R.map(([l,f])=>rowS(l,f,facit,scaf)).join('');
 }
+const givenB=(f,I,u)=>['p5','p6','py5','py6'].includes(f)?` Basytans area är B ≈ ${fm(I.B)} ${u}² (given).`:'';
 const SIGN='<div class="pgf">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>';
 function sheetPage(f,d,lv,col,facit,scaf){
  return withState(f,d,lv,()=>{
   const G=layout(geo()),I=G.info,u=$('unit').value,sph=!!G.sphere;
-  const pic=svgExport({part:'both',col,tr:false,grid:true,base:false,edge:true,ltr:true,side:false,area:false,noB:true,box:[178,80],pt:8,dia:sheetDia}).svg;
+  const pic=svgExport({part:'both',col,tr:false,grid:true,base:false,edge:$('shEdge').checked,ltr:true,side:false,area:false,noB:true,box:[178,80],pt:8,dia:sheetDia}).svg;
   const gp=(t,w)=>facit?`<span class="fa">${t}</span>`:`<span class="gp" style="min-width:${w}em"></span>`;
   const dims=dimsOf(f,u);
   const nb=G.faces.filter(x=>x.grp==='bas').length,round=['cy','ko','kl'].includes(f);let n=0,q='';
   if(!sph){
    q+=`<p><b>${++n}.</b> Färglägg ${nb>1?'de två <b>basytorna</b>':'<b>basytan</b>'} i nätet. ${nb>1?'Basytorna':'Basytan'} är en ${gp(I.shape,12)}</p>`;
-   q+=`<p><b>${++n}.</b> Hur räknar man basytans area?${scaf||facit?' A =':''} ${gp(AREATXT[I.shape],10)}</p>`;
+   if(!givenB(f,I,u))q+=`<p><b>${++n}.</b> Hur räknar man basytans area?${scaf||facit?' A =':''} ${gp(AREATXT[I.shape],10)}</p>`;
   }
   q+=`<p><b>${++n}.</b> Beräkna volymen.</p>`+volRows(I,u,facit,scaf,sph);
   q+=`<p><b>${++n}.</b> Beräkna begränsningsytan.</p>`+areaRows(I,u,facit,scaf,sph,col);
-  const info=`Mått: ${dims}.${round?' Räkna med π ≈ 3,14.':''}${I.approx?' Avrunda till en decimal.':''}`;
+  const info=`Mått: ${dims}.${givenB(f,I,u)}${round?' Räkna med π ≈ 3,14.':''}${I.approx?' Avrunda till en decimal.':''}`;
   return `<section class="pg"><h1>${facit?'Facit: ':''}${esc2(G.def.t)}${lv&&FIG[f].lie?' (liggande)':''}</h1>${facit?'':'<div class="pgn"><span>Namn:</span><span>Klass:</span><span>Datum:</span></div>'}<div class="pgimg">${pic}</div><div class="pgi">${info}</div>${q}${SIGN}</section>`;
  });
 }
 function volBlock(f,d,lv,col,facit,idx,scaf,cp){
  return withState(f,d,lv,()=>{
   const G=layout(geo()),I=G.info,u=$('unit').value,sph=!!G.sphere,round=['cy','ko','kl'].includes(f);
-  const pic=svgExport({part:'body',compact:true,col,tr:false,grid:false,base:false,edge:true,ltr:false,side:false,area:false,box:cp?[70,42]:[178,40],pt:cp?7:8,dia:sheetDia,noS:true}).svg;
+  const pic=svgExport({part:'body',compact:true,col,tr:false,grid:false,base:false,edge:$('shEdge').checked,ltr:false,side:false,area:false,box:cp?[70,42]:[178,40],pt:cp?7:8,dia:sheetDia,noS:true}).svg;
   const dims=dimsOf(f,u);
-  const info=`Mått: ${dims}.${round?' Räkna med π ≈ 3,14.':''}${I.approx?' Avrunda till en decimal.':''}`;
+  const info=`Mått: ${dims}.${givenB(f,I,u)}${round?' Räkna med π ≈ 3,14.':''}${I.approx?' Avrunda till en decimal.':''}`;
   const hd=`<div class="vh"><b>Uppgift ${idx}.</b> ${esc2(G.def.t)}${lv&&FIG[f].lie?' (liggande)':''}</div>`,rows=volRows(I,u,facit,scaf,sph);
   return cp?`<div class="vb cp">${hd}<div class="vl"><div class="pgimg">${pic}</div><div class="pgi">${info}</div></div><div class="vr">${rows}</div></div>`
            :`<div class="vb">${hd}<div class="pgimg">${pic}</div><div class="pgi">${info}</div>${rows}</div>`;
@@ -1142,6 +1164,74 @@ function printSheets(){
 }
 $('shGo').onclick=printSheets;$('shPrev').onclick=previewSheets;
 $('shOpen').onclick=()=>$('shCard').classList.toggle('on');$('shX').onclick=()=>$('shCard').classList.remove('on');
+// ---------- Elevvy: figur till vänster, uppgift steg för steg till höger ----------
+let evMode=false,evIdx=0;const evDone=new Set();
+const PATH=[{f:'rb',d:{l:4,b:3,h:2}},{f:'kub',d:{l:3}},{f:'pr',d:{tb:3,th:4,ph:5},lie:1},{f:'cy',d:{r:2,h:5}},{f:'py',d:{l:6,b:6,h:4}},{f:'ko',d:{r:3,h:4}},{f:'pr',d:{tb:5,th:12,ph:4}},{f:'kl',d:{r:3}}];
+const refresh=()=>{if(evMode)evRender();else results()};
+function closeCards(){['drawer','defCard','keysCard','expCard','qCard','shCard'].forEach(i=>{const e=$(i);if(e)e.classList.remove('on')});$('openC').textContent='Beräkningar';$('openC').setAttribute('aria-expanded',false)}
+function loadTask(i){
+ evIdx=Math.max(0,Math.min(PATH.length-1,i));const q=PATH[evIdx];
+ setState({f:q.f,d:q.d,lie:!!q.lie,u:'cm',s:'ef',k:0,tab:'V',m:'G'});
+ evRender();
+}
+function enterEv(i){evMode=true;$('app').classList.add('ev');closeCards();loadTask(i||0);setTimeout(build,60)}
+function exitEv(){evMode=false;$('app').classList.remove('ev');setTimeout(build,60)}
+function evFacit(){
+ const I=G.info,E=expSets(),sph=!!G.sphere,ci=I.vol==='pyr'?1:I.vol==='sph'?2:0;
+ if(!sph){ans.B_sel=E[0].slice();ans.B_ok1=true;ans.B_shape=shapeOf(E[0]);ans.B_sh=ans.B_shape;ans.B_ar=AREAF[ans.B_shape];ans.E_B=fm(I.B);ans.E_h=fm(I.h);ans.E_sB=fm(I.B);ans.E_sh=fm(I.h)}
+ else ans.E_r=fm(I.r);
+ ans.E_f=ci;ans.E_V=fm(I.V);evRender();
+}
+function evRender(){
+ if(!evMode||!G)return;
+ const sg=JSON.stringify([fig,dm[fig],lie]);if(sg!==lastSig){ans={};lastSig=sg}
+ const I=G.info,u=$('unit').value,sph=!!G.sphere,E=expSets(),py=I.vol==='pyr';
+ const mk=st=>`<span class="mk" style="color:${st==='ok'?'#18a348':'#e02020'}">${st==='ok'?'✓':'✗'}</span>`,has=k=>ans[k]!==undefined&&ans[k]!=='';
+ const dims=dimsOf(fig,u)+(['cy','ko','kl'].includes(fig)?'. Räkna med π ≈ 3,14':'')+(I.approx?'. Avrunda till en decimal':'');
+ const forms=['V = B · h',`V = ${frac('B · h','3')}`,`V = ${frac('4 · π · r · r · r','3')}`],ci=I.vol==='pyr'?1:I.vol==='sph'?2:0;
+ let n=0;const step=(title,body)=>`<div class="evs"><div class="evsh"><b>${++n}.</b> ${title}</div>${body}</div>`;
+ const fx=(k,e,suf)=>{const kk='E_'+k,st=has(kk)?(numOK(ans[kk],e)?'ok':'bad'):'';return `<input class="ai ${st}" data-k="${kk}" data-e="${e}" value="${ans[kk]??''}" inputmode="decimal" aria-label="Fyll i svar">${suf?' '+suf:''}${st?mk(st):''}`};
+ let h=`<div class="evh"><span class="evt">Uppgift ${evIdx+1} av ${PATH.length}</span><span style="flex:1"></span><button id="evP" ${evIdx?'':'disabled'} aria-label="Föregående uppgift">◀</button><button id="evN" ${evIdx<PATH.length-1?'':'disabled'} aria-label="Nästa uppgift">▶</button></div>`;
+ h+=`<div class="evprog">${PATH.map((_,i)=>`<span class="${evDone.has(i)?'dn':''} ${i===evIdx?'on':''}"></span>`).join('')}</div>`;
+ h+=`<div class="evh" style="margin-top:4px"><b>${esc2(G.def.t)}${lie&&FIG[fig].lie?' (liggande)':''}</b></div><div style="font-size:.85rem;color:#585078;margin:2px 0 8px">Mått: ${dims}.</div>`;
+ h+=`<div class="row" style="margin-bottom:4px"><button id="evPlay">${t>0.5?'Öppna nät':'Stäng nät'}</button><button id="evRs">Återställ vy</button>${locked?'':'<button id="evFa">Visa facit</button><button id="evLk">Elevlänk</button><button id="evX">Avsluta</button>'}</div>`;
+ const vol=()=>{
+  let x=step('Vilken formel ska du använda för volymen?',`<div class="fch">${forms.map((f,i)=>`<button class="fc" data-v="${i}" aria-pressed="${ans.E_f===i}">${f}</button>`).join('')}${ans.E_f===undefined?'':mk(ans.E_f===ci?'ok':'bad')}</div>`);
+  if(ans.E_f===ci){
+   if(sph)x+=step('Beräkna volymen.',`<div class="evr">r = ${fx('r',I.r,u)}</div><div class="evr">Svar: Volymen är ${fx('V',I.V,u+'³')}</div>`);
+   else x+=step('Beräkna volymen.',`<div class="evr">B = ${fx('B',I.B,u+'²')}</div><div class="evr">h = ${fx('h',I.h,u)}</div><div class="evr">V = ${py?frac(`${fx('sB',I.B)} · ${fx('sh',I.h)}`,'3'):`${fx('sB',I.B)} · ${fx('sh',I.h)}`}</div><div class="evr">Svar: Volymen är ${fx('V',I.V,u+'³')}</div>`);
+  }
+  return x;
+ };
+ if(!sph){
+  const sel=ans.B_sel||[],ok1=ans.B_ok1;
+  h+=step(`Klicka på ${E[0].length>1?'de två <b>basytorna</b>':'<b>basytan</b>'} i figuren.`,`<div class="q" style="font-size:.8rem;margin-bottom:4px">Tips: öppna nätet för att se alla sidor. Valda: <b>${sel.length}</b></div><button id="evChk" ${sel.length&&ok1!==true?'':'disabled'}>Rätta</button> ${ok1===true?mk('ok'):ok1===false?mk('bad')+' <span class="q">Det stämmer inte.</span>':''}`);
+  if(ok1===true){
+   const shp=ans.B_sh,st=shp?(shp===ans.B_shape?'ok':'bad'):'';
+   h+=step('Vilken form har basytan?',`<select class="ai ${st}" id="evSh" aria-label="Basytans form"><option value="">välj …</option>${SHAPES.map(v=>`<option${v===shp?' selected':''}>${v}</option>`).join('')}</select> ${st?mk(st):''}`);
+   if(shp===ans.B_shape){
+    const ar=ans.B_ar,right=AREAF[ans.B_shape];
+    h+=step('Hur räknar man basytans area?',`<div class="fch">${AREAOPT().map((o,i)=>i===4&&right!==4?'':`<button class="fc" data-a="${i}" aria-pressed="${ar===i}">A = ${o}</button>`).join('')}${ar===undefined?'':mk(ar===right?'ok':'bad')}</div>`);
+    if(ar===right)h+=vol();
+   }
+  }
+ }else h+=vol();
+ if(has('E_V')&&numOK(ans.E_V,I.V)){
+  evDone.add(evIdx);
+  h+=`<div class="evok">Klart! ✓ ${evIdx<PATH.length-1?'<button id="evNx" class="main">Nästa uppgift ▶</button>':'Du har klarat alla uppgifter.'}</div>`;
+ }
+ const P=$('evPanel');P.innerHTML=h;
+ const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
+ on('evP',()=>loadTask(evIdx-1));on('evN',()=>loadTask(evIdx+1));on('evNx',()=>loadTask(evIdx+1));
+ on('evPlay',()=>go(t>0.5?0:1,1500));on('evRs',()=>cam(0,0,700,1));on('evFa',evFacit);on('evLk',()=>copyLink(true));on('evX',exitEv);
+ on('evChk',checkSel);
+ const sh=$('evSh');if(sh)sh.onchange=()=>{ans.B_sh=sh.value;evRender()};
+ P.querySelectorAll('button[data-a]').forEach(b=>b.onclick=()=>{ans.B_ar=+b.dataset.a;evRender()});
+ P.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>{ans.E_f=+b.dataset.v;evRender()});
+ P.querySelectorAll('input.ai').forEach(el=>{el.onchange=()=>{ans[el.dataset.k]=el.value;if(el.dataset.k==='E_V'){evRender();return}const st=el.value===''?'':numOK(el.value,+el.dataset.e)?'ok':'bad';el.className='ai '+st;let m=el.nextSibling;while(m&&!(m.classList&&m.classList.contains('mk')))m=m.nextSibling;if(m){m.textContent=st==='ok'?'✓':st==='bad'?'✗':'';m.style.color=st==='ok'?'#18a348':'#e02020'}}});
+ selUI();
+}
+$('evOpen').onclick=()=>{if(evMode)exitEv();else enterEv(evIdx)};
 const PRE={
  rb:[{n:'Standard',d:{l:4,b:3,h:2}},{n:'Låg platta',d:{l:6,b:4,h:1}},{n:'Hög pelare',d:{l:2,b:2,h:6}},{n:'Stor',d:{l:8,b:5,h:3}}],
  kub:[{n:'Sida 2',d:{l:2}},{n:'Sida 3',d:{l:3}},{n:'Sida 4',d:{l:4}},{n:'Sida 5',d:{l:5}}],
@@ -1167,15 +1257,17 @@ function stepPreset(dir){
 $('preP').onclick=()=>stepPreset(-1);$('preNx').onclick=()=>stepPreset(1);
 // ---- uppgiftsformat: en vy som data (samma format för presets, länkar, export och elevuppgifter) ----
 const FLAGS=[['sEdge','e'],['sMeas','m'],['sAns','a'],['sFloor','f'],['sWalls','w'],['sFocus','o'],['sTr','t'],['sHo','h'],['sCalc','c']];
-function getState(){return {f:fig,d:{...dm[fig]},lie:lie&&!!FIG[fig].lie,u:$('unit').value,s:FLAGS.filter(([id])=>$(id).checked).map(x=>x[1]).join(''),k:Math.round((1-t)*100),tab,m:emode}}
-function toHash(S){const p=new URLSearchParams();p.set('f',S.f);p.set('d',Object.entries(S.d).map(([k,v])=>k+':'+v).join(','));if(S.lie)p.set('l','1');if(S.lock)p.set('lock','1');p.set('u',S.u);p.set('s',S.s);p.set('k',S.k);p.set('tab',S.tab);if(S.m==='E')p.set('m','E');return '#'+p.toString()}
+function getState(){return {f:fig,d:{...dm[fig]},lie:lie&&!!FIG[fig].lie,u:$('unit').value,s:FLAGS.filter(([id])=>$(id).checked).map(x=>x[1]).join(''),k:Math.round((1-t)*100),tab,m:emode,ev:evMode,q:evIdx}}
+function toHash(S){const p=new URLSearchParams();p.set('f',S.f);p.set('d',Object.entries(S.d).map(([k,v])=>k+':'+v).join(','));if(S.lie)p.set('l','1');if(S.lock)p.set('lock','1');p.set('u',S.u);p.set('s',S.s);p.set('k',S.k);p.set('tab',S.tab);if(S.m==='E')p.set('m','E');if(S.ev){p.set('ev','1');p.set('q',S.q)}return '#'+p.toString()}
 function parseHash(){
  const h=location.hash.slice(1);if(!h)return null;
  try{const p=new URLSearchParams(h),d={};(p.get('d')||'').split(',').forEach(x=>{const [k,v]=x.split(':');if(k&&v)d[k]=v});
-  return {f:p.get('f'),d,lie:p.get('l')==='1',u:p.get('u'),s:p.has('s')?p.get('s'):undefined,k:p.get('k'),tab:p.get('tab'),m:p.get('m'),lock:p.get('lock')==='1'}}catch(e){return null}
+  return {f:p.get('f'),d,lie:p.get('l')==='1',u:p.get('u'),s:p.has('s')?p.get('s'):undefined,k:p.get('k'),tab:p.get('tab'),m:p.get('m'),lock:p.get('lock')==='1',ev:p.get('ev')==='1',q:p.get('q')}}catch(e){return null}
 }
 function applyLock(on){locked=on;$('app').classList.toggle('lock',on);if(on){emode='E';syncMode();if(!$('drawer').classList.contains('on'))$('openC').click();setPanels(false)}}
 function setState(S){
+ if(S&&S.ev){if(S.lock!==undefined)applyLock(!!S.lock);enterEv(+S.q||0);return}
+ if(S&&S.ev===false&&evMode)exitEv();
  if(!S||!FIG[S.f])return;
  fig=S.f;
  FIG[fig].P.forEach(([k,,m])=>{if(S.d&&S.d[k]!==undefined){const v=parseInt(S.d[k],10);if(v>=1&&v<=(m||MAX))dm[fig][k]=v}});
