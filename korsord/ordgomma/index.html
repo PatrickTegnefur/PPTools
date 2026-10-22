@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ordgömman</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Sora:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Sora:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f6f4ff;--surface:#fff;--surface2:#eae6ff;--border:#ccc5f0;--text:#100e28;--muted:#585078;--accent:#306BF0;--accent2:#EC6095;
 --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);--correct:#18a348;--wrong:#e02020;--shadow:rgba(48,107,240,.12);
@@ -19,7 +19,7 @@ body{margin:0;font-family:Sora,system-ui,sans-serif;color:var(--text);background
 .amb i:nth-child(3){width:400px;height:400px;background:#EC6095;bottom:-120px;left:25%}
 header{background:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);height:64px;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,.18);display:flex;align-items:center;padding:0 24px}
 header h1{margin:0;font:700 1.5rem Montserrat,sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)}
-main{max-width:1000px;margin:0 auto;padding:24px 16px;display:grid;gap:24px}
+main{max-width:1240px;margin:0 auto;padding:24px 16px;display:grid;gap:24px}
 .panel{background:rgba(255,255,255,.72);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.9);border-radius:20px;padding:24px;box-shadow:0 8px 24px var(--shadow),0 2px 6px rgba(16,14,40,.05)}
 h2{font:700 1.05rem Montserrat,sans-serif;margin:0 0 10px}
 label{font-weight:600;font-size:.88rem}
@@ -40,19 +40,21 @@ button.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
 button[aria-pressed=true]{background:var(--text);color:#fff;border-color:var(--text)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .hint{font-size:.82rem;color:var(--muted);margin:8px 0 0}
-#play{display:none;grid-template-columns:auto minmax(200px,1fr);gap:24px;align-items:start}
+#play{display:none;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start;width:100%}
+main>section:not(#play){max-width:1000px;width:100%;margin-inline:auto}
+#boardp{overflow-x:auto;text-align:center}
 #play.on{display:grid}
-@media(max-width:720px){#play.on{grid-template-columns:1fr}}
+@media(max-width:860px){#play.on{grid-template-columns:1fr}}
 #grid{touch-action:none;user-select:none;-webkit-user-select:none;display:inline-block;background:#fff;border:2px solid var(--accent);border-radius:14px;padding:6px}
 .gr{display:flex}
-.c{width:var(--cs,38px);height:var(--cs,38px);display:flex;align-items:center;justify-content:center;font:700 calc(var(--cs,38px)*.5) Montserrat,sans-serif;border-radius:8px;cursor:pointer;border-bottom:3px solid transparent}
+.c{width:var(--cs,38px);height:var(--cs,38px);display:flex;align-items:center;justify-content:center;font:700 calc(var(--cs,38px)*.5) var(--bf,Montserrat),sans-serif;border-radius:8px;cursor:pointer;border-bottom:3px solid transparent}
 .c.sel{background:#F4A261;color:var(--text);outline:2px dashed var(--ora-d);outline-offset:-3px}
 .c.f{border-bottom-color:currentColor;text-decoration:underline;text-underline-offset:3px;background:var(--fc,#bfeceb)}
 .c.k{border-bottom-color:currentColor;background:#fff3a8;text-decoration:underline wavy}
 .c.kf{outline:3px solid var(--ros-d);outline-offset:-3px}
-#words{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
-#words li{padding:0;border-radius:999px;background:#fff;border:1.5px solid var(--border);font-weight:600;font-size:.92rem}
-#words li button{background:none;border:0;border-radius:999px;padding:6px 14px;min-height:44px;font:inherit;color:inherit;text-align:left;cursor:pointer}
+#words{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px}
+#words li{padding:0;border-radius:999px;background:#fff;border:1.5px solid var(--border);font-weight:600;font-size:.8rem}
+#words li button{background:none;border:0;border-radius:999px;padding:4px 11px;min-height:36px;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .c.h{outline:3px solid var(--ros-d);outline-offset:-3px;background:#ffe4ef;text-decoration:underline dotted}
 body.stu .tonly{display:none!important}
 #words li.d{text-decoration:line-through;background:#e8f7f7;border-color:#2a9490;color:var(--muted)}
@@ -74,7 +76,7 @@ body.stu .tonly{display:none!important}
  #pa .pb{display:flex;gap:6mm;align-items:flex-start}
  #pa.port .pb{flex-direction:column}
  #pa .pg{display:grid;border:.4mm solid #000;flex:none}
- #pa .pg span{width:var(--s);height:var(--s);display:flex;align-items:center;justify-content:center;font:600 calc(var(--s)*.56) Montserrat,sans-serif}
+ #pa .pg span{width:var(--s);height:var(--s);display:flex;align-items:center;justify-content:center;font:600 calc(var(--s)*.56) var(--bf,Montserrat),sans-serif}
  #pa .pg span.kk{background:#d4d4d4;font-weight:800;outline:.25mm solid #000;outline-offset:-.25mm}
  #pa ol{list-style:none;margin:0;padding:0;column-gap:5mm;column-count:var(--cols);font-size:calc(11pt*var(--k,1));line-height:1.3}
  #pa ol.cl{font-size:10pt;line-height:1.3;counter-reset:n}
@@ -88,14 +90,41 @@ body.stu .tonly{display:none!important}
 }
 </style>
 <style>.ck{display:flex;gap:8px;align-items:center;font-weight:400}.ck input{width:22px;height:22px}.pfn{display:none}.pfn img{height:4.5mm}
-@media print{#pa.nm .p1,#pa.nm .p2{padding:12mm}body.nm.fnon .pfn{display:flex;align-items:center;gap:2mm;position:fixed;left:12mm;right:12mm;bottom:4mm;font:400 7pt Sora,sans-serif;color:#444}}</style>
+@media print{#pa.nm .p1,#pa.nm .p2{padding:12mm;box-sizing:content-box}body.nm.fnon .pfn{display:flex;align-items:center;gap:2mm;position:fixed;left:12mm;right:12mm;bottom:4mm;font:400 7pt Sora,sans-serif;color:#444}}</style>
+<style>.steps{display:flex;gap:8px;flex-wrap:wrap}.steps button[aria-current=step]{background:var(--accent);color:#fff;border-color:var(--accent)}.steps button:disabled{opacity:.55;cursor:not-allowed}
+body.s2 #src{display:none}body:not(.s2) #play{display:none!important}
+#paste{height:220px;min-height:120px;resize:vertical}#paste.big{height:70vh}
+.stack label{display:block;margin-top:10px;font-weight:600;font-size:.88rem}.stack select{width:100%}
+details.acc{margin:0 0 14px}details.acc>summary{font:700 1rem Montserrat,sans-serif;cursor:pointer;padding:6px 0}
+#play{grid-template-areas:"b s" "w s"}#boardp{grid-area:b}#wordp{grid-area:w}#setp{grid-area:s;position:sticky;top:76px;max-height:calc(100vh - 96px);overflow:auto}
+body.stu #play.on{grid-template-columns:minmax(0,1fr);grid-template-areas:"b" "w"}
+@media(max-width:860px){#play.on{grid-template-areas:"b" "w" "s"}#setp{position:static;max-height:none}}</style>
+<style>.duo button{flex:1 1 140px;font-weight:700}
+#again{background:#1f7a77;color:#fff;border-color:#1f7a77}
+#solve{background:#F4A261;color:#100e28;border-color:#d98a45}
+#solve[aria-pressed=true]{background:#b5621a;color:#fff;border-color:#8f4c12}#solve[aria-pressed=true]::before{content:"✓ "}
+fieldset.rg{border:0;padding:0;margin:14px 0 0;min-width:0;flex:1 1 100%}fieldset.rg legend{font-weight:600;font-size:.88rem;padding:0}
+.rd{display:flex;align-items:center;gap:10px;padding:9px 12px;border:2px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;font-weight:600;font-size:.85rem;margin-top:6px;line-height:1.3}
+.rd input{width:20px;height:20px;accent-color:var(--accent);flex:none;margin:0}
+.rd:has(input:checked){border-color:var(--accent);background:#eef3ff}
+.rd:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}</style>
+<style>.row.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row.duo button{white-space:nowrap;padding:10px 8px;font-size:.9rem;min-width:0}
+.rg .opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.rd{margin-top:0;flex:1 1 auto;padding:8px 12px;white-space:nowrap}.rd.lg{white-space:normal;flex:1 1 100%}
+.rdinfo{min-height:2.6em;font-size:.8rem;line-height:1.35;color:var(--muted);margin:8px 0 0}</style>
+<style>#play{grid-template-columns:minmax(0,1fr) 400px}
+.rg .opts.n2,.rg .opts.n3,.rg .opts.n4{display:grid;gap:6px}
+.rg .opts.n3{grid-template-columns:repeat(3,1fr)}.rg .opts.n2,.rg .opts.n4{grid-template-columns:repeat(2,1fr)}
+.rd{justify-content:center;gap:8px;text-align:center;padding:9px 10px}.rd.lg{grid-column:1/-1;justify-content:flex-start;text-align:left}
+.rd input{padding:0;min-width:20px;flex:none;margin:0 2px 0 0}</style>
 </head>
 <body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i></div>
 <header><h1>Ordgömman</h1></header>
 <main>
-<section class="panel tonly" aria-labelledby="h-src">
-  <h2 id="h-src">1. Välj begrepp</h2>
+<nav class="steps tonly" aria-label="Steg"><button id="t1" type="button" aria-current="step">1. Begrepp</button><button id="t2" type="button" aria-current="false" disabled>2. Ordgömma</button></nav>
+<section id="src" class="panel tonly" aria-labelledby="h-src">
+  <h2 id="h-src">Begrepp</h2>
   <div id="bankbox" hidden>
     <label for="bank">Från Korsordsbyggaren (läses bara, ändras aldrig)</label>
     <div class="row"><select id="bank"></select><button id="load" type="button">Hämta begrepp</button></div>
@@ -104,37 +133,49 @@ body.stu .tonly{display:none!important}
   <div style="margin-top:12px">
     <label for="paste">Begrepp – ett per rad, gärna med förklaring efter tab eller semikolon</label>
     <textarea id="paste" placeholder="Primtal; Tal som bara är delbart med 1 och sig självt&#10;Kvot&#10;Parentes"></textarea>
-  </div>
-  <div class="row">
-    <label for="diff">Svårighetsgrad</label>
-    <select id="diff"><option value="easy">Lätt: bara åt höger (→) och nedåt (↓)</option><option value="mid">Mellan: höger, nedåt och diagonalt framlänges</option><option value="hard" selected>Svår: alla 8 riktningar, även baklänges</option></select>
-    <label for="gsz">Spelplanens storlek</label>
-    <select id="gsz"><option value="0">Anpassad efter antal begrepp</option><option value="3">Något större (+3 rutor)</option><option value="6">Större (+6 rutor)</option><option value="10">Mycket större (+10 rutor)</option></select>
-    <p class="hint">Större plan ger fler bokstäver att söka bland utan att fler begrepp behövs, och blir svårare.</p>
+    <div class="row"><button id="xp" type="button" aria-expanded="false">⤢ Expandera listan</button><span class="hint" id="pcount" style="margin:0"></span></div>
   </div>
   <div class="row">
     <button class="pri" id="make" type="button">Skapa ordgömma</button>
     <button id="demo" type="button">Demo: slumpa 10 begrepp</button>
-    <button id="again" type="button" hidden>↻ Nytt förslag</button>
   </div>
   <div class="msg" id="msg" role="status"></div>
 </section>
 
-<section class="panel" id="play" aria-labelledby="h-play">
-  <div>
+<section id="play" aria-labelledby="h-play">
+  <div class="panel" id="boardp">
     <h2 id="h-play" class="sr">Ordgömma</h2>
     <div id="grid" role="grid" aria-label="Bokstavsrutnät. Dra över bokstäver för att markera ett ord. Med tangentbord: pilar för att flytta, Enter för att sätta start och slut."></div>
   </div>
-  <div>
+  <div class="panel" id="wordp">
     <h2 id="h-find">Hitta orden <span id="count"></span></h2>
     <ul id="words" aria-labelledby="h-find"></ul>
-    <div class="row">
+    <div class="row"><button id="reset" type="button">Börja om</button></div>
+    <p class="hint">Fastnat? Klicka på ett ord för en ledtråd: första bokstavens ruta lyser upp, och vid ett klick till även den sista.</p>
+    <p class="hint" id="dirhint"></p>
+    <details class="stuonly"><summary>Så här gör du</summary>
+      <p>Dra med fingret eller musen över bokstäverna i ett ord. Orden kan ligga åt flera håll. Hittar du rätt får ordet en bock i listan.</p>
+      <p>Fastnat? Klicka på ordet i listan för en ledtråd. Med tangentbord: pilarna flyttar, Enter sätter start och slut.</p>
+    </details>
+    <div id="done" role="status"></div>
+  </div>
+  <div class="panel tonly" id="setp">
+    <h2 id="h-set">Inställningar</h2>
+    <details class="pbox acc" open><summary id="h-ut">Utseende och svårighet</summary>
+      <div class="row duo" style="margin-top:10px"><button id="again" type="button">↻ Nytt förslag</button><button class="tonly sol" id="solve" type="button" aria-pressed="false">Visa lösning</button></div>
       <button class="tonly" id="clues" type="button" aria-pressed="false">Visa förklaringar istället för ord</button>
-      <button class="tonly" id="solve" type="button" aria-pressed="false">Visa lösning</button>
-      <button id="reset" type="button">Börja om</button>
-    </div>
-    <div class="pbox tonly">
-      <h2 id="h-pr">Utskrift (A4)</h2>
+      <div class="stack">
+    <label for="diff">Svårighetsgrad</label>
+    <select id="diff"><option value="easy">Lätt: bara åt höger (→) och nedåt (↓)</option><option value="mid" selected>Mellan: höger, nedåt och diagonalt framlänges</option><option value="hard">Svår: alla 8 riktningar, även baklänges</option></select>
+    <label for="gsz">Spelplanens storlek</label>
+    <select id="gsz"><option value="0">Anpassad efter antal begrepp</option><option value="3">Något större (+3 rutor)</option><option value="6">Större (+6 rutor)</option><option value="10">Mycket större (+10 rutor)</option></select>
+    <label for="fnt">Typsnitt i spelplanen</label>
+    <select id="fnt"><option value="std">Standard</option><option value="lat">Lättläst</option></select>
+  </div>
+      <div class="msg" id="msg2" role="status"></div>
+    </details>
+    <details class="pbox tonly acc" open>
+      <summary id="h-pr">Utskrift (A4)</summary>
       <div class="row" role="group" aria-labelledby="h-pr" style="margin-top:0">
         <button id="pw" type="button" aria-pressed="true">Ordlista med rutor att kryssa</button>
         <button id="pc" type="button" aria-pressed="false">Förklaringar på egen sida (svårare)</button>
@@ -144,21 +185,14 @@ body.stu .tonly{display:none!important}
       <label class="ck"><input type="checkbox" id="nm" checked> Dölj datum och filsökväg i utskriften</label><label class="ck"><input type="checkbox" id="fnote" checked> Fotnot med logotyp och avsändare</label><p class="hint">Gäller Chrome och Edge. I Firefox och Safari: stäng av "Sidhuvuden och sidfötter" i utskriftsdialogen.</p>
       <div class="row"><button class="pri" id="pprint" type="button">Skriv ut</button><button id="pkey" type="button">Skriv ut facit</button></div>
       <p class="hint">Med orden får allt plats på en A4. Med förklaringar ligger spelplanen på sida 1 och förklaringarna, med en skrivrad för varje ord, på sida 2. Stående eller liggande väljs automatiskt.</p>
-    </div>
-    <p class="hint">Fastnat? Klicka på ett ord för en ledtråd: första bokstavens ruta lyser upp, och vid ett klick till även den sista.</p>
-    <p class="hint" id="dirhint"></p>
-    <details class="stuonly"><summary>Så här gör du</summary>
-      <p>Dra med fingret eller musen över bokstäverna i ett ord. Orden kan ligga åt flera håll. Hittar du rätt får ordet en bock i listan.</p>
-      <p>Fastnat? Klicka på ordet i listan för en ledtråd. Med tangentbord: pilarna flyttar, Enter sätter start och slut.</p>
     </details>
-    <div class="pbox tonly">
-      <h2 id="h-sh">Dela med elever</h2>
+    <details class="pbox tonly acc" open>
+      <summary id="h-sh">Dela med elever</summary>
       <div class="row" style="margin-top:0"><label for="smode">Eleven ser</label><select id="smode"><option value="words">Orden</option><option value="clues">Förklaringarna</option></select></div>
       <div class="row"><button class="pri" id="mklink" type="button">Skapa elevlänk</button><button id="cplink" type="button" hidden>Kopiera länk</button></div>
       <input type="text" id="linkout" readonly hidden aria-label="Elevlänk" style="margin-top:8px">
       <p class="hint">Eleven får en ren sida med bara spelplanen och orden eller förklaringarna. Markeringarna sparas på elevens egen enhet.</p>
-    </div>
-    <div id="done" role="status"></div>
+    </details>
   </div>
 </section>
 <div class="sr" id="live" aria-live="polite"></div>
@@ -234,7 +268,7 @@ function tryBuild(ws,size){
   return {g,res};
 }
 function make(){
-  const ws=parse($('paste').value);const msg=$('msg');
+  const ws=parse($('paste').value);const msg={set textContent(v){setMsg(v)}};
   if(ws.length<2){msg.textContent='Skriv eller klistra in minst två begrepp (minst två bokstäver vardera).'+(ws.dropped.length?' Hoppade över: '+ws.dropped.slice(0,6).join(', ')+'.':'');return}
   const longest=Math.max(...ws.map(w=>w.n.length));
   if(longest>22){msg.textContent='Ett begrepp har fler än 22 bokstäver. Korta ner det eller ta bort det.';return}
@@ -252,16 +286,23 @@ function make(){
   placed.forEach((p,i)=>p.color=COLORS[i%COLORS.length]);
   solve=false;$('solve').setAttribute('aria-pressed','false');
   const dr=ws.dropped;msg.textContent=dr.length?dr.length+' begrepp hoppades över: '+dr.slice(0,6).join(', ')+(dr.length>6?' …':'')+'.':'';
-  $('play').classList.add('on');$('again').hidden=false;
+  $('play').classList.add('on');$('again').hidden=false;step(2);
   render();$('live').textContent='Ordgömma skapad med '+placed.length+' ord.';
 }
 $('make').onclick=make;$('again').onclick=make;
+function setMsg(v){$('msg').textContent=v;$('msg2').textContent=v}
+function step(n){document.body.classList.toggle('s2',n===2);$('t1').setAttribute('aria-current',n===1?'step':'false');$('t2').setAttribute('aria-current',n===2?'step':'false');$('t2').disabled=!N;if(n===1)cnt();$('live').textContent=n===2?'Steg 2: ordgömman':'Steg 1: begrepp';window.scrollTo(0,0)}
+function cnt(){const w=parse($('paste').value);$('pcount').textContent=w.length+' begrepp'+(w.dropped.length?', '+w.dropped.length+' hoppas över':'')}
+$('t1').onclick=()=>step(1);$('t2').onclick=()=>step(2);
+$('diff').onchange=$('gsz').onchange=()=>{if(N)make()};
+$('xp').onclick=()=>{const b=$('paste').classList.toggle('big');$('xp').setAttribute('aria-expanded',b);$('xp').textContent=b?'⤡ Komprimera listan':'⤢ Expandera listan'};
+$('paste').addEventListener('input',cnt);$('load').addEventListener('click',()=>setTimeout(cnt,0));cnt();
 
 /* ---- Rendera ---- */
 const cells=[];
 function render(){
   const gd=$('grid');gd.innerHTML='';cells.length=0;
-  const cs=Math.max(N>20?12:22,Math.min(44,Math.floor((Math.min(innerWidth,1000)-80)/N)));
+  const wide=innerWidth>860,avail=Math.min(innerWidth,1240)-32-(wide?420:0)-44-20,cs=Math.max(N>14?14:22,Math.min(44,Math.floor(avail/N)));
   gd.style.setProperty('--cs',cs+'px');
   for(let r=0;r<N;r++){
     const row=document.createElement('div');row.className='gr';row.setAttribute('role','row');
@@ -369,16 +410,16 @@ const enc=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g
 const dec=t=>JSON.parse(decodeURIComponent(escape(atob(t.replace(/-/g,'+').replace(/_/g,'/')))));
 $('mklink').onclick=()=>{
   if(!N)return;
-  const d={t:$('ptitle').value.trim()||'Hitta orden',m:$('smode').value,n:N,g:grid.flat().join(''),w:placed.map(p=>[p.term,p.clue,p.r,p.c,p.dr,p.dc])};
+  const d={t:$('ptitle').value.trim()||'Hitta orden',m:$('smode').value,f:$('fnt').value,n:N,g:grid.flat().join(''),w:placed.map(p=>[p.term,p.clue,p.r,p.c,p.dr,p.dc])};
   const o=$('linkout');o.value=location.href.split('#')[0]+'#e='+enc(d);o.hidden=false;$('cplink').hidden=false;o.select();
   $('live').textContent='Elevlänk skapad.';
 };
 $('cplink').onclick=async()=>{const o=$('linkout'),b=$('cplink');try{await navigator.clipboard.writeText(o.value);b.textContent='Kopierad ✓'}catch(e){o.select();try{document.execCommand('copy');b.textContent='Kopierad ✓'}catch(x){}}setTimeout(()=>b.textContent='Kopiera länk',2000)};
 function startStudent(d,raw){
-  stu=true;document.body.classList.add('stu');
+  stu=true;document.body.classList.add('stu');document.body.classList.add('s2');
   N=d.n;grid=[];for(let r=0;r<N;r++)grid.push([...d.g.slice(r*N,r*N+N)]);
   placed=d.w.map((w,i)=>({term:w[0],clue:w[1],n:norm(w[0]),r:w[2],c:w[3],dr:w[4],dc:w[5],found:false,hint:0,color:COLORS[i%COLORS.length]}));
-  showClues=d.m==='clues';
+  showClues=d.m==='clues';document.documentElement.style.setProperty('--bf',d.f==='lat'?"'Atkinson Hyperlegible'":'Montserrat');
   document.querySelector('header h1').textContent=d.t;document.title=d.t;
   let h=5381;for(const ch of raw)h=((h<<5)+h+ch.charCodeAt(0))|0;skey='pt-ordgomma:'+h;
   try{const v=JSON.parse(localStorage.getItem(skey));if(v)placed.forEach((p,i)=>{const f=v.f[i];p.found=!!f;if(Array.isArray(f)){p.r=f[0];p.c=f[1];p.dr=f[2];p.dc=f[3]}p.hint=v.h[i]||0})}catch(e){}
@@ -406,14 +447,14 @@ function printNow(key){
         let g,lw=0;
         if(o==='p'){g=Math.min(W,H-T-tt(cw,c)-6)}
         else{lw=c*cw+(c-1)*5;if(tt(cw,c)>H-T)continue;g=Math.min(W-lw-8,H-T)}
-        if(g<=1)continue;const s=Math.min((g-1)/N,13);
+        if(g<=1)continue;const s=Math.min((g-1.5)/N,13);
         if(!best||s>best.s+.01)best={o,c,s,W,H,lw,k};
       }
     }return best};
   let best=null,clip=false;
   for(const k of cl?[1]:[1,.9,.8,.7,.6]){const b=fit(k);if(b){if(!best||b.s>best.s+.01||b.s>=6.5)best=b;if(b.s>=6.5)break}}
   if(!best){clip=true;best={o:'p',c:4,s:Math.max(2.8,Math.min(PW-1,PH-T-60)/N),W:PW,H:PH,lw:0,k:.6}}
-  if(clip)$('msg').textContent='Alla begrepp ryms inte på en sida i utskriften. Ta bort några begrepp eller dela upp listan.';
+  if(clip)setMsg('Alla begrepp ryms inte på en sida i utskriften. Ta bort några begrepp eller dela upp listan.');
   if(cl){let c=1;for(;c<3;c++){if(tot((best.W-(c-1)*5)/c,c)<=best.H-T-4)break}best.c=c}
   const pa=$('pa');pa.innerHTML='';pa.className=(best.o==='l'?'land':'port')+(band?'':' nb');
   pa.style.cssText='--k:'+(best.k||1)+';--s:'+best.s+'mm;--cols:'+best.c+';--lw:'+best.lw+'mm';
@@ -436,11 +477,38 @@ $('demo').onclick=()=>{$('paste').value=[...POOL].sort(()=>Math.random()-.5).sli
 $('pprint').onclick=()=>printNow(false);$('pkey').onclick=()=>printNow(true);
 addEventListener('resize',()=>{if(N){const c=kfocus;render();}});
 const VK='pt-ordgomma-val';
-const keep=()=>{try{localStorage.setItem(VK,JSON.stringify({d:$('diff').value,b:$('pband').checked,p:pmode,m:$('smode').value,t:$('paste').value,h:$('ptitle').value,g:$('gsz').value}))}catch(e){}};
-if(!/^#e=/.test(location.hash)){try{const v=JSON.parse(localStorage.getItem(VK));if(v){$('diff').value=v.d||'hard';$('gsz').value=v.g||'0';$('pband').checked=v.b!==false;setPm(v.p==='clues'?'clues':'words');$('smode').value=v.m||'words';$('paste').value=v.t||'';$('ptitle').value=v.h||''}}catch(e){}
-['diff','gsz','pband','smode','paste','ptitle'].forEach(i=>{$(i).addEventListener('input',keep);$(i).addEventListener('change',keep)});$('pw').addEventListener('click',keep);$('pc').addEventListener('click',keep)}
+const keep=()=>{try{localStorage.setItem(VK,JSON.stringify({d:$('diff').value,b:$('pband').checked,p:pmode,m:$('smode').value,t:$('paste').value,h:$('ptitle').value,g:$('gsz').value,f:$('fnt').value,v:2}))}catch(e){}};
+if(!/^#e=/.test(location.hash)){try{const v=JSON.parse(localStorage.getItem(VK));if(v){$('diff').value=(v.v>=2&&v.d)||'mid';$('gsz').value=v.g||'0';$('fnt').value=v.f||'std';$('pband').checked=v.b!==false;setPm(v.p==='clues'?'clues':'words');$('smode').value=v.m||'words';$('paste').value=v.t||'';$('ptitle').value=v.h||''}}catch(e){}
+['diff','gsz','fnt','pband','smode','paste','ptitle'].forEach(i=>{$(i).addEventListener('input',keep);$(i).addEventListener('change',keep)});$('pw').addEventListener('click',keep);$('pc').addEventListener('click',keep)}
 const ql=new URLSearchParams(location.search).get('lista');
 if(ql&&banks&&banks.subjects[ql]&&!/^#e=/.test(location.hash)){$('ptitle').value='';bankSel.value='s:'+ql;$('load').click();make();keep()}
+/* ---- Radioknappar styr de ursprungliga kontrollerna ---- */
+function mkRadios(host,name,legend,opts,get,set){
+  const fs=document.createElement('fieldset');fs.className='rg';const lg=document.createElement('legend');lg.textContent=legend;fs.appendChild(lg);
+  const bx=document.createElement('div');bx.className='opts n'+opts.length;fs.appendChild(bx);
+  const info=opts.some(o=>o[2])?document.createElement('p'):null;if(info){info.className='rdinfo';info.id='inf-'+name}
+  const show=d=>{if(info)info.textContent=d};
+  const cur=()=>{const o=opts.find(o=>o[0]===get());return o&&o[2]||''};
+  opts.forEach(([v,t,d])=>{const l=document.createElement('label');l.className='rd'+(t.length>16?' lg':'');const i=document.createElement('input');i.type='radio';i.name=name;i.value=v;if(info)i.setAttribute('aria-describedby',info.id);
+    i.onchange=()=>{if(i.checked){set(v);show(d||'')}};
+    if(info){l.onmouseenter=()=>show(d||'');l.onmouseleave=()=>show(cur());i.onfocus=()=>show(d||'');i.onblur=()=>show(cur())}
+    l.appendChild(i);l.appendChild(document.createTextNode(t));bx.appendChild(l)});
+  if(info)fs.appendChild(info);
+  host.parentNode.insertBefore(fs,host);host.style.display='none';
+  const sync=()=>{const c=get();fs.querySelectorAll('input').forEach(i=>{i.checked=i.value===c});show(cur())};sync();return sync}
+const GD={'0':['Anpassad','Storleken följer antalet begrepp.'],'3':['+3 rutor','Något större plan: tre extra rader och kolumner med slumpbokstäver.'],'6':['+6 rutor','Större plan: sex extra rader och kolumner. Svårare.'],'10':['+10 rutor','Mycket större plan: tio extra rader och kolumner. Svårast.']};
+const FD={std:['Standard','Montserrat: rakt och tydligt.'],lat:['Lättläst','Atkinson Hyperlegible: gör bokstäver som I, l och O lättare att skilja åt.']};
+const applyFont=()=>document.documentElement.style.setProperty('--bf',$('fnt').value==='lat'?"'Atkinson Hyperlegible'":'Montserrat');
+const optsOf=(id,sel)=>[...sel.options].map(o=>{const t=o.textContent;
+  if(id==='diff'){const i=t.indexOf(':');return[o.value,t.slice(0,i),t.slice(i+1).trim().replace(/^./,c=>c.toUpperCase())]}
+  if(id==='gsz')return[o.value,...GD[o.value]];if(id==='fnt')return[o.value,...FD[o.value]];return[o.value,t]});
+const RS=[];
+['diff','gsz','fnt','smode'].forEach(id=>{const sel=$(id),lab=document.querySelector('label[for='+id+']'),lg=lab?lab.textContent.trim():id;if(lab)lab.remove();
+  RS.push(mkRadios(sel,'r-'+id,lg,optsOf(id,sel),()=>sel.value,v=>{sel.value=v;sel.dispatchEvent(new Event('change',{bubbles:true}))}))});
+$('fnt').addEventListener('change',applyFont);applyFont();
+const cl=$('clues');RS.push(mkRadios(cl,'r-clues','Visa i listan',[['w','Ord'],['c','Förklaringar']],()=>cl.getAttribute('aria-pressed')==='true'?'c':'w',v=>{if((cl.getAttribute('aria-pressed')==='true')!==(v==='c'))cl.click()}));
+const pb=[$('pw'),$('pc')];RS.push(mkRadios(pb[0],'r-pm','Utskriften visar',pb.map(b=>[b.id,b.textContent.trim()]),()=>(pb.find(b=>b.getAttribute('aria-pressed')==='true')||pb[0]).id,v=>{if($(v).getAttribute('aria-pressed')!=='true')$(v).click()}));
+pb.forEach(b=>b.style.display='none');
 const hm=location.hash.match(/^#e=([\w-]+)$/);if(hm){try{startStudent(dec(hm[1]),hm[1])}catch(e){}}
 })();
 </script>
