@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Begränsningsarea | Matematikportalen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ff; --surface:#fff; --surface2:#eae6ff; --border:#ccc5f0;
+  --text:#100e28; --muted:#585078; --accent:#306BF0; --accent2:#EC6095;
+  --gradient:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);
+  --correct:#18a348; --wrong:#e02020; --shadow:rgba(48,107,240,.12);
+  --start:#3aada8; --mal:#c43d75;
+  --radius-sm:8px; --radius-md:14px; --radius-lg:20px;
+  --shadow-sm:0 2px 8px var(--shadow);
+  --font-body: Calibri, 'Atkinson Hyperlegible', sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);padding-bottom:56px;position:relative;overflow-x:hidden;}
+.ambient{position:fixed;border-radius:50%;filter:blur(70px);opacity:.35;pointer-events:none;z-index:0;}
+.ambient.a1{width:340px;height:340px;background:#66C7C2;top:-80px;left:-80px;}
+.ambient.a2{width:380px;height:380px;background:#F4A261;bottom:-100px;right:-60px;}
+.ambient.a3{width:300px;height:300px;background:#EC6095;top:40%;right:20%;}
+header{background:var(--gradient);padding:16px 20px;position:sticky;top:0;z-index:10;box-shadow:0 4px 24px rgba(0,0,0,.15);}
+header h1{margin:0;color:#fff;font-family:'Montserrat',sans-serif;font-size:1.15rem;}
+header p{margin:3px 0 0;color:rgba(255,255,255,.9);font-size:.8rem;}
+main{max-width:1000px;margin:0 auto;padding:18px 16px;position:relative;z-index:1;}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:18px;margin-bottom:16px;}
+.card h2{font-family:'Montserrat',sans-serif;font-size:1rem;margin:0 0 12px;}
+.pillbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.pill{border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:999px;padding:8px 15px;font-weight:700;font-size:.8rem;cursor:pointer;min-height:36px;}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.controls{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;}
+.sliderbox{flex:1;min-width:180px;}
+.sliderbox label{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:5px;}
+.sliderbox label b{color:var(--accent);}
+.sliderbox input[type=range]{width:100%;accent-color:var(--accent);}
+.svgwrap{background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--radius-sm);display:flex;justify-content:center;padding:14px;overflow-x:auto;}
+svg{max-width:100%;height:auto;}
+.caption{font-size:.82rem;color:var(--muted);line-height:1.5;margin-top:10px;}
+.caption b{color:var(--text);}
+.solutionbox{font-size:.92rem;line-height:1.9;}
+.sline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:8px;}
+.sline input{width:64px;padding:5px 6px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:.88rem;text-align:center;}
+.sline input.correct{border-color:var(--correct);background:#eafbf0;}
+.sline input.wrong{border-color:var(--wrong);background:#fdeaea;}
+.checkbtn{margin-top:8px;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:9px 16px;font-weight:700;font-size:.85rem;cursor:pointer;}
+.solfeedback{font-weight:700;margin-top:6px;font-size:.85rem;}
+.solfeedback.correct{color:var(--correct);} .solfeedback.wrong{color:var(--wrong);}
+.panels{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;align-items:start;}
+@media(max-width:800px){.panels{grid-template-columns:1fr;}}
+footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:14px;position:relative;z-index:1;}
+
+.btn{border:1.5px solid var(--border);background:var(--surface2);color:var(--accent);border-radius:var(--radius-sm);padding:9px 16px;font-weight:700;font-size:.85rem;cursor:pointer;}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;}
+.displaybar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+
+/* Presentationsläge: canvasen tar hela bredden och blir avskalad för projicering */
+body.disp-presentation #panelsRoot{grid-template-columns:1fr;}
+body.disp-presentation #solutionCol{display:none;}
+body.disp-presentation .hideInPresentation{display:none !important;}
+body.disp-presentation .svgwrap{padding:28px;}
+body.disp-presentation svg{max-width:100%;}
+body.disp-presentation .card{padding:28px;}
+
+body.hide-header header{display:none;}
+</style>
+</head>
+<body>
+<div class="ambient a1"></div><div class="ambient a2"></div><div class="ambient a3"></div>
+<header>
+  <h1>📐 Begränsningsarea</h1>
+  <p>Geometri · Summan av alla ytor som "täcker in" kroppen</p>
+</header>
+<main>
+  <div class="displaybar" id="displaybar">
+    <div class="pillbar" id="dispGroup" style="margin-bottom:0;">
+      <div class="pill active" data-disp="genomgang">👥 Genomgång</div>
+      <div class="pill" data-disp="presentation">🖥️ Presentation</div>
+      <div class="pill" data-disp="elev">✏️ Elevläge</div>
+    </div>
+    <button class="btn" id="hideHeaderBtn">⤢ Dölj sidhuvud</button>
+  </div>
+
+  <div class="pillbar" id="shapeGroup">
+    <div class="pill active" data-shape="ratblock">Rätblock</div>
+    <div class="pill" data-shape="cylinder">Cylinder</div>
+  </div>
+
+  <div class="card">
+    <div class="panels" id="panelsRoot">
+      <div id="figureCol">
+        <h2 class="hideInPresentation">Kropp</h2>
+        <div class="controls" id="ratblockCtrls">
+          <div class="sliderbox"><label>Längd <b id="lVal"></b></label><input type="range" id="lSlider" min="2" max="7" value="4"></div>
+          <div class="sliderbox"><label>Bredd <b id="bVal"></b></label><input type="range" id="bSlider" min="2" max="7" value="3"></div>
+          <div class="sliderbox"><label>Höjd <b id="hVal"></b></label><input type="range" id="hSlider" min="2" max="7" value="2"></div>
+        </div>
+        <div class="controls" id="cylinderCtrls" style="display:none;">
+          <div class="sliderbox"><label>Radie <b id="rVal"></b></label><input type="range" id="rSlider" min="2" max="5" value="3"></div>
+          <div class="sliderbox"><label>Höjd <b id="chVal"></b></label><input type="range" id="chSlider" min="2" max="7" value="4"></div>
+        </div>
+        <div class="controls">
+          <div class="sliderbox"><label>Veckla ut <b id="morphVal">0%</b></label><input type="range" id="morphSlider" min="0" max="100" value="0" step="2"></div>
+        </div>
+        <div class="btnrow" style="margin-bottom:10px;"><button class="btn" id="areaLblToggle">🏷️ Visa areaetiketter</button></div>
+        <div class="svgwrap"><svg id="svg"></svg></div>
+        <div class="caption hideInPresentation" id="caption"></div>
+      </div>
+      <div id="solutionCol">
+        <h2>Lösningsförslag</h2>
+        <div class="pillbar" id="modeGroup">
+          <div class="pill active" data-mode="facit">Färdig redovisning</div>
+          <div class="pill" data-mode="elev">Eleven räknar</div>
+        </div>
+        <div class="solutionbox" id="solutionBox"></div>
+      </div>
+    </div>
+  </div>
+  <footer class="hideInPresentation">Matematikportalen · PT Ljus</footer>
+</main>
+<script>
+const NS='http://www.w3.org/2000/svg';
+const PI=3.14;
+const $=id=>document.getElementById(id);
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent.appendChild(e);return e;}
+const fmt=(n,d=2)=>n.toLocaleString('sv-SE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const font="Calibri, 'Atkinson Hyperlegible', sans-serif";
+const lerp=(a,b,t)=>a+(b-a)*t;
+const lerpPt=(o,g,t)=>[lerp(o[0],g[0],t), lerp(o[1],g[1],t)];
+const poly=pts=>pts.map(p=>p.join(',')).join(' ');
+
+const S={shape:'ratblock', l:4,b:3,h:2, r:3,ch:4, morph:0, mode:'facit', areaLbl:false};
+const svg=$('svg');
+
+document.querySelectorAll('#shapeGroup .pill').forEach(p=>p.onclick=()=>{
+  document.querySelectorAll('#shapeGroup .pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active'); S.shape=p.dataset.shape;
+  $('ratblockCtrls').style.display = S.shape==='ratblock'?'':'none';
+  $('cylinderCtrls').style.display = S.shape==='cylinder'?'':'none';
+  S.morph=0; $('morphSlider').value=0; $('morphVal').textContent='0%';
+  all();
+});
+document.querySelectorAll('#modeGroup .pill').forEach(p=>p.onclick=()=>{
+  document.querySelectorAll('#modeGroup .pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active'); S.mode=p.dataset.mode; solution();
+});
+['l','b','h','r','ch'].forEach(k=>{
+  const idMap={l:'lSlider',b:'bSlider',h:'hSlider',r:'rSlider',ch:'chSlider'};
+  $(idMap[k]).oninput=e=>{ S[k]=+e.target.value; all(); };
+});
+$('morphSlider').oninput=e=>{ S.morph=+e.target.value; $('morphVal').textContent=S.morph+'%'; draw(); };
+$('areaLblToggle').onclick=e=>{ S.areaLbl=!S.areaLbl; e.target.classList.toggle('primary',S.areaLbl); draw(); };
+
+/* ---------------- RÄTBLOCK: nät-uppveckling ---------------- */
+function drawRatblock(){
+  const sc=24, t=S.morph/100;
+  const l=S.l*sc,b=S.b*sc,h=S.h*sc;
+  const depthPx=b, seg=depthPx/2*Math.SQRT1_2, dx=seg, dy=-seg;
+  const fx=90, fy=70+Math.abs(dy)+h;
+
+  // 8 hörn i vikt (isometriskt) läge
+  const FBL=[fx,fy],FBR=[fx+l,fy],FTL=[fx,fy-h],FTR=[fx+l,fy-h];
+  const BBL=[fx+dx,fy+dy],BBR=[fx+l+dx,fy+dy],BTL=[fx+dx,fy-h+dy],BTR=[fx+l+dx,fy-h+dy];
+
+  // nät-layout (kryssform): netX/netY är övre vänstra hörnet för "Vänster"-rutan
+  const netX=90, netY=70;
+  const colLeftX=netX, colFrontX=colLeftX+b, colRightX=colFrontX+l, colBackX=colRightX+b;
+  const rowTopY=netY, rowMidY=rowTopY+b, rowMidY2=rowMidY+h, rowBotY=rowMidY2+b;
+
+  const faces=[
+    {name:'Fram',  area:S.l*S.h, orig:[FBL,FBR,FTR,FTL], tgt:[[colFrontX,rowMidY2],[colFrontX+l,rowMidY2],[colFrontX+l,rowMidY],[colFrontX,rowMidY]], hidden:false},
+    {name:'Höger', area:S.b*S.h, orig:[FBR,BBR,BTR,FTR], tgt:[[colRightX,rowMidY2],[colRightX+b,rowMidY2],[colRightX+b,rowMidY],[colRightX,rowMidY]], hidden:false},
+    {name:'Topp',  area:S.l*S.b, orig:[FTL,FTR,BTR,BTL], tgt:[[colFrontX,rowTopY+b],[colFrontX+l,rowTopY+b],[colFrontX+l,rowTopY],[colFrontX,rowTopY]], hidden:false},
+    {name:'Bak',   area:S.l*S.h, orig:[BBR,BBL,BTL,BTR], tgt:[[colBackX,rowMidY2],[colBackX+l,rowMidY2],[colBackX+l,rowMidY],[colBackX,rowMidY]], hidden:true},
+    {name:'Vänster',area:S.b*S.h, orig:[FBL,BBL,BTL,FTL], tgt:[[colLeftX,rowMidY2],[colLeftX+b,rowMidY2],[colLeftX+b,rowMidY],[colLeftX,rowMidY]], hidden:true},
+    {name:'Botten',area:S.l*S.b, orig:[FBL,FBR,BBR,BBL], tgt:[[colFrontX,rowBotY],[colFrontX+l,rowBotY],[colFrontX+l,rowMidY2],[colFrontX,rowMidY2]], hidden:true},
+  ];
+
+  const W=colBackX+l+40, H=rowBotY+50;
+  svg.innerHTML='';
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('width',W); svg.setAttribute('height',H);
+
+  // beräkna aktuell (lerpad) figurs omslutande ruta, så vi kan centrera den i canvasen oavsett vikt/utvecklat läge
+  const facePts = faces.map(fc=>fc.orig.map((o,i)=>lerpPt(o,fc.tgt[i],t)));
+  const lblFoldB={ l:[(FBL[0]+FBR[0])/2, FBL[1]+20], h:[FBL[0]-10,(FBL[1]+FTL[1])/2], b:[(FBR[0]+BBR[0])/2+10,(FBR[1]+BBR[1])/2+16] };
+  const lblNetB ={ l:[colFrontX+l/2, rowTopY-12],    h:[colLeftX-10,(rowMidY+rowMidY2)/2], b:[colFrontX-10, rowTopY+b/2] };
+  const lblExtent=[];
+  ['l','h','b'].forEach(k=>{ const q=lerpPt(lblFoldB[k],lblNetB[k],t); lblExtent.push([q[0]-62,q[1]-14],[q[0]+62,q[1]+8]); });
+  const allPts = [...facePts.flat(), ...lblExtent];
+  const minX=Math.min(...allPts.map(p=>p[0])), maxX=Math.max(...allPts.map(p=>p[0]));
+  const minY=Math.min(...allPts.map(p=>p[1])), maxY=Math.max(...allPts.map(p=>p[1]));
+  const offX=(W-(maxX-minX))/2 - minX, offY=(H-(maxY-minY))/2 - minY;
+  const g=el('g',{transform:`translate(${offX},${offY})`},svg);
+
+  const colors={Fram:'var(--start)',Höger:'#8e86c9',Topp:'#c9c3ec',Bak:'var(--mal)',Vänster:'#e69fc0',Botten:'#f4a261'};
+  faces.forEach((fc,idx)=>{
+    const pts=facePts[idx];
+    const visible = t>0.03 || !fc.hidden;
+    el('polygon',{points:poly(pts),fill:colors[fc.name],'fill-opacity':.32,stroke:colors[fc.name],'stroke-width':1.8,
+      'stroke-dasharray': (fc.hidden && t<0.5) ? '4 3':'none',
+      opacity: visible?1:0.55},g);
+    if(S.areaLbl && t>0.4){
+      const cxm=(pts[0][0]+pts[2][0])/2, cym=(pts[0][1]+pts[2][1])/2;
+      const lb=el('text',{x:cxm,y:cym,'text-anchor':'middle','font-size':12,fill:'var(--text)','font-family':font,'font-weight':'700'},g);
+      lb.textContent=`${fc.name}: ${fmt(fc.area,0)} cm²`;
+    }
+  });
+
+  // kantlängder (mått) — behålls hela vägen, ligger alltid BREDVID kanten (aldrig ovanpå figuren)
+  const lblFold={ l:[(FBL[0]+FBR[0])/2, FBL[1]+20], h:[FBL[0]-10,(FBL[1]+FTL[1])/2], b:[(FBR[0]+BBR[0])/2+10,(FBR[1]+BBR[1])/2+16] };
+  const lblNet ={ l:[colFrontX+l/2, rowTopY-12],    h:[colLeftX-10,(rowMidY+rowMidY2)/2], b:[colFrontX-10, rowTopY+b/2] };
+  const lp=k=>lerpPt(lblFold[k],lblNet[k],t);
+  const dimLbl=(k,txt,anchor)=>{
+    const [x,y]=lp(k);
+    const e=el('text',{x,y,'text-anchor':anchor,'font-size':13,fill:'var(--text)','font-family':font,'font-weight':'700'},g);
+    e.textContent=txt;
+  };
+  dimLbl('l',`l = ${S.l} cm`,'middle');
+  dimLbl('h',`h = ${S.h} cm`,'end');
+  dimLbl('b',`b = ${S.b} cm`, t>0.5?'end':'start');
+
+  $('caption').innerHTML = t<0.5
+    ? 'Rätblocket har <b>6 ytor</b>, parvis lika stora: fram/bak, vänster/höger, topp/botten (de streckade skyms just nu).'
+    : 'Utvecklat till ett <b>nät</b> — så här skulle du klippa och vika ut en låda. Summan av alla sex rutors area är begränsningsarean.';
+}
+
+/* ---------------- CYLINDER: rulla ut manteln + lyft av locken ---------------- */
+function drawCylinder(){
+  const sc=24, t=S.morph/100;
+  const r=S.r*sc, h=S.ch*sc, ex=r*0.32;
+  const circ=2*PI*r, N=28;
+  const capGap=40;
+  const W=Math.max(2*r+200, 160+circ+2*r+80), H=h+4*r+2*capGap+60;
+  svg.innerHTML='';
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('width',W); svg.setAttribute('height',H);
+
+  const cx=100+r, topY=40+ex, botY=topY+h;
+  const rowX0=100, rowBaseY=H-60, rowTopY=rowBaseY-h;
+
+  // räkna ut alla remsors (lerpade) hörn först, så vi kan centrera hela figuren i canvasen.
+  // Klippunkten sätts i den främre mittlinjen (a=π, närmast betraktaren) — det ger en ren
+  // uppvikning från en synlig kant istället för att "vika genom" figuren.
+  const stripPts=[];
+  for(let i=0;i<N;i++){
+    const a1=Math.PI+(i/N)*2*Math.PI, a2=Math.PI+((i+1)/N)*2*Math.PI;
+    const o1t=[cx+r*Math.sin(a1), topY-ex*Math.cos(a1)], o2t=[cx+r*Math.sin(a2), topY-ex*Math.cos(a2)];
+    const o1b=[cx+r*Math.sin(a1), botY-ex*Math.cos(a1)], o2b=[cx+r*Math.sin(a2), botY-ex*Math.cos(a2)];
+    const stripW=circ/N, xg0=rowX0+i*stripW, xg1=rowX0+(i+1)*stripW;
+    const g1t=[xg0,rowTopY], g2t=[xg1,rowTopY], g1b=[xg0,rowBaseY], g2b=[xg1,rowBaseY];
+    stripPts.push([lerpPt(o1t,g1t,t), lerpPt(o2t,g2t,t), lerpPt(o2b,g2b,t), lerpPt(o1b,g1b,t)]);
+  }
+  // klipplinjen = första remsans vänstra kant. Den ligger rakt fram i vikt läge och följer med när manteln rullas ut.
+  const cutTop=stripPts[0][0], cutBot=stripPts[0][3];
+  const topCapTgt=[rowX0+circ/2, rowTopY-r-capGap];
+  const botCapTgt=[rowX0+circ/2, rowBaseY+r+capGap];
+  const tc=lerpPt([cx,topY],topCapTgt,t), bc=lerpPt([cx,botY],botCapTgt,t);
+  const curRy=lerp(ex,r,t);
+
+  const hPos=lerpPt([cx-r-12,(topY+botY)/2],[rowX0-12,(rowTopY+rowBaseY)/2],t); // höjd-etikettens position (följer med)
+  // omslutande ruta inkl. etiketter (ovanför övre lock, under nedre lock och till vänster om rektangeln)
+  const allPts=[...stripPts.flat(),
+    [tc[0]-r,tc[1]-curRy],[tc[0]+r,tc[1]+curRy],[bc[0]-r,bc[1]-curRy],[bc[0]+r,bc[1]+curRy],
+    [tc[0],tc[1]-r-24],[bc[0],bc[1]+r+22],[rowX0-96,rowTopY],
+    [tc[0]+r+84,tc[1]],[hPos[0]-96,hPos[1]]];
+  const minX=Math.min(...allPts.map(p=>p[0])), maxX=Math.max(...allPts.map(p=>p[0]));
+  const minY=Math.min(...allPts.map(p=>p[1])), maxY=Math.max(...allPts.map(p=>p[1]));
+  const offX=(W-(maxX-minX))/2 - minX, offY=(H-(maxY-minY))/2 - minY;
+  const g=el('g',{transform:`translate(${offX},${offY})`},svg);
+
+  // manteln: N tunna remsor, följer ellipsens kurva i vikt läge, raka i utrullat läge.
+  // Alla remsor ritas lika synliga hela tiden — manteln ska upplevas gå runt HELA kroppen, ingen "saknad" framsida.
+  // botten ritas FÖRST (bakom manteln) så den upplevs som kroppens undersida, inte som en skiva framför
+  el('ellipse',{cx:bc[0],cy:bc[1],rx:r,ry:curRy,fill:'var(--surface2)',stroke:'var(--start)','stroke-width':2.2},g);
+  for(let i=0;i<N;i++){
+    el('polygon',{points:poly(stripPts[i]),fill:'var(--start)','fill-opacity':.28,stroke:'var(--start)','stroke-width':.7},g);
+  }
+  // toppen ritas SIST (framför manteln) — inget skymmer den uppifrån
+  el('ellipse',{cx:tc[0],cy:tc[1],rx:r,ry:curRy,fill:'#fff',stroke:'var(--start)','stroke-width':2.2},g);
+
+  // klipplinje: visar var manteln öppnas, tonas bort när den väl är utrullad
+  if(t<0.5){
+    const op=1-t/0.5;
+    el('line',{x1:cutTop[0],y1:cutTop[1],x2:cutBot[0],y2:cutBot[1],stroke:'var(--mal)','stroke-width':2.4,'stroke-dasharray':'5 4',opacity:op},g);
+    if(t<0.15){
+      const cutLbl=el('text',{x:cutTop[0]+8,y:(cutTop[1]+cutBot[1])/2,'text-anchor':'start','font-size':11,fill:'var(--mal)','font-family':font,'font-weight':'700',opacity:op},g);
+      cutLbl.textContent='✂ klipps här';
+    }
+  }
+
+  // MÅTT (alltid synliga, alltid bredvid figuren): höjd till vänster, radie bredvid övre locket
+  const hl=el('text',{x:hPos[0],y:hPos[1],'text-anchor':'end','font-size':13,fill:'var(--text)','font-family':font,'font-weight':'700'},g); hl.textContent=`h = ${S.ch} cm`;
+  const rl=el('text',{x:tc[0]+r+10,y:tc[1]+4,'text-anchor':'start','font-size':13,fill:'var(--text)','font-family':font,'font-weight':'700'},g); rl.textContent=`r = ${S.r} cm`;
+  if(t>0.4){
+    const wl=el('text',{x:rowX0+circ/2,y:rowBaseY+22,'text-anchor':'middle','font-size':13,fill:'var(--text)','font-family':font,'font-weight':'700'},g); wl.textContent=`bredd = 2 · π · r = ${fmt(circ/sc,2)} cm`;
+    // AREA-etiketter: bara när togglen är på
+    if(S.areaLbl){
+      const lb1=el('text',{x:rowX0+circ/2,y:(rowTopY+rowBaseY)/2+4,'text-anchor':'middle','font-size':13,fill:'var(--text)','font-family':font,'font-weight':'700'},g);
+      lb1.textContent=`Mantel: ${fmt(2*PI*S.r*S.ch,1)} cm²`;
+      const lb2=el('text',{x:tc[0],y:tc[1]-r-8,'text-anchor':'middle','font-size':12,fill:'var(--muted)','font-family':font,'font-weight':'700'},g); lb2.textContent=`cirkel: ${fmt(PI*S.r*S.r,1)} cm²`;
+      const lb3=el('text',{x:bc[0],y:bc[1]+r+18,'text-anchor':'middle','font-size':12,fill:'var(--muted)','font-family':font,'font-weight':'700'},g); lb3.textContent=`cirkel: ${fmt(PI*S.r*S.r,1)} cm²`;
+    }
+  }
+
+  $('caption').innerHTML = t<0.3
+    ? 'Klipper vi längs en lodrät linje på manteln och längs kanten på topp och botten kan hela ytan vecklas ut.'
+    : 'Manteln blir en <b>rektangel</b> (bredd = omkretsen 2·π·r, höjd = cylinderns höjd), plus de två cirkulära locken.';
+}
+
+function draw(){ S.shape==='ratblock' ? drawRatblock() : drawCylinder(); }
+
+function solutionRatblock(){
+  const l=S.l,b=S.b,h=S.h;
+  const faceAreas=[['Fram/Bak',l*h,2],['Vänster/Höger',b*h,2],['Topp/Botten',l*b,2]];
+  const total=faceAreas.reduce((s,[,a,n])=>s+a*n,0);
+  const box=$('solutionBox');
+  if(S.mode==='facit'){
+    box.innerHTML = faceAreas.map(([name,a,n])=>`<div class="sline">${name}: 2 · (${name==='Fram/Bak'?'l · h':name==='Vänster/Höger'?'b · h':'l · b'}) = 2 · ${fmt(a,0)} cm² = ${fmt(a*n,0)} cm²</div>`).join('')
+      + `<div class="sline"><b>Begränsningsarea = ${faceAreas.map(([,a,n])=>fmt(a*n,0)).join(' + ')} = ${fmt(total,0)} cm²</b></div>`;
+  } else {
+    box.innerHTML = `
+      <div class="sline">Fram/Bak: 2 · (l · h) = <input id="in1"> cm²</div>
+      <div class="sline">Vänster/Höger: 2 · (b · h) = <input id="in2"> cm²</div>
+      <div class="sline">Topp/Botten: 2 · (l · b) = <input id="in3"> cm²</div>
+      <div class="sline">Begränsningsarea = <input id="inT"> cm²</div>
+      <button class="checkbtn" id="chk">Kolla</button><div class="solfeedback" id="fb"></div>`;
+    wireCheck([['in1',2*l*h],['in2',2*b*h],['in3',2*l*b],['inT',total]]);
+  }
+}
+function solutionCylinder(){
+  const r=S.r,h=S.ch;
+  const mantel=2*PI*r*h, cirkel=PI*r*r, total=mantel+2*cirkel;
+  const box=$('solutionBox');
+  if(S.mode==='facit'){
+    box.innerHTML = `<div class="sline">Mantel = 2 · π · r · h = 2 · ${PI} · ${r} cm · ${h} cm = ${fmt(mantel,1)} cm²</div>
+      <div class="sline">2 cirklar = 2 · (π · r · r) = 2 · ${PI} · ${r} cm · ${r} cm = ${fmt(2*cirkel,1)} cm²</div>
+      <div class="sline"><b>Begränsningsarea = ${fmt(mantel,1)} + ${fmt(2*cirkel,1)} = ${fmt(total,1)} cm²</b></div>`;
+  } else {
+    box.innerHTML = `
+      <div class="sline">Mantel = 2 · π · r · h = <input id="in1"> cm²</div>
+      <div class="sline">2 cirklar = 2 · (π · r · r) = <input id="in2"> cm²</div>
+      <div class="sline">Begränsningsarea = <input id="inT"> cm²</div>
+      <button class="checkbtn" id="chk">Kolla</button><div class="solfeedback" id="fb"></div>`;
+    wireCheck([['in1',mantel],['in2',2*cirkel],['inT',total]]);
+  }
+}
+function wireCheck(pairs){
+  $('chk').onclick=()=>{
+    let all=true;
+    pairs.forEach(([id,val])=>{const i=$(id); const ok=Math.abs(parseFloat((i.value||'').replace(',','.'))-val)<0.5;
+      i.classList.toggle('correct',ok); i.classList.toggle('wrong',!ok&&i.value!==''); if(!ok) all=false;});
+    $('fb').textContent = all?'Rätt! 🎉':'Något stämmer inte än — kolla igen.';
+    $('fb').className='solfeedback '+(all?'correct':'wrong');
+  };
+}
+function solution(){ S.shape==='ratblock' ? solutionRatblock() : solutionCylinder(); }
+
+function sync(){
+  $('lVal').textContent=S.l+' cm'; $('lSlider').value=S.l;
+  $('bVal').textContent=S.b+' cm'; $('bSlider').value=S.b;
+  $('hVal').textContent=S.h+' cm'; $('hSlider').value=S.h;
+  $('rVal').textContent=S.r+' cm'; $('rSlider').value=S.r;
+  $('chVal').textContent=S.ch+' cm'; $('chSlider').value=S.ch;
+}
+function all(){ sync(); draw(); solution(); }
+
+/* ---------------- Visningsläge (för genomgång / presentation / elevläge) ---------------- */
+(function(){
+  const KEY_D='pt-geo-disp', KEY_H='pt-geo-hidehdr';
+  const save=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
+  const load=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } };
+  const pills=[...document.querySelectorAll('#dispGroup .pill')];
+  function setDisp(d,fromUser){
+    pills.forEach(x=>x.classList.toggle('active',x.dataset.disp===d));
+    document.body.classList.toggle('disp-presentation', d==='presentation');
+    const solPill=m=>[...document.querySelectorAll('#modeGroup .pill')].find(x=>x.dataset.mode===m);
+    if(d==='elev' && solPill('elev') && !solPill('elev').classList.contains('active')) solPill('elev').click();
+    if(d==='genomgang' && fromUser && solPill('facit') && !solPill('facit').classList.contains('active')) solPill('facit').click();
+    save(KEY_D,d); draw();
+  }
+  pills.forEach(p=>p.onclick=()=>setDisp(p.dataset.disp,true));
+  const hb=$('hideHeaderBtn');
+  function setHdr(on){
+    document.body.classList.toggle('hide-header',on);
+    hb.textContent = on ? '⤢ Visa sidhuvud' : '⤢ Dölj sidhuvud';
+    save(KEY_H,on?'1':'0');
+  }
+  hb.onclick=()=>setHdr(!document.body.classList.contains('hide-header'));
+  if(load(KEY_H)==='1') setHdr(true);
+  const d0=load(KEY_D); if(d0 && d0!=='genomgang') setDisp(d0,false);
+})();
+
+all();
+</script>
+</body>
+</html>
