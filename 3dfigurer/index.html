@@ -155,6 +155,7 @@ select.ai{width:auto;max-width:190px;text-align:left}
 .evs{margin:10px 0;padding:8px 12px;border:1px solid #ccc5f0;border-radius:12px;background:#faf9ff}
 .evsh{margin-bottom:6px}.evr{margin:6px 0}
 .evok{margin:12px 0;padding:10px 12px;border-radius:12px;background:#e8f7ed;border:1.5px solid #18a348;font-weight:600}
+#app.evT .f i{display:none}
 .sep{height:1px;background:#ccc5f0;margin:4px 0}
 .eb{transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
 @media (pointer:coarse){button,input[type=number],select{min-height:44px;height:44px}label.chk,.ln{min-height:44px}}
@@ -240,7 +241,7 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
  </div>
  <div class="gl" id="toast" role="status"></div>
  <div id="sheet"></div>
- <div class="sig" title="Version 2026-10-18 b">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
+ <div class="sig" title="Version 2026-10-18 d">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
  <div class="gl" id="cap2" role="status"></div>
  <aside class="gl" id="qCard" aria-label="Nät-övning">
   <div class="hd"><h2>Nät-övning</h2><button id="qX" aria-label="Stäng">✕</button></div>
@@ -736,7 +737,7 @@ function defUI(){
  $('defBody').innerHTML=`<p style="margin:0 0 8px">${D.text}</p><div class="chips">${D.groups.map(([k,l])=>`<button data-k="${k}" aria-pressed="${hl===k}">${l}</button>`).join('')}</div>`;
  $('defBody').querySelectorAll('button').forEach(b=>b.onclick=()=>setHl(hl===b.dataset.k?'':b.dataset.k));
 }
-function all(){presetUI();const c2=$('cap2');if(c2&&c2.dataset.sig!==fig+JSON.stringify(dm[fig])+lie)c2.style.display='none';build();results();defUI();$('trRow').style.display=(G.mark||G.sphere)?'flex':'none';$('hoRow').style.display=G.mark?'flex':'none';const ly=lie&&!!FIG[fig].lie;scene.classList.toggle('lying',ly);const cp=$('cap');cp.style.display=ly?'block':'none';if(ly)cp.textContent=`Prismat ligger ner: basytorna är de två ${G.def.pl}, inte ytan på golvet.`}
+function all(){presetUI();const c2=$('cap2');if(c2&&c2.dataset.sig!==fig+JSON.stringify(dm[fig])+lie)c2.style.display='none';build();results();defUI();$('trRow').style.display=(G.mark||G.sphere)?'flex':'none';$('hoRow').style.display=G.mark?'flex':'none';const ly=lie&&!!FIG[fig].lie&&!evMode;scene.classList.toggle('lying',ly);const cp=$('cap');cp.style.display=ly?'block':'none';if(ly)cp.textContent=`Prismat ligger ner: basytorna är de två ${G.def.pl}, inte ytan på golvet.`}
 const FAM=[['rb','Rätblock',['rb']],['kub','Kub',['kub']],['pri','Prisma',['pr','pe','p5','p6']],['py','Pyramid',['py','py3','py5','py6']],['cy','Cylinder',['cy']],['ko','Kon',['ko']],['kl','Klot',['kl']],['cn','Kubens nät',['cn']]];
 const VN={py:'Rektangel (eller kvadrat)',py3:'Liksidig triangel',py5:'Regelbunden femhörning',py6:'Regelbunden sexhörning',pr:'Rätvinklig triangel',pe:'Liksidig triangel',p5:'Regelbunden femhörning',p6:'Regelbunden sexhörning'};
 const ICON={rb:'<path d="M2 10l6-3h14l-6 3zM2 10v8h14v-8M16 10l6-3v8l-6 3"/>',kub:'<path d="M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8"/>',pri:'<path d="M3 18l5-10 5 10zM8 8l8-4 5 10M13 18l8-4"/>',py:'<path d="M12 3L3 17l9 4 9-4zM12 3v18"/>',cy:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/>',ko:'<path d="M12 3L5 17M12 3l7 14M5 17c0 2.2 3.1 4 7 4s7-1.8 7-4"/>',cn:'<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6zM9 9h6v6H9z"/>',kl:'<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/><path d="M12 3c-3 3-3 15 0 18M12 3c3 3 3 15 0 18"/>'};
@@ -796,7 +797,7 @@ stage.onpointermove=e=>{
  if(!drag)return;
  rz=drag.rz+(e.clientX-drag.x)*.5;rx=Math.max(-t*55,Math.min(180-t*55,drag.rx-(e.clientY-drag.y)*.5));apply();
 };
-stage.onpointerup=e=>{if(dn&&dn.id&&ptr.size===1&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<5){if(evMode){if(ans.B_ok1!==true)toggleSel(dn.id)}else if(tab==='B'&&$('drawer').classList.contains('on'))toggleSel(dn.id);else{const g=G.by[dn.id].grp;if(g)setHl(hl===g?'':g);$('defCard').classList.add('on');defUI()}}dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
+stage.onpointerup=e=>{if(dn&&dn.id&&ptr.size===1&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<5){if(evMode){if(evKind==='V'&&ans.B_ok1!==true)toggleSel(dn.id)}else if(tab==='B'&&$('drawer').classList.contains('on'))toggleSel(dn.id);else{const g=G.by[dn.id].grp;if(g)setHl(hl===g?'':g);$('defCard').classList.add('on');defUI()}}dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 stage.onpointercancel=e=>{dn=null;ptr.delete(e.pointerId);pinch=null;drag=null;if(!ptr.size)stage.style.cursor='grab'};
 window.onresize=build;
 let pref='1';try{pref=localStorage.getItem('gk_panels')||'1'}catch(e){}
@@ -1165,7 +1166,7 @@ function printSheets(){
 $('shGo').onclick=printSheets;$('shPrev').onclick=previewSheets;
 $('shOpen').onclick=()=>$('shCard').classList.toggle('on');$('shX').onclick=()=>$('shCard').classList.remove('on');
 // ---------- Elevvy: figur till vänster, uppgift steg för steg till höger ----------
-let evMode=false,evIdx=0;const evDone=new Set();
+let evMode=false,evIdx=0,evKind='V',TR=[],evIdxT=0,ansT={};const evDone=new Set(),evDoneT=new Set();
 const PATH=[{f:'rb',d:{l:4,b:3,h:2}},{f:'kub',d:{l:3}},{f:'pr',d:{tb:3,th:4,ph:5},lie:1},{f:'cy',d:{r:2,h:5}},{f:'py',d:{l:6,b:6,h:4}},{f:'ko',d:{r:3,h:4}},{f:'pr',d:{tb:5,th:12,ph:4}},{f:'kl',d:{r:3}}];
 const refresh=()=>{if(evMode)evRender();else results()};
 function closeCards(){['drawer','defCard','keysCard','expCard','qCard','shCard'].forEach(i=>{const e=$(i);if(e)e.classList.remove('on')});$('openC').textContent='Beräkningar';$('openC').setAttribute('aria-expanded',false)}
@@ -1174,15 +1175,20 @@ function loadTask(i){
  setState({f:q.f,d:q.d,lie:!!q.lie,u:'cm',s:'ef',k:0,tab:'V',m:'G'});
  evRender();
 }
-function enterEv(i){evMode=true;$('app').classList.add('ev');closeCards();loadTask(i||0);setTimeout(build,60)}
-function exitEv(){evMode=false;$('app').classList.remove('ev');setTimeout(build,60)}
+function evClass(){$('app').classList.toggle('ev',evMode);$('app').classList.toggle('evT',evMode&&evKind==='T')}
+function enterEv(i,kind){evMode=true;if(kind)evKind=kind==='T'?'T':'V';closeCards();evClass();scene.classList.remove('lying');if(evKind==='T'){if(!TR.length)TR=genTypeRound();loadTaskT(i||0)}else loadTask(i||0);setTimeout(build,60)}
+function exitEv(){evMode=false;evClass();scene.classList.toggle('lying',lie&&!!FIG[fig].lie);setTimeout(build,60)}
+function switchKind(k){evKind=k;evClass();if(k==='T'){if(!TR.length)TR=genTypeRound();loadTaskT(evIdxT)}else loadTask(evIdx);setTimeout(build,60)}
+const kindTabs=()=>`<div class="tabs" style="margin-bottom:8px"><button id="evKV" aria-pressed="${evKind==='V'}">Beräkna volym</button><button id="evKT" aria-pressed="${evKind==='T'}">Känn igen kroppen</button></div>`;
+function wireKinds(){const a=$('evKV'),b=$('evKT');if(a)a.onclick=()=>switchKind('V');if(b)b.onclick=()=>switchKind('T')}
 function evFacit(){
  const I=G.info,E=expSets(),sph=!!G.sphere,ci=I.vol==='pyr'?1:I.vol==='sph'?2:0;
  if(!sph){ans.B_sel=E[0].slice();ans.B_ok1=true;ans.B_shape=shapeOf(E[0]);ans.B_sh=ans.B_shape;ans.B_ar=AREAF[ans.B_shape];ans.E_B=fm(I.B);ans.E_h=fm(I.h);ans.E_sB=fm(I.B);ans.E_sh=fm(I.h)}
  else ans.E_r=fm(I.r);
  ans.E_f=ci;ans.E_V=fm(I.V);evRender();
 }
-function evRender(){
+function evRender(){evKind==='T'?evRenderT():evRenderV()}
+function evRenderV(){
  if(!evMode||!G)return;
  const sg=JSON.stringify([fig,dm[fig],lie]);if(sg!==lastSig){ans={};lastSig=sg}
  const I=G.info,u=$('unit').value,sph=!!G.sphere,E=expSets(),py=I.vol==='pyr';
@@ -1191,7 +1197,7 @@ function evRender(){
  const forms=['V = B · h',`V = ${frac('B · h','3')}`,`V = ${frac('4 · π · r · r · r','3')}`],ci=I.vol==='pyr'?1:I.vol==='sph'?2:0;
  let n=0;const step=(title,body)=>`<div class="evs"><div class="evsh"><b>${++n}.</b> ${title}</div>${body}</div>`;
  const fx=(k,e,suf)=>{const kk='E_'+k,st=has(kk)?(numOK(ans[kk],e)?'ok':'bad'):'';return `<input class="ai ${st}" data-k="${kk}" data-e="${e}" value="${ans[kk]??''}" inputmode="decimal" aria-label="Fyll i svar">${suf?' '+suf:''}${st?mk(st):''}`};
- let h=`<div class="evh"><span class="evt">Uppgift ${evIdx+1} av ${PATH.length}</span><span style="flex:1"></span><button id="evP" ${evIdx?'':'disabled'} aria-label="Föregående uppgift">◀</button><button id="evN" ${evIdx<PATH.length-1?'':'disabled'} aria-label="Nästa uppgift">▶</button></div>`;
+ let h=(locked?'':kindTabs())+`<div class="evh"><span class="evt">Uppgift ${evIdx+1} av ${PATH.length}</span><span style="flex:1"></span><button id="evP" ${evIdx?'':'disabled'} aria-label="Föregående uppgift">◀</button><button id="evN" ${evIdx<PATH.length-1?'':'disabled'} aria-label="Nästa uppgift">▶</button></div>`;
  h+=`<div class="evprog">${PATH.map((_,i)=>`<span class="${evDone.has(i)?'dn':''} ${i===evIdx?'on':''}"></span>`).join('')}</div>`;
  h+=`<div class="evh" style="margin-top:4px"><b>${esc2(G.def.t)}${lie&&FIG[fig].lie?' (liggande)':''}</b></div><div style="font-size:.85rem;color:#585078;margin:2px 0 8px">Mått: ${dims}.</div>`;
  h+=`<div class="row" style="margin-bottom:4px"><button id="evPlay">${t>0.5?'Öppna nät':'Stäng nät'}</button><button id="evRs">Återställ vy</button>${locked?'':'<button id="evFa">Visa facit</button><button id="evLk">Elevlänk</button><button id="evX">Avsluta</button>'}</div>`;
@@ -1224,14 +1230,82 @@ function evRender(){
  const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
  on('evP',()=>loadTask(evIdx-1));on('evN',()=>loadTask(evIdx+1));on('evNx',()=>loadTask(evIdx+1));
  on('evPlay',()=>go(t>0.5?0:1,1500));on('evRs',()=>cam(0,0,700,1));on('evFa',evFacit);on('evLk',()=>copyLink(true));on('evX',exitEv);
- on('evChk',checkSel);
+ on('evChk',checkSel);wireKinds();
  const sh=$('evSh');if(sh)sh.onchange=()=>{ans.B_sh=sh.value;evRender()};
  P.querySelectorAll('button[data-a]').forEach(b=>b.onclick=()=>{ans.B_ar=+b.dataset.a;evRender()});
  P.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>{ans.E_f=+b.dataset.v;evRender()});
  P.querySelectorAll('input.ai').forEach(el=>{el.onchange=()=>{ans[el.dataset.k]=el.value;if(el.dataset.k==='E_V'){evRender();return}const st=el.value===''?'':numOK(el.value,+el.dataset.e)?'ok':'bad';el.className='ai '+st;let m=el.nextSibling;while(m&&!(m.classList&&m.classList.contains('mk')))m=m.nextSibling;if(m){m.textContent=st==='ok'?'✓':st==='bad'?'✗':'';m.style.color=st==='ok'?'#18a348':'#e02020'}}});
  selUI();
 }
-$('evOpen').onclick=()=>{if(evMode)exitEv();else enterEv(evIdx)};
+const TYPES=['Prisma','Pyramid','Cylinder','Kon','Klot'],BASES=['triangel','kvadrat','rektangel','femhörning','sexhörning','cirkel'],SIDES=['Rektanglar','Trianglar','En krökt yta'],NBS=[['Ingen',0],['En',1],['Två',2]];
+function typeSpec(f){
+ const pri=['rb','kub','pr','pe','p5','p6'].includes(f),pyr=['py','py3','py5','py6'].includes(f),one={cy:'Cylinder',ko:'Kon',kl:'Klot'}[f];
+ const sq=(f==='rb'&&dm.rb.l===dm.rb.b)||(f==='py'&&dm.py.l===dm.py.b);
+ const base={rb:sq?['kvadrat','rektangel']:['rektangel'],kub:['kvadrat','rektangel'],pr:['triangel'],pe:['triangel'],p5:['femhörning'],p6:['sexhörning'],py:sq?['kvadrat','rektangel']:['rektangel'],py3:['triangel'],py5:['femhörning'],py6:['sexhörning'],cy:['cirkel'],ko:['cirkel']}[f]||[];
+ const txt=pri?`Ett prisma har två lika stora basytor (månghörningar) och alla andra sidoytor är rektanglar.${f==='kub'?' En kub är ett prisma där alla sidor är kvadrater.':f==='rb'?' Ett rätblock är ett prisma med rektangulära basytor.':''}`
+  :pyr?'En pyramid har en basyta (en månghörning) och alla andra sidoytor är trianglar som möts i en spets.'
+  :f==='cy'?'En cylinder har två cirklar som basytor och en krökt sidoyta. Den är ett specialfall av prisma.'
+  :f==='ko'?'En kon har en cirkel som basyta och en krökt sidoyta som slutar i en spets.':'Ett klot har ingen basyta, bara en enda krökt yta.';
+ return {nb:f==='kl'?0:(pri||f==='cy')?2:1,side:pri?'Rektanglar':pyr?'Trianglar':'En krökt yta',type:pri?'Prisma':pyr?'Pyramid':one,okType:f==='cy'?['Cylinder','Prisma']:[pri?'Prisma':pyr?'Pyramid':one],base,txt};
+}
+function genTypeRound(){
+ const r=a=>a[Math.floor(Math.random()*a.length)];
+ const mk={rb:()=>({f:'rb',d:{l:r([4,5,6]),b:r([2,3,4]),h:r([2,3,5])}}),kub:()=>({f:'kub',d:{l:r([2,3,4])}}),
+  pr:()=>({f:'pr',d:{tb:r([3,4,5]),th:r([3,4]),ph:r([4,5,6])},lie:Math.random()<.6}),pe:()=>({f:'pe',d:{a:r([3,4,5]),ph:r([4,5,6])},lie:true}),
+  p5:()=>({f:'p5',d:{a:r([2,3]),ph:r([4,5])},lie:Math.random()<.5}),p6:()=>({f:'p6',d:{a:r([2,3]),ph:r([4,5])},lie:Math.random()<.5}),
+  py:()=>({f:'py',d:{l:r([3,4,6]),b:r([3,4,6]),h:r([4,6])}}),py3:()=>({f:'py3',d:{a:r([3,4]),h:r([4,6])}}),py5:()=>({f:'py5',d:{a:r([2,3]),h:r([4,6])}}),py6:()=>({f:'py6',d:{a:r([2,3]),h:r([4,6])}}),
+  cy:()=>({f:'cy',d:{r:r([2,3]),h:r([3,4,5])}}),ko:()=>({f:'ko',d:{r:r([3,4]),h:r([4,6])}}),kl:()=>({f:'kl',d:{r:r([2,3,4])}})};
+ const prisms=['rb','kub','pr','pe','p5','p6'],pyrs=['py','py3','py5','py6'],must=['kl','cy','ko',r(pyrs),r(prisms)],pool=Object.keys(mk).filter(k=>!must.includes(k)).sort(()=>Math.random()-.5);
+ return must.concat(pool.slice(0,3)).sort(()=>Math.random()-.5).map(k=>mk[k]());
+}
+function loadTaskT(i){
+ evIdxT=Math.max(0,Math.min(TR.length-1,i));const q=TR[evIdxT];
+ setState({f:q.f,d:q.d,lie:!!q.lie,u:'cm',s:'f',k:0,tab:'V',m:'G'});
+ ansT={};hl='';delete scene.dataset.hl;rz=Math.round(Math.random()*80-40);rx=0;apply();evRenderT();
+}
+function evRenderT(){
+ if(!evMode||!G)return;
+ const f=TR[evIdxT].f,sp=typeSpec(f),has=k=>ansT[k]!==undefined;
+ const mk=ok=>`<span class="mk" style="color:${ok?'#18a348':'#e02020'}">${ok?'✓':'✗'}</span>`;
+ const dots=TR.map((_,i)=>`<span class="${evDoneT.has(i)?'dn':''} ${i===evIdxT?'on':''}"></span>`).join('');
+ let n=0;const step=(t,b)=>`<div class="evs"><div class="evsh"><b>${++n}.</b> ${t}</div>${b}</div>`;
+ const choice=(key,opts,right)=>`<div class="fch">${opts.map(([lab,val])=>`<button class="fc" data-k="${key}" data-v="${val}" aria-pressed="${ansT[key]===val}">${lab}</button>`).join('')}${has(key)?mk(right(ansT[key])):''}</div>`;
+ let h=(locked?'':kindTabs())+`<div class="evh"><span class="evt">Figur ${evIdxT+1} av ${TR.length}</span><span style="flex:1"></span><button id="evP" ${evIdxT?'':'disabled'} aria-label="Föregående figur">◀</button><button id="evN" ${evIdxT<TR.length-1?'':'disabled'} aria-label="Nästa figur">▶</button></div><div class="evprog">${dots}</div>`;
+ h+=`<div style="font-size:.85rem;color:#585078;margin:4px 0 8px">Titta på figuren. Öppna nätet och vrid den om du behöver se alla sidor.</div>`;
+ h+=`<div class="row" style="margin-bottom:4px"><button id="evPlay">${t>0.5?'Öppna nät':'Stäng nät'}</button><button id="evRs">Återställ vy</button>${locked?'':'<button id="evFa">Visa facit</button><button id="evLk">Elevlänk</button><button id="evX">Avsluta</button>'}</div>`;
+ h+=step('Hur många <b>basytor</b> har kroppen?',choice('n',NBS,v=>v===sp.nb));
+ let done=false;
+ if(ansT.n===sp.nb){
+  h+=step('Hur ser <b>de andra sidoytorna</b> ut?',choice('s',SIDES.map(x=>[x,x]),v=>v===sp.side));
+  if(ansT.s===sp.side){
+   h+=step('Vilken <b>kropp</b> är det?',choice('t',TYPES.map(x=>[x,x]),v=>sp.okType.includes(v)));
+   if(sp.okType.includes(ansT.t)){
+    if(sp.nb>0){
+     h+=step(sp.nb>1?'Vilken form har <b>basytorna</b>?':'Vilken form har <b>basytan</b>?',choice('b',BASES.map(x=>[x,x]),v=>sp.base.includes(v)));
+     done=sp.base.includes(ansT.b);
+    }else done=true;
+   }
+  }
+ }
+ if(done){
+  evDoneT.add(evIdxT);
+  h+=`<div class="evok">Rätt! ✓<div style="font-weight:400;margin:4px 0">${sp.txt}${ansT.t==='Prisma'&&f==='cy'?' Du svarade prisma, och det stämmer också, men mest exakt är cylinder.':''}</div>${evIdxT<TR.length-1?'<button id="evNx" class="main">Nästa figur ▶</button>':'<button id="evNew" class="main">Ny omgång ▶</button>'}</div>`;
+ }
+ $('evPanel').innerHTML=h;
+ const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
+ on('evP',()=>loadTaskT(evIdxT-1));on('evN',()=>loadTaskT(evIdxT+1));on('evNx',()=>loadTaskT(evIdxT+1));
+ on('evNew',()=>{TR=genTypeRound();evDoneT.clear();loadTaskT(0)});
+ on('evPlay',()=>go(t>0.5?0:1,1500));on('evRs',()=>cam(0,0,700,1));on('evLk',()=>copyLink(true));on('evX',exitEv);
+ on('evFa',()=>{ansT={n:sp.nb,s:sp.side,t:sp.type,b:sp.base[0]};evRenderT()});
+ wireKinds();
+ $('evPanel').querySelectorAll('button.fc').forEach(b=>b.onclick=()=>{
+  const k=b.dataset.k,v=k==='n'?+b.dataset.v:b.dataset.v;ansT[k]=v;
+  if(k==='n'&&v===sp.nb&&sp.nb>0)setHl('bas');
+  if(k==='s'&&v===sp.side&&(G.def.groups||[]).length)setHl('sid');
+  evRenderT();
+ });
+}
+$('evOpen').onclick=()=>{if(evMode)exitEv();else enterEv(evKind==='T'?evIdxT:evIdx)};
 const PRE={
  rb:[{n:'Standard',d:{l:4,b:3,h:2}},{n:'Låg platta',d:{l:6,b:4,h:1}},{n:'Hög pelare',d:{l:2,b:2,h:6}},{n:'Stor',d:{l:8,b:5,h:3}}],
  kub:[{n:'Sida 2',d:{l:2}},{n:'Sida 3',d:{l:3}},{n:'Sida 4',d:{l:4}},{n:'Sida 5',d:{l:5}}],
@@ -1257,16 +1331,16 @@ function stepPreset(dir){
 $('preP').onclick=()=>stepPreset(-1);$('preNx').onclick=()=>stepPreset(1);
 // ---- uppgiftsformat: en vy som data (samma format för presets, länkar, export och elevuppgifter) ----
 const FLAGS=[['sEdge','e'],['sMeas','m'],['sAns','a'],['sFloor','f'],['sWalls','w'],['sFocus','o'],['sTr','t'],['sHo','h'],['sCalc','c']];
-function getState(){return {f:fig,d:{...dm[fig]},lie:lie&&!!FIG[fig].lie,u:$('unit').value,s:FLAGS.filter(([id])=>$(id).checked).map(x=>x[1]).join(''),k:Math.round((1-t)*100),tab,m:emode,ev:evMode,q:evIdx}}
-function toHash(S){const p=new URLSearchParams();p.set('f',S.f);p.set('d',Object.entries(S.d).map(([k,v])=>k+':'+v).join(','));if(S.lie)p.set('l','1');if(S.lock)p.set('lock','1');p.set('u',S.u);p.set('s',S.s);p.set('k',S.k);p.set('tab',S.tab);if(S.m==='E')p.set('m','E');if(S.ev){p.set('ev','1');p.set('q',S.q)}return '#'+p.toString()}
+function getState(){return {f:fig,d:{...dm[fig]},lie:lie&&!!FIG[fig].lie,u:$('unit').value,s:FLAGS.filter(([id])=>$(id).checked).map(x=>x[1]).join(''),k:Math.round((1-t)*100),tab,m:emode,ev:evMode,q:evKind==='T'?0:evIdx,ek:evKind}}
+function toHash(S){const p=new URLSearchParams();p.set('f',S.f);p.set('d',Object.entries(S.d).map(([k,v])=>k+':'+v).join(','));if(S.lie)p.set('l','1');if(S.lock)p.set('lock','1');p.set('u',S.u);p.set('s',S.s);p.set('k',S.k);p.set('tab',S.tab);if(S.m==='E')p.set('m','E');if(S.ev){p.set('ev','1');p.set('q',S.q);if(S.ek==='T')p.set('ek','T')}return '#'+p.toString()}
 function parseHash(){
  const h=location.hash.slice(1);if(!h)return null;
  try{const p=new URLSearchParams(h),d={};(p.get('d')||'').split(',').forEach(x=>{const [k,v]=x.split(':');if(k&&v)d[k]=v});
-  return {f:p.get('f'),d,lie:p.get('l')==='1',u:p.get('u'),s:p.has('s')?p.get('s'):undefined,k:p.get('k'),tab:p.get('tab'),m:p.get('m'),lock:p.get('lock')==='1',ev:p.get('ev')==='1',q:p.get('q')}}catch(e){return null}
+  return {f:p.get('f'),d,lie:p.get('l')==='1',u:p.get('u'),s:p.has('s')?p.get('s'):undefined,k:p.get('k'),tab:p.get('tab'),m:p.get('m'),lock:p.get('lock')==='1',ev:p.get('ev')==='1',q:p.get('q'),ek:p.get('ek')}}catch(e){return null}
 }
 function applyLock(on){locked=on;$('app').classList.toggle('lock',on);if(on){emode='E';syncMode();if(!$('drawer').classList.contains('on'))$('openC').click();setPanels(false)}}
 function setState(S){
- if(S&&S.ev){if(S.lock!==undefined)applyLock(!!S.lock);enterEv(+S.q||0);return}
+ if(S&&S.ev){if(S.lock!==undefined)applyLock(!!S.lock);enterEv(+S.q||0,S.ek==='T'?'T':'V');return}
  if(S&&S.ev===false&&evMode)exitEv();
  if(!S||!FIG[S.f])return;
  fig=S.f;

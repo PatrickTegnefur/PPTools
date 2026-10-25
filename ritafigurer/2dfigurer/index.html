@@ -76,6 +76,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <details><summary>Enheter</summary><div class="dbody">
 <label>Enhet visas<select id="um"><option value="0">Vid måtten</option><option value="1">I parentes ovanför figuren</option></select></label>
 </div></details>
+<details><summary title="Bocka i de etiketter som ska stå i en lista vid sidan. På figuren ersätts de av bokstäver.">Lista vid sidan</summary><div class="dbody">
+<div id="labs"></div>
+<label style="flex-direction:column;align-items:stretch"><span>Egen notering (en rad per post)</span><textarea id="note" rows="3" style="width:100%;border:1.5px solid #ccc5f0;border-radius:8px;padding:6px 8px;font:inherit;font-size:13px"></textarea></label>
+</div></details>
 <details><summary>Utskrift och export</summary><div class="dbody">
 <label>Svartvit utskrift<input type="checkbox" id="bw"></label>
 <label>Genomskinlig bakgrund (PNG/SVG)<input type="checkbox" id="tp"></label>
@@ -92,7 +96,7 @@ const W=560,H=400,KC=.5*Math.cos(.7),KS=.5*Math.sin(.7),U=[-KC,1,-KS];
 const PRE=[[null,'#100e28'],['#cdeeec','#1b6f6b'],['#fbe0c6','#9a4f12'],['#fbd3e3','#a42b66'],['#d4e0fc','#1f4cb8'],['#dedede','#100e28']];
 const NONE='linear-gradient(135deg,#fff 44%,#e02020 44% 56%,#fff 56%)',SWC=['#EC6095','#66C7C2','#F4A261','#306BF0','#bfbfbf','#ffffff'];
 const C={base:{on:1,c:'#EC6095'},side:{on:0,c:'#66C7C2'},top:{on:0,c:'#F4A261'},bot:{on:0,c:'#F4A261'}};
-const IC={netbox:'<path d="M12 3h8v8h8v8h-8v8h-8v-8H4v-8h8Z"/><path d="M12 11h8M12 19h8M12 11v8M20 11v8"/>',netprism:'<path d="M3 12h26v10H3ZM11 12v10M19 12v10M11 12l4-8 4 8M11 22l4 8 4-8"/>',netpyr:'<path d="M11 11h10v10H11ZM11 11l5-8 5 8M11 21l5 8 5-8M11 11l-8 5 8 5M21 11l8 5-8 5"/>',netcyl:'<rect x="4" y="12" width="24" height="9"/><circle cx="11" cy="7" r="4.5"/><circle cx="21" cy="26" r="4.5"/>',netcone:'<path d="M16 3L6 17A12 12 0 0 0 26 17Z"/><circle cx="16" cy="26" r="4"/>',circ:'<circle cx="16" cy="16" r="12"/><path d="M16 16L25 9"/>',grid:'<path d="M16 3v26M3 16h26M16 3l-3 4M16 3l3 4M29 16l-4-3M29 16l-4 3M9 14v4M23 14v4M14 9h4M14 23h4"/>',line:'<path d="M3 16h26M29 16l-4-3M29 16l-4 3M8 12v8M16 12v8M24 12v8"/><circle cx="16" cy="16" r="2.5"/>',tri:'<path d="M4 26h24L8 6Z"/><path d="M8 20h6v6"/>',rect:'<rect x="3" y="8" width="26" height="16"/><path d="M3 18h5v6"/>',para:'<path d="M3 24h18l8-16H11Z"/>',trap:'<path d="M3 24h26L22 8H10Z"/>',romb:'<path d="M16 3l11 13-11 13L5 16Z"/>',box:'<path d="M5 12h16v16H5ZM5 12l6-6h16l-6 6M21 12l6-6v16l-6 6"/>',prism:'<path d="M4 26h14l-7-14ZM11 12l10-6M18 26l10-6M21 6l7 14"/>',pyr:'<path d="M4 24h16l8-6H12ZM16 5L4 24M16 5l4 19M16 5l12 13"/>',cyl:'<ellipse cx="16" cy="8" rx="10" ry="4"/><path d="M6 8v16a10 4 0 0 0 20 0V8"/>',cone:'<path d="M6 24a10 4 0 0 0 20 0M16 4L6 24M16 4l10 20"/>',sph:'<circle cx="16" cy="16" r="12"/><path d="M4 16a12 4 0 0 0 24 0"/><path d="M4 16a12 4 0 0 1 24 0" stroke-dasharray="3 3"/>',kite:'<path d="M16 3l11 10-11 16L5 13Z"/>',ngon:'<path d="M16 3l11 6.5v13L16 29 5 22.5v-13Z"/>',angl:'<path d="M5 26h22M5 26l16-16M13 26A8 8 0 0 0 10.7 20.3"/>',parl:'<path d="M3 11h26M3 22h26M10 29L22 4"/>'};
+const IC={pyth:'<path d="M10 22h8l-8-8Z"/><path d="M10 22h8v8h-8ZM10 22V14H2v8h8M10 14l8 8 8-8-8-8Z"/>',netbox:'<path d="M12 3h8v8h8v8h-8v8h-8v-8H4v-8h8Z"/><path d="M12 11h8M12 19h8M12 11v8M20 11v8"/>',netprism:'<path d="M3 12h26v10H3ZM11 12v10M19 12v10M11 12l4-8 4 8M11 22l4 8 4-8"/>',netpyr:'<path d="M11 11h10v10H11ZM11 11l5-8 5 8M11 21l5 8 5-8M11 11l-8 5 8 5M21 11l8 5-8 5"/>',netcyl:'<rect x="4" y="12" width="24" height="9"/><circle cx="11" cy="7" r="4.5"/><circle cx="21" cy="26" r="4.5"/>',netcone:'<path d="M16 3L6 17A12 12 0 0 0 26 17Z"/><circle cx="16" cy="26" r="4"/>',circ:'<circle cx="16" cy="16" r="12"/><path d="M16 16L25 9"/>',grid:'<path d="M16 3v26M3 16h26M16 3l-3 4M16 3l3 4M29 16l-4-3M29 16l-4 3M9 14v4M23 14v4M14 9h4M14 23h4"/>',line:'<path d="M3 16h26M29 16l-4-3M29 16l-4 3M8 12v8M16 12v8M24 12v8"/><circle cx="16" cy="16" r="2.5"/>',tri:'<path d="M4 26h24L8 6Z"/><path d="M8 20h6v6"/>',rect:'<rect x="3" y="8" width="26" height="16"/><path d="M3 18h5v6"/>',para:'<path d="M3 24h18l8-16H11Z"/>',trap:'<path d="M3 24h26L22 8H10Z"/>',romb:'<path d="M16 3l11 13-11 13L5 16Z"/>',box:'<path d="M5 12h16v16H5ZM5 12l6-6h16l-6 6M21 12l6-6v16l-6 6"/>',prism:'<path d="M4 26h14l-7-14ZM11 12l10-6M18 26l10-6M21 6l7 14"/>',pyr:'<path d="M4 24h16l8-6H12ZM16 5L4 24M16 5l4 19M16 5l12 13"/>',cyl:'<ellipse cx="16" cy="8" rx="10" ry="4"/><path d="M6 8v16a10 4 0 0 0 20 0V8"/>',cone:'<path d="M6 24a10 4 0 0 0 20 0M16 4L6 24M16 4l10 20"/>',sph:'<circle cx="16" cy="16" r="12"/><path d="M4 16a12 4 0 0 0 24 0"/><path d="M4 16a12 4 0 0 1 24 0" stroke-dasharray="3 3"/>',kite:'<path d="M16 3l11 10-11 16L5 13Z"/>',ngon:'<path d="M16 3l11 6.5v13L16 29 5 22.5v-13Z"/>',angl:'<path d="M5 26h22M5 26l16-16M13 26A8 8 0 0 0 10.7 20.3"/>',parl:'<path d="M3 11h26M3 22h26M10 29L22 4"/>'};
 const $=id=>document.getElementById(id);
 const num=s=>parseFloat(String(s).replace(',','.').replace('−','-'));
 const fmt=n=>String(+n.toFixed(2)).replace('.',',');
@@ -114,6 +118,7 @@ romb:{n:'Romb',f:[['s','Sida',5],['al','Vinkel vid A (°)',60],['ls','Etikett si
 kite:{n:'Drake',f:[['a','Kort sida',3],['b','Lång sida',5],['al','Vinkel vid A (°)',90],['la','Etikett kort sida','text',''],['lb','Etikett lång sida','text',''],['ta','Markering korta sidor','sel',TK,1],['tb','Markering långa sidor','sel',TK,2],['unit','Enhet','text','cm'],['diag','Visa diagonaler','chk',0],['ang','Visa vinklar','chk',0],['vt','Vinkeltexter (A;B;C…)','text',''],['corn','Hörnnamn','chk',1]],d:kite},
 ngon:{n:'Månghörning',f:[['n','Antal sidor',6],['s','Sida',4],['ls','Etikett sida','text',''],['tk','Likhetsmarkering sidor','sel',TK,1],['unit','Enhet','text','cm'],['sh','Visa','sel',['Inget','Radie','Apotem','Radie och apotem'],0],['lr','Etikett radie','text',''],['lp','Etikett apotem','text',''],['ang','Visa vinklar','chk',0],['vt','Vinkeltexter (A;B;C…)','text',''],['corn','Hörnnamn','chk',0]],d:ngon},
 circ:{n:'Cirkel',f:[['r','Radie',3],['lr','Etikett radie/diameter','text',''],['unit','Enhet','text','cm'],['mt','Visa mått','sel',['Inget','Radie','Diameter'],1],['ra','Riktning på radie/diameter (°)',30],['ch','Korda','chk',0],['c1','Kordans ena ände (°)',50],['c2','Kordans andra ände (°)',160],['lk','Etikett korda','text',''],['tg','Tangent','chk',0],['ta','Tangeringspunkt (°)',300],['sc','Cirkelsektor','chk',0],['s1','Sektor från (°)',20],['s2','Sektor till (°)',110],['lv','Vinkeltext','text',''],['bg','Markera cirkelbågen','chk',0],['corn','Namn på punkter','chk',0]],d:circF},
+pyth:{n:'Pythagoras sats',f:[['a','Katet a',3],['b','Katet b',4],['la','Etikett a','text',''],['lb','Etikett b','text',''],['lc','Etikett c (hypotenusa)','text',''],['unit','Enhet','text','cm'],['uk','Okänd sida','sel',['Ingen','a','b','c'],0],['ya','Text i kvadraterna','sel',['Inget','a², b², c²','Areor'],1],['sq','Färglägg kvadraterna','chk',1],['ra','Rätvinkelmarkering','chk',1],['fm','Visa formeln','chk',0],['corn','Hörnnamn','chk',0]],d:pyth},
 angl:{n:'Vinklar',f:[['a1','Vinkel 1 (°)',40],['a2','Vinkel 2 (°)',50],['a3','Vinkel 3 (°)',0],['rot','Startriktning (°)',20],['l1','Etikett 1','text',''],['l2','Etikett 2','text',''],['l3','Etikett 3','text',''],['deg','Visa gradtal','chk',1],['corn','Namn på punkter','chk',1]],d:angl},
 parl:{n:'Parallella linjer',f:[['th','Vinkel (°)',60],['dist','Avstånd mellan linjerna',3],['lab','Markera vinklar (nr 1–8)','text','1, 5'],['xs','Visa som x (nr)','text','5'],['nr','Numrera alla vinklar','chk',0],['par','Parallellmarkering','chk',1],['corn','Linjenamn (m, n, t)','chk',1]],d:parl},
 box:{n:'Rätblock',f:d3(5,3,4,2),d:box,d3:1},
@@ -132,13 +137,13 @@ for(const k in F){S[k]={};F[k].f.forEach(x=>S[k][x[0]]=x[2]=='sel'?x[4]:x[2]=='c
 function tabs(){$('tabs').innerHTML='';let g='',row;for(const k in F){const t=F[k].g||(F[k].d3?'3D':'2D');if(t!=g){g=t;row=document.createElement('div');row.className='row';const s=document.createElement('span');s.className='grp';s.textContent=t;row.appendChild(s);$('tabs').appendChild(row)}
 const b=document.createElement('button');b.className='tab'+(k==cur?' on':'');b.innerHTML=`<svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">${IC[k]}</svg>`;b.title=F[k].n;b.setAttribute('aria-label',F[k].n);b.onclick=()=>{cur=k;tabs();fields();draw()};row.appendChild(b)}}
 function fields(){const el=$('fields');el.innerHTML='';
-if(F[cur].p){const d=document.createElement('div');d.className='tp';F[cur].p.forEach(([n,o])=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{F[cur].f.forEach(x=>{if(x[2]=='text'&&x[0][0]=='l')S[cur][x[0]]=''});Object.assign(S[cur],o);delete OFF[cur];fields();draw()};d.appendChild(b)});el.appendChild(d)}
+if(F[cur].p){const d=document.createElement('div');d.className='tp';F[cur].p.forEach(([n,o])=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{F[cur].f.forEach(x=>{if(x[2]=='text'&&x[0][0]=='l')S[cur][x[0]]=''});Object.assign(S[cur],o);delete OFF[cur];delete LST[cur];fields();draw()};d.appendChild(b)});el.appendChild(d)}
 F[cur].f.forEach(([id,lb,t,op])=>{const l=document.createElement('label');l.textContent=typeof lb=='function'?lb(S[cur]):lb;let i;
-if(t=='sel'){i=document.createElement('select');op.forEach((x,k)=>i.add(new Option(x,k)));i.value=S[cur][id];i.onchange=()=>{delete OFF[cur];S[cur][id]=+i.value;if(id=='lg'){if(cur=='prism'){const t=S[cur].d;S[cur].d=S[cur].h;S[cur].h=t}fields()}draw()}}
-else if(t=='chk'){i=document.createElement('input');i.type='checkbox';i.checked=!!S[cur][id];i.onchange=()=>{delete OFF[cur];S[cur][id]=i.checked?1:0;draw()}}
-else{i=document.createElement('input');i.type='text';i.value=S[cur][id];if(id=='gpts')i.placeholder='A(2,3) B(-1,4.5)';if(id=='glin')i.placeholder='y=2x+1; x=3';if(id=='vt')i.placeholder='tom = gradtal, x = egen text, - = dölj';if(/^l[a-z0-9]$/.test(id))i.placeholder='tom = automatisk, - = dölj';i.oninput=()=>{if(id=='gpts'||id=='glin'||id=='pts'||id=='vt')delete OFF[cur];S[cur][id]=i.value;draw()}}
+if(t=='sel'){i=document.createElement('select');op.forEach((x,k)=>i.add(new Option(x,k)));i.value=S[cur][id];i.onchange=()=>{delete OFF[cur];delete LST[cur];S[cur][id]=+i.value;if(id=='lg'){if(cur=='prism'){const t=S[cur].d;S[cur].d=S[cur].h;S[cur].h=t}fields()}draw()}}
+else if(t=='chk'){i=document.createElement('input');i.type='checkbox';i.checked=!!S[cur][id];i.onchange=()=>{delete OFF[cur];delete LST[cur];S[cur][id]=i.checked?1:0;draw()}}
+else{i=document.createElement('input');i.type='text';i.value=S[cur][id];if(id=='gpts')i.placeholder='A(2,3) B(-1,4.5)';if(id=='glin')i.placeholder='y=2x+1; x=3';if(id=='vt')i.placeholder='tom = gradtal, x = egen text, - = dölj';if(/^l[a-z0-9]$/.test(id))i.placeholder='tom = automatisk, - = dölj';i.oninput=()=>{if(id=='gpts'||id=='glin'||id=='pts'||id=='vt'){delete OFF[cur];delete LST[cur]}S[cur][id]=i.value;draw()}}
 l.appendChild(i);el.appendChild(l)});
-document.querySelectorAll('.d3').forEach(e=>e.style.display=F[cur].d3?'block':'none');document.querySelectorAll('.d2').forEach(e=>e.style.display=F[cur].d3?'none':'flex');document.querySelectorAll('.bot').forEach(e=>e.style.display=cur=='prism'&&S.prism.lg?'flex':'none')}
+document.querySelectorAll('.d3').forEach(e=>e.style.display=F[cur].d3?'block':'none');document.querySelectorAll('.d2').forEach(e=>e.style.display=F[cur].d3?'none':'flex');document.querySelectorAll('.bot').forEach(e=>e.style.display=cur=='prism'&&S.prism.lg?'flex':'none');if($('note'))$('note').value=NOTE[cur]||''}
 function pre(){PRE.forEach(([f,c])=>{const b=document.createElement('button');b.style.background=f||NONE;b.style.borderColor=c;b.setAttribute('aria-label','Färgtema');b.onclick=()=>{if(f){$('fill').value=f;$('fillon').checked=true}else $('fillon').checked=false;$('stroke').value=c;draw()};$('pre').appendChild(b)})}
 function surf(){[['base','Basyta'],['side','Sidoytor'],['top','Toppyta'],['bot','Yta mot marken (syns när sidoytorna är genomskinliga)']].forEach(([k,n])=>{const l=document.createElement('label'),sp=document.createElement('span'),ci=document.createElement('input');l.textContent=n;if(k=='bot')l.className='bot';sp.className='pre';
 const mb=(bg,fn,t)=>{const b=document.createElement('button');b.style.background=bg;b.setAttribute('aria-label',t);b.onclick=fn;sp.appendChild(b)};
@@ -146,9 +151,9 @@ mb(NONE,()=>{C[k].on=0;draw()},'Genomskinlig');SWC.forEach(c=>mb(c,()=>{C[k]={on
 ci.type='color';ci.value=C[k].c;ci.oninput=()=>{C[k]={on:1,c:ci.value};draw()};sp.appendChild(ci);l.appendChild(sp);$('surf').appendChild(l)})}
 const gr=c=>{if(!c||c=='none')return c;const n=parseInt(c.slice(1),16),y=.3*(n>>16)+.59*(n>>8&255)+.11*(n&255),v=Math.round(255-(255-y)*.55);return'#'+(v*65793).toString(16).padStart(6,'0')};
 function st(){const b=$('bw').checked,q=c=>b?gr(c):c;return{fill:q($('fillon').checked?$('fill').value:'none'),base:q(C.base.on?C.base.c:'none'),side:q(C.side.on?C.side.c:'none'),top:q(C.top.on?C.top.c:'none'),bot:q(C.bot.on?C.bot.c:'none'),s:b?'#000000':$('stroke').value,w:$('sw').value,fs:$('fs').value,ms:+$('ms').value,bw:b}}
-let TI=0,UM=0,UN='';const OFF={};
+let TI=0,UM=0,UN='',LABS=[],LIST=[];const OFF={},LST={},NOTE={},esc2=q=>String(q).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const uo=q=>String(q==null?'':q).replace(/^\s*[-+\u2212]?[\d.,]+\s*/,'').trim(),fu=(val,raw)=>{const own=uo(raw);return fmt(val)+(own?' '+own:(UM==0&&UN?' '+UN:''))};
-const T=(x,y,t,o,a='middle')=>{const k=TI++;if(t==='-')return'';const f=(OFF[cur]||{})[k]||{dx:0,dy:0};return`<text class="lab" data-k="${k}" x="${(x+f.dx).toFixed(1)}" y="${(y+f.dy).toFixed(1)}" text-anchor="${a}" dominant-baseline="central" font-size="${o.fs}" fill="${o.s}" font-family="Arial,Helvetica,sans-serif">${t}</text>`};
+const T=(x,y,t,o,a='middle')=>{const k=TI++;if(t==='-')return'';const f=(OFF[cur]||{})[k]||{dx:0,dy:0},ls=(LST[cur]||{})[k];LABS.push({k,t:String(t)});let tt=t;if(ls){LIST.push([ls,t]);tt=ls}return`<text class="lab" data-k="${k}" x="${(x+f.dx).toFixed(1)}" y="${(y+f.dy).toFixed(1)}" text-anchor="${a}" dominant-baseline="central" font-size="${o.fs}" fill="${o.s}" font-family="Arial,Helvetica,sans-serif">${tt}</text>`};
 const L=(x1,y1,x2,y2,c,w,x='')=>`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${c}" stroke-width="${w}" ${x}/>`;
 const ah=(x,y,dx,dy,o,z=10)=>{const px=-dy,py=dx;return`<path d="M${x} ${y} L${x-dx*z+px*z*.42} ${y-dy*z+py*z*.42} L${x-dx*z-px*z*.42} ${y-dy*z-py*z*.42}Z" fill="${o.s}"/>`};
 function fit(p,pad){const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]);const x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0,h=Math.max(...ys)-y0;
@@ -204,12 +209,12 @@ r+=`<polygon points="${spts(f,outline)}" fill="none" stroke="${o.s}" stroke-widt
 folds.forEach(([a,b])=>{const A=f(a),B=f(b);r+=L(A[0],A[1],B[0],B[1],o.s,o.w*(v.fd?.85:1),v.fd?' stroke-dasharray="6 5"':'')});
 if(v.nm)faces.forEach(([p,t])=>{const c=p.reduce((q,z)=>[q[0]+z[0]/p.length,q[1]+z[1]/p.length],[0,0]),q=f(c);r+=T(q[0],q[1],t=='b'?'Basyta':'Sidoyta',{...o,fs:o.fs*.75})});return r}
 function netBox(v,o){const w=num(v.w),d=num(v.d),h=num(v.h);if(!(w>0&&d>0&&h>0))throw'Alla mått måste vara större än 0.';
-const X=[0,d,d+w,2*d+w,2*d+2*w],Y=[0,d,d+h,2*d+h],rc=(a,b,c,e)=>[[X[a],Y[c]],[X[b],Y[c]],[X[b],Y[e]],[X[a],Y[e]]];
-const faces=[[rc(1,2,0,1),'b'],[rc(1,2,2,3),'b'],[rc(1,2,1,2),'s'],[rc(0,1,1,2),'s'],[rc(2,3,1,2),'s'],[rc(3,4,1,2),'s']],
-outline=[[X[1],Y[0]],[X[2],Y[0]],[X[2],Y[1]],[X[4],Y[1]],[X[4],Y[2]],[X[2],Y[2]],[X[2],Y[3]],[X[1],Y[3]],[X[1],Y[2]],[X[0],Y[2]],[X[0],Y[1]],[X[1],Y[1]]],
-folds=[[[X[1],Y[1]],[X[1],Y[2]]],[[X[2],Y[1]],[X[2],Y[2]]],[[X[3],Y[1]],[X[3],Y[2]]],[[X[1],Y[1]],[X[2],Y[1]]],[[X[1],Y[2]],[X[2],Y[2]]]],f=fitN(outline,70);
+const X=[0,h,h+w,2*h+w],Y=[0,d,d+h,2*d+h,2*d+2*h],rc=(a,b,c,e)=>[[X[a],Y[c]],[X[b],Y[c]],[X[b],Y[e]],[X[a],Y[e]]];
+const faces=[[rc(1,2,2,3),'b'],[rc(1,2,0,1),'b'],[rc(1,2,1,2),'s'],[rc(1,2,3,4),'s'],[rc(0,1,2,3),'s'],[rc(2,3,2,3),'s']],
+outline=[[X[1],Y[0]],[X[2],Y[0]],[X[2],Y[2]],[X[3],Y[2]],[X[3],Y[3]],[X[2],Y[3]],[X[2],Y[4]],[X[1],Y[4]],[X[1],Y[3]],[X[0],Y[3]],[X[0],Y[2]],[X[1],Y[2]]],
+folds=[[[X[1],Y[2]],[X[2],Y[2]]],[[X[1],Y[3]],[X[2],Y[3]]],[[X[1],Y[2]],[X[1],Y[3]]],[[X[2],Y[2]],[X[2],Y[3]]],[[X[1],Y[1]],[X[2],Y[1]]]],f=fitN(outline,70);
 let r=netDraw(f,o,v,faces,outline,folds);const at=(x,y,dx,dy)=>{const q=f([x,y]);return[q[0]+dx,q[1]+dy]};
-let a=at((X[1]+X[2])/2,Y[0],0,-16);r+=T(a[0],a[1],v.lw||fu(w,v.w),o);a=at(X[1],(Y[0]+Y[1])/2,-18,0);r+=T(a[0],a[1],v.ld||fu(d,v.d),o,'end');a=at(X[0],(Y[1]+Y[2])/2,-14,0);r+=T(a[0],a[1],v.lh||fu(h,v.h),o,'end');return r}
+let a=at((X[1]+X[2])/2,Y[0],0,-16);r+=T(a[0],a[1],v.lw||fu(w,v.w),o);a=at(X[1],(Y[0]+Y[1])/2,-18,0);r+=T(a[0],a[1],v.ld||fu(d,v.d),o,'end');a=at((X[0]+X[1])/2,Y[2],0,-14);r+=T(a[0],a[1],v.lh||fu(h,v.h),o);return r}
 function netPrism(v,o){const b=num(v.b),th=num(v.th),Lg=num(v.L);if(!(b>0&&th>0&&Lg>0))throw'Alla mått måste vara större än 0.';
 const sl=Math.hypot(b/2,th),rc=(x0,x1)=>[[x0,th],[x1,th],[x1,th+Lg],[x0,th+Lg]];
 const faces=[[[[sl,th],[sl+b,th],[sl+b/2,0]],'b'],[[[sl,th+Lg],[sl+b,th+Lg],[sl+b/2,2*th+Lg]],'b'],[rc(sl,sl+b),'s'],[rc(0,sl),'s'],[rc(sl+b,2*sl+b),'s']],
@@ -242,6 +247,19 @@ r+=T((O[0]+PR[0])/2+14,(O[1]+PR[1])/2-8,v.ls||fu(sd,''),o,'start');
 r+=L(CC[0],CC[1],CC[0]+R0*s,CC[1],o.s,o.w)+`<circle cx="${CC[0]}" cy="${CC[1]}" r="3" fill="${o.s}"/>`+T(CC[0]+R0*s/2,CC[1]-14,v.lr||'r = '+fu(R0,v.r),o);
 if(v.sv){const k=o.ms*1.4,A=[O[0]-Math.sin(hf)*k,O[1]+Math.cos(hf)*k],B=[O[0]+Math.sin(hf)*k,O[1]+Math.cos(hf)*k];r+=`<path d="M${A[0]} ${A[1]} A${k} ${k} 0 ${lg} 0 ${B[0]} ${B[1]}" fill="none" ${sw}/>`+T(O[0],O[1]+k+o.fs*.9+4,v.lv||fmt(th)+'°',o)}
 if(v.nm)r+=T(O[0],O[1]+S2*.55,'Sidoyta',{...o,fs:o.fs*.75})+T(CC[0],CC[1]+R0*s*.45,'Basyta',{...o,fs:o.fs*.75});return r}
+const au=(val,raw)=>{const own=uo(raw)||(UM==0?UN:'');return fmt(val)+(own?' '+own+'²':'')};
+function pyth(v,o){const a=num(v.a),b=num(v.b);if(!(a>0&&b>0))throw'Katetrarna måste vara större än 0.';const c=Math.hypot(a,b);
+const C0=[0,0],A=[0,-b],B=[a,0],sa=[C0,B,[a,a],[0,a]],sb=[C0,A,[-b,-b],[-b,0]],sc=[A,B,[a+b,-a],[b,-a-b]],f=fitN([].concat(sa,sb,sc),70),col=['#66C7C2','#F4A261','#EC6095'].map(z=>o.bw?gr(z):z);
+const sq=(p,i)=>`<polygon points="${spts(f,p)}" fill="${v.sq?col[i]:o.fill}" fill-opacity="${v.sq?.4:1}" stroke="${o.s}" stroke-width="${o.w}" stroke-linejoin="round"/>`;
+let r=sq(sa,0)+sq(sb,1)+sq(sc,2)+`<polygon points="${spts(f,[C0,B,A])}" fill="${o.fill}" stroke="${o.s}" stroke-width="${o.w}" stroke-linejoin="round"/>`;
+if(v.ra)r+=mk(f(C0),f(B),f(A),o,0);
+const un=+v.uk,vals=[a,b,c],raws=[v.a,v.b,''],ky=['la','lb','lc'],ls=['a','b','c'],T0=f([a/3,-b/3]),md=(p,q)=>[(p[0]+q[0])/2,(p[1]+q[1])/2];
+const inward=(q,k)=>{const dx=T0[0]-q[0],dy=T0[1]-q[1],d=Math.hypot(dx,dy)||1;return[q[0]+dx/d*k,q[1]+dy/d*k]};
+[[C0,B],[C0,A],[A,B]].forEach(([p,q],i)=>{const m=inward(f(md(p,q)),20+o.ms*.2);r+=T(m[0],m[1],v[ky[i]]||(un==i+1?'x':fu(vals[i],raws[i])),o)});
+const ya=+v.ya;if(ya)[[sa,0],[sb,1],[sc,2]].forEach(([p,i])=>{const cc=f([(p[0][0]+p[2][0])/2,(p[0][1]+p[2][1])/2]);r+=T(cc[0],cc[1],un==i+1?'x²':ya==1?ls[i]+'²':au(vals[i]*vals[i],raws[i]),o)});
+if(v.corn)[['A',A],['B',B],['C',C0]].forEach(([n,p])=>{const m=inward(f(p),16);r+=T(m[0],m[1],n,o)});
+if(v.fm)r+=T(W/2,H-24,'a² + b² = c²',{...o,fs:o.fs*1.15});
+return r}
 function nline(v,o){const a=num(v.min),b=num(v.max),p=num(v.step)||1,ar=+v.arr;if(!(b>a))throw'Kontrollera att "till" är större än "från".';
 const m=44,s=(W-2*m)/(b-a),X=x=>m+(x-a)*s,y=H/2;let r=L(m-16,y,W-m+16,y,o.s,o.w);
 if(ar<2)r+=ah(W-m+16,y,1,0,o);if(ar==1)r+=ah(m-16,y,-1,0,o);
@@ -382,7 +400,18 @@ if(lab.includes(k+1))r+=mk(V,dir(d1),dir(d2),o,1,xs.includes(k+1)?'x':fmt([th,18
 if(v.nr){const m=(d1+d2)/2*Math.PI/180,t=o.ms*1.6+10;r+=T(V[0]+Math.cos(m)*t,V[1]-Math.sin(m)*t,String(k+1),{...o,fs:o.fs*.75})}}
 if(v.corn)r+=T(Q[2][0]-14,Q[2][1],'m',o)+T(Q[0][0]-14,Q[0][1],'n',o)+T(Q[5][0]+12,Q[5][1]-8,'t',o);return r}
 let last='';
-function draw(){TI=0;$('msg').textContent='';try{UN=S[cur].unit||'';UM=+$('um').value;const body=F[cur].d(S[cur],st()),un=UM==1&&UN?T(W-30,26,'('+UN+')',st(),'end'):'';last=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${$('tp').checked?'':'<rect width="'+W+'" height="'+H+'" fill="#fff"/>'}${body}${un}</svg>`}catch(e){if(typeof e!='string')throw e;$('msg').textContent=e}$('fig').innerHTML=last}
+function draw(){TI=0;LABS=[];LIST=[];$('msg').textContent='';try{UN=S[cur].unit||'';UM=+$('um').value;const body=F[cur].d(S[cur],st()),bg=$('tp').checked?'':'<rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+last=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${bg}<g id="fg">${body}</g></svg>`;
+const note=String(NOTE[cur]||'').split('\n').map(z=>z.trim()).filter(Boolean),lines=LIST.map(([a,t])=>a+' = '+t).concat(note),needU=UM==1&&UN;
+if(needU||lines.length){let bb=null;try{$('fig').innerHTML=last;const g=$('fig').querySelector('#fg');bb=g?g.getBBox():null}catch(e){}
+const ok=bb&&bb.width>0,o=st();let ex='';
+if(needU)ex+=T(ok?Math.min(W-8,bb.x+bb.width):W-30,ok?Math.max(16,bb.y-14):26,'('+UN+')',o,'end');
+if(lines.length){const k=TI++,f=(OFF[cur]||{})[k]||{dx:0,dy:0},wd=Math.max(...lines.map(z=>z.length))*o.fs*.6,x=(ok?Math.min(bb.x+bb.width+18,W-wd-8):W-wd-12)+f.dx,y=(ok?Math.max(16,bb.y+12):40)+f.dy;
+ex+=`<text class="lab" data-k="${k}" font-size="${o.fs}" fill="${o.s}" font-family="Arial,Helvetica,sans-serif" dominant-baseline="central">`+lines.map((z,i)=>`<tspan x="${x.toFixed(1)}" y="${(y+i*o.fs*1.4).toFixed(1)}">${esc2(z)}</tspan>`).join('')+'</text>'}
+last=last.replace('</svg>',ex+'</svg>')}}catch(e){if(typeof e!='string')throw e;$('msg').textContent=e}$('fig').innerHTML=last;labPanel()}
+let lastSig='';
+function labPanel(){const el=$('labs');if(!el)return;const list=['grid','line'].includes(cur)?[]:LABS.filter(l=>!l.t.startsWith('(')),m=LST[cur]||{},sig=cur+JSON.stringify(m)+list.map(l=>l.k+':'+l.t).join('|');if(sig==lastSig)return;lastSig=sig;el.innerHTML='';
+list.forEach(l=>{const lb=document.createElement('label'),i=document.createElement('input');lb.textContent=(m[l.k]?m[l.k]+' = ':'')+l.t;i.type='checkbox';i.checked=!!m[l.k];i.onchange=()=>{const mm=LST[cur]||(LST[cur]={});if(i.checked){const used=Object.values(mm);mm[l.k]=[...'abcdefghijklmnopqrstuvwxyz'].find(c=>!used.includes(c))||'x'+l.k}else delete mm[l.k];draw()};lb.appendChild(i);el.appendChild(lb)})}
 function toPng(cb){const img=new Image(),u=URL.createObjectURL(new Blob([last],{type:'image/svg+xml'}));img.onload=()=>{const c=document.createElement('canvas');c.width=W*3;c.height=H*3;c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(cb)};img.src=u}
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
 $('png').onclick=()=>toPng(b=>dl(b,cur+'.png'));
@@ -390,10 +419,11 @@ $('svg').onclick=()=>dl(new Blob([last],{type:'image/svg+xml'}),cur+'.svg');
 $('cp').onclick=()=>toPng(async b=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);$('cp').textContent='Kopierad!'}catch(e){$('cp').textContent='Gick inte – ladda ner istället'}setTimeout(()=>$('cp').textContent='Kopiera bild',2200)});
 ['fill','fillon','stroke','sw','fs','ms','bw','tp','um'].forEach(i=>$(i).oninput=draw);
 let dg=null;const fg=$('fig'),pt2=e=>{const sv=fg.querySelector('svg'),p=sv.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(sv.getScreenCTM().inverse());return[q.x,q.y]};
-fg.addEventListener('pointerdown',e=>{const t=e.target;if(!t.classList||!t.classList.contains('lab'))return;const o=OFF[cur]||(OFF[cur]={}),k=t.dataset.k,f=o[k]||(o[k]={dx:0,dy:0});dg={f,p:pt2(e),dx:f.dx,dy:f.dy};fg.setPointerCapture(e.pointerId);e.preventDefault()});
+fg.addEventListener('pointerdown',e=>{const t=e.target.closest?e.target.closest('.lab'):null;if(!t)return;const o=OFF[cur]||(OFF[cur]={}),k=t.dataset.k,f=o[k]||(o[k]={dx:0,dy:0});dg={f,p:pt2(e),dx:f.dx,dy:f.dy};fg.setPointerCapture(e.pointerId);e.preventDefault()});
 fg.addEventListener('pointermove',e=>{if(!dg)return;const p=pt2(e);dg.f.dx=dg.dx+p[0]-dg.p[0];dg.f.dy=dg.dy+p[1]-dg.p[1];draw()});
 ['pointerup','pointercancel'].forEach(v=>fg.addEventListener(v,()=>dg=null));
 $('rl').onclick=()=>{delete OFF[cur];draw()};
+$('note').oninput=()=>{NOTE[cur]=$('note').value;draw()};
 const getP=()=>({stroke:$('stroke').value,sw:$('sw').value,fs:$('fs').value,ms:$('ms').value,um:$('um').value,bw:$('bw').checked,tp:$('tp').checked,fill:$('fill').value,fillon:$('fillon').checked,C:JSON.parse(JSON.stringify(C)),unit:(S[cur]&&S[cur].unit!=null)?S[cur].unit:'cm'});
 const applyP=p=>{['stroke','sw','fs','ms','um','fill'].forEach(k=>{if(p[k]!=null)$(k).value=p[k]});['bw','tp','fillon'].forEach(k=>{if(p[k]!=null)$(k).checked=p[k]});if(p.C)for(const k in p.C)if(C[k])C[k]={...C[k],...p.C[k]};if(p.unit!=null)for(const k in S)if(S[k].unit!=null)S[k].unit=p.unit};
 const P0=getP();let sp0=null;try{sp0=JSON.parse(localStorage.getItem('mf_prefs'))}catch(e){}if(sp0)applyP(sp0);
