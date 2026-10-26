@@ -16,7 +16,7 @@ body{margin:0;background:#f6f4ff;color:#100e28;font:15px/1.45 'Sora',sans-serif;
 header{position:sticky;top:0;z-index:100;height:64px;display:flex;align-items:center;padding:0 24px;background:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);box-shadow:0 4px 24px rgba(0,0,0,.18);color:#fff}
 header h1{font:700 20px 'Montserrat',sans-serif;margin:0;color:#fff}
 header span{margin-left:14px;font-size:13px;color:rgba(255,255,255,.9)}
-main{position:relative;z-index:1;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:350px 1fr;gap:16px;padding:16px 24px 32px;align-items:start}
+main{position:relative;z-index:1;max-width:1700px;margin:0 auto;display:grid;grid-template-columns:350px 1fr;gap:16px;padding:16px 24px 32px;align-items:start}
 @media(max-width:900px){main{grid-template-columns:1fr}}
 .col{display:flex;flex-direction:column;gap:16px}
 .card{background:rgba(255,255,255,.72);backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.9);border-radius:20px;padding:18px;box-shadow:0 10px 22px rgba(48,107,240,.12),0 2px 6px rgba(16,14,40,.05)}
@@ -74,14 +74,19 @@ details>.dbody{padding:0 2px 10px}
 <details><summary>Rutnät</summary><div class="dbody">
 <label>Fastna på<select id="snap"><option value="1">Hela rutor</option><option value=".5">Halva rutor</option></select></label>
 <label>Visa rutnät<input type="checkbox" id="grid" checked></label>
+<label>Ritytans storlek<select id="cz"><option value="0">Normal</option><option value="1">Stor</option><option value="2">Extra stor</option></select></label>
 </div></details>
 <details><summary>Utseende</summary><div class="dbody">
 <label>Fyllning på<input type="checkbox" id="fillon"></label>
 <label>Fyllning<input type="color" id="fill" value="#cdeeec"></label>
+<label>Ljushet på fyllning<input type="range" id="lj" min="0" max="80" step="5" value="0"></label>
 <label>Linjefärg<input type="color" id="stroke" value="#100e28"></label>
-<label>Linjetjocklek<input type="range" id="sw" min="1" max="6" step=".5" value="2"></label>
-<label>Textstorlek<input type="range" id="fs" min="12" max="28" value="17"></label>
+<label>Linjetjocklek<input type="range" id="sw" min="1" max="6" step=".5" value="2.5"></label>
+<label>Textstorlek<input type="range" id="fs" min="12" max="28" value="21"></label>
 <label>Storlek på markeringar<input type="range" id="ms" min="10" max="40" value="20"></label>
+</div></details>
+<details><summary title="Markera en sida, hjälplinje, cirkel eller vinkel och bocka i Visa i listan. På figuren ersätts måttet av en bokstav.">Lista vid sidan</summary><div class="dbody">
+<label style="flex-direction:column;align-items:stretch"><span>Egen notering (en rad per post)</span><textarea id="note" rows="3" style="width:100%;border:1.5px solid #ccc5f0;border-radius:8px;padding:6px 8px;font:inherit;font-size:13px"></textarea></label>
 </div></details>
 <details><summary>Utskrift</summary><div class="dbody">
 <label>Svartvit utskrift<input type="checkbox" id="bw"></label>
@@ -98,17 +103,18 @@ details>.dbody{padding:0 2px 10px}
 <div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn alt" id="rl" title="Lägger tillbaka flyttade etiketter">Återställ etikettpositioner</button></div></div>
 </main>
 <script>
-const GW=22,GH=16,C=40,OX=40,OY=40,W=OX*2+GW*C,H=OY*2+GH*C,ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+let GW=22,GH=16;const C=40,OX=40,OY=40;let W=OX*2+GW*C,H=OY*2+GH*C;const ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const $=id=>document.getElementById(id),fmt=n=>String(+n.toFixed(2)).replace('.',','),num=s=>parseFloat(String(s).replace(',','.'));
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const mix=(c,k)=>{const n=parseInt(c.slice(1),16),f=v=>Math.round(v+(255-v)*k);return'#'+((1<<24)+(f(n>>16)<<16)+(f(n>>8&255)<<8)+f(n&255)).toString(16).slice(1)};
 const gr=c=>{if(!c||c=='none')return c;const n=parseInt(c.slice(1),16),y=.3*(n>>16)+.59*(n>>8&255)+.11*(n&255),v=Math.round(255-(255-y)*.55);return'#'+(v*65793).toString(16).padStart(6,'0')};
 const PS={'Rektangel':[[5,3],[11,3],[11,7],[5,7]],'Kvadrat':[[6,3],[10,3],[10,7],[6,7]],'L-form':[[1,1],[4,1],[4,4],[8,4],[8,7],[1,7]],'T-form':[[1,1],[9,1],[9,3],[6,3],[6,8],[4,8],[4,3],[1,3]],'Hus':[[1,4],[5,1],[9,4],[9,8],[1,8]],'Trapets':[[1,7],[10,7],[8,2],[3,2]],'Triangel':[[1,7],[9,7],[4,2]],'Port':[[2,7],[2,3],[8,3],[8,7]],'Stadion':[[3,2],[9,2],[9,6],[3,6]],'Cirkel':[[6,5],[10,5]]};
 const PB={'Port':{1:1},'Stadion':{1:1,3:1},'Cirkel':{0:1,1:1}};
-let N,E,K,A,O,TX,CIR=[],SEL=null,MODE=null,pend=null,drag=null,DEF={};
+let N,E,K,A,O,TX,CIR=[],LSTK={},NOTE='',LIST=[],SEL=null,MODE=null,pend=null,drag=null,DEF={};
 let hist=[],redo=[];
-const snapJ=()=>JSON.stringify({N,E,K,A,O,TX,CIR});
+const snapJ=()=>JSON.stringify({N,E,K,A,O,TX,CIR,LS:LSTK,NT:NOTE});
 function push(){if(!N)return;hist.push(snapJ());if(hist.length>80)hist.shift();redo=[]}
-function setS(j){const d=JSON.parse(j);if(!Array.isArray(d.N)||(d.N.length&&d.N.length<2)||!Array.isArray(d.E)||d.E.length!=d.N.length)throw 0;N=d.N;E=d.E;K=d.K||[];A=d.A||{};O=d.O||{};TX=d.TX||[];CIR=d.CIR||[];SEL=null;MODE=null;pend=null;ui();render()}
+function setS(j){const d=JSON.parse(j);if(!Array.isArray(d.N)||(d.N.length&&d.N.length<2)||!Array.isArray(d.E)||d.E.length!=d.N.length)throw 0;N=d.N;E=d.E;K=d.K||[];A=d.A||{};O=d.O||{};TX=d.TX||[];CIR=d.CIR||[];LSTK=d.LS||{};NOTE=d.NT||'';if($('note'))$('note').value=NOTE;SEL=null;MODE=null;pend=null;ui();render()}
 function undo(){if(!hist.length)return;redo.push(snapJ());setS(hist.pop())}
 function redoF(){if(!redo.length)return;hist.push(snapJ());setS(redo.pop())}
 function asg(Ns){return Ns.reduce((t,a,k)=>{const c=Ns[(k+1)%Ns.length];return t+a.x*c.y-c.x*a.y},0)>=0?1:-1}
@@ -118,10 +124,10 @@ for(let t=1;t<k;t++){const an=a0+sgn*th*t/k;out.push({x:cen.x+r*Math.cos(an),y:c
 const arcs=P=>{const n=N.length,sg=asg(N);return E.flatMap((e,i)=>e.bu?arcPts(N[i],N[(i+1)%n],e.bu,sg,12).map(px):[])};
 const px=n=>[OX+n.x*C,OY+n.y*C],un=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;return[dx/l,dy/l]};
 const ar=P=>P.reduce((s,p,i)=>{const q=P[(i+1)%P.length];return s+p[0]*q[1]-q[0]*p[1]},0);
-function load(n){push();N=PS[n].map(([x,y])=>({x:x+3,y:y+2}));E=N.map((_,i)=>({st:0,t:'',bu:(PB[n]||{})[i]||0}));K=[];A={};O={};TX=[];CIR=[];if(n=='Cirkel')E[1].t='-';SEL=null;MODE=null;pend=null;ui();render()}
-function opts(){const bw=$('bw').checked,f=$('fillon').checked?$('fill').value:'none';return{fill:bw?gr(f):f,s:bw?'#000000':$('stroke').value,w:+$('sw').value,fs:+$('fs').value,ms:+$('ms').value,len:$('len').checked,names:$('names').checked,dots:$('dots').checked,unit:$('unit').value,um:+$('um').value,per:num($('per').value)||1}}
-function figure(o,ui){const P=N.map(px),n=P.length,sg=ar(P)>=0?1:-1,labs=[];DEF={};
-const add=(key,x,y,t,an)=>{if(t===''||t==null)return;DEF[key]={x,y};const f=O[key]||{dx:0,dy:0};labs.push({key,x:x+f.dx,y:y+f.dy,t,an:an||'middle'})};
+function load(n){push();N=PS[n].map(([x,y])=>({x:x+3,y:y+2}));E=N.map((_,i)=>({st:0,t:'',bu:(PB[n]||{})[i]||0}));K=[];A={};O={};TX=[];CIR=[];LSTK={};if(n=='Cirkel')E[1].t='-';SEL=null;MODE=null;pend=null;ui();render()}
+function opts(){const bw=$('bw').checked,tn=+$('lj').value/100,f=$('fillon').checked?(tn?mix($('fill').value,tn):$('fill').value):'none';return{fill:bw?gr(f):f,s:bw?'#000000':$('stroke').value,w:+$('sw').value,fs:+$('fs').value,ms:+$('ms').value,len:$('len').checked,names:$('names').checked,dots:$('dots').checked,unit:$('unit').value,um:+$('um').value,per:num($('per').value)||1}}
+function figure(o,ui){const P=N.map(px),n=P.length,sg=ar(P)>=0?1:-1,labs=[];DEF={};LIST=[];
+const add=(key,x,y,t,an)=>{if(t===''||t==null)return;DEF[key]={x,y};const f=O[key]||{dx:0,dy:0},ls=LSTK[key];if(ls){LIST.push([ls,t]);t=ls}labs.push({key,x:x+f.dx,y:y+f.dy,t,an:an||'middle'})};
 const sw=`stroke="${o.s}" stroke-width="${o.w}" stroke-linecap="round"`,ds=' stroke-dasharray="7 6"',ln=(a,c,st)=>`<line x1="${a[0]}" y1="${a[1]}" x2="${c[0]}" y2="${c[1]}" ${sw}${st?ds:''}/>`;
 const pa=i=>{const a=P[i],c=P[(i+1)%n];if(!E[i].bu)return`L${c[0]} ${c[1]}`;const r=Math.hypot(c[0]-a[0],c[1]-a[1])/(Math.abs(E[i].bu)==2?Math.SQRT2:2);return`A${r} ${r} 0 0 ${(E[i].bu>0)==(sg>0)?1:0} ${c[0]} ${c[1]}`};
 const pdp=`M${P[0][0]} ${P[0][1]}${P.map((_,i)=>pa(i)).join('')}Z`,cs=CIR.map(c=>({x:OX+c.x*C,y:OY+c.y*C,r:c.r*C,m:c.m})),adds=cs.filter(c=>!c.m),subs=cs.filter(c=>c.m);
@@ -151,8 +157,10 @@ if(mt==1){b+=ln([cx,cy],[cx+r,cy],0)+`<circle cx="${cx}" cy="${cy}" r="3" fill="
 else if(mt==2){b+=ln([cx-r,cy],[cx+r,cy],0)+`<circle cx="${cx}" cy="${cy}" r="3" fill="${o.s}"/>`;add('k'+j,cx,cy-14,tx('d = ',2*c.r))}
 else if(c.t&&c.t!=='-')add('k'+j,cx,cy,c.t)});
 if(o.um==1&&o.unit){const xs=P.map(p=>p[0]).concat(cs.map(c=>c.x+c.r)),ys=P.map(p=>p[1]).concat(cs.map(c=>c.y-c.r));add('u',Math.max(...xs),Math.min(...ys)-26,'('+o.unit+')','end')}
+{const lines=LIST.map(([a,t])=>a+' = '+t).concat(String(NOTE).split('\n').map(z=>z.trim()).filter(Boolean));
+if(lines.length){const xm=Math.max(...P.map(p=>p[0]).concat(cs.map(c=>c.x+c.r)))+34,ym=Math.min(...P.map(p=>p[1]).concat(cs.map(c=>c.y-c.r)))+8,f=O['L']||{dx:0,dy:0};DEF['L']={x:xm,y:ym};labs.push({key:'L',x:xm+f.dx,y:ym+f.dy,t:lines,an:'start',w:Math.max(...lines.map(z=>z.length))*o.fs*.6,h:(lines.length-1)*o.fs*1.4})}}
 TX.forEach((t,i)=>{DEF['t'+i]={x:t.x,y:t.y};labs.push({key:'t'+i,x:t.x,y:t.y,t:t.t||'text',an:'middle'})});
-const l=labs.map(q=>{const sel=ui&&SEL&&SEL.t=='l'&&SEL.key==q.key;return`<text x="${q.x.toFixed(1)}" y="${q.y.toFixed(1)}" text-anchor="${q.an}" dominant-baseline="central" font-size="${o.fs}" fill="${sel?'#306BF0':o.s}" font-family="Arial,Helvetica,sans-serif"${ui?` data-k="lab:${q.key}" style="cursor:move"`:''}>${esc(q.t)}</text>`}).join('');
+const l=labs.map(q=>{const sel=ui&&SEL&&SEL.t=='l'&&SEL.key==q.key;return`<text x="${q.x.toFixed(1)}" y="${q.y.toFixed(1)}" text-anchor="${q.an}" dominant-baseline="central" font-size="${o.fs}" fill="${sel?'#306BF0':o.s}" font-family="Arial,Helvetica,sans-serif"${ui?` data-k="lab:${q.key}" style="cursor:move"`:''}>${Array.isArray(q.t)?q.t.map((z,i)=>`<tspan x="${q.x.toFixed(1)}" dy="${i?o.fs*1.4:0}">${esc(z)}</tspan>`).join(''):esc(q.t)}</text>`}).join('');
 return[b,l,labs]}
 const svg=$('cv');
 function gdots(){let g='';if($('grid').checked)for(let i=0;i<=GW;i++)for(let j=0;j<=GH;j++)g+=`<circle cx="${OX+i*C}" cy="${OY+j*C}" r="1.4" fill="#c9c2e8"/>`;return g}
@@ -235,22 +243,23 @@ const c=document.createElement('input');c.type='checkbox';c.checked=!!PD;c.oncha
 function posPop(){const p=$('pop');if(p.style.display!='block'||!SEL||SEL.t!='e'||!N[SEL.i])return;const P=N.map(px),a=P[SEL.i],c=P[(SEL.i+1)%P.length],r=svg.getBoundingClientRect(),w=$('wrap').getBoundingClientRect(),k=r.width/W;
 let x=(a[0]+c[0])/2*k+(r.left-w.left)+14,y=(a[1]+c[1])/2*k+(r.top-w.top)+14;x=Math.max(4,Math.min(x,w.width-p.offsetWidth-4));y=Math.max(4,Math.min(y,w.height-p.offsetHeight-4));p.style.left=x+'px';p.style.top=y+'px'}
 window.addEventListener('resize',posPop);
-function remap(f){K=K.filter(k=>f(k.a)>=0&&f(k.b)>=0).map(k=>({...k,a:f(k.a),b:f(k.b)}));const B={};for(const k in A){const m=f(+k);if(m>=0)B[m]=A[k]}A=B;for(const k in O)if('ena'.includes(k[0]))delete O[k]}
+function remap(f){K=K.filter(k=>f(k.a)>=0&&f(k.b)>=0).map(k=>({...k,a:f(k.a),b:f(k.b)}));const B={};for(const k in A){const m=f(+k);if(m>=0)B[m]=A[k]}A=B;for(const k in O)if('ena'.includes(k[0]))delete O[k];for(const k in LSTK)if('enac'.includes(k[0]))delete LSTK[k]}
 function delNode(i){push();N.splice(i,1);E.splice(i,1);remap(x=>x==i?-1:x>i?x-1:x);SEL=null;ui();render()}
 function insNode(i){if(E[i].bu){msg('Gör sidan rak först (Form: Rak).');return}push();const a=N[i],c=N[(i+1)%N.length];N.splice(i+1,0,{x:(a.x+c.x)/2,y:(a.y+c.y)/2});E[i].t='';E[i].bu=0;E.splice(i+1,0,{st:E[i].st,t:'',bu:0,un:E[i].un});remap(x=>x>i?x+1:x);SEL={t:'n',i:i+1};ui();render()}
 function ui(){const el=$('insp');el.innerHTML='';popBuild();$('hint').textContent=MODE=='cut'?'Klicka på två hörn för att dra en hjälplinje.':'';
 const row=(lb,i)=>{const l=document.createElement('label');l.textContent=lb;l.appendChild(i);el.appendChild(l)};
 const txt=(v,fn,ph)=>{const i=document.createElement('input');i.type='text';i.value=v;if(ph)i.placeholder=ph;i.onfocus=push;i.oninput=()=>{fn(i.value);render()};return i};
 const chk=(v,fn)=>{const i=document.createElement('input');i.type='checkbox';i.checked=!!v;i.onchange=()=>{push();fn(i.checked);render()};return i};
+const nl=()=>{const u=Object.values(LSTK);return[...'abcdefghijklmnopqrstuvwxyz'].find(c=>!u.includes(c))||'x'+u.length},lkc=key=>chk(!!LSTK[key],v=>{if(v)LSTK[key]=nl();else delete LSTK[key]});
 const sel=(op,v,fn)=>{const i=document.createElement('select');op.forEach((x,k)=>i.add(new Option(x,k)));i.value=v;i.onchange=()=>{push();fn(+i.value);render()};return i};
 const btn=(t,fn,alt)=>{const b=document.createElement('button');b.className='btn'+(alt?' alt':'');b.textContent=t;b.onclick=fn;el.appendChild(b)};
 if(!SEL)return;
-if(SEL.t=='n'){const i=SEL.i;row('Hörnnamn',txt(N[i].n||'',v=>N[i].n=v,ABC[i%26]));row('Vinkelmarkering',chk(A[i]&&A[i].on,v=>{A[i]=A[i]||{};A[i].on=v?1:0}));row('Vinkeltext',txt(A[i]&&A[i].t||'',v=>{A[i]=A[i]||{};A[i].t=v},'automatiskt'));if(N.length>3)btn('Ta bort hörnet',()=>delNode(i),1)}
-else if(SEL.t=='e'){const i=SEL.i;row('Etikett',txt(E[i].t,v=>E[i].t=v,'automatiskt, - = ingen'));row('Enhet',txt(E[i].un||'',v=>E[i].un=v.trim(),'allmän'));row('Linje',sel(['Heldragen','Streckad','Dold'],E[i].st,v=>E[i].st=v));row('Form',sel(['Rak','Halvcirkel utåt','Halvcirkel inåt','Kvartscirkel utåt','Kvartscirkel inåt'],[0,1,-1,2,-2].indexOf(E[i].bu||0),v=>E[i].bu=[0,1,-1,2,-2][v]));btn('Lägg till hörn på sidan',()=>insNode(i));btn('Återställ etikettens plats',()=>{delete O['e'+i];render()},1)}
-else if(SEL.t=='c'){const j=SEL.i;row('Etikett',txt(K[j].t,v=>K[j].t=v,'automatiskt, - = ingen'));row('Enhet',txt(K[j].un||'',v=>K[j].un=v.trim(),'allmän'));row('Linje',sel(['Streckad','Heldragen'],K[j].st?0:1,v=>K[j].st=v?0:1));btn('Ta bort hjälplinjen',()=>{push();K.splice(j,1);delete O['c'+j];SEL=null;ui();render()},1)}
-else if(SEL.t=='k'){const j=SEL.i,c=CIR[j];row('Läge',sel(['Tillägg','Hål'],c.m,v=>c.m=v));row('Radie (rutor)',txt(String(c.r).replace('.',','),v=>{const r=num(v);if(r>0)c.r=r}));row('Visa mått',sel(['Inget','Radie','Diameter'],c.mt,v=>c.mt=v));row('Etikett',txt(c.t,v=>c.t=v,'automatiskt, - = ingen'));row('Enhet',txt(c.un||'',v=>c.un=v.trim(),'allmän'));btn('Ta bort cirkeln',()=>{push();CIR.splice(j,1);SEL=null;ui();render()},1)}
+if(SEL.t=='n'){const i=SEL.i;row('Hörnnamn',txt(N[i].n||'',v=>N[i].n=v,ABC[i%26]));row('Vinkelmarkering',chk(A[i]&&A[i].on,v=>{A[i]=A[i]||{};A[i].on=v?1:0}));row('Vinkeltext',txt(A[i]&&A[i].t||'',v=>{A[i]=A[i]||{};A[i].t=v},'automatiskt'));row('Vinkeln i listan',lkc('a'+i));if(N.length>3)btn('Ta bort hörnet',()=>delNode(i),1)}
+else if(SEL.t=='e'){const i=SEL.i;row('Etikett',txt(E[i].t,v=>E[i].t=v,'automatiskt, - = ingen'));row('Enhet',txt(E[i].un||'',v=>E[i].un=v.trim(),'allmän'));row('Visa i listan',lkc('e'+i));row('Linje',sel(['Heldragen','Streckad','Dold'],E[i].st,v=>E[i].st=v));row('Form',sel(['Rak','Halvcirkel utåt','Halvcirkel inåt','Kvartscirkel utåt','Kvartscirkel inåt'],[0,1,-1,2,-2].indexOf(E[i].bu||0),v=>E[i].bu=[0,1,-1,2,-2][v]));btn('Lägg till hörn på sidan',()=>insNode(i));btn('Återställ etikettens plats',()=>{delete O['e'+i];render()},1)}
+else if(SEL.t=='c'){const j=SEL.i;row('Etikett',txt(K[j].t,v=>K[j].t=v,'automatiskt, - = ingen'));row('Enhet',txt(K[j].un||'',v=>K[j].un=v.trim(),'allmän'));row('Visa i listan',lkc('c'+j));row('Linje',sel(['Streckad','Heldragen'],K[j].st?0:1,v=>K[j].st=v?0:1));btn('Ta bort hjälplinjen',()=>{push();K.splice(j,1);delete O['c'+j];SEL=null;ui();render()},1)}
+else if(SEL.t=='k'){const j=SEL.i,c=CIR[j];row('Läge',sel(['Tillägg','Hål'],c.m,v=>c.m=v));row('Radie (rutor)',txt(String(c.r).replace('.',','),v=>{const r=num(v);if(r>0)c.r=r}));row('Visa mått',sel(['Inget','Radie','Diameter'],c.mt,v=>c.mt=v));row('Etikett',txt(c.t,v=>c.t=v,'automatiskt, - = ingen'));row('Enhet',txt(c.un||'',v=>c.un=v.trim(),'allmän'));row('Visa i listan',lkc('k'+j));btn('Ta bort cirkeln',()=>{push();CIR.splice(j,1);SEL=null;ui();render()},1)}
 else if(SEL.t=='l'){const k=SEL.key;if(k[0]=='t'){const j=+k.slice(1);row('Text',txt(TX[j].t,v=>TX[j].t=v));btn('Ta bort texten',()=>{push();TX.splice(j,1);SEL=null;ui();render()},1)}else btn('Återställ etikettens plats',()=>{delete O[k];render()},1)}}
-function exp(){const o=opts(),[b,l,labs]=figure(o,0),P=N.map(px),xs=P.map(p=>p[0]).concat(labs.map(q=>q.x),arcs(P).map(q=>q[0]),CIR.flatMap(c=>[OX+(c.x-c.r)*C,OX+(c.x+c.r)*C])),ys=P.map(p=>p[1]).concat(labs.map(q=>q.y),arcs(P).map(q=>q[1]),CIR.flatMap(c=>[OY+(c.y-c.r)*C,OY+(c.y+c.r)*C])),x0=Math.min(...xs)-50,y0=Math.min(...ys)-50,w=Math.max(...xs)+50-x0,h=Math.max(...ys)+50-y0;
+function exp(){const o=opts(),[b,l,labs]=figure(o,0),P=N.map(px),xs=P.map(p=>p[0]).concat(labs.map(q=>q.x),labs.map(q=>q.x+(q.w||0)),arcs(P).map(q=>q[0]),CIR.flatMap(c=>[OX+(c.x-c.r)*C,OX+(c.x+c.r)*C])),ys=P.map(p=>p[1]).concat(labs.map(q=>q.y),labs.map(q=>q.y+(q.h||0)),arcs(P).map(q=>q[1]),CIR.flatMap(c=>[OY+(c.y-c.r)*C,OY+(c.y+c.r)*C])),x0=Math.min(...xs)-50,y0=Math.min(...ys)-50,w=Math.max(...xs)+50-x0,h=Math.max(...ys)+50-y0;
 return{w,h,svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0} ${y0} ${w} ${h}" width="${w}" height="${h}">${$('tp').checked?'':`<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#fff"/>`}${b}${l}</svg>`}}
 function toPng(cb){if(!N.length)return;const e=exp(),img=new Image(),u=URL.createObjectURL(new Blob([e.svg],{type:'image/svg+xml'}));img.onload=()=>{const c=document.createElement('canvas');c.width=e.w*3;c.height=e.h*3;c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(cb)};img.src=u}
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
@@ -261,9 +270,11 @@ $('bcut').onclick=()=>{if(N.length<2){msg('Välj en startfigur först.');return}
 $('btxt').onclick=()=>{if(!N.length){msg('Välj en startfigur först.');return}push();TX.push({x:W/2,y:H-30,t:'Text'});SEL={t:'l',key:'t'+(TX.length-1)};ui();render()};
 $('bcir').onclick=()=>{if(!N.length){msg('Välj en startfigur först.');return}push();CIR.push({x:GW/2,y:GH/2,r:1.5,m:1,mt:1,t:''});SEL={t:'k',i:CIR.length-1};ui();render()};
 $('bun').onclick=undo;$('bre').onclick=redoF;$('bctr').onclick=center;
-$('bclr').onclick=()=>{if(!N.length)return;push();N=[];E=[];K=[];A={};O={};TX=[];CIR=[];SEL=null;MODE=null;pend=null;ui();render()};
+$('note').onfocus=push;$('note').oninput=()=>{NOTE=$('note').value;render()};
+$('cz').onchange=()=>{const z=[[22,16],[30,22],[40,30]][+$('cz').value];GW=z[0];GH=z[1];W=OX*2+GW*C;H=OY*2+GH*C;svg.setAttribute('viewBox','0 0 '+W+' '+H);if(N.length&&!N.every(inB))center();render()};
+$('bclr').onclick=()=>{if(!N.length)return;push();N=[];E=[];K=[];A={};O={};TX=[];CIR=[];LSTK={};NOTE='';if($('note'))$('note').value='';SEL=null;MODE=null;pend=null;ui();render()};
 $('blast').onclick=()=>{let sv=null;try{sv=localStorage.getItem('sf_last')}catch(e){}if(!sv){msg('Det finns ingen autosparad figur.');return}try{push();setS(sv)}catch(x){hist.pop();msg('Kunde inte öppna senaste figuren.')}};
-$('bsv').onclick=()=>dl(new Blob([JSON.stringify({v:1,N,E,K,A,O,TX,CIR,unit:$('unit').value,per:$('per').value})],{type:'application/json'}),'figur.json');
+$('bsv').onclick=()=>dl(new Blob([JSON.stringify({v:1,N,E,K,A,O,TX,CIR,LS:LSTK,NT:NOTE,unit:$('unit').value,per:$('per').value})],{type:'application/json'}),'figur.json');
 $('bop').onclick=()=>$('fo').click();
 $('fo').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);push();setS(t);if(d.unit!=null)$('unit').value=d.unit;if(d.per!=null)$('per').value=d.per;render()}catch(x){hist.pop();$('hint').textContent='Filen kunde inte öppnas.'}});e.target.value=''};
 let lastArr=0;
@@ -276,7 +287,7 @@ else if(k=='h')$('bcut').click();else if(k=='t')$('btxt').click();else if(k=='c'
 else if(k.startsWith('arrow')&&N.length){e.preventDefault();const st=+$('snap').value*(e.shiftKey?2:1),dx=k=='arrowleft'?-st:k=='arrowright'?st:0,dy=k=='arrowup'?-st:k=='arrowdown'?st:0,B=base0();if(shiftAll(dx,dy,B,1)){if(Date.now()-lastArr>800)push();lastArr=Date.now();shiftAll(dx,dy,B);render()}}});
 const PICN={'Rektangel':'<rect x="3" y="7" width="18" height="10"/>','Kvadrat':'<rect x="5" y="5" width="14" height="14"/>','L-form':'<path d="M4 4h7v8h9v8H4Z"/>','T-form':'<path d="M3 4h18v6h-6v10H9V10H3Z"/>','Hus':'<path d="M3 11l9-7 9 7v9H3Z"/>','Trapets':'<path d="M3 19h18l-4-12H7Z"/>','Triangel':'<path d="M3 19h18L12 5Z"/>','Port':'<path d="M5 20V10a7 7 0 0 1 14 0v10Z"/>','Stadion':'<path d="M8 6h8a6 6 0 0 1 0 12H8a6 6 0 0 1 0-12Z"/>','Cirkel':'<circle cx="12" cy="12" r="8"/>'};
 Object.keys(PS).forEach(n=>{const b=document.createElement('button');b.innerHTML=`<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">${PICN[n]||''}</svg>`;b.title=n;b.setAttribute('aria-label',n);b.onclick=()=>load(n);$('ps').appendChild(b)});
-['unit','um','per','len','names','dots','snap','grid','fillon','fill','stroke','sw','fs','ms','bw','tp'].forEach(i=>$(i).oninput=render);
+['unit','um','per','len','names','dots','snap','grid','fillon','fill','lj','stroke','sw','fs','ms','bw','tp'].forEach(i=>$(i).oninput=render);
 N=[];E=[];K=[];A={};O={};TX=[];CIR=[];ui();render();
 </script>
 </body>
