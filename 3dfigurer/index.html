@@ -156,6 +156,7 @@ select.ai{width:auto;max-width:190px;text-align:left}
 .evsh{margin-bottom:6px}.evr{margin:6px 0}
 .evok{margin:12px 0;padding:10px 12px;border-radius:12px;background:#e8f7ed;border:1.5px solid #18a348;font-weight:600}
 #app.evT .f i{display:none}
+#app.ev:not(.evlab) .f i{display:none}
 .sep{height:1px;background:#ccc5f0;margin:4px 0}
 .eb{transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
 @media (pointer:coarse){button,input[type=number],select{min-height:44px;height:44px}label.chk,.ln{min-height:44px}}
@@ -241,7 +242,7 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
  </div>
  <div class="gl" id="toast" role="status"></div>
  <div id="sheet"></div>
- <div class="sig" title="Version 2026-10-18 d">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
+ <div class="sig" title="Version 2026-10-18 g">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
  <div class="gl" id="cap2" role="status"></div>
  <aside class="gl" id="qCard" aria-label="Nät-övning">
   <div class="hd"><h2>Nät-övning</h2><button id="qX" aria-label="Stäng">✕</button></div>
@@ -1166,8 +1167,8 @@ function printSheets(){
 $('shGo').onclick=printSheets;$('shPrev').onclick=previewSheets;
 $('shOpen').onclick=()=>$('shCard').classList.toggle('on');$('shX').onclick=()=>$('shCard').classList.remove('on');
 // ---------- Elevvy: figur till vänster, uppgift steg för steg till höger ----------
-let evMode=false,evIdx=0,evKind='V',TR=[],evIdxT=0,ansT={};const evDone=new Set(),evDoneT=new Set();
-const PATH=[{f:'rb',d:{l:4,b:3,h:2}},{f:'kub',d:{l:3}},{f:'pr',d:{tb:3,th:4,ph:5},lie:1},{f:'cy',d:{r:2,h:5}},{f:'py',d:{l:6,b:6,h:4}},{f:'ko',d:{r:3,h:4}},{f:'pr',d:{tb:5,th:12,ph:4}},{f:'kl',d:{r:3}}];
+let evMode=false,evIdx=0,evKind='V',evGoal='VA',TR=[],evIdxT=0,ansT={};const evDone=new Set(),evDoneT=new Set();
+const PATH=[{f:'rb',d:{l:4,b:3,h:2}},{f:'kub',d:{l:3}},{f:'pr',d:{tb:3,th:4,ph:5},lie:1},{f:'cy',d:{r:2,h:5}},{f:'py',d:{l:6,b:6,h:4}},{f:'ko',d:{r:3,h:4}},{f:'pr',d:{tb:5,th:12,ph:4}},{f:'kl',d:{r:2}}];
 const refresh=()=>{if(evMode)evRender();else results()};
 function closeCards(){['drawer','defCard','keysCard','expCard','qCard','shCard'].forEach(i=>{const e=$(i);if(e)e.classList.remove('on')});$('openC').textContent='Beräkningar';$('openC').setAttribute('aria-expanded',false)}
 function loadTask(i){
@@ -1175,17 +1176,17 @@ function loadTask(i){
  setState({f:q.f,d:q.d,lie:!!q.lie,u:'cm',s:'ef',k:0,tab:'V',m:'G'});
  evRender();
 }
-function evClass(){$('app').classList.toggle('ev',evMode);$('app').classList.toggle('evT',evMode&&evKind==='T')}
-function enterEv(i,kind){evMode=true;if(kind)evKind=kind==='T'?'T':'V';closeCards();evClass();scene.classList.remove('lying');if(evKind==='T'){if(!TR.length)TR=genTypeRound();loadTaskT(i||0)}else loadTask(i||0);setTimeout(build,60)}
+function evClass(){$('app').classList.remove('evlab');$('app').classList.toggle('ev',evMode);$('app').classList.toggle('evT',evMode&&evKind==='T')}
+function enterEv(i,kind,goal){evMode=true;if(kind||goal)ans={};if(kind)evKind=kind==='T'?'T':'V';if(['V','A','VA'].includes(goal))evGoal=goal;closeCards();evClass();scene.classList.remove('lying');if(evKind==='T'){if(!TR.length)TR=genTypeRound();loadTaskT(i||0)}else loadTask(i||0);setTimeout(build,60)}
 function exitEv(){evMode=false;evClass();scene.classList.toggle('lying',lie&&!!FIG[fig].lie);setTimeout(build,60)}
-function switchKind(k){evKind=k;evClass();if(k==='T'){if(!TR.length)TR=genTypeRound();loadTaskT(evIdxT)}else loadTask(evIdx);setTimeout(build,60)}
-const kindTabs=()=>`<div class="tabs" style="margin-bottom:8px"><button id="evKV" aria-pressed="${evKind==='V'}">Beräkna volym</button><button id="evKT" aria-pressed="${evKind==='T'}">Känn igen kroppen</button></div>`;
-function wireKinds(){const a=$('evKV'),b=$('evKT');if(a)a.onclick=()=>switchKind('V');if(b)b.onclick=()=>switchKind('T')}
+function switchKind(k){ans={};if(k==='T')evKind='T';else{evKind='V';evGoal=k}evClass();if(k==='T'){if(!TR.length)TR=genTypeRound();loadTaskT(evIdxT)}else loadTask(evIdx);setTimeout(build,60)}
+const kindTabs=()=>`<div class="tabs" style="margin-bottom:8px">${[['V','Volym'],['A','Begränsningsyta'],['VA','Volym + begränsningsyta'],['T','Känn igen kroppen']].map(([k,l])=>`<button data-ek="${k}" aria-pressed="${k==='T'?evKind==='T':evKind==='V'&&evGoal===k}">${l}</button>`).join('')}</div>`;
+function wireKinds(){const P=$('evPanel');if(P)P.querySelectorAll('button[data-ek]').forEach(b=>{b.onclick=()=>switchKind(b.dataset.ek)})}
 function evFacit(){
  const I=G.info,E=expSets(),sph=!!G.sphere,ci=I.vol==='pyr'?1:I.vol==='sph'?2:0;
  if(!sph){ans.B_sel=E[0].slice();ans.B_ok1=true;ans.B_shape=shapeOf(E[0]);ans.B_sh=ans.B_shape;ans.B_ar=AREAF[ans.B_shape];ans.E_B=fm(I.B);ans.E_h=fm(I.h);ans.E_sB=fm(I.B);ans.E_sh=fm(I.h)}
  else ans.E_r=fm(I.r);
- ans.E_f=ci;ans.E_V=fm(I.V);evRender();
+ ans.E_f=ci;ans.E_V=fm(I.V);(I.areas||[]).forEach((q,i)=>{ans['E_a'+i]=fm(q.v)});ans.E_t=fm(sph?I.A:(I.areas||[]).reduce((x,q)=>x+q.m*q.v,0));evRender();
 }
 function evRender(){evKind==='T'?evRenderT():evRenderV()}
 function evRenderV(){
@@ -1196,9 +1197,10 @@ function evRenderV(){
  const dims=dimsOf(fig,u)+(['cy','ko','kl'].includes(fig)?'. Räkna med π ≈ 3,14':'')+(I.approx?'. Avrunda till en decimal':'');
  const forms=['V = B · h',`V = ${frac('B · h','3')}`,`V = ${frac('4 · π · r · r · r','3')}`],ci=I.vol==='pyr'?1:I.vol==='sph'?2:0;
  let n=0;const step=(title,body)=>`<div class="evs"><div class="evsh"><b>${++n}.</b> ${title}</div>${body}</div>`;
+ const wantV=evGoal!=='A',wantA=evGoal!=='V',dk=()=>evGoal+evIdx,bn=()=>`<div class="evok">Klart! ✓ ${evIdx<PATH.length-1?'<button id="evNx" class="main">Nästa uppgift ▶</button>':'Du har klarat alla uppgifter.'}</div>`;
  const fx=(k,e,suf)=>{const kk='E_'+k,st=has(kk)?(numOK(ans[kk],e)?'ok':'bad'):'';return `<input class="ai ${st}" data-k="${kk}" data-e="${e}" value="${ans[kk]??''}" inputmode="decimal" aria-label="Fyll i svar">${suf?' '+suf:''}${st?mk(st):''}`};
  let h=(locked?'':kindTabs())+`<div class="evh"><span class="evt">Uppgift ${evIdx+1} av ${PATH.length}</span><span style="flex:1"></span><button id="evP" ${evIdx?'':'disabled'} aria-label="Föregående uppgift">◀</button><button id="evN" ${evIdx<PATH.length-1?'':'disabled'} aria-label="Nästa uppgift">▶</button></div>`;
- h+=`<div class="evprog">${PATH.map((_,i)=>`<span class="${evDone.has(i)?'dn':''} ${i===evIdx?'on':''}"></span>`).join('')}</div>`;
+ h+=`<div class="evprog">${PATH.map((_,i)=>`<span class="${evDone.has(evGoal+i)?'dn':''} ${i===evIdx?'on':''}"></span>`).join('')}</div>`;
  h+=`<div class="evh" style="margin-top:4px"><b>${esc2(G.def.t)}${lie&&FIG[fig].lie?' (liggande)':''}</b></div><div style="font-size:.85rem;color:#585078;margin:2px 0 8px">Mått: ${dims}.</div>`;
  h+=`<div class="row" style="margin-bottom:4px"><button id="evPlay">${t>0.5?'Öppna nät':'Stäng nät'}</button><button id="evRs">Återställ vy</button>${locked?'':'<button id="evFa">Visa facit</button><button id="evLk">Elevlänk</button><button id="evX">Avsluta</button>'}</div>`;
  const vol=()=>{
@@ -1209,7 +1211,7 @@ function evRenderV(){
   }
   return x;
  };
- if(!sph){
+ if(wantV&&!sph){
   const sel=ans.B_sel||[],ok1=ans.B_ok1;
   h+=step(`Klicka på ${E[0].length>1?'de två <b>basytorna</b>':'<b>basytan</b>'} i figuren.`,`<div class="q" style="font-size:.8rem;margin-bottom:4px">Tips: öppna nätet för att se alla sidor. Valda: <b>${sel.length}</b></div><button id="evChk" ${sel.length&&ok1!==true?'':'disabled'}>Rätta</button> ${ok1===true?mk('ok'):ok1===false?mk('bad')+' <span class="q">Det stämmer inte.</span>':''}`);
   if(ok1===true){
@@ -1221,10 +1223,17 @@ function evRenderV(){
     if(ar===right)h+=vol();
    }
   }
- }else h+=vol();
- if(has('E_V')&&numOK(ans.E_V,I.V)){
-  evDone.add(evIdx);
-  h+=`<div class="evok">Klart! ✓ ${evIdx<PATH.length-1?'<button id="evNx" class="main">Nästa uppgift ▶</button>':'Du har klarat alla uppgifter.'}</div>`;
+ }else if(wantV)h+=vol();
+ const volOK=wantV?(has('E_V')&&numOK(ans.E_V,I.V)):true;
+ $('app').classList.toggle('evlab',wantA&&volOK);
+ if(wantV&&!wantA&&volOK){evDone.add(dk());h+=bn()}
+ if(wantA&&volOK){
+  const T=I.areas||[],tot=sph?I.A:T.reduce((x,q)=>x+q.m*q.v,0);
+  const rows=sph?`<div class="evr">B.Y. = ${fx('t',tot,u+'²')}</div>`:T.map((q,i)=>`<div class="evr">${pl(q.k,q.c)} = ${fx('a'+i,q.v,u+'²')}</div>`).join('')+`<div class="evr">Svar: B.Y. är ${fx('t',tot,u+'²')}</div>`;
+  h+=step(sph?'Beräkna <b>begränsningsytan</b>.':'Beräkna <b>begränsningsytan</b>. Räkna ut arean av varje sida (bokstäverna står på figuren) och sedan summan.',rows);
+  if(has('E_t')&&numOK(ans.E_t,tot)){
+   evDone.add(dk());h+=bn();
+  }
  }
  const P=$('evPanel');P.innerHTML=h;
  const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
@@ -1234,7 +1243,7 @@ function evRenderV(){
  const sh=$('evSh');if(sh)sh.onchange=()=>{ans.B_sh=sh.value;evRender()};
  P.querySelectorAll('button[data-a]').forEach(b=>b.onclick=()=>{ans.B_ar=+b.dataset.a;evRender()});
  P.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>{ans.E_f=+b.dataset.v;evRender()});
- P.querySelectorAll('input.ai').forEach(el=>{el.onchange=()=>{ans[el.dataset.k]=el.value;if(el.dataset.k==='E_V'){evRender();return}const st=el.value===''?'':numOK(el.value,+el.dataset.e)?'ok':'bad';el.className='ai '+st;let m=el.nextSibling;while(m&&!(m.classList&&m.classList.contains('mk')))m=m.nextSibling;if(m){m.textContent=st==='ok'?'✓':st==='bad'?'✗':'';m.style.color=st==='ok'?'#18a348':'#e02020'}}});
+ P.querySelectorAll('input.ai').forEach(el=>{el.onchange=()=>{ans[el.dataset.k]=el.value;if(el.dataset.k==='E_V'||el.dataset.k==='E_t'){evRender();return}const st=el.value===''?'':numOK(el.value,+el.dataset.e)?'ok':'bad';el.className='ai '+st;let m=el.nextSibling;while(m&&!(m.classList&&m.classList.contains('mk')))m=m.nextSibling;if(m){m.textContent=st==='ok'?'✓':st==='bad'?'✗':'';m.style.color=st==='ok'?'#18a348':'#e02020'}}});
  selUI();
 }
 const TYPES=['Prisma','Pyramid','Cylinder','Kon','Klot'],BASES=['triangel','kvadrat','rektangel','femhörning','sexhörning','cirkel'],SIDES=['Rektanglar','Trianglar','En krökt yta'],NBS=[['Ingen',0],['En',1],['Två',2]];
@@ -1331,16 +1340,16 @@ function stepPreset(dir){
 $('preP').onclick=()=>stepPreset(-1);$('preNx').onclick=()=>stepPreset(1);
 // ---- uppgiftsformat: en vy som data (samma format för presets, länkar, export och elevuppgifter) ----
 const FLAGS=[['sEdge','e'],['sMeas','m'],['sAns','a'],['sFloor','f'],['sWalls','w'],['sFocus','o'],['sTr','t'],['sHo','h'],['sCalc','c']];
-function getState(){return {f:fig,d:{...dm[fig]},lie:lie&&!!FIG[fig].lie,u:$('unit').value,s:FLAGS.filter(([id])=>$(id).checked).map(x=>x[1]).join(''),k:Math.round((1-t)*100),tab,m:emode,ev:evMode,q:evKind==='T'?0:evIdx,ek:evKind}}
-function toHash(S){const p=new URLSearchParams();p.set('f',S.f);p.set('d',Object.entries(S.d).map(([k,v])=>k+':'+v).join(','));if(S.lie)p.set('l','1');if(S.lock)p.set('lock','1');p.set('u',S.u);p.set('s',S.s);p.set('k',S.k);p.set('tab',S.tab);if(S.m==='E')p.set('m','E');if(S.ev){p.set('ev','1');p.set('q',S.q);if(S.ek==='T')p.set('ek','T')}return '#'+p.toString()}
+function getState(){return {f:fig,d:{...dm[fig]},lie:lie&&!!FIG[fig].lie,u:$('unit').value,s:FLAGS.filter(([id])=>$(id).checked).map(x=>x[1]).join(''),k:Math.round((1-t)*100),tab,m:emode,ev:evMode,q:evKind==='T'?0:evIdx,ek:evKind,eg:evGoal}}
+function toHash(S){const p=new URLSearchParams();p.set('f',S.f);p.set('d',Object.entries(S.d).map(([k,v])=>k+':'+v).join(','));if(S.lie)p.set('l','1');if(S.lock)p.set('lock','1');p.set('u',S.u);p.set('s',S.s);p.set('k',S.k);p.set('tab',S.tab);if(S.m==='E')p.set('m','E');if(S.ev){p.set('ev','1');p.set('q',S.q);if(S.ek==='T')p.set('ek','T');else p.set('eg',S.eg||'VA')}return '#'+p.toString()}
 function parseHash(){
  const h=location.hash.slice(1);if(!h)return null;
  try{const p=new URLSearchParams(h),d={};(p.get('d')||'').split(',').forEach(x=>{const [k,v]=x.split(':');if(k&&v)d[k]=v});
-  return {f:p.get('f'),d,lie:p.get('l')==='1',u:p.get('u'),s:p.has('s')?p.get('s'):undefined,k:p.get('k'),tab:p.get('tab'),m:p.get('m'),lock:p.get('lock')==='1',ev:p.get('ev')==='1',q:p.get('q'),ek:p.get('ek')}}catch(e){return null}
+  return {f:p.get('f'),d,lie:p.get('l')==='1',u:p.get('u'),s:p.has('s')?p.get('s'):undefined,k:p.get('k'),tab:p.get('tab'),m:p.get('m'),lock:p.get('lock')==='1',ev:p.get('ev')==='1',q:p.get('q'),ek:p.get('ek'),eg:p.get('eg')}}catch(e){return null}
 }
 function applyLock(on){locked=on;$('app').classList.toggle('lock',on);if(on){emode='E';syncMode();if(!$('drawer').classList.contains('on'))$('openC').click();setPanels(false)}}
 function setState(S){
- if(S&&S.ev){if(S.lock!==undefined)applyLock(!!S.lock);enterEv(+S.q||0,S.ek==='T'?'T':'V');return}
+ if(S&&S.ev){if(S.lock!==undefined)applyLock(!!S.lock);enterEv(+S.q||0,S.ek==='T'?'T':'V',S.eg);return}
  if(S&&S.ev===false&&evMode)exitEv();
  if(!S||!FIG[S.f])return;
  fig=S.f;
