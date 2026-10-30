@@ -157,6 +157,17 @@ select.ai{width:auto;max-width:190px;text-align:left}
 .evok{margin:12px 0;padding:10px 12px;border-radius:12px;background:#e8f7ed;border:1.5px solid #18a348;font-weight:600}
 #app.evT .f i{display:none}
 #app.ev:not(.evlab) .f i{display:none}
+.acts{display:grid;gap:5px}
+.act{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;min-height:34px}
+.act small{font:400 .72rem 'Sora',sans-serif;opacity:.75}
+.act.ws{background:#F4A261;border-color:#d98a45;color:#100e28}
+.act.ev{background:#66C7C2;border-color:#4aaea9;color:#100e28}
+.act.ws:hover,.act.ev:hover{filter:brightness(.95)}
+.fc.yes{background:#e8f7ed;border-color:#18a348;color:#0f6b2f}
+.fc.no{background:#fdeaea;border-color:#e02020;color:#a01010}
+.fc.yes[aria-pressed=true]{background:#18a348;border-color:#18a348;color:#fff}
+.fc.no[aria-pressed=true]{background:#e02020;border-color:#e02020;color:#fff}
+@media (min-width:760px){.tb{max-height:calc(100vh - 130px);max-height:calc(100dvh - 130px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}}
 .sep{height:1px;background:#ccc5f0;margin:4px 0}
 .eb{transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;display:none;font:600 12px 'Sora',sans-serif;color:#100e28;background:#ffffff;border:1.5px solid #100e28;border-radius:6px;padding:1px 6px;white-space:nowrap}
 @media (pointer:coarse){button,input[type=number],select{min-height:44px;height:44px}label.chk,.ln{min-height:44px}}
@@ -228,8 +239,14 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
    <label class="chk"><input type="checkbox" id="sFocus"> Fokusera golvytan<kbd>6</kbd></label>
    <label class="chk" id="trRow" style="display:none"><input type="checkbox" id="sTr"> Genomskinliga sidor<kbd>7</kbd></label>
    <label class="chk" id="hoRow" style="display:none"><input type="checkbox" id="sHo"> Höjd utanför (hjälplinje)<kbd>8</kbd></label>
-   <div class="sep"></div>
-   <div class="hd" style="gap:6px;margin:2px 0 0;flex-wrap:wrap"><button id="linkB" title="Kopiera länk till den här vyn (K)">Länk</button><button id="linkE" title="Kopiera elevlänk: låst elevläge med den här figuren och fliken (Shift+K)">Elevlänk</button><button id="shOpen" title="Skapa arbetsblad för utskrift (W)">Arbetsblad</button><button id="evOpen" title="Elevvy: figur och uppgifter steg för steg (S)">Elevvy</button></div>
+  </section>
+  <section class="gl pn" aria-label="Verktyg"><div class="hd"><h2>Verktyg</h2></div>
+   <div class="acts">
+    <button class="act" id="linkB" title="Kopiera länk till den här vyn (K)">Länk<small>kopiera vyn</small></button>
+    <button class="act" id="linkE" title="Kopiera elevlänk: låst elevläge med den här figuren och fliken (Shift+K)">Elevlänk<small>låst elevläge</small></button>
+    <button class="act ws" id="shOpen" title="Skapa arbetsblad för utskrift (W)">Arbetsblad<small>utskrift</small></button>
+    <button class="act ev" id="evOpen" title="Elevvy: figur och uppgifter steg för steg (S)">Elevvy<small>steg för steg</small></button>
+   </div>
   </section>
  </div>
  <div class="gl" id="cap" role="status"></div>
@@ -242,7 +259,7 @@ button[aria-pressed=true]{background:#306BF0;color:#ffffff;border-color:#306BF0}
  </div>
  <div class="gl" id="toast" role="status"></div>
  <div id="sheet"></div>
- <div class="sig" title="Version 2026-10-18 g">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
+ <div class="sig" title="Version 2026-10-18 h">© Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan</div>
  <div class="gl" id="cap2" role="status"></div>
  <aside class="gl" id="qCard" aria-label="Nät-övning">
   <div class="hd"><h2>Nät-övning</h2><button id="qX" aria-label="Stäng">✕</button></div>
@@ -1034,7 +1051,7 @@ function renderQ(){
  $('qQ').textContent=qm==='A'?'Kan den här skissen vikas ihop till en kub?':'Vilken kropp får man om man viker ihop nätet?';
  $('qSk').innerHTML=qm==='A'?netSketch('cn',{n:qcur.n,a:1},false):netSketch(qcur.f,qcur.d,qcur.lie);
  const opts=qm==='A'?[['ja','Ja, det blir en kub'],['nej','Nej, det går inte']]:QOPT;
- $('qOpts').innerHTML=opts.map(([k,l])=>`<button class="fc" data-k="${k}" ${qdone?'disabled':''}>${l}</button>`).join('');
+ $('qOpts').innerHTML=opts.map(([k,l])=>`<button class="fc${k==='ja'?' yes':k==='nej'?' no':''}" data-k="${k}" ${qdone?'disabled':''}>${l}</button>`).join('');
  $('qOpts').querySelectorAll('button').forEach(b=>{b.onclick=()=>answerQ(b.dataset.k)});
  $('qShow').disabled=!qdone;$('qFb').innerHTML=qcur.fb||'';
 }

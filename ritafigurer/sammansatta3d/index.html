@@ -49,11 +49,20 @@ summary{cursor:pointer;list-style:none;display:flex;justify-content:space-betwee
 summary::-webkit-details-marker{display:none}summary::after{content:'\25BE';color:#306BF0;transition:transform .2s}details[open]>summary::after{transform:rotate(180deg)}
 details>.dbody{padding:0 2px 10px}
 .hint{font-size:13px;color:#585078;margin:6px 0 0;min-height:20px}
+.tools{margin-left:auto;display:flex;gap:6px;align-items:center}
+.tools a,.tools button{color:#fff;text-decoration:none;font:600 12px 'Montserrat',sans-serif;padding:0 12px;min-height:36px;display:inline-flex;align-items:center;border-radius:999px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.55);cursor:pointer}
+.tools a.on{background:#fff;color:#100e28;cursor:default}
+@media(max-width:1100px){header span{display:none}}
+#navp{position:fixed;z-index:200;right:16px;top:72px;width:360px;max-width:calc(100vw - 32px);background:rgba(255,255,255,.97);border:1px solid #ccc5f0;border-radius:16px;padding:16px;box-shadow:0 12px 30px rgba(16,14,40,.25);display:none}
+#navp h3{font:700 14px 'Montserrat',sans-serif;margin:0 0 8px;color:#100e28}
+#navp label{display:flex;flex-direction:column;gap:3px;margin:6px 0;font-size:12px;color:#585078}
+#navp input[type=text]{width:100%}
+#navp .row2{display:flex;align-items:center;gap:8px;margin:8px 0}
 </style>
 </head>
 <body>
 <div class="amb a1"></div><div class="amb a2"></div><div class="amb a3"></div>
-<header><h1>Sammansatta kroppar</h1><span>Kroppar som sitter ihop, ritade som tydliga 2D-figurer</span></header>
+<header><h1>Sammansatta kroppar</h1><span>Kroppar som sitter ihop, ritade som tydliga 2D-figurer</span><div class="tools" id="tools"></div></header>
 <main>
 <div class="col">
 <div class="card"><h2>Börja med</h2><div class="tp" id="ps"></div>
@@ -209,6 +218,18 @@ $('rl').onclick=()=>{OFF={};render()};
 let sv=null;try{sv=JSON.parse(localStorage.getItem('sk_last'))}catch(e){}
 if(sv&&Array.isArray(sv.S)&&sv.S.length&&sv.S.every(p=>TY[p.t]&&p.hole)){S=sv.S;SEL=Math.min(sv.SEL||0,S.length-1)}else S=PS['Cylinder på rätblock']();
 ui();render();
+
+(function(){const ME='kroppar',DEF=[['figurer','Matematikfigurer','https://patricktegnefur.github.io/PPTools/ritafigurer/2dfigurer/index.html'],['sammansatta','Sammansatta figurer','https://patricktegnefur.github.io/PPTools/ritafigurer/sammansatta2d/index.html'],['kroppar','Sammansatta kroppar','https://patricktegnefur.github.io/PPTools/ritafigurer/sammansatta3d/index.html']];
+const GH=/github\.io$/.test(location.hostname);let cfg={same:GH,urls:{}};try{const c=JSON.parse(localStorage.getItem('pt_nav'));if(c)cfg={same:!!c.same,urls:c.urls||{}}}catch(e){}
+const box=document.getElementById('tools');if(!box)return;
+const pn=document.createElement('div');pn.id='navp';document.body.appendChild(pn);
+function build(){box.innerHTML='';DEF.forEach(([k,n,u])=>{const a=document.createElement('a');a.textContent=n;if(k==ME){a.className='on';a.setAttribute('aria-current','page')}else{a.href=cfg.urls[k]||u;if(!cfg.same){a.target='_blank';a.rel='noopener'}}box.appendChild(a)});
+const g=document.createElement('button');g.textContent='\u2699';g.title='Ändra länkarna till verktygen, till exempel till dina GitHub Pages-adresser';g.setAttribute('aria-label','Ändra länkar');g.onclick=()=>{pn.style.display=pn.style.display=='block'?'none':'block';if(pn.style.display=='block')panel()};box.appendChild(g)}
+function panel(){pn.innerHTML='<h3>Länkar mellan verktygen</h3>'+DEF.map(([k,n,u])=>`<label>${n}<input type="text" data-k="${k}" value="${(cfg.urls[k]||u).replace(/"/g,'&quot;')}"></label>`).join('')+`<div class="row2"><input type="checkbox" id="navsame"${cfg.same?' checked':''}><span>Öppna i samma flik</span></div><div><button class="btn" id="navsv">Spara</button><button class="btn alt" id="navrs">Standard</button><button class="btn alt" id="navcl">Stäng</button></div>`;
+pn.querySelector('#navsv').onclick=()=>{const urls={};pn.querySelectorAll('input[data-k]').forEach(i=>{if(i.value.trim())urls[i.dataset.k]=i.value.trim()});cfg={same:pn.querySelector('#navsame').checked,urls};try{localStorage.setItem('pt_nav',JSON.stringify(cfg))}catch(e){}build();pn.style.display='none'};
+pn.querySelector('#navrs').onclick=()=>{cfg={same:GH,urls:{}};try{localStorage.removeItem('pt_nav')}catch(e){}build();panel()};
+pn.querySelector('#navcl').onclick=()=>{pn.style.display='none'}}
+build()})();
 </script>
 </body>
 </html>
