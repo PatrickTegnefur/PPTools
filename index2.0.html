@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PT's Verktyg — Matematik på AD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="icon" type="image/icon" href="/brand/pt_logo.ico">
+  <link rel="apple-touch-icon" href="/brand/pt_logo.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Sora:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── PT Ljus tokens ── */
+    :root {
+      --bg:        #f6f4ff;
+      --surface:   #ffffff;
+      --surface2:  #eae6ff;
+      --border:    #ccc5f0;
+      --text:      #100e28;
+      --muted:     #585078;
+      --accent:    #306BF0;
+      --accent2:   #EC6095;
+      --gradient:  linear-gradient(120deg, #66C7C2 0%, #F4A261 50%, #EC6095 100%);
+      --correct:   #18a348;
+      --wrong:     #e02020;
+      --shadow:    rgba(48, 107, 240, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+
+
+      /* Ämnesområden — se brand.md avsnitt 12. Matematiks två undergrupper
+         (Genomgång/Elevövning) återanvänder gradientens orange/rosa, precis
+         som innan omorganisationen. IT-pedagogik har medvetet ingen egen
+         "riktig" färg än — den är i praktiken tom och får en neutral,
+         dämpad ton tills den har innehåll (se brand.md för varför). */
+      --sub-allmant:    #59fd9d;
+      --sub-genomgang:  #5f7cfd;
+      --sub-elevovning: #ff86b4;
+      --sub-it:         #694bdf;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .ambient span { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.32; }
+    .ambient span:nth-child(1) { width: 420px; height: 420px; background: #66C7C2; top: -120px; left: -100px; }
+    .ambient span:nth-child(2) { width: 380px; height: 380px; background: #F4A261; top: 30%; right: -140px; }
+    .ambient span:nth-child(3) { width: 460px; height: 460px; background: #EC6095; bottom: -180px; left: 20%; }
+
+    /* ── Navbar ── */
+    header {
+      background: var(--gradient);
+      min-height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .nav-logo span { font-style: italic; opacity: 0.85; }
+    .nav-divider { width: 1.5px; height: 24px; background: rgba(255,255,255,0.35); border-radius: 2px; }
+    .nav-subtitle {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      padding: 40px 24px 64px;
+      max-width: 880px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .page-header p { font-size: 0.92rem; color: var(--muted); font-weight: 400; }
+
+    /* ── Filterpanel — döljer hela sektioner, inte enskilda kort ── */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px;
+      margin-bottom: 36px;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    .filter-pill {
+      appearance: none;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.18s, color 0.18s, transform 0.12s;
+    }
+    .filter-pill:hover { background: rgba(255,255,255,0.7); transform: translateY(-1px); }
+    .filter-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--muted)); flex-shrink: 0; }
+    .filter-pill[aria-pressed="true"] { background: var(--dot, var(--accent)); color: #ffffff; box-shadow: 0 4px 14px rgba(0,0,0,0.16); }
+    .filter-pill[aria-pressed="true"] .dot { background: #ffffff; }
+
+    /* ── Ämnessektioner: ligger fritt på sidans bakgrund, ingen yttre glaspanel ── */
+    .subject-section { margin-bottom: 44px; }
+    .subject-section:last-child { margin-bottom: 0; }
+
+    .subject-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding: 0 2px; }
+    .subject-icon {
+      width: 46px; height: 46px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.35rem; background: var(--sc); color: #fff; flex-shrink: 0;
+      box-shadow: 0 8px 18px var(--sc-shadow);
+    }
+    .subject-header h2 { font-family: 'Montserrat', sans-serif; font-size: 1.15rem; }
+    .subject-header p { font-size: 0.82rem; color: var(--muted); }
+
+    .subgroup-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted); margin: 20px 0 10px 2px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .subgroup-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--sc); }
+
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 14px;
+    }
+
+    /* Verktygskort: enhetlig storlek — ikonen drar blicken, en
+       kategorifärgad skugga lyfter kortet från bakgrunden. */
+    .tool-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text);
+      box-shadow: 0 10px 22px var(--sc-shadow), 0 2px 6px rgba(16,14,40,0.05);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .tool-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px var(--sc-shadow), 0 4px 10px rgba(16,14,40,0.08);
+    }
+    .tool-card:active { transform: translateY(-1px); }
+    .tool-card .icon-badge {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: var(--sc);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem;
+    }
+    .tool-card .name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.85rem; }
+    .tool-card .desc { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+
+    /* Guide-/tipskort — annan korttyp för IT-pedagogik, ingen "öppna"-känsla */
+    .guide-card {
+      background: rgba(255,255,255,0.5);
+      border: 1.5px dashed var(--sc);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 6px;
+      justify-content: center;
+    }
+    .guide-card .kicker { font-size: 0.66rem; font-weight: 700; color: var(--sc); text-transform: uppercase; letter-spacing: 0.05em; }
+    .guide-card .name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.84rem; }
+    .guide-card .desc { font-size: 0.74rem; color: var(--muted); line-height: 1.4; }
+
+    .placeholder-note { font-size: 0.82rem; color: var(--muted); font-style: italic; padding: 4px 2px 0; }
+
+    /* ── Footer ── */
+    footer { text-align: center; padding: 24px; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border); }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      main { padding: 28px 16px 48px; }
+      .page-header h1 { font-size: 1.6rem; }
+      .card-row { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .tool-card { padding: 12px; }
+      .tool-card .desc { display: none; }
+      .icon-badge { width: 34px; height: 34px; font-size: 1rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tool-card, .filter-pill { transition: none; }
+    }
+
+    a.tool-card:focus-visible, button.filter-pill:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient"><span></span><span></span><span></span></div>
+
+  <header>
+    <a class="nav-logo" href="#">PT's verktyg <span>Alfred Dalinskolan</span></a>
+    <div class="nav-divider"></div>
+    <span class="nav-subtitle">.</span>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h1>Verktygsbank</h1>
+      <p>Välj ett verktyg, eller filtrera på ämnesområde.</p>
+    </div>
+
+    <!--
+      FILTERPANEL
+      Döljer hela ämnessektioner (.subject-section), inte enskilda kort.
+      data-filter matchar .subject-section[data-subject].
+    -->
+    <div class="filter-bar" role="group" aria-label="Filtrera på ämnesområde">
+      <button class="filter-pill" data-filter="alla" style="--dot: var(--accent);" aria-pressed="true">
+        <span class="dot"></span>Alla
+      </button>
+      <button class="filter-pill" data-filter="allmant" style="--dot: var(--sub-allmant);" aria-pressed="false">
+        <span class="dot"></span>Allmänt
+      </button>
+      <button class="filter-pill" data-filter="matematik" style="--dot: var(--sub-genomgang);" aria-pressed="false">
+        <span class="dot"></span>Matematik
+      </button>
+      <button class="filter-pill" data-filter="it" style="--dot: var(--sub-it);" aria-pressed="false">
+        <span class="dot"></span>IT-pedagogik
+      </button>
+    </div>
+
+    <!-- ═══════════ ALLMÄNT ═══════════ -->
+    <section class="subject-section" data-subject="allmant">
+      <div class="subject-header">
+        <div class="subject-icon" style="--sc: var(--sub-allmant); --sc-shadow: rgba(58,173,168,0.35);">🏫</div>
+        <div>
+          <h2>Allmänt</h2>
+          <p>Klassrumsverktyg, ämnesoberoende — för vilken lärare som helst</p>
+        </div>
+      </div>
+      <div class="card-row">
+        <a class="tool-card" href="randname/index.html" style="--sc: var(--sub-allmant); --sc-shadow: rgba(58,173,168,0.3);">
+          <div class="icon-badge">🙋</div>
+          <div class="name">Namnplockare</div>
+          <div class="desc">Dra en slumpmässig elev ur en glasspinnjar, med eller utan återläggning.</div>
+        </a>
+
+        <a class="tool-card" href="randname/seatingplan/index.html" style="--sc: var(--sub-allmant); --sc-shadow: rgba(58,173,168,0.3);">
+          <div class="icon-badge">🪑</div>
+          <div class="name">Placering</div>
+          <div class="desc">Klassrumsplacering i webbläsaren.</div>
+        </a>
+
+        <a class="tool-card" href="timetimer/index.html" style="--sc: var(--sub-allmant); --sc-shadow: rgba(58,173,168,0.3);">
+          <div class="icon-badge">⏱️</div>
+          <div class="name">Timetimer</div>
+          <div class="desc">Visuell nedräkning för hur mycket tid som återstår.</div>
+        </a>
+        <a class="tool-card" href="dice/index.html" style="--sc: var(--sub-allmant); --sc-shadow: rgba(58,173,168,0.3);">
+          <div class="icon-badge">🎲</div>
+          <div class="name">Tärning</div>
+          <div class="desc">3D-tärning med spänningsfyllt kast.</div>
+        </a>
+        <a class="tool-card" href="calculator/index.html" style="--sc: var(--sub-allmant); --sc-shadow: rgba(58,173,168,0.3);">
+          <div class="icon-badge">🧮</div>
+          <div class="name">Miniräknare</div>
+          <div class="desc">Alltid-överst-räknare för snabba uträkningar.</div>
+        </a>
+
+        <a class="tool-card" href="korsord/index.html" style="--sc: var(--sub-allmant); --sc-shadow: rgba(58,173,168,0.3);">
+          <div class="icon-badge">🔠</div>
+          <div class="name">AD-WALL</div>
+          <div class="desc">Korsord, ordgömmare etc.</div>
+        </a> 
+      </div>
+    </section>
+
+    <!-- ═══════════ MATEMATIK ═══════════ -->
+    <section class="subject-section" data-subject="matematik">
+      <div class="subject-header">
+        <div class="subject-icon" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.35);">📐</div>
+        <div>
+          <h2>Matematik</h2>
+          <p>Verktyg som förklarar matematik</p>
+        </div>
+      </div>
+
+      <div class="subgroup-label" style="--sc: var(--sub-genomgang);">Genomgång — för läraren</div>
+
+      <div class="card-row">
+
+        <a class="tool-card" href="geometri26/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">🧊</div>
+          <div class="name">Geometri</div>
+          <div class="desc">Sammanfattning åk 8</div>
+        </a>
+
+        <a class="tool-card" href="numberline/addsub/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">🌡️</div>
+          <div class="name">🤖 Negativa tal</div>
+          <div class="desc">På tallinjen.</div>
+        </a>
+
+        <a class="tool-card" href="laddningsmodell/additionsubtraktion/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">⚡</div>
+          <div class="name">Negativa tal</div>
+          <div class="desc">Laddade kulor 🔵+🔴=0</div>
+        </a>
+
+        <a class="tool-card" href="odometer/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">🚗</div>
+          <div class="name">Positionssystemet</div>
+          <div class="desc">Trippmätare</div>
+        </a>
+
+        <a class="tool-card" href="arbetsblad/8tal/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">📃</div>
+          <div class="name">Arbetsblad</div>
+          <div class="desc">Generator</div>
+        </a>
+
+        <a class="tool-card" href="3dfigurer/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">📦</div>
+          <div class="name">3D-figurer och begränsningsarea</div>
+          <div class="desc">Visualisering av 3D-figurer och deras begränsningsarea.</div>
+        </a>
+
+
+        <a class="tool-card" href="brickwall/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">🧱</div>
+          <div class="name">Bråktavla</div>
+          <div class="desc">Jämför bråk.</div>
+        </a>
+
+        <a class="tool-card" href="fractiles/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">📏</div>
+          <div class="name">Bråkbrickor</div>
+          <div class="desc">Jämför bråk med bråkbrickor</div>
+        </a>
+
+
+
+        <a class="tool-card" href="ritafigurer/2dfigurer/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">📏</div>
+          <div class="name">Geometriska figurer</div>
+          <div class="desc">Rita 2D figurer</div>
+        </a>
+
+
+        <a class="tool-card" href="ritafigurer/sammansatta2d/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">📐</div>
+          <div class="name">Sammansatta 2D-figurer</div>
+          <div class="desc">Rita sammansatta 2D-figurer</div>
+        </a>
+
+
+        <a class="tool-card" href="ritafigurer/sammansatta3d/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">✂️</div>
+          <div class="name">Sammansatta 3D-figurer</div>
+          <div class="desc">Rita sammansatta 3D-figurer</div>
+        </a>
+
+        <a class="tool-card" href="geometri_8/index.html" style="--sc: var(--sub-genomgang); --sc-shadow: rgba(212,129,58,0.3);">
+          <div class="icon-badge">🧊</div>
+          <div class="name">Sammansatta 2D-figurer</div>
+          <div class="desc">Rita sammansatta 2D-figurer</div>
+        </a>
+
+      </div>
+
+
+      <div class="subgroup-label" style="--sc: var(--sub-elevovning);">Elevövning</div>
+      <div class="card-row">
+        <a class="tool-card" href="multiply/index.html" style="--sc: var(--sub-elevovning); --sc-shadow: rgba(196,61,117,0.3);">
+          <div class="icon-badge">✖️</div>
+          <div class="name">Multiplikationsruta</div>
+          <div class="desc">Träna gångertabellen</div>
+        </a>
+
+        <a class="tool-card" href="procentruta/index.html" style="--sc: var(--sub-elevovning); --sc-shadow: rgba(196,61,117,0.3);">
+          <div class="icon-badge">%</div>
+          <div class="name">Procentruta</div>
+          <div class="desc">Räkna ut delen — bråkform, 10 %-, 1 %- och decimalmetoden.</div>
+        </a>
+        <a class="tool-card" href="dah/index.html" style="--sc: var(--sub-elevovning); --sc-shadow: rgba(196,61,117,0.3);">
+          <div class="icon-badge">⚖️</div>
+          <div class="name">DAH-ruta</div>
+          <div class="desc">Tränar sambandet Andelen, Delen och Det hela.</div>
+        </a>
+
+        <a class="tool-card" href="flashcards/index.html" style="--sc: var(--sub-elevovning); --sc-shadow: rgba(196,61,117,0.3);">
+          <div class="icon-badge">🎴</div>
+          <div class="name">Flashcards</div>
+          <div class="desc">Interaktiva kort för att träna begrepp i matematik.</div>
+        </a>
+
+        <a class="tool-card" href="arbetsblad/8tal/index.html" style="--sc: var(--sub-elevovning); --sc-shadow: rgba(196,61,117,0.3);">
+          <div class="icon-badge">✍🏻</div>
+          <div class="name">Arbetsblad</div>
+          <div class="desc">Digitala övningar i taluppfattning.</div>
+        </a>
+
+        <a class="tool-card" href="korsord/index.html" style="--sc: var(--sub-elevovning); --sc-shadow: rgba(196,61,117,0.3);">
+          <div class="icon-badge">⭐</div>
+          <div class="name">Korsord</div>
+          <div class="desc">Korsordsgenerator.</div>
+        </a>
+
+        <a class="tool-card" href="korsord/ordgomma/index.html" style="--sc: var(--sub-elevovning); --sc-shadow: rgba(196,61,117,0.3);">
+          <div class="icon-badge">⭐</div>
+          <div class="name">Ordgömmor</div>
+          <div class="desc">Leta efter begrepp i bokstavsväggen.</div>
+        </a>
+
+        <a class="tool-card" href="korsord/extraovningar/index.html" style="--sc: var(--sub-elevovning); --sc-shadow: rgba(196,61,117,0.3);">
+          <div class="icon-badge">⭐</div>
+          <div class="name">Begreppsträning</div>
+          <div class="desc">Träna begrepp på olika sätt.</div>
+        </a>
+
+
+
+      </div>
+    </section>
+
+    <!-- ═══════════ IT-PEDAGOGIK ═══════════ -->
+    <section class="subject-section" data-subject="it">
+      <div class="subject-header">
+        <div class="subject-icon" style="--sc: var(--sub-it); --sc-shadow: rgba(88,80,120,0.3);">💻</div>
+        <div>
+          <h2>IT-pedagogik</h2>
+          <p>Tips, tricks och guider — inte nödvändigtvis interaktiva verktyg</p>
+        </div>
+      </div>
+      <p class="placeholder-note">Inga guider tillagda ännu — tillkommer här efter hand.</p>
+    </section>
+
+  </main>
+
+  <footer>
+    Patrick Tegnefur · Förstelärare i matematik och IT-pedagogik · Alfred Dalinskolan
+  </footer>
+
+  <script>
+    // Filtreringen döljer hela .subject-section-block baserat på data-filter
+    // vs. sektionens data-subject — inte enskilda kort.
+    const pills = document.querySelectorAll('.filter-pill');
+    const sections = document.querySelectorAll('.subject-section');
+
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.setAttribute('aria-pressed', 'false'));
+        pill.setAttribute('aria-pressed', 'true');
+
+        const filter = pill.dataset.filter;
+        sections.forEach(section => {
+          const show = filter === 'alla' || section.dataset.subject === filter;
+          section.style.display = show ? '' : 'none';
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
