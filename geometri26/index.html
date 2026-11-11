@@ -8,25 +8,23 @@
 <style>
 :root{color-scheme:light;--bg:#f6f4ff;--surface:#ffffff;--surface2:#eae6ff;--border:#ccc5f0;--text:#100e28;--muted:#585078;--accent:#306BF0;--accent2:#EC6095;--shadow:rgba(48,107,240,.12)}
 *{box-sizing:border-box}
-body{margin:0;background:#f6f4ff;color:#100e28;font:15px/1.5 Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif}
+body{margin:0;background:#f6f4ff;color:#100e28;font:17px/1.55 Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif}
 header{position:sticky;top:0;z-index:100;height:64px;display:flex;align-items:center;padding:0 24px;background:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);box-shadow:0 4px 24px rgba(0,0,0,.18)}
 header h1{font:700 20px 'Montserrat',sans-serif;margin:0;color:#fff}
 header span{margin-left:14px;font-size:13px;color:rgba(255,255,255,.9)}
-nav{display:flex;gap:8px;padding:12px 16px 0;max-width:960px;margin:0 auto;overflow-x:auto}
-nav a{flex-shrink:0;display:flex;align-items:center;min-height:40px;padding:0 14px;border-radius:8px;background:#eae6ff;color:#306BF0;border:1.5px solid #ccc5f0;font-weight:600;text-decoration:none}
 main{max-width:960px;margin:0 auto;padding:8px 16px 48px}
 section{background:#fff;border:1.5px solid #ccc5f0;border-radius:20px;box-shadow:0 4px 20px rgba(48,107,240,.12);padding:16px;margin-top:16px;scroll-margin-top:80px}
-h2{font:700 18px 'Montserrat',sans-serif;margin:0 0 10px}
+h2{font:700 24px 'Montserrat',sans-serif;margin:0 0 10px}
 .g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
 @media(max-width:860px){.g{grid-template-columns:1fr}header span{display:none}}
-.lab{font:600 11px 'Montserrat',sans-serif;color:#585078;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px}
+.lab{font:600 12.5px 'Montserrat',sans-serif;color:#585078;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px}
 .lab:first-child{margin-top:0}
 .ch{display:flex;flex-wrap:wrap;gap:8px}
-button{font:600 13px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;min-height:40px;min-width:40px;padding:0 12px;border-radius:8px;border:1.5px solid #ccc5f0;background:#eae6ff;color:#306BF0;cursor:pointer}
+button{font:600 15px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;min-height:44px;min-width:44px;padding:0 14px;border-radius:8px;border:1.5px solid #ccc5f0;background:#eae6ff;color:#306BF0;cursor:pointer}
 button.on{background:#306BF0;color:#fff;border-color:#306BF0}
 button.pk{background:#EC6095;color:#fff;border-color:#EC6095}
 :focus-visible{outline:2px solid #306BF0;outline-offset:2px}
-.info{margin-top:10px;padding:10px 12px;border-radius:14px;background:#f6f4ff;border:1.5px solid #ccc5f0;font-size:13.5px;line-height:1.45}
+.info{margin-top:10px;padding:10px 12px;border-radius:14px;background:#f6f4ff;border:1.5px solid #ccc5f0;font-size:16.5px;line-height:1.5}
 .info b{font-family:'Montserrat',sans-serif;display:block;margin-bottom:4px}
 .info small{display:block;margin-top:8px;color:#585078}
 input[type=range]{flex:1;min-width:90px;height:40px;accent-color:#306BF0}
@@ -44,23 +42,20 @@ svg text{font-family:Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;f
 .lb{opacity:0;transition:opacity .6s .8s;font-size:13px}.open .lb{opacity:1}
 .s-a .p:not(.a),.s-b .p:not(.b),.s-c .p:not(.c){opacity:.15}
 @media(prefers-reduced-motion:reduce){.p,.lb,.pn{transition:none}.per{animation:none}}
-.tabs{display:flex;gap:8px;padding:12px 16px 0;max-width:960px;margin:0 auto}.tabs button{min-height:44px;font-size:15px;padding:0 22px}
 section[hidden]{display:none}input[type=text]{font:600 14px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;min-height:40px;width:110px;padding:0 10px;border:1.5px solid #ccc5f0;border-radius:8px;color:#100e28;background:#fff}
 .lad{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin:6px 0}.lad i{font:normal 600 11px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;color:#585078}
 .st{padding:4px 0;color:#585078}.st.c{color:#100e28;font-weight:600}.res{font:700 18px Montserrat,sans-serif;margin-top:6px}
-.calc{border:1.5px solid #ccc5f0;border-radius:14px;background:#f6f4ff;overflow:hidden}.calc .r{padding:8px 12px;border-top:1.5px solid #ccc5f0}.calc .r:first-child{border-top:0}.calc .r.cur{background:#fff}.calc .r.off .rt{opacity:.45}.rt{font:700 12px Montserrat,sans-serif;color:#585078}.rc{font-weight:600;font-size:14px;line-height:22px}
+.calc{border:1.5px solid #ccc5f0;border-radius:14px;background:#f6f4ff;overflow:hidden}.calc .r{padding:8px 12px;border-top:1.5px solid #ccc5f0}.calc .r:first-child{border-top:0}.calc .r.cur{background:#fff}.calc .r.off .rt{opacity:.45}.rt{font:700 12px Montserrat,sans-serif;color:#585078}.rc{font-weight:600;font-size:15.5px;line-height:22px}
 .tr{display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin:6px 0}.ub{min-width:46px;text-align:center;padding:8px 10px;border:2px solid #ccc5f0;border-radius:8px;background:#fff;font-weight:700}.ub.on{background:#eae6ff;border-color:#306BF0;color:#306BF0}.ub.p1{border-color:#EC6095}.ub.p2{border-color:#F4A261}.cn{display:flex;flex-direction:column;align-items:center;margin:0 2px;color:#585078}.cn i{font:normal 600 11px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif}.cn.on{color:#306BF0}small{display:block;margin-top:6px;color:#585078}
 .ch button{display:inline-flex;align-items:center}button svg.ic{width:20px;height:20px;display:inline-block;background:none;border-radius:0;max-height:none;margin-right:6px}.q{color:#306BF0;font-style:italic}
 #sv,#us{max-height:none}svg.ic:only-child{width:28px;height:28px;margin-right:0}
 .card{min-height:320px;display:flex;align-items:center;justify-content:center;border:1.5px solid #ccc5f0;border-radius:16px;background:#f6f4ff;padding:12px}.card svg{background:none;max-height:300px}.cb{text-align:center;font-size:16px;max-width:420px}.cb b{display:block;font:700 28px Montserrat,sans-serif;margin-bottom:10px;color:#306BF0}button.ok{background:#2f9e6e!important;color:#fff!important;border-color:#2f9e6e!important}button.no{background:#d94a4a!important;color:#fff!important;border-color:#d94a4a!important}button:disabled{opacity:.45;cursor:default}
-.tabs{position:sticky;top:64px;z-index:90;max-width:none!important;margin:0!important;gap:0!important;padding:0 max(16px,calc((100% - 960px)/2))!important;background:#fff;border-bottom:1.5px solid #ccc5f0;box-shadow:0 2px 8px rgba(48,107,240,.08)}
-.tabs button{background:none!important;border:0!important;border-bottom:4px solid transparent!important;border-radius:0!important;color:#585078!important;font:700 15px Montserrat,sans-serif;min-height:48px;padding:0 20px}
-.tabs button.on{color:#100e28!important;border-bottom-color:#EC6095!important}
+
 #n2{max-height:none}
 .eq{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font:700 24px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;margin-top:8px}.eq input{font:700 22px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;width:130px;min-height:46px;text-align:center}
 .r.pick{cursor:pointer}.r.pick:hover{background:#fff}.r.good{background:#dff3ea}.r.wrong{background:#fde3ec}
 .sheet{background:#fff;color:#000;border:1.5px solid #ccc5f0;border-radius:12px;padding:16px}.sheet h3{font:700 18px Montserrat,sans-serif;margin:0 0 6px}.sq{display:flex;gap:14px;align-items:center;padding:10px 0;border-bottom:1px dashed #ccc5f0}.sq.enh{font:600 20px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;gap:10px}.sheet svg{background:none;flex:none}.ln{margin-top:16px}.kq{padding:6px 0;border-bottom:1px dashed #ccc5f0}.kq small{display:block;color:#585078}.key{margin-top:18px}
-@media print{header,.tabs,#p-beg,#p-vol,#p-enh,#tm,.noprint,#tra>h2{display:none!important}body{background:#fff}main{max-width:none;padding:0}section{box-shadow:none!important;border:0!important;padding:0!important;margin:0!important}.sheet{border:0;padding:0}.sq{break-inside:avoid}.key{break-before:page;margin-top:0}[data-pm=q] .key{display:none}[data-pm=k] .qs{display:none}}
+@media print{header,#menu,#tm,.noprint,#tra>h2{display:none!important}.shell{display:block!important}#content{zoom:1!important;max-width:none!important;padding:0!important}body{background:#fff}main{max-width:none;padding:0}section{box-shadow:none!important;border:0!important;padding:0!important;margin:0!important}.sheet{border:0;padding:0}.sq{break-inside:avoid}.key{break-before:page;margin-top:0}[data-pm=q] .key{display:none}[data-pm=k] .qs{display:none}}
 .flip{perspective:1200px;cursor:pointer}.flipin{position:relative;min-height:390px;transform-style:preserve-3d;transition:transform .6s}.flipin.f{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1.5px solid #ccc5f0;border-radius:16px;background:#f6f4ff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;text-align:center}.face.back{transform:rotateY(180deg)}.face svg{background:none;max-height:230px}.cq{font:700 20px Montserrat,sans-serif;margin-bottom:6px}.vf{font:700 20px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;color:#306BF0;margin:8px 0 2px}.cb{font-size:15px}.cb b{font-size:24px;margin-bottom:6px}
 @media(prefers-reduced-motion:reduce){.flipin{transition:none}}
@@ -72,46 +67,59 @@ button:hover:not(:disabled){border-color:#306BF0;transform:translateY(-1px);box-
 button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #ccc5f0}
 button.on{background:linear-gradient(#4a82ff,#306BF0);border-color:#2459d6;color:#fff;box-shadow:0 3px 0 #1f49b3}
 button.pk{background:linear-gradient(#f2799f,#EC6095);border-color:#d94a82;color:#fff;box-shadow:0 3px 0 #b83a69}
-.tabs button,.tabs button:hover,.tabs button:active{box-shadow:none!important;transform:none!important}
 #tm button{box-shadow:0 3px 0 #ccc5f0}#tm button.on{background:linear-gradient(#f2799f,#EC6095);box-shadow:0 3px 0 #b83a69}
 .g2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}@media(max-width:860px){.g2{grid-template-columns:1fr}}
 .crow{padding:16px 0;border-top:1.5px solid #ccc5f0}.crow:first-of-type{border-top:0;padding-top:0}#sc1{max-height:270px}
-nav{flex-wrap:wrap;overflow:visible}#sn button[data-sec]::before{content:'';display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid currentColor;margin-right:8px;box-sizing:border-box}#sn button[data-sec].on::before{background:currentColor}
 .opg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:10px}.opt{display:flex;flex-direction:column;align-items:center;padding:8px;min-height:190px;height:auto;font-weight:700}.opt svg{background:none;max-height:150px}.opt span{margin-top:4px}
 .sq{font-size:16px}.sq svg{height:190px;width:auto}.sq.enh{padding:14px 0}.ln{font-size:16px}
 @page{size:A4;margin:12mm}
 @media print{.sq{font-size:12.5pt;height:46mm;padding:1.5mm 0;overflow:hidden}.sq.enh{height:auto;min-height:20mm}.sq svg{height:43mm}.pg{break-after:page}.pg:last-child{break-after:auto}.sheet h3{margin:0 0 2mm}.sheet>.qs>div:nth-child(2){margin-bottom:2mm}}
 .fb{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 14px}.fb>div{background:#fff;border:2px solid #306BF0;border-radius:14px;padding:10px 18px;box-shadow:0 3px 0 #b4c8fa}.fb small{display:block;color:#585078;font-weight:600}.fb b{display:block;font:700 30px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;color:#100e28}.fb em{font-style:normal;color:#585078}
-.fm{display:inline-block;font:700 20px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;color:#306BF0;margin:4px 0}.tg{display:inline-block;background:#eae6ff;border-radius:999px;padding:2px 10px;margin:2px 4px 2px 0;font-weight:600;font-size:12px;color:#306BF0}
-.stm{margin-top:10px;padding:10px 14px;border-radius:12px;border:2px solid #EC6095;background:#fff5f9;font-size:14px}.stm b{display:inline}
+.fm{display:inline-block;font:700 24px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;color:#306BF0;margin:4px 0}.tg{display:inline-block;background:#eae6ff;border-radius:999px;padding:2px 10px;margin:2px 4px 2px 0;font-weight:600;font-size:13.5px;color:#306BF0}
+.stm{margin-top:10px;padding:10px 14px;border-radius:12px;border:2px solid #EC6095;background:#fff5f9;font-size:16px}.stm b{display:inline}
 .pnl>svg,.crow>svg{width:100%}
-#sd,#sp,#st,#sq,#sc2,#sc3,#sol,#n1,#n2{max-height:440px}#sc1,#ssk{max-height:360px}
+#sd,#sp,#st,#sq,#sc2,#sc3,#sol,#n1,#n2{max-height:420px}#sc1,#ssk{max-height:360px}
 .seg{display:inline-flex;flex-wrap:nowrap}.seg button{border-radius:0;margin-left:-2px;min-width:70px;font-size:16px}.seg button:first-child{border-radius:12px 0 0 12px;margin-left:0}.seg button:last-child{border-radius:0 12px 12px 0}
 .sym button{min-width:58px;padding:0 10px}.sym svg.ic{width:32px;height:32px;margin:0}
 .ph{font:700 26px Montserrat,sans-serif;margin:6px 0 8px}
-.crd{border:1.5px solid #ccc5f0;border-radius:14px;padding:12px;background:#fff;font-size:14px}.crd b{display:block;margin-bottom:6px;font-family:Montserrat,sans-serif}.lines div{padding:3px 0}
+.crd{border:1.5px solid #ccc5f0;border-radius:14px;padding:12px;background:#fff;font-size:16px}.crd b{display:block;margin-bottom:6px;font-family:Montserrat,sans-serif}.lines div{padding:3px 0}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}@media(max-width:860px){.two{grid-template-columns:1fr}}
 .pi{margin-top:8px;padding:8px 10px;border-left:4px solid #EC6095;background:#fff;border-radius:8px}.pl{font-weight:700;color:#EC6095}
-#p-beg .g,#p-beg .g2{grid-template-columns:minmax(0,1fr)}
+:is(#dim,#poly,#tri,#quad,#circ,#sek,#kropp,#begr) :is(.g,.g2){grid-template-columns:minmax(0,1fr)}
 .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px;line-height:1.15}.fr>span:first-child{border-bottom:2px solid currentColor;padding:0 5px 1px}.fr>span:last-child{padding:1px 5px 0}.fb b .fr{font-size:.8em}
 .sh{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.sh h3{margin:0}.sh span{font-size:13px}.band{height:5px;border-radius:3px;background:linear-gradient(90deg,#66C7C2,#F4A261,#EC6095);margin:3px 0 6px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .fn{margin-top:4px;font-size:12px;color:#585078;border-top:1px dashed #ccc5f0;padding-top:3px}.sx{flex:1;min-width:0;padding-left:14px}.rr{font:700 18px Aptos,'Segoe UI',system-ui,-apple-system,Arial,sans-serif;margin-top:6px}#us{max-height:420px}
 @media print{.fn{font-size:9pt}.rr{font-size:14pt}.sq{height:44mm}}
 .opl{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:12px}.mco{justify-content:flex-start;font-size:17px;min-height:54px;text-align:left}.mco b{display:inline-flex;width:30px;height:30px;border-radius:8px;background:#eae6ff;color:#306BF0;align-items:center;justify-content:center;margin-right:10px;flex:none}
+
+.shell{display:grid;grid-template-columns:270px minmax(0,1fr);max-width:1320px;margin:0 auto;align-items:start}body.mc .shell{grid-template-columns:minmax(0,1fr)}body.mc #menu{display:none}
+#menu{position:sticky;top:64px;height:calc(100vh - 64px);overflow:auto;padding:12px 12px 24px;border-right:1.5px solid #ccc5f0;background:#fff}
+#menu .mg{font:700 12px Montserrat,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#585078;margin:16px 8px 6px}#menu .mg:first-child{margin-top:4px}#menu .mg.rep{color:#8b84ab}
+#menu button{display:flex;width:100%;justify-content:flex-start;text-align:left;margin:2px 0;min-height:46px;font-size:15.5px;line-height:1.25;padding:6px 12px;border-radius:12px;box-shadow:none;background:transparent;border:2px solid transparent;color:#100e28;font-weight:600}
+#menu .rep button{color:#585078;font-weight:500}#menu button:hover:not(:disabled){background:#eae6ff;border-color:transparent;transform:none;box-shadow:none}
+#menu button.on{background:linear-gradient(#4a82ff,#306BF0);color:#fff;border-color:#2459d6;box-shadow:0 3px 0 #1f49b3}
+#content{padding:8px 28px 56px;min-width:0;max-width:1000px;width:100%;margin:0 auto}
+header{gap:12px}.hb{min-height:40px;min-width:44px;padding:0 12px;background:rgba(255,255,255,.18)!important;border:2px solid rgba(255,255,255,.75)!important;color:#fff!important;box-shadow:none!important;border-radius:10px;font-weight:700}.hb:hover:not(:disabled){background:rgba(255,255,255,.3)!important;transform:none!important}
+@media(max-width:900px){.shell{grid-template-columns:minmax(0,1fr)}#menu{position:fixed;top:64px;left:0;bottom:0;width:290px;z-index:200;box-shadow:6px 0 24px rgba(16,14,40,.25);height:auto}#content{padding:8px 14px 48px}header span:not([style]){display:none}}
+small{font-size:14.5px}
+@media print{.sheet,.sheet .sq,.sheet .fn{font-family:Calibri,Carlito,'Segoe UI',Arial,sans-serif}.sq{font-size:12pt!important}}
+.sheet,.sq,.fn{font-family:Calibri,Carlito,'Segoe UI',Arial,sans-serif}.sheet h3{font-family:Montserrat,sans-serif}
+.g3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:20px;align-items:start}@media(max-width:900px){.g3{grid-template-columns:minmax(0,1fr)}}
+.blank{display:inline-block;min-width:120px;height:1.1em;border-bottom:3px solid #100e28;margin:0 8px;vertical-align:baseline}
+#menu .seg{display:flex;margin:0 0 4px}#menu .seg button{width:auto;flex:1;min-width:0;justify-content:center;font-size:14px;margin:0;min-height:42px;box-shadow:none}#menu .seg button.on{box-shadow:none}
 </style>
 </head>
 <body>
-<header><h1>Geometri</h1><span>Begrepp, volym och enheter</span></header>
-<div class="tabs"><button class="on" data-t="beg">Begrepp</button><button data-t="vol">Volym</button><button data-t="enh">Enheter</button><button data-t="tra">Träna</button></div>
-<div id="p-beg"><nav id="sn"><button data-sec="dim">Dimensioner</button><button data-sec="poly">Månghörningar</button><button data-sec="tri">Trianglar</button><button data-sec="quad">Fyrhörningar</button><button data-sec="circ">Cirkel</button><button data-sec="sek">Cirkelsektor</button><button data-sec="kropp">Kroppar</button><button data-sec="begr">Begränsningsyta</button><span style="flex:1"></span><button id="sone">Ett i taget</button><button id="sall">Visa alla</button><button id="snone">Dölj alla</button></nav><main>
-
-<section id="dim"><h2>Dimensioner</h2><div class="pnl"><svg id="sd" viewBox="0 0 520 330" role="img" aria-label="Från punkt till kropp"></svg><div class="ch" style="margin-top:10px"><button class="pk" id="pl">▶ Spela</button></div><div class="lab">Välj dimension – klicka</div><div class="seg" id="cd"></div><div class="info" id="id" style="margin-top:10px"></div></div></section>
-
-<section id="poly"><h2>Månghörningar</h2><div class="pnl"><div class="lab">Välj figur – klicka</div><div class="ch sym" id="cn"></div><h3 class="ph" id="php"></h3><svg id="sp" viewBox="0 0 360 300" role="img" aria-label="Månghörning"></svg><div class="lab">Välj begrepp – klicka</div><div class="ch"><span class="ch" id="cp"></span><button id="pirr">Oregelbunden form</button></div><div class="info" id="ip"></div></div></section>
-
-<section id="tri"><h2>Trianglar</h2><div class="pnl"><div class="lab">Välj triangel – klicka</div><div class="ch sym" id="ctr"></div><div class="lab">Välj bas – klicka</div><div class="seg" id="tbs"></div><h3 class="ph" id="pht"></h3><svg id="st" viewBox="0 0 460 380" role="img" aria-label="Triangel"></svg><div class="ch" style="margin-top:10px;align-items:center"><button id="tg1">Parallellogram</button><button id="tg2">Rektangel</button><button class="pk" id="tav">Vinkelsumma</button><input type="range" id="tsl" min="0" max="1000" value="0" aria-label="Vinkelsumma"></div><div class="fb" style="margin-top:12px"><div><small>Area triangel</small><b>A = <span class="fr"><span>b · h</span><span>2</span></span></b></div><div><small>Area parallellogram</small><b>A = b · h</b></div><div><small>Vinkelsumma</small><b>180°</b></div></div><div class="info" id="it"></div></div></section>
-
-<section id="quad"><h2>Fyrhörningar</h2><div class="pnl"><h3 class="ph" id="phq"></h3><svg id="sq" viewBox="0 0 460 400" role="img" aria-label="Fyrhörning"></svg><div class="lab">Välj fyrhörning – klicka</div><div class="ch" id="cqd"></div><div class="ch" style="margin-top:10px;align-items:center"><button class="pk" id="qgo">Visa utvecklingen</button><button id="qav">Vinkelsumma</button><input type="range" id="qsl" min="0" max="1000" value="0" aria-label="Utveckling"></div><div class="fb" id="fq" style="margin-top:12px"></div><div class="info" id="iq"></div><div class="stm"><b>Alla kvadrater är rektanglar, men inte alla rektanglar är kvadrater.</b><br>Alla rektanglar är parallellogram, men inte alla parallellogram är rektanglar.</div></div></section>
+<header><button class="hb" id="mt" aria-label="Visa eller dölj menyn">☰ Meny</button><h1>Geometri</h1><span>Arbetsområde och repetition</span><span style="flex:1"></span><button class="hb" id="zm" aria-label="Mindre text och figurer">A−</button><button class="hb" id="zp" aria-label="Större text och figurer">A+</button></header>
+<div class="shell"><nav id="menu" aria-label="Innehåll">
+<div class="lab" style="margin:0 8px 6px">Visa</div><div class="seg" id="vm"><button data-vm="one" class="on">Ett i taget</button><button data-vm="grp">Hela gruppen</button></div>
+<div class="mg">Arbetsområde</div>
+<button data-sec="enh">Enheter</button><button data-sec="circ">Cirkel</button><button data-sec="sek">Cirkelsektor och cirkelbåge</button><button data-sec="vol">Volym</button><button data-sec="vat">Oregelbundna kroppar</button><button data-sec="begr">Begränsningsyta</button>
+<div class="mg rep">Repetition</div><div class="rep">
+<button data-sec="dim">Dimensioner</button><button data-sec="poly">Månghörningar</button><button data-sec="tri">Trianglar</button><button data-sec="quad">Fyrhörningar</button><button data-sec="kropp">Kroppar</button></div>
+<div class="mg">Träna</div><button data-sec="tra">Träna och uppgiftsark</button>
+</nav><main id="content">
+<section id="enh"><h2>Enheter – så hänger stegen ihop</h2><div class="lab">Välj dimension – klicka</div><div class="seg" id="ud"></div><div class="lab">Välj steg – klicka</div><div class="ch" id="ust"></div><div class="g3" style="margin-top:12px"><div><svg id="us" viewBox="-40 0 520 290" role="img" aria-label="Uppdelning av enheter"></svg><div class="ch" style="margin-top:10px"><button class="pk" id="usp">Dela upp</button></div></div><div><div class="lab" style="margin-top:0">Trappan</div><div id="utr"></div></div></div><div class="info" id="uf" style="margin-top:12px"></div><div class="info" id="urule"></div><div class="lab">Exempel</div><div class="info lines" id="uex"></div><div class="lab">Testa dig – välj rätt svar</div><div id="umc"></div></section>
 
 <section id="circ"><h2>Cirkel</h2><div class="cc">
 <div class="crow"><h3>Delar</h3><svg id="sc1" viewBox="0 0 360 300" role="img" aria-label="Cirkelns delar"></svg><div class="lab">Välj del – klicka</div><div class="ch" id="cpt"></div><div class="info" id="ci1"></div></div>
@@ -121,25 +129,44 @@ nav{flex-wrap:wrap;overflow:visible}#sn button[data-sec]::before{content:'';disp
 
 <section id="sek"><h2>Cirkelsektor och cirkelbåge</h2><div class="pnl"><svg id="ssk" viewBox="0 0 360 300" role="img" aria-label="Cirkelsektor"></svg><div class="lab">Välj andel – klicka</div><div class="ch" id="cse"></div><div class="ch" style="margin-top:8px;align-items:center"><span>Eller välj vinkel:</span><input type="range" id="sls" min="1" max="359" value="90" aria-label="Vinkel i grader"></div><div class="two"><div class="crd" id="isk1"></div><div class="crd" id="isk2"></div></div></div></section>
 
-<section id="kropp"><h2>Kroppar</h2><div class="pnl"><div class="lab">Välj kropp – klicka</div><div class="ch sym" id="ck"></div><svg id="sol" viewBox="0 0 360 300" role="img" aria-label="Kropp"></svg><div class="ch" style="margin-top:10px;align-items:center"><b>Markera:</b><span class="ch" id="cs"></span><button id="bo"></button></div><div class="info" id="is"></div></div></section>
+<section id="vol"><h2>Volym – så räknar du</h2><div class="g">
+<svg id="sv" viewBox="60 -12 435 318" role="img" aria-label="Kropp"></svg>
+<div><div class="lab">Välj kropp – klicka</div><div class="ch" id="vk"></div><div class="ch" style="margin:10px 0"><button id="vb">← Tillbaka</button><button class="pk" id="vn">Nästa steg →</button><button id="vrb">Radie: botten</button></div><div class="calc" id="vc"></div></div></div></section>
+
+<section id="vat"><h2>Oregelbundna kroppar – vatten som trycks undan</h2><div class="pnl"><div class="lab">Välj kropp – klicka</div><div class="ch sym" id="vob"></div><svg id="svt" viewBox="0 0 760 420" role="img" aria-label="Mätglas med vatten och en kropp" style="max-height:440px"></svg><div class="ch" style="margin-top:10px;align-items:center"><button class="pk" id="vgo">Sänk ner</button><input type="range" id="vsl" min="0" max="1000" value="0" aria-label="Sänk ner kroppen"><button id="vrn">Nya värden</button><button id="vlz" class="on">Förstoringsglas</button></div><div class="calc" id="vcc" style="margin-top:12px"></div></div></section>
 
 <section id="begr"><h2>Begränsningsyta</h2><div class="cc">
 <div class="crow"><h3>Rätblock</h3><svg id="n1" viewBox="0 0 400 230" role="img" aria-label="Rätblockets nät"></svg><div class="ch" style="margin-top:10px"><button id="nb">Vik ut / ihop</button><input type="range" id="nr" min="0" max="1000" value="0" aria-label="Vik ut nätet"></div><div class="lab">Markera ytpar – klicka</div><div class="ch"><button data-s="a">Fram + bak (y)</button><button data-s="b">Sidor (z)</button><button data-s="c">Topp + botten (x)</button><button class="pk" id="na1">Visa areor</button></div><div class="info" id="ni1"></div></div>
 <div class="crow"><h3>Cylinder</h3><svg id="n2" viewBox="25 15 350 215" role="img" aria-label="Cylinderns nät"></svg><div class="ch" style="margin-top:10px"><button id="cb">Rulla ut / ihop</button><input type="range" id="cr" min="0" max="1000" value="0" aria-label="Rulla ut cylindern"><button class="pk" id="na2">Visa areor</button></div><div class="info" id="ni2"></div></div>
 </div></section>
 
+<section id="dim"><h2>Dimensioner</h2><div class="pnl"><svg id="sd" viewBox="0 0 520 330" role="img" aria-label="Från punkt till kropp"></svg><div class="ch" style="margin-top:10px"><button class="pk" id="pl">▶ Spela</button></div><div class="lab">Välj dimension – klicka</div><div class="seg" id="cd"></div><div class="info" id="id" style="margin-top:10px"></div></div></section>
+
+<section id="poly"><h2>Månghörningar</h2><div class="pnl"><div class="lab">Välj figur – klicka</div><div class="ch sym" id="cn"></div><h3 class="ph" id="php"></h3><svg id="sp" viewBox="0 0 360 300" role="img" aria-label="Månghörning"></svg><div class="lab">Välj begrepp – klicka</div><div class="ch"><span class="ch" id="cp"></span><button id="pirr">Oregelbunden form</button></div><div class="info" id="ip"></div></div></section>
+
+<section id="tri"><h2>Trianglar</h2><div class="pnl"><div class="lab">Välj triangel – klicka</div><div class="ch sym" id="ctr"></div><div class="lab">Välj bas – klicka</div><div class="seg" id="tbs"></div><h3 class="ph" id="pht"></h3><svg id="st" viewBox="0 0 460 380" role="img" aria-label="Triangel"></svg><div class="ch" style="margin-top:10px;align-items:center"><button id="tg1">Parallellogram</button><button id="tg2">Rektangel</button><button class="pk" id="tav">Vinkelsumma</button><input type="range" id="tsl" min="0" max="1000" value="0" aria-label="Vinkelsumma"></div><div class="fb" style="margin-top:12px"><div><small>Area triangel</small><b>A = <span class="fr"><span>b · h</span><span>2</span></span></b></div><div><small>Area parallellogram</small><b>A = b · h</b></div><div><small>Vinkelsumma</small><b>180°</b></div></div><div class="info" id="it"></div></div></section>
+
+<section id="quad"><h2>Fyrhörningar</h2><div class="pnl"><h3 class="ph" id="phq"></h3><svg id="sq" viewBox="0 0 460 400" role="img" aria-label="Fyrhörning"></svg><div class="lab">Välj fyrhörning – klicka</div><div class="ch" id="cqd"></div><div class="ch" style="margin-top:10px;align-items:center"><button class="pk" id="qgo">Visa utvecklingen</button><button id="qav">Vinkelsumma</button><input type="range" id="qsl" min="0" max="1000" value="0" aria-label="Utveckling"></div><div class="fb" id="fq" style="margin-top:12px"></div><div class="info" id="iq"></div><div class="stm"><b>Alla kvadrater är rektanglar, men inte alla rektanglar är kvadrater.</b><br>Alla rektanglar är parallellogram, men inte alla parallellogram är rektanglar.</div></div></section>
+
+<section id="kropp"><h2>Kroppar</h2><div class="pnl"><div class="lab">Välj kropp – klicka</div><div class="ch sym" id="ck"></div><svg id="sol" viewBox="0 0 360 300" role="img" aria-label="Kropp"></svg><div class="ch" style="margin-top:10px;align-items:center"><b>Markera:</b><span class="ch" id="cs"></span><button id="bo"></button></div><div class="info" id="is"></div></div></section>
+
+<section id="tra"><h2>Träna</h2><div class="ch" id="tm"></div><div id="trn" style="margin-top:14px"></div></section>
 </main></div>
-<div id="p-vol" hidden><main><section id="vol"><h2>Volym – så räknar du</h2><div class="g">
-<svg id="sv" viewBox="60 -12 435 318" role="img" aria-label="Kropp"></svg>
-<div><div class="lab">Välj kropp – klicka</div><div class="ch" id="vk"></div><div class="ch" style="margin:10px 0"><button id="vb">← Tillbaka</button><button class="pk" id="vn">Nästa steg →</button><button id="vrb">Radie: botten</button></div><div class="calc" id="vc"></div></div></div></section>
-<section id="vat"><h2>Oregelbundna kroppar – vatten som trycks undan</h2><div class="pnl"><div class="lab">Välj kropp – klicka</div><div class="ch sym" id="vob"></div><svg id="svt" viewBox="0 0 760 420" role="img" aria-label="Mätglas med vatten och en kropp" style="max-height:440px"></svg><div class="ch" style="margin-top:10px;align-items:center"><button class="pk" id="vgo">Sänk ner</button><input type="range" id="vsl" min="0" max="1000" value="0" aria-label="Sänk ner kroppen"><button id="vrn">Nya värden</button><button id="vlz" class="on">Förstoringsglas</button></div><div class="calc" id="vcc" style="margin-top:12px"></div></div></section></main></div>
-<div id="p-enh" hidden><main><section id="enh"><h2>Enheter – så hänger stegen ihop</h2><div class="lab">Välj dimension – klicka</div><div class="seg" id="ud"></div><div class="lab">Välj steg – klicka</div><div class="ch" id="ust"></div><svg id="us" viewBox="20 10 360 250" role="img" aria-label="Uppdelning av enheter" style="margin-top:12px"></svg><div class="ch" style="margin-top:10px"><button class="pk" id="usp">Dela upp</button></div><div class="info" id="uf"></div><div class="lab">Trappan</div><div id="utr"></div><div class="info" id="urule"></div><div class="lab">Exempel</div><div class="info lines" id="uex"></div></section></main></div>
-<div id="p-tra" hidden><main><section id="tra"><h2>Träna</h2><div class="ch" id="tm"></div><div id="trn" style="margin-top:14px"></div></section></main></div>
 <script>
 (()=>{if(typeof HTMLElement=='undefined')return;const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML'),X=/\(((?:[^()<>]|\([^()<>]*\))+)\) ÷ (\d+)/g;Object.defineProperty(HTMLElement.prototype,'innerHTML',{get(){return d.get.call(this)},set(v){d.set.call(this,typeof v=='string'&&v.includes('÷')?v.replace(X,(m,a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`):v)},configurable:true})})();
 const ic=p=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${p}</svg>`;
 const ICO={rb:ic('<path d="M2 10h14v9H2zM2 10l4-4h14l-4 4M20 6v9l-4 4"/>'),kub:ic('<path d="M4 9h11v11H4zM4 9l4-4h11l-4 4M19 5v11l-4 4"/>'),pri:ic('<path d="M3 18L9 6l6 12zM9 6h7l6 12h-7"/>'),cyl:ic('<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/>'),pyr:ic('<path d="M12 3L3 17l9 4 9-4-9-14zM12 3v18"/>'),kon:ic('<path d="M12 3L5 18M12 3l7 15"/><ellipse cx="12" cy="18" rx="7" ry="3"/>'),klot:ic('<circle cx="12" cy="12" r="9"/><path d="M3 12a9 3 0 0 0 18 0"/>')};
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x==b));['beg','vol','enh','tra'].forEach(t=>document.getElementById('p-'+t).hidden=t!=b.dataset.t)});
+(()=>{const doc=document,ids=[...doc.querySelectorAll('#menu [data-sec]')].map(b=>b.dataset.sec),body=doc.body,W=()=>typeof window!='undefined'?window:null,narrow=()=>{const w=W();return !!w&&w.innerWidth<900};
+const G=[['enh','circ','sek','vol','vat','begr'],['dim','poly','tri','quad','kropp'],['tra']],grp=id=>G.find(g=>g.includes(id))||[id];let mode='one',cur=ids[0];try{mode=localStorage.getItem('geo-vy')||'one'}catch(e){}
+function show(id,push){if(!ids.includes(id))id=ids[0];const vis=mode=='grp'?grp(id):[id];ids.forEach(i=>{const e=doc.getElementById(i);if(e)e.hidden=!vis.includes(i)});cur=id;doc.querySelectorAll('#menu [data-sec]').forEach(b=>{const on=b.dataset.sec==id;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});doc.querySelectorAll('#vm [data-vm]').forEach(b=>b.classList.toggle('on',b.dataset.vm==mode));if(push!==false)try{history.replaceState(null,'','#'+id)}catch(e){}const w=W(),el=doc.getElementById(id);if(mode=='grp'&&el&&el.scrollIntoView)el.scrollIntoView({block:'start'});else if(w&&w.scrollTo)w.scrollTo(0,0);if(narrow())body.classList.add('mc')}
+doc.querySelectorAll('#menu [data-sec]').forEach(b=>b.onclick=()=>show(b.dataset.sec));
+doc.querySelectorAll('#vm [data-vm]').forEach(b=>b.onclick=()=>{mode=b.dataset.vm;try{localStorage.setItem('geo-vy',mode)}catch(e){}show(cur,false)});
+doc.getElementById('mt').onclick=()=>body.classList.toggle('mc');if(narrow())body.classList.add('mc');
+if(W()&&W().addEventListener)W().addEventListener('hashchange',()=>show(location.hash.slice(1),false));
+let z=1;try{z=+localStorage.getItem('geo-z')||1}catch(e){}
+const ap=()=>{doc.getElementById('content').style.zoom=z;try{localStorage.setItem('geo-z',z)}catch(e){}};ap();
+doc.getElementById('zm').onclick=()=>{z=Math.max(.9,+(z-.15).toFixed(2));ap()};doc.getElementById('zp').onclick=()=>{z=Math.min(1.6,+(z+.15).toFixed(2));ap()};
+show((typeof location!='undefined'&&location.hash.slice(1))||'enh',false)})();
 
 (()=>{
 
@@ -368,12 +395,7 @@ $('#isk2').innerHTML=`<b>Cirkelbåge</b><div class="lines">`+(pq?`<div>Räkna he
 if($('#sls'))$('#sls').value=v;chips('#cse',SPR.map(([l])=>[l,l]),skL,k=>{skL=k;skA=SPR.find(x=>x[0]==k)[1];drawSk()},1)}
 $('#sls').oninput=e=>{skA=+e.target.value;const f=SPR.find(x=>x[1]==skA);skL=f?f[0]:'';drawSk()};drawSk();
 
-const SEC=['dim','poly','tri','quad','circ','sek','kropp','begr'],gs=id=>document.getElementById(id);let one=1;
-function showSec(L){SEC.forEach(i=>{gs(i).hidden=!L.includes(i)});document.querySelectorAll('#sn [data-sec]').forEach(b=>b.classList.toggle('on',L.includes(b.dataset.sec)));$('#sone').classList.toggle('on',!!one)}
-const vis=()=>SEC.filter(i=>!gs(i).hidden);
-document.querySelectorAll('#sn [data-sec]').forEach(b=>b.onclick=()=>{const i=b.dataset.sec,v=vis();showSec(one?[i]:v.includes(i)?v.filter(x=>x!=i):SEC.filter(x=>x==i||v.includes(x)))});
-$('#sone').onclick=()=>{one=one?0:1;showSec(one?vis().slice(0,1):vis())};$('#sall').onclick=()=>{one=0;showSec(SEC)};$('#snone').onclick=()=>showSec([]);
-showSec(['dim']);
+
 
 
 })();
@@ -477,36 +499,40 @@ $('#vgo').onclick=()=>twv(VT,'p',VT.p>.5?0:1,5500,drawVat);$('#vsl').oninput=e=>
 $('#vlz').onclick=()=>{vl_=!vl_;$('#vlz').classList.toggle('on',vl_);drawVat()};
 $('#vrn').onclick=()=>{const [a,b]=SHP[ob_].r;v1_=[30,40,50,60][Math.floor(Math.random()*4)];vo_=2*(a/2+Math.floor(Math.random()*((b-a)/2+1)));VT.p=0;cancelAnimationFrame(VT.r);drawVat()};drawVat();
 /* ---- Enheter ---- */
-const UN=['m','dm','cm','mm'];let ud=1,us=0,sp=0;
+const UN=['m','dm','cm','mm'];let ud=1,us=2,sp=0;
 const sup=d=>['','²','³'][d-1];
-function lad(nm,xs,y,f,sel,cl){let s='';const[lo,hi]=Array.isArray(sel)?sel:[sel,sel+1];const yb=y+32,h=30;
-nm.forEach((u,i)=>{const on=i>=lo&&i<=hi;s+=`<rect x="${xs[i]-23}" y="${y}" width="46" height="32" rx="8" fill="${on?'#eae6ff':'#fff'}" stroke="${cl[i]||(on?AC:'#ccc5f0')}" stroke-width="2.5"/><text x="${xs[i]}" y="${y+21}" text-anchor="middle" font-size="14" font-weight="700">${u}</text>`});
-for(let i=0;i<nm.length-1;i++){const a=xs[i],b=xs[i+1],m=(a+b)/2,on=i>=lo&&i<hi,c1=on?AC:'#585078',c2=on?PK:'#585078',o=on?1:.65;
-s+=`<path d="M${a+6} ${y-3}Q${m} ${y-3-2*h} ${b-6} ${y-3}" fill="none" stroke="${c1}" stroke-width="2.5" opacity="${o}" marker-end="url(#${on?'mb':'ma'})"/><text x="${m}" y="${y-h-8}" text-anchor="middle" font-size="12" font-weight="700" fill="${c1}" opacity="${o}">· ${f}</text><path d="M${b-6} ${yb+3}Q${m} ${yb+3+2*h} ${a+6} ${yb+3}" fill="none" stroke="${c2}" stroke-width="2.5" opacity="${o}" marker-end="url(#${on?'mk':'ma'})"/><text x="${m}" y="${yb+h+20}" text-anchor="middle" font-size="12" font-weight="700" fill="${c2}" opacity="${o}">÷ ${f}</text>`}
+const LD={1:{u:[['mil',0],['km',0],['hm',1],['dam',1],['m',0],['dm',0],['cm',0],['mm',0]],f:[10,10,10,10,10,10,10],sk:[1,4,1000]},2:{u:[['km²',0],['hm²',1],['dam²',1],['m²',0],['dm²',0],['cm²',0],['mm²',0]],f:[100,100,100,100,100,100],sk:[0,3,1000000]},3:{u:[['m³',0],['dm³',0],['cm³',0],['mm³',0]],f:[1000,1000,1000],sk:null}};
+const nfx=v=>(+v.toFixed(6)).toLocaleString('sv-SE',{maximumFractionDigits:6});
+function ladR(nm,xs,y,fs,sel,sk,H,cl){let s='';const[lo,hi]=sel||[-9,-9],yb=y+36,h=32,skOn=sk&&lo==sk[0]&&hi==sk[1];
+nm.forEach(([u,sh],i)=>{const on=i>=lo&&i<=hi;s+=`<rect x="${xs[i]-31}" y="${y}" width="62" height="36" rx="9" fill="${sh?'#f6f4ff':on?'#eae6ff':'#fff'}" stroke="${(cl&&cl[i])||(sh?'#d4cfe9':on?AC:'#ccc5f0')}" stroke-width="${sh?1.8:2.5}"${sh?' stroke-dasharray="5 4"':''}/><text x="${xs[i]}" y="${y+24}" text-anchor="middle" font-size="16" font-weight="${sh?500:700}" fill="${sh?'#a39cc0':TX}">${u}</text>`});
+for(let i=0;i<nm.length-1;i++){const a=xs[i],b=xs[i+1],m=(a+b)/2,fa=nm[i][1]||nm[i+1][1],on=i>=lo&&i<hi&&!skOn,c1=on?AC:'#585078',c2=on?PK:'#585078',o=fa?.4:on?1:.7,t1=fs[i];
+s+=`<path d="M${a+8} ${y-3}Q${m} ${y-3-2*h} ${b-8} ${y-3}" fill="none" stroke="${c1}" stroke-width="2.5" opacity="${o}" marker-end="url(#${on?'mb':'ma'})"/><text x="${m}" y="${y-h-8}" text-anchor="middle" font-size="13" font-weight="700" fill="${c1}" opacity="${o}">· ${nfx(t1)}</text><path d="M${b-8} ${yb+3}Q${m} ${yb+3+2*h} ${a+8} ${yb+3}" fill="none" stroke="${c2}" stroke-width="2.5" opacity="${o}" marker-end="url(#${on?'mk':'ma'})"/><text x="${m}" y="${yb+h+22}" text-anchor="middle" font-size="13" font-weight="700" fill="${c2}" opacity="${o}">÷ ${nfx(t1)}</text>`}
+if(sk){const[i,j,F]=sk,a=xs[i],b=xs[j],m=(a+b)/2,HH=72,c1=skOn?AC:'#585078',c2=skOn?PK:'#585078';
+s+=`<path d="M${a+8} ${y-3}Q${m} ${y-3-2*HH} ${b-8} ${y-3}" fill="none" stroke="${c1}" stroke-width="3.2" marker-end="url(#${skOn?'mb':'ma'})"/><text x="${m}" y="${y-HH-10}" text-anchor="middle" font-size="16" font-weight="700" fill="${c1}">· ${nfx(F)}</text><path d="M${b-8} ${yb+3}Q${m} ${yb+3+2*HH} ${a+8} ${yb+3}" fill="none" stroke="${c2}" stroke-width="3.2" marker-end="url(#${skOn?'mk':'ma'})"/><text x="${m}" y="${yb+HH+26}" text-anchor="middle" font-size="16" font-weight="700" fill="${c2}">÷ ${nfx(F)}</text>`}
 return s}
-function trap(d,sA,sB){const f=10**d;const dfs=`<defs>${[['ma','#585078'],['mb',AC],['mk',PK]].map(([i,c])=>`<marker id="${i}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`).join('')}</defs>`;
-let L=lad(UN.map(u=>u+sup(d)),[50,150,250,350],76,f,sA||[-9,-9],d==3?{1:PK,2:OR}:{});
-if(d==3){const br=(x1,x2,c)=>`<line x1="${x1}" y1="108" x2="${x2}" y2="270" stroke="#f6f4ff" stroke-width="14" stroke-linecap="round"/><line x1="${x1}" y1="108" x2="${x2}" y2="270" stroke="${c}" stroke-width="8" stroke-linecap="round"/>`,bt=(x,a,c,u)=>`<text x="${x}" y="196" text-anchor="${a}" font-size="13" font-weight="700" fill="${c}" stroke="#f6f4ff" stroke-width="4" paint-order="stroke">${u}</text>`;
-L+=lad(['l','dl','cl','ml'],[120,180,240,300],270,10,sB||[-9,-9],{0:PK,3:OR})+br(150,120,PK)+br(250,300,OR)+bt(120,'end',PK,'1 dm³ = 1 l')+bt(294,'start',OR,'1 cm³ = 1 ml')}
-return `<svg viewBox="0 0 400 ${d==3?365:175}" style="max-height:none" role="img" aria-label="Trappan">${dfs}${L}</svg>`;
-}
-function drawU(){const d=ud,B=UN[us]+sup(d),S=UN[us+1]+sup(d),f=10**d,ln=(a,b,c,e)=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${e}" stroke="${AC}" stroke-width="1"/>`,pl=(p,c,o)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${c}" fill-opacity="${o||1}" stroke="${TX}" stroke-width="2" stroke-linejoin="round"/>`,tx=(x,y,t,a,c)=>`<text x="${x}" y="${y}" font-size="14" font-weight="600" text-anchor="${a||'middle'}" fill="${c||TX}">${t}</text>`;let s='';
-if(d==1){s+=pl([[40,110],[360,110],[360,146],[40,146]],'#d4e0fc')+tx(200,98,'1 '+B);if(sp){for(let i=1;i<10;i++)s+=ln(40+i*32,110,40+i*32,146);s+=pl([[40,110],[72,110],[72,146],[40,146]],PK,.85)+tx(56,168,'1 '+S,'middle',PK)+tx(200,200,'10 st')}}
-else if(d==2){s+=pl([[100,35],[300,35],[300,235],[100,235]],'#d4e0fc')+tx(200,26,sp?'10 '+UN[us+1]:'1 '+UN[us])+tx(92,140,sp?'10 '+UN[us+1]:'1 '+UN[us],'end');if(sp){for(let i=1;i<10;i++)s+=ln(100+i*20,35,100+i*20,235)+ln(100,35+i*20,300,35+i*20);s+=pl([[100,35],[120,35],[120,55],[100,55]],PK,.9)+tx(90,52,'1 '+S,'end',PK)}}
-else{const x=85,y=100,z=140,c=z/10,dx=70,dy=-56,P0=(i,j)=>[x+i*c,y+j*c];
-s+=pl([[x,y],[x+z,y],[x+z+dx,y+dy],[x+dx,y+dy]],'#e6edff')+pl([[x+z,y],[x+z+dx,y+dy],[x+z+dx,y+z+dy],[x+z,y+z]],'#c2d3fa')+pl([[x,y],[x+z,y],[x+z,y+z],[x,y+z]],'#d4e0fc');
+function trap(d,sA,sB){const L=LD[d],n=L.u.length,W=600,x0=44,xs=L.u.map((_,i)=>x0+(W-2*x0)*i/(n-1)),dfs=`<defs>${[['ma','#585078'],['mb',AC],['mk',PK]].map(([i,c])=>`<marker id="${i}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`).join('')}</defs>`;
+let s=dfs+ladR(L.u,xs,100,L.f,sA,L.sk,0,d==3?{1:PK,2:OR}:null);
+if(d==3){const x2=[150,250,350,450],br=(x1,x2_,c)=>`<line x1="${x1}" y1="136" x2="${x2_}" y2="300" stroke="#f6f4ff" stroke-width="14" stroke-linecap="round"/><line x1="${x1}" y1="136" x2="${x2_}" y2="300" stroke="${c}" stroke-width="8" stroke-linecap="round"/>`,bt=(x,a,c,u)=>`<text x="${x}" y="222" text-anchor="${a}" font-size="15" font-weight="700" fill="${c}" stroke="#f6f4ff" stroke-width="4" paint-order="stroke">${u}</text>`;
+s+=ladR([['l',0],['dl',0],['cl',0],['ml',0]],x2,300,[10,10,10],sB,null,0,{0:PK,3:OR})+br(xs[1],x2[0],PK)+br(xs[2],x2[3],OR)+bt(xs[1]-26,'end',PK,'1 dm³ = 1 l')+bt(xs[2]+26,'start',OR,'1 cm³ = 1 ml')}
+return `<svg viewBox="0 0 600 ${d==3?410:250}" style="max-height:none" role="img" aria-label="Trappan">${s}</svg>`}
+const STEPS={1:[['mil → km',0,1,'mil','km',10,'bar'],['km → m',1,4,'km','m',1000,'nest'],['m → dm',4,5,'m','dm',10,'bar'],['dm → cm',5,6,'dm','cm',10,'bar'],['cm → mm',6,7,'cm','mm',10,'bar']],2:[['km² → m²',0,3,'km²','m²',1000000,'km2'],['m² → dm²',3,4,'m²','dm²',100,'grid'],['dm² → cm²',4,5,'dm²','cm²',100,'grid'],['cm² → mm²',5,6,'cm²','mm²',100,'grid']],3:[['m³ → dm³',0,1,'m³','dm³',1000,'cube'],['dm³ → cm³',1,2,'dm³','cm³',1000,'cube'],['cm³ → mm³',2,3,'cm³','mm³',1000,'cube']]},UDEF={1:2,2:1,3:0};
+function drawU(){const d=ud,[lab,lo_,hi_,B,S,f,kind]=STEPS[d][us],lin=u=>u.replace(/[²³]/,''),ln=(a,b,c,e)=>`<line x1="${a}" y1="${b}" x2="${c}" y2="${e}" stroke="${AC}" stroke-width="1"/>`,pl=(p,c,o)=>`<polygon points="${p.map(q=>q.join(',')).join(' ')}" fill="${c}" fill-opacity="${o||1}" stroke="${TX}" stroke-width="2" stroke-linejoin="round"/>`,tx=(x,y,t,a,c)=>`<text x="${x}" y="${y}" font-size="16" font-weight="600" text-anchor="${a||'middle'}" fill="${c||TX}">${t}</text>`;let s='';
+if(kind=='bar'){s+=pl([[60,120],[380,120],[380,156],[60,156]],'#d4e0fc')+tx(220,108,'1 '+B);if(sp){for(let i=1;i<10;i++)s+=ln(60+i*32,120,60+i*32,156);s+=pl([[60,120],[92,120],[92,156],[60,156]],PK,.85)+tx(76,180,'1 '+S,'middle',PK)+tx(220,214,'10 st')}}
+else if(kind=='nest'){const Y=[40,130,220],X0=70,w=340,nm=[['km','hm'],['hm','dam'],['dam','m']];nm.forEach(([a,b],r)=>{if(r&&!sp)return;const y=Y[r];s+=pl([[X0,y],[X0+w,y],[X0+w,y+34],[X0,y+34]],'#d4e0fc')+tx(X0-8,y+23,'1 '+a,'end');if(sp){for(let i=1;i<10;i++)s+=ln(X0+i*w/10,y,X0+i*w/10,y+34);s+=pl([[X0,y],[X0+w/10,y],[X0+w/10,y+34],[X0,y+34]],PK,.85)+tx(X0+w+8,y+23,'= 10 '+b,'start',PK);if(r<2)s+=`<polygon points="${X0},${y+34} ${X0+w/10},${y+34} ${X0+w},${Y[r+1]} ${X0},${Y[r+1]}" fill="${PK}" fill-opacity=".12" stroke="${PK}" stroke-dasharray="4 4"/>`}});s+=tx(X0+w/2,280,sp?'1 km = 10 hm = 100 dam = 1 000 m':'Tryck på Dela upp.')}
+else if(kind=='grid'||kind=='km2'){const sm_=kind=='km2'?'hm':lin(S),bg_=lin(B);s+=pl([[100,40],[300,40],[300,240],[100,240]],'#d4e0fc')+tx(200,28,sp?'10 '+sm_:'1 '+bg_)+tx(92,145,sp?'10 '+sm_:'1 '+bg_,'end');if(sp){for(let i=1;i<10;i++)s+=ln(100+i*20,40,100+i*20,240)+ln(100,40+i*20,300,40+i*20);s+=pl([[100,40],[120,40],[120,60],[100,60]],PK,.9)+tx(90,57,'1 '+(kind=='km2'?'hm²':S),'end',PK)}}
+else{const x=85,y=100,z=140,c=z/10,dx=70,dy=-56;s+=pl([[x,y],[x+z,y],[x+z+dx,y+dy],[x+dx,y+dy]],'#e6edff')+pl([[x+z,y],[x+z+dx,y+dy],[x+z+dx,y+z+dy],[x+z,y+z]],'#c2d3fa')+pl([[x,y],[x+z,y],[x+z,y+z],[x,y+z]],'#d4e0fc');
 if(sp){for(let i=1;i<10;i++){const a=x+i*c,b=y+i*c;s+=ln(a,y,a,y+z)+ln(x,b,x+z,b)+ln(a,y,a+dx,y+dy)+ln(x+z,b,x+z+dx,b+dy)+ln(x+i*dx/10,y+i*dy/10,x+z+i*dx/10,y+i*dy/10)+ln(x+z+i*dx/10,y+i*dy/10,x+z+i*dx/10,y+z+i*dy/10)}
 s+=pl([[x,y],[x+c,y],[x+c,y+c],[x,y+c]],PK,.9)+pl([[x,y],[x+c,y],[x+c+dx/10,y+dy/10],[x+dx/10,y+dy/10]],PK,.9)+tx(x-10,y+c/2+6,'1 '+S,'end',PK)}
-s+=tx(x+z/2,y+z+22,sp?'10 '+UN[us+1]:'1 '+UN[us])}
+s+=tx(x+z/2,y+z+26,sp?'10 '+lin(S):'1 '+lin(B))}
 $('#us').innerHTML=s;
-const br=d==3&&us==1?'<small>1 dm³ = 1 liter = 1000 ml</small>':d==3&&us==2?'<small>1 cm³ = 1 ml</small>':'';
-$('#uf').innerHTML=sp?`<b>1 ${B} = ${d==1?'':Array(d).fill(10).join(' · ')+' '+S+' = '}${f} ${S}</b>${d>1?`<small>${d==2?'10 rader med 10 rutor':'10 lager med 10 · 10 kuber'} – alltså ${f} små ${d==2?'rutor':'kuber'}.</small>`:''}${br}`:`<b>1 ${B}</b>Tryck på Dela upp för att se hur många ${S} det går på 1 ${B}.${br}`;
-$('#utr').innerHTML=trap(d,[us,us+1]);
-{const nf=v=>(+v.toFixed(6)).toLocaleString('sv-SE',{maximumFractionDigits:6}),ex=[3,2.5,.4].map(v=>`${nf(v)} ${B} = ${nf(v)} · ${nf(f)} = ${nf(v*f)} ${S}`).concat([4,.5].map(v=>`${nf(v*f)} ${S} = ${nf(v*f)} ÷ ${nf(f)} = ${nf(v)} ${B}`)).concat(d==3&&us==1?['2 dm³ = 2 l = 2 000 ml','5 l = 5 dm³']:d==3&&us==2?['500 cm³ = 500 ml = 5 dl','2 ml = 2 cm³']:[]);$('#uex').innerHTML=ex.map(e=>`<div>${e}</div>`).join('')}
-$('#urule').innerHTML=`Faktorn ${f} har <b>${d} ${d==1?'nolla':'nollor'}</b> – lika många som dimensionen (${d}D). Åt höger multiplicerar du, åt vänster dividerar du.`;
+const br=d==3&&us==1?'<small>1 dm³ = 1 liter = 1 000 ml</small>':d==3&&us==2?'<small>1 cm³ = 1 ml</small>':'',chain=kind=='nest'?'1 km = 10 hm = 100 dam = 1 000 m':kind=='km2'?'1 km² = 100 hm² = 10 000 dam² = 1 000 000 m²':`1 ${B} = ${d==1||kind=='bar'?'':Array(d).fill(10).join(' · ')+' '+S+' = '}${nfx(f)} ${S}`,note=kind=='nest'?'<small>Hm och dam finns för att systemet ska gå ihop, men vi hoppar oftast direkt mellan km och m (× 1 000).</small>':kind=='km2'?'<small>hm² kallas hektar (ha) och dam² kallas ar. Oftast hoppar vi direkt mellan km² och m² (× 1 000 000).</small>':d>1?`<small>${d==2?'10 rader med 10 rutor':'10 lager med 10 · 10 kuber'} – alltså ${nfx(f)} små ${d==2?'rutor':'kuber'}.</small>`:'';
+$('#uf').innerHTML=sp?`<b>${chain}</b>${note}${br}`:`<b>1 ${B}</b>Tryck på Dela upp för att se hur många ${S} det går på 1 ${B}.${br}`;
+$('#utr').innerHTML=trap(d,[lo_,hi_]);
+{const ex=[3,2.5,.4].map(v=>`${nfx(v)} ${B} = ${nfx(v)} · ${nfx(f)} = ${nfx(v*f)} ${S}`).concat([4,.5].map(v=>`${nfx(v*f)} ${S} = ${nfx(v*f)} ÷ ${nfx(f)} = ${nfx(v)} ${B}`)).concat(d==3&&us==1?['2 dm³ = 2 l = 2 000 ml','5 l = 5 dm³']:d==3&&us==2?['500 cm³ = 500 ml = 5 dl','2 ml = 2 cm³']:[]);$('#uex').innerHTML=ex.map(e=>`<div>${e}</div>`).join('')}
+const z=Math.round(Math.log10(f));$('#urule').innerHTML=kind=='nest'?`Faktorn 1 000 har <b>3 nollor</b>: tre steg à 10 (km → hm → dam → m). Åt höger multiplicerar du, åt vänster dividerar du.`:kind=='km2'?`Faktorn 1 000 000 har <b>6 nollor</b>: tre steg med 2 nollor vardera (100 per steg).`:`Faktorn ${nfx(f)} har <b>${z} ${z==1?'nolla':'nollor'}</b> – lika många som dimensionen (${d}D). Åt höger multiplicerar du, åt vänster dividerar du.`;
 $('#usp').textContent=sp?'Slå ihop':'Dela upp'}
-function ustp(){chips('#ust',[0,1,2].map(i=>[i,UN[i]+sup(ud)+' → '+UN[i+1]+sup(ud)]),us,k=>{us=k;sp=0;drawU()})}
-chips('#ud',[[1,'1D Längd'],[2,'2D Area'],[3,'3D Volym']],1,k=>{ud=k;sp=0;ustp();drawU()});ustp();
+function ustp(){chips('#ust',STEPS[ud].map((st,i)=>[i,st[0]]),us,k=>{us=k;sp=0;drawU()},1)}
+chips('#ud',[[1,'1D Längd'],[2,'2D Area'],[3,'3D Volym']],1,k=>{ud=k;us=UDEF[k];sp=0;ustp();drawU();umNew();drawMC()},1);ustp();
 $('#usp').onclick=()=>{sp=!sp;drawU()};drawU();
 
 /* ---- Träna ---- */
@@ -546,8 +572,9 @@ return{k,v,V,rows:r}}
 const UL={len:[['m','dm','cm','mm'],1,[1,.1,.01,.001]],area:[['m²','dm²','cm²','mm²'],2,[1,.01,1e-4,1e-6]],vol:[['m³','dm³','cm³','mm³'],3,[1,1e-3,1e-6,1e-9]],lit:[['l','dl','cl','ml'],1,[1e-3,1e-4,1e-5,1e-6]]};
 const stp=(fn,tn,i,j,fac,v)=>{const k=Math.abs(i-j),r=j>i,t=fac**k;return k?[`${fn} → ${tn}: ${k} steg åt ${r?'höger':'vänster'}, varje steg ${r?'· ':'÷ '}${fm(fac,0)}.`,`${fm(v,6)} ${r?'·':'÷'} ${fm(t,0)} = ${fm(r?v*t:v/t,6)} ${tn}`]:[]};
 function genU(lv){lv=lv||TS.lv;const v=pk([1,2,3,4,5,6,8,12,15,25,.5,1.5,2.5,.25,.4,3.5,7.5]);
-const ed=TS.ed,cats=['len','area','vol','lit'].filter(c=>ed[c]);if(cats.length&&(!ed.bro||rnd(10)<(lv==1?7:6))){const c=pk(cats),[n,d,f]=UL[c],i=rnd(4);let j;if(lv==1)j=i==0?1:i==3?2:i+pk([-1,1]);else do{j=rnd(4)}while(Math.abs(j-i)<2);const sel=[Math.min(i,j),Math.max(i,j)];
-return{lv,st:Math.abs(i-j),q:`${fm(v,6)} ${n[i]} =`,ans:+(v*f[i]/f[j]).toPrecision(10),un:n[j],d:c=='lit'?3:d,sA:c=='lit'?null:sel,sB:c=='lit'?sel:null,sol:stp(n[i],n[j],i,j,c=='lit'?10:10**d,v),v,ff:f[i],tf:f[j],tl:n,ti:j,fac:c=='lit'?10:10**d}}
+const ed=TS.ed,cats=['len','area','vol','lit'].filter(c=>ed[c]);if(cats.includes('len')&&rnd(10)<2){const PR=[['mil','km',10],['km','m',1000],['mil','m',10000]],[a_,b_,r_]=pk(PR),rv=rnd(2)==0,fr_=rv?b_:a_,to_=rv?a_:b_,an_=rv?v/r_:v*r_,LI={mil:0,km:1,m:4},nl=['mil','km','m','dm','cm','mm'],z_=Math.round(Math.log10(r_));return{lv,st:1,q:`${fm(v,6)} ${fr_} =`,ans:+an_.toPrecision(10),un:to_,d:1,sA:[Math.min(LI[fr_],LI[to_]),Math.max(LI[fr_],LI[to_])],sB:null,sol:[`1 ${a_} = ${fm(r_,0)} ${b_}. Faktorn är ${fm(r_,0)} (${z_} ${z_==1?'nolla':'nollor'}).`,`${fm(v,6)} ${fr_} ${rv?'÷':'·'} ${fm(r_,0)} = ${fm(an_,6)} ${to_}`],v,ff:FX[fr_],tf:FX[to_],tl:nl,ti:nl.indexOf(to_),fac:r_}}
+if(cats.length&&(!ed.bro||rnd(10)<(lv==1?7:6))){const c=pk(cats),[n,d,f]=UL[c],i=rnd(4);let j;if(lv==1)j=i==0?1:i==3?2:i+pk([-1,1]);else do{j=rnd(4)}while(Math.abs(j-i)<2);const sel=[Math.min(i,j),Math.max(i,j)];
+return{lv,st:Math.abs(i-j),q:`${fm(v,6)} ${n[i]} =`,ans:+(v*f[i]/f[j]).toPrecision(10),un:n[j],d:c=='lit'?3:d,sA:c=='lit'?null:sel.map(x=>x+(c=='len'?4:c=='area'?3:0)),sB:c=='lit'?sel:null,sol:stp(n[i],n[j],i,j,c=='lit'?10:10**d,v),v,ff:f[i],tf:f[j],tl:n,ti:j,fac:c=='lit'?10:10**d}}
 const bI=pk([1,2]),bL=bI==1?0:3;let ls=0,ms=0;if(lv==2)do{ls=rnd(3);ms=rnd(2)}while(ls+ms<1);
 const li=bI==1?ls:3-ls,mj=ms?bI+pk([-1,1]):bI,ln=UL.lit[0][li],lb=UL.lit[0][bL],mn=UL.vol[0][mj],vn=UL.vol[0][bI],tv=rnd(2)==0,fF=tv?UL.lit[2][li]:UL.vol[2][mj],cv=(g,x)=>+(v*fF/UL[g][2][x]).toPrecision(10),
 br=`Bron: ${fm(cv('lit',bL),6)} ${lb} = ${fm(cv('vol',bI),6)} ${vn}.`,
@@ -569,7 +596,7 @@ function genSheet(){const s=TS.sh,Tt=['vol','area','enh'];s.items=[...Array(s.n)
 function genA(){const PI=Math.PI;if(rnd(2)){const v={l:RI(3,10),b:RI(2,8),h:RI(2,8)},lb=v.l*v.b,lh=v.l*v.h,bh=v.b*v.h,A=2*(lb+lh+bh);return{k:'rb',v,A,rows:[['B.Y. = 2 · (l · b) + 2 · (l · h) + 2 · (b · h)'],[`l · b = ${v.l} · ${v.b} = ${lb} cm²`,`l · h = ${v.l} · ${v.h} = ${lh} cm²`,`b · h = ${v.b} · ${v.h} = ${bh} cm²`],[`B.Y. = 2 · ${lb} + 2 · ${lh} + 2 · ${bh}`,`B.Y. = ${2*lb} + ${2*lh} + ${2*bh} = ${A} cm²`],[`Begränsningsarean är ${A} cm².`]],T:['1. Formel','2. Beräkna ytorna','3. Räkna ihop','4. Svar']}}
 const v={r:RI(2,6),h:RI(3,10)},B=PI*v.r*v.r,O=2*PI*v.r,M=O*v.h,A=2*B+M;return{k:'cyl',v,A,rows:[['B.Y. = 2B + Mantel = 2 · (r · r · π) + 2 · π · r · h'],[`B = r · r · π = ${v.r} · ${v.r} · π ≈ ${fm(B,2)} cm²`,`omkrets = 2 · π · r ≈ ${fm(O,2)} cm`,`Mantel = omkrets · h ≈ ${fm(O,2)} · ${v.h} ≈ ${fm(M,2)} cm²`],[`B.Y. = 2 · ${fm(B,2)} + ${fm(M,2)}`,`B.Y. ≈ ${fm(A)} cm²`],[`Begränsningsarean är ≈ ${fm(A)} cm².`]],T:['1. Formel','2. Beräkna delarna','3. Räkna ihop','4. Svar']}}
 /* ---- Tänk först och Räkneflerval ---- */
-const FU=name=>{for(const g of Object.values(UL)){const k=g[0].indexOf(name);if(k>=0)return g[2][k]}return 1},pi_=Math.PI,cm3=n=>`${fm(n)} cm³`,cm2=n=>`${fm(n)} cm²`;
+const FX={mil:10000,km:1000,hm:100,dam:10,m:1},FU=name=>{if(name in FX)return FX[name];for(const g of Object.values(UL)){const k=g[0].indexOf(name);if(k>=0)return g[2][k]}return 1},pi_=Math.PI,cm3=n=>`${fm(n)} cm³`,cm2=n=>`${fm(n)} cm²`;
 function vatFig(v){const g1=270,g2=490,l1=90,l2=670,L=TS.vl,y1=GY0-v.v1*GPX,y2=GY0-v.v2*GPX;
 return `<text x="${g1}" y="30" text-anchor="middle" font-size="20" font-weight="700" fill="${TX}">Före</text><text x="${g2}" y="30" text-anchor="middle" font-size="20" font-weight="700" fill="${TX}">Efter</text>`+(L?`<line x1="${l1+78}" y1="215" x2="${g1-GW}" y2="${y1}" stroke="#585078" stroke-width="1.5" stroke-dasharray="4 4" opacity=".6"/><line x1="${g2+GW}" y1="${y2}" x2="${l2-78}" y2="215" stroke="#585078" stroke-width="1.5" stroke-dasharray="4 4" opacity=".6"/>`:'')+glassSVG(g1,v.v1)+glassSVG(g2,v.v2,{sh:v.obj,x:g2,y:348})+(L?lensSVG(l1,215,78,7,Math.round(v.v1/10)*10,v.v1,'lt1')+lensSVG(l2,215,78,7,Math.round(v.v2/10)*10,v.v2,'lt2'):'')}
 function mkOpts(ct,items,cn,fmt){const seen=new Set([ct]),d=[];for(const it of items){if(!seen.has(it.t)&&isFinite(it.n)&&it.n>0){seen.add(it.t);d.push(it);if(d.length==3)break}}for(const m of [100,.01,1000,.001,7]){if(d.length>=3)break;const t=fmt(cn*m);if(!seen.has(t)){seen.add(t);d.push({t,why:'Kontrollera storleksordningen: är svaret rimligt?'})}}return shuf([{t:ct,why:'',c:1},...d.slice(0,3)])}
@@ -578,8 +605,8 @@ C.push([u.v/r,u.un,'Du har räknat åt fel håll. Åt höger i trappan multiplic
 C.push([cor*10,u.un,'Siffrorna är rätt men decimalkomman sitter fel. Räkna antalet nollor.']);C.push([cor/10,u.un,'Siffrorna är rätt men decimalkomman sitter fel. Räkna antalet nollor.']);
 if(u.fac){C.push([cor*u.fac,u.un,'Du tog ett steg för mycket i trappan.']);C.push([cor/u.fac,u.un,'Du tog ett steg för lite i trappan.']);if(u.fac!=10){const k=Math.round(Math.abs(Math.log(r)/Math.log(u.fac)));C.push([r>1?u.v*10**k:u.v/10**k,u.un,`Varje steg i trappan är × ${nf(u.fac)} åt höger, inte × 10.`])}}
 C.push([u.v,u.un,'Talet ska ändras när enheten byts. Hur många gånger större eller mindre är enheten?']);
-const nb=[u.tl[u.ti-1],u.tl[u.ti+1]].filter(Boolean);if(nb.length){const w=pk(nb);C.push([cor,w,'Rätt tal men fel enhet. Titta på enheten efter likhetstecknet.'])}
-const items=shuf(C).filter(([n,w])=>Math.abs(n*FU(w)-qc)>1e-9*Math.abs(qc)).map(([n,w,why])=>({n,t:`${nf(n)} ${w}`,why}));return mkOpts(`${nf(cor)} ${u.un}`,items,cor,x=>`${nf(x)} ${u.un}`)}
+if(u.fac)C.push([r>1?u.v/u.fac:u.v*u.fac,u.un,'Du räknade åt fel håll och tog bara ett steg. Åt höger multiplicerar man, åt vänster dividerar man, och varje steg är en faktor.']);
+const items=shuf(C).filter(([n,w])=>Math.abs(n*FU(w)-qc)>1e-9*Math.abs(qc)).map(([n,w,why])=>({n,t:nf(n),why}));return mkOpts(nf(cor),items,cor,nf)}
 function mcVol(p){const v=p.v,k=p.k,V=p.V;let C;
 if(k=='rb'){const B=v.l*v.b;C=[[B,'Du glömde höjden: V = B · h.'],[v.l+v.b+v.h,'Du adderade måtten. Volymen är basarea gånger höjd.'],[B*v.h/3,'Du delade med 3 som för en pyramid. Ett rätblock har V = B · h.'],[2*(B+v.l*v.h+v.b*v.h),'Det är begränsningsarean, inte volymen.']]}
 else if(k=='kub')C=[[v.s*v.s,'Du glömde höjden.'],[6*v.s*v.s,'Det är begränsningsarean, inte volymen.'],[3*v.s,'Du adderade i stället för att multiplicera.'],[v.s**3/3,'Du delade med 3. Det gäller bara pyramid och kon.']];
@@ -594,7 +621,7 @@ else{const B=pi_*v.r*v.r,M=2*pi_*v.r*v.h;C=[[B+M,'Du glömde ×2: det finns två
 return mkOpts(cm2(a.A),shuf(C.map(([n,why])=>({n,why,t:cm2(n)}))),a.A,cm2)}
 function mcVat(v){const C=[[v.v2,'Du läste bara av V₂. Volymen är skillnaden V₂ − V₁.'],[v.v1+v.v2,'Du adderade. Volymen är V₂ − V₁.'],[v.v1,'Du tog nivån före. Volymen är skillnaden.'],[v.vo/10,'Du räknade om i onödan: 1 ml = 1 cm³.']];return mkOpts(cm3(v.vo),shuf(C.map(([n,why])=>({n,why,t:cm3(n)}))),v.vo,cm3)}
 function mkTask(cat){const c=cat=='mix'?pk(['enh','vol','area','vat']):cat;
-if(c=='enh'){const u=genU(),f=x=>`${fm(x,6)} ${u.un}`;return{c,q:`<b>Skriv om</b><div class="eq">${u.q} <span>?</span></div>`,ans:f(u.ans),steps:u.sol,opts:mcU(u)}}
+if(c=='enh'){const u=genU(),f=x=>`${fm(x,6)} ${u.un}`;return{c,q:`<b>Skriv om</b><div class="eq">${u.q} <span class="blank"></span> <span>${u.un}</span></div>`,ans:f(u.ans),steps:u.sol,opts:mcU(u)}}
 if(c=='vol'){const p=genP();return{c,q:`<b>Beräkna volymen av ${ART[p.k]}.</b>${XT(p)}`,fig:{k:p.k,v:p.v},ans:cm3(p.V),steps:p.rows.flat(),opts:mcVol(p)}}
 if(c=='area'){const a=genA();return{c,q:`<b>Beräkna begränsningsarean av ${ART[a.k]}.</b>Mått i cm.`,fig:{k:a.k,v:a.v},ans:cm2(a.A),steps:a.rows.flat(),opts:mcArea(a)}}
 const v=genV();return{c:'vat',q:`<b>Läs av mätglaset</b>${SHP[v.obj].a||'En'} ${SHP[v.obj].n.toLowerCase()} läggs ner i vattnet. Läs av vid menisken. Hur stor är kroppens volym i cm³?`,vat:v,ans:cm3(v.vo),steps:[`V₁ = ${v.v1} ml`,`V₂ = ${v.v2} ml`,`V = V₂ − V₁ = ${v.v2} − ${v.v1} = ${v.vo} ml`,`1 ml = 1 cm³, alltså V = ${v.vo} cm³`],opts:mcVat(v)}}
@@ -633,6 +660,12 @@ trn()}
 $('#trn').onclick=e=>{const b=e.target.closest('[data-a]');if(b&&!b.disabled)act(b.dataset.a,b.dataset.i)};
 Object.assign(ICO,{tf:ic('<rect x="3" y="6" width="14" height="12" rx="2"/><path d="M7 3h14v12"/>'),tq:ic('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>'),ta:ic('<path d="M4 4h16v16H4zM4 12h16M12 4v16"/>'),te:ic('<rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>'),tx:ic('<circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/>'),tk:ic('<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/>'),tr:ic('<path d="M4 6h3M4 12h3M4 18h3M10 6h10M10 12h10M10 18h10"/>'),tg:ic('<path d="M8 3h8v18a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1zM8 8h3M8 12h3M8 16h3"/>'),tp:ic('<path d="M6 9V3h12v6M6 18H4v-6h16v6h-2M7 14h10v7H7z"/>')});
 chips('#tm',[['flash','Flashcards',ICO.tf],['quiz','Flerval',ICO.tq],['vol','Volymuppgift',ICO.rb],['area','Begränsningsarea',ICO.ta],['enh','Enheter',ICO.te],['vat','Mätglas',ICO.tg],['fel','Hitta felet',ICO.tx],['kort','Tänk först',ICO.tk],['rf','Räkneflerval',ICO.tr],['print','Uppgiftsark',ICO.tp]],'flash',k=>{TS.m=k;TS.tr=0;TS.fsel=null;if(k=='fel'&&!TS.f)TS.f=genF();TS.ps=0;TS.pf='';TS.pa='';if(k=='enh'&&!TS.u)TS.u=genU();if(k=='vat'&&!TS.v)TS.v=genV();TS.kr=0;TS.ks=null;if(k=='kort'&&!TS.k1)TS.k1=mkTask(TS.kc);if(k=='rf'&&!TS.k2)TS.k2=mkTask(TS.kc);if(k=='area'&&!TS.a)TS.a=genA();if(k=='quiz'&&!TS.q)TS.q=newQ();if(k=='vol'&&!TS.pr)TS.pr=genP();trn()});trn();
+const UM={t:null,sel:null};
+function umNew(){const keep=TS.ed;TS.ed=ud==1?{len:1,area:0,vol:0,lit:0,bro:0}:ud==2?{len:0,area:1,vol:0,lit:0,bro:0}:{len:0,area:0,vol:1,lit:1,bro:1};const u=genU(pk([1,2]));TS.ed=keep;UM.t={u,o:mcU(u)};UM.sel=null}
+function drawMC(){const t=UM.t,e=document.getElementById('umc');if(!t)return;const done=UM.sel!=null;e.innerHTML=`<div class="info"><b>Välj rätt tal</b><div class="eq">${t.u.q} <span class="blank"></span> <span>${t.u.un}</span></div></div><div class="opl">${t.o.map((o,i)=>`<button class="mco ${done?(o.c?'ok':i==UM.sel?'no':''):''}" data-i="${i}"><b>${'ABCD'[i]}</b>${o.t}</button>`).join('')}</div><div class="info" style="min-height:100px;margin-top:10px">${done?(t.o[UM.sel].c?'<b>Rätt!</b>':`<b>Inte riktigt.</b>${t.o[UM.sel].why}`)+`<div class="lines">${t.u.sol.map(x=>`<div>${x}</div>`).join('')}</div>`:''}</div><div class="ch" style="margin-top:10px"><button class="pk" id="umn">Ny uppgift</button></div>`;
+e.querySelectorAll('.mco').forEach(b=>b.onclick=()=>{if(UM.sel==null){UM.sel=+b.dataset.i;drawMC()}});document.getElementById('umn').onclick=()=>{umNew();drawMC()}}
+umNew();drawMC();
+
 })();
 </script>
 </body>
