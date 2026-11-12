@@ -45,7 +45,7 @@ details>.dbody{padding:0 2px 10px}
 .tb{min-height:36px;padding:0 12px;border-radius:9px;border:1.5px solid #ccc5f0;background:#eae6ff;color:#306BF0;font:600 12px 'Sora',sans-serif;cursor:pointer}
 .tb.on{background:#306BF0;color:#fff;border-color:#306BF0}
 .fb{min-height:36px;padding:0 12px;border-radius:9px;border:1.5px dashed #ccc5f0;background:transparent;color:#585078;font:600 12px 'Sora',sans-serif;cursor:pointer}
-.ib:disabled{opacity:.35;cursor:default}
+.ib:disabled,.tb:disabled{opacity:.35;cursor:default}
 #wrap{position:relative}
 #pop{position:absolute;z-index:5;display:none;width:290px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px) saturate(160%);border:1px solid #ccc5f0;border-radius:14px;padding:10px 12px;box-shadow:0 10px 22px rgba(48,107,240,.2)}
 #pop .pr{display:flex;gap:6px;margin-bottom:8px}
@@ -106,7 +106,7 @@ details>.dbody{padding:0 2px 10px}
 <div class="card"><div class="tbar">
 <button class="ib" id="bun" title="Ångra (Ctrl+Z)">↶</button><button class="ib" id="bre" title="Gör om (Ctrl+Y)">↷</button><span class="sp"></span>
 <button class="tb" id="bcut" title="Hjälplinje mellan två hörn (H)">Hjälplinje</button><button class="tb" id="bcir" title="Cirkel, hål eller tillägg (C)">+ Cirkel</button><button class="tb" id="btxt" title="Egen text (T)">+ Text</button><span class="sp"></span>
-<button class="tb" id="bctr" title="Centrera figuren (M)">Centrera</button><button class="tb" id="bclr" title="Töm ritytan (Ctrl+Delete)">Töm</button><span class="sp"></span>
+<button class="tb" id="bctr" title="Centrera figuren (M)">Centrera</button><button class="tb" id="bclr" title="Töm ritytan (Ctrl+Delete)">Töm</button><button class="tb" id="bshow" title="Visar de etiketter du har tagit bort (markera en etikett och tryck Delete för att ta bort den)">Visa borttagna</button><span class="sp"></span>
 <button class="fb" id="bsv" title="Spara figur som fil (Ctrl+S)">Spara</button><button class="fb" id="bop" title="Öppna sparad figur (Ctrl+O)">Öppna</button><button class="fb" id="blast" title="Öppna senast autosparade figur">Senaste</button><input type="file" id="fo" accept=".json,application/json" hidden></div>
 <div id="wrap" title="Klicka på en sida för att lägga till eller dra bort en figur där. Dra i hörn och etiketter. Dra i figurens insida eller använd piltangenterna för att flytta hela figuren."><svg id="cv" viewBox="0 0 960 720"></svg><div id="pop"></div></div>
 <div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn alt" id="rl" title="Lägger tillbaka flyttade etiketter">Återställ etikettpositioner</button></div></div>
@@ -119,11 +119,11 @@ const mix=(c,k)=>{const n=parseInt(c.slice(1),16),f=v=>Math.round(v+(255-v)*k);r
 const gr=c=>{if(!c||c=='none')return c;const n=parseInt(c.slice(1),16),y=.3*(n>>16)+.59*(n>>8&255)+.11*(n&255),v=Math.round(255-(255-y)*.55);return'#'+(v*65793).toString(16).padStart(6,'0')};
 const PS={'Rektangel':[[5,3],[11,3],[11,7],[5,7]],'Kvadrat':[[6,3],[10,3],[10,7],[6,7]],'L-form':[[1,1],[4,1],[4,4],[8,4],[8,7],[1,7]],'T-form':[[1,1],[9,1],[9,3],[6,3],[6,8],[4,8],[4,3],[1,3]],'Hus':[[1,4],[5,1],[9,4],[9,8],[1,8]],'Trapets':[[1,7],[10,7],[8,2],[3,2]],'Triangel':[[1,7],[9,7],[4,2]],'Port':[[2,7],[2,3],[8,3],[8,7]],'Stadion':[[3,2],[9,2],[9,6],[3,6]],'Cirkel':[[6,5],[10,5]]};
 const PB={'Port':{1:1},'Stadion':{1:1,3:1},'Cirkel':{0:1,1:1}};
-let N,E,K,A,O,TX,CIR=[],LSTK={},NOTE='',LIST=[],SEL=null,MODE=null,pend=null,drag=null,DEF={};
+let N,E,K,A,O,TX,CIR=[],LSTK={},HIDK={},NOTE='',LIST=[],SEL=null,MODE=null,pend=null,drag=null,DEF={};
 let hist=[],redo=[];
-const snapJ=()=>JSON.stringify({N,E,K,A,O,TX,CIR,LS:LSTK,NT:NOTE});
+const snapJ=()=>JSON.stringify({N,E,K,A,O,TX,CIR,LS:LSTK,NT:NOTE,HK:HIDK});
 function push(){if(!N)return;hist.push(snapJ());if(hist.length>80)hist.shift();redo=[]}
-function setS(j){const d=JSON.parse(j);if(!Array.isArray(d.N)||(d.N.length&&d.N.length<2)||!Array.isArray(d.E)||d.E.length!=d.N.length)throw 0;N=d.N;E=d.E;K=d.K||[];A=d.A||{};O=d.O||{};TX=d.TX||[];CIR=d.CIR||[];LSTK=d.LS||{};NOTE=d.NT||'';if($('note'))$('note').value=NOTE;SEL=null;MODE=null;pend=null;ui();render()}
+function setS(j){const d=JSON.parse(j);if(!Array.isArray(d.N)||(d.N.length&&d.N.length<2)||!Array.isArray(d.E)||d.E.length!=d.N.length)throw 0;N=d.N;E=d.E;K=d.K||[];A=d.A||{};O=d.O||{};TX=d.TX||[];CIR=d.CIR||[];LSTK=d.LS||{};HIDK=d.HK||{};NOTE=d.NT||'';if($('note'))$('note').value=NOTE;SEL=null;MODE=null;pend=null;ui();render()}
 function undo(){if(!hist.length)return;redo.push(snapJ());setS(hist.pop())}
 function redoF(){if(!redo.length)return;hist.push(snapJ());setS(redo.pop())}
 function asg(Ns){return Ns.reduce((t,a,k)=>{const c=Ns[(k+1)%Ns.length];return t+a.x*c.y-c.x*a.y},0)>=0?1:-1}
@@ -133,10 +133,10 @@ for(let t=1;t<k;t++){const an=a0+sgn*th*t/k;out.push({x:cen.x+r*Math.cos(an),y:c
 const arcs=P=>{const n=N.length,sg=asg(N);return E.flatMap((e,i)=>e.bu?arcPts(N[i],N[(i+1)%n],e.bu,sg,12).map(px):[])};
 const px=n=>[OX+n.x*C,OY+n.y*C],un=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;return[dx/l,dy/l]};
 const ar=P=>P.reduce((s,p,i)=>{const q=P[(i+1)%P.length];return s+p[0]*q[1]-q[0]*p[1]},0);
-function load(n){push();N=PS[n].map(([x,y])=>({x:x+3,y:y+2}));E=N.map((_,i)=>({st:0,t:'',bu:(PB[n]||{})[i]||0}));K=[];A={};O={};TX=[];CIR=[];LSTK={};if(n=='Cirkel')E[1].t='-';SEL=null;MODE=null;pend=null;ui();render()}
+function load(n){push();N=PS[n].map(([x,y])=>({x:x+3,y:y+2}));E=N.map((_,i)=>({st:0,t:'',bu:(PB[n]||{})[i]||0}));K=[];A={};O={};TX=[];CIR=[];LSTK={};HIDK={};if(n=='Cirkel')E[1].t='-';SEL=null;MODE=null;pend=null;ui();render()}
 function opts(){const bw=$('bw').checked,tn=+$('lj').value/100,f=$('fillon').checked?(tn?mix($('fill').value,tn):$('fill').value):'none';return{fill:bw?gr(f):f,s:bw?'#000000':$('stroke').value,w:+$('sw').value,fs:+$('fs').value,ms:+$('ms').value,len:$('len').checked,names:$('names').checked,dots:$('dots').checked,unit:$('unit').value,um:+$('um').value,per:num($('per').value)||1}}
 function figure(o,ui){const P=N.map(px),n=P.length,sg=ar(P)>=0?1:-1,labs=[];DEF={};LIST=[];
-const add=(key,x,y,t,an)=>{if(t===''||t==null)return;DEF[key]={x,y};const f=O[key]||{dx:0,dy:0},ls=LSTK[key];if(ls){LIST.push([ls,t]);t=ls}labs.push({key,x:x+f.dx,y:y+f.dy,t,an:an||'middle'})};
+const add=(key,x,y,t,an)=>{if(t===''||t==null||HIDK[key])return;DEF[key]={x,y};const f=O[key]||{dx:0,dy:0},ls=LSTK[key];if(ls){LIST.push([ls,t]);t=ls}labs.push({key,x:x+f.dx,y:y+f.dy,t,an:an||'middle'})};
 const sw=`stroke="${o.s}" stroke-width="${o.w}" stroke-linecap="round"`,ds=' stroke-dasharray="7 6"',ln=(a,c,st)=>`<line x1="${a[0]}" y1="${a[1]}" x2="${c[0]}" y2="${c[1]}" ${sw}${st?ds:''}/>`;
 const pa=i=>{const a=P[i],c=P[(i+1)%n];if(!E[i].bu)return`L${c[0]} ${c[1]}`;const r=Math.hypot(c[0]-a[0],c[1]-a[1])/(Math.abs(E[i].bu)==2?Math.SQRT2:2);return`A${r} ${r} 0 0 ${(E[i].bu>0)==(sg>0)?1:0} ${c[0]} ${c[1]}`};
 const pdp=`M${P[0][0]} ${P[0][1]}${P.map((_,i)=>pa(i)).join('')}Z`,cs=CIR.map(c=>({x:OX+c.x*C,y:OY+c.y*C,r:c.r*C,m:c.m})),adds=cs.filter(c=>!c.m),subs=cs.filter(c=>c.m);
@@ -173,7 +173,7 @@ const l=labs.map(q=>{const sel=ui&&SEL&&SEL.t=='l'&&SEL.key==q.key;return`<text 
 return[b,l,labs]}
 const svg=$('cv');
 function gdots(){let g='';if($('grid').checked)for(let i=0;i<=GW;i++)for(let j=0;j<=GH;j++)g+=`<circle cx="${OX+i*C}" cy="${OY+j*C}" r="1.4" fill="#c9c2e8"/>`;return g}
-function updBtns(){$('bun').disabled=!hist.length;$('bre').disabled=!redo.length;$('bcut').classList.toggle('on',MODE=='cut')}
+function updBtns(){$('bun').disabled=!hist.length;$('bre').disabled=!redo.length;$('bshow').disabled=!Object.keys(HIDK).length;$('bcut').classList.toggle('on',MODE=='cut')}
 function shiftAll(dx,dy,B,dry){const N2=B.N.map(p=>({...p,x:p.x+dx,y:p.y+dy})),C2=B.CIR.map(c=>({...c,x:c.x+dx,y:c.y+dy}));
 if(!N2.every(inB)||!C2.every(c=>inB({x:c.x-c.r,y:c.y-c.r})&&inB({x:c.x+c.r,y:c.y+c.r})))return false;if(dry)return true;N=N2;CIR=C2;TX=B.TX.map(t=>({...t,x:t.x+dx*C,y:t.y+dy*C}));return true}
 const base0=()=>({N:N.map(p=>({...p})),CIR:CIR.map(c=>({...c})),TX:TX.map(t=>({...t}))});
@@ -252,7 +252,7 @@ const c=document.createElement('input');c.type='checkbox';c.checked=!!PD;c.oncha
 function posPop(){const p=$('pop');if(p.style.display!='block'||!SEL||SEL.t!='e'||!N[SEL.i])return;const P=N.map(px),a=P[SEL.i],c=P[(SEL.i+1)%P.length],r=svg.getBoundingClientRect(),w=$('wrap').getBoundingClientRect(),k=r.width/W;
 let x=(a[0]+c[0])/2*k+(r.left-w.left)+14,y=(a[1]+c[1])/2*k+(r.top-w.top)+14;x=Math.max(4,Math.min(x,w.width-p.offsetWidth-4));y=Math.max(4,Math.min(y,w.height-p.offsetHeight-4));p.style.left=x+'px';p.style.top=y+'px'}
 window.addEventListener('resize',posPop);
-function remap(f){K=K.filter(k=>f(k.a)>=0&&f(k.b)>=0).map(k=>({...k,a:f(k.a),b:f(k.b)}));const B={};for(const k in A){const m=f(+k);if(m>=0)B[m]=A[k]}A=B;for(const k in O)if('ena'.includes(k[0]))delete O[k];for(const k in LSTK)if('enac'.includes(k[0]))delete LSTK[k]}
+function remap(f){K=K.filter(k=>f(k.a)>=0&&f(k.b)>=0).map(k=>({...k,a:f(k.a),b:f(k.b)}));const B={};for(const k in A){const m=f(+k);if(m>=0)B[m]=A[k]}A=B;for(const k in O)if('ena'.includes(k[0]))delete O[k];for(const k in LSTK)if('enac'.includes(k[0]))delete LSTK[k];for(const k in HIDK)if('enac'.includes(k[0]))delete HIDK[k]}
 function delNode(i){push();N.splice(i,1);E.splice(i,1);remap(x=>x==i?-1:x>i?x-1:x);SEL=null;ui();render()}
 function insNode(i){if(E[i].bu){msg('Gör sidan rak först (Form: Rak).');return}push();const a=N[i],c=N[(i+1)%N.length];N.splice(i+1,0,{x:(a.x+c.x)/2,y:(a.y+c.y)/2});E[i].t='';E[i].bu=0;E.splice(i+1,0,{st:E[i].st,t:'',bu:0,un:E[i].un});remap(x=>x>i?x+1:x);SEL={t:'n',i:i+1};ui();render()}
 function ui(){const el=$('insp');el.innerHTML='';popBuild();$('hint').textContent=MODE=='cut'?'Klicka på två hörn för att dra en hjälplinje.':'';
@@ -267,7 +267,7 @@ if(SEL.t=='n'){const i=SEL.i;row('Hörnnamn',txt(N[i].n||'',v=>N[i].n=v,ABC[i%26
 else if(SEL.t=='e'){const i=SEL.i;row('Etikett',txt(E[i].t,v=>E[i].t=v,'automatiskt, - = ingen'));row('Enhet',txt(E[i].un||'',v=>E[i].un=v.trim(),'allmän'));row('Visa i listan',lkc('e'+i));row('Linje',sel(['Heldragen','Streckad','Dold'],E[i].st,v=>E[i].st=v));row('Form',sel(['Rak','Halvcirkel utåt','Halvcirkel inåt','Kvartscirkel utåt','Kvartscirkel inåt'],[0,1,-1,2,-2].indexOf(E[i].bu||0),v=>E[i].bu=[0,1,-1,2,-2][v]));btn('Lägg till hörn på sidan',()=>insNode(i));btn('Återställ etikettens plats',()=>{delete O['e'+i];render()},1)}
 else if(SEL.t=='c'){const j=SEL.i;row('Etikett',txt(K[j].t,v=>K[j].t=v,'automatiskt, - = ingen'));row('Enhet',txt(K[j].un||'',v=>K[j].un=v.trim(),'allmän'));row('Visa i listan',lkc('c'+j));row('Linje',sel(['Streckad','Heldragen'],K[j].st?0:1,v=>K[j].st=v?0:1));btn('Ta bort hjälplinjen',()=>{push();K.splice(j,1);delete O['c'+j];SEL=null;ui();render()},1)}
 else if(SEL.t=='k'){const j=SEL.i,c=CIR[j];row('Läge',sel(['Tillägg','Hål'],c.m,v=>c.m=v));row('Radie (rutor)',txt(String(c.r).replace('.',','),v=>{const r=num(v);if(r>0)c.r=r}));row('Visa mått',sel(['Inget','Radie','Diameter'],c.mt,v=>c.mt=v));row('Etikett',txt(c.t,v=>c.t=v,'automatiskt, - = ingen'));row('Enhet',txt(c.un||'',v=>c.un=v.trim(),'allmän'));row('Visa i listan',lkc('k'+j));btn('Ta bort cirkeln',()=>{push();CIR.splice(j,1);SEL=null;ui();render()},1)}
-else if(SEL.t=='l'){const k=SEL.key;if(k[0]=='t'){const j=+k.slice(1);row('Text',txt(TX[j].t,v=>TX[j].t=v));btn('Ta bort texten',()=>{push();TX.splice(j,1);SEL=null;ui();render()},1)}else btn('Återställ etikettens plats',()=>{delete O[k];render()},1)}}
+else if(SEL.t=='l'){const k=SEL.key;if(k[0]=='t'){const j=+k.slice(1);row('Text',txt(TX[j].t,v=>TX[j].t=v));btn('Ta bort texten',()=>{push();TX.splice(j,1);SEL=null;ui();render()},1)}else{if(k!='L')btn('Ta bort etiketten',()=>{push();HIDK[k]=true;SEL=null;ui();render()},1);btn('Återställ etikettens plats',()=>{delete O[k];render()},1)}}}
 function exp(){const o=opts(),[b,l,labs]=figure(o,0),P=N.map(px),xs=P.map(p=>p[0]).concat(labs.map(q=>q.x),labs.map(q=>q.x+(q.w||0)),arcs(P).map(q=>q[0]),CIR.flatMap(c=>[OX+(c.x-c.r)*C,OX+(c.x+c.r)*C])),ys=P.map(p=>p[1]).concat(labs.map(q=>q.y),labs.map(q=>q.y+(q.h||0)),arcs(P).map(q=>q[1]),CIR.flatMap(c=>[OY+(c.y-c.r)*C,OY+(c.y+c.r)*C])),x0=Math.min(...xs)-50,y0=Math.min(...ys)-50,w=Math.max(...xs)+50-x0,h=Math.max(...ys)+50-y0;
 return{w,h,svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0} ${y0} ${w} ${h}" width="${w}" height="${h}">${$('tp').checked?'':`<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#fff"/>`}${b}${l}</svg>`}}
 function toPng(cb){if(!N.length)return;const e=exp(),img=new Image(),u=URL.createObjectURL(new Blob([e.svg],{type:'image/svg+xml'}));img.onload=()=>{const c=document.createElement('canvas');c.width=e.w*3;c.height=e.h*3;c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(cb)};img.src=u}
@@ -279,11 +279,12 @@ $('bcut').onclick=()=>{if(N.length<2){msg('Välj en startfigur först.');return}
 $('btxt').onclick=()=>{if(!N.length){msg('Välj en startfigur först.');return}push();TX.push({x:W/2,y:H-30,t:'Text'});SEL={t:'l',key:'t'+(TX.length-1)};ui();render()};
 $('bcir').onclick=()=>{if(!N.length){msg('Välj en startfigur först.');return}push();CIR.push({x:GW/2,y:GH/2,r:1.5,m:1,mt:1,t:''});SEL={t:'k',i:CIR.length-1};ui();render()};
 $('bun').onclick=undo;$('bre').onclick=redoF;$('bctr').onclick=center;
+$('bshow').onclick=()=>{if(!Object.keys(HIDK).length)return;push();HIDK={};render()};
 $('note').onfocus=push;$('note').oninput=()=>{NOTE=$('note').value;render()};
 $('cz').onchange=()=>{const z=[[22,16],[30,22],[40,30]][+$('cz').value];GW=z[0];GH=z[1];W=OX*2+GW*C;H=OY*2+GH*C;svg.setAttribute('viewBox','0 0 '+W+' '+H);if(N.length&&!N.every(inB))center();render()};
-$('bclr').onclick=()=>{if(!N.length)return;push();N=[];E=[];K=[];A={};O={};TX=[];CIR=[];LSTK={};NOTE='';if($('note'))$('note').value='';SEL=null;MODE=null;pend=null;ui();render()};
+$('bclr').onclick=()=>{if(!N.length)return;push();N=[];E=[];K=[];A={};O={};TX=[];CIR=[];LSTK={};HIDK={};NOTE='';if($('note'))$('note').value='';SEL=null;MODE=null;pend=null;ui();render()};
 $('blast').onclick=()=>{let sv=null;try{sv=localStorage.getItem('sf_last')}catch(e){}if(!sv){msg('Det finns ingen autosparad figur.');return}try{push();setS(sv)}catch(x){hist.pop();msg('Kunde inte öppna senaste figuren.')}};
-$('bsv').onclick=()=>dl(new Blob([JSON.stringify({v:1,N,E,K,A,O,TX,CIR,LS:LSTK,NT:NOTE,unit:$('unit').value,per:$('per').value})],{type:'application/json'}),'figur.json');
+$('bsv').onclick=()=>dl(new Blob([JSON.stringify({v:1,N,E,K,A,O,TX,CIR,LS:LSTK,NT:NOTE,HK:HIDK,unit:$('unit').value,per:$('per').value})],{type:'application/json'}),'figur.json');
 $('bop').onclick=()=>$('fo').click();
 $('fo').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);push();setS(t);if(d.unit!=null)$('unit').value=d.unit;if(d.per!=null)$('per').value=d.per;render()}catch(x){hist.pop();$('hint').textContent='Filen kunde inte öppnas.'}});e.target.value=''};
 let lastArr=0;

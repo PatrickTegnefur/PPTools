@@ -44,6 +44,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .ib:disabled{opacity:.35;cursor:default}
 .fb{min-height:36px;padding:0 12px;border-radius:9px;border:1.5px dashed #ccc5f0;background:transparent;color:#585078;font:600 12px 'Sora',sans-serif;cursor:pointer}
 .lab{cursor:move;user-select:none;-webkit-user-select:none}.lab:hover{fill:#306BF0}
+.lab.sel{fill:#306BF0;text-decoration:underline}g.lab.sel text{fill:#306BF0}g.lab.sel line{stroke:#306BF0}
 details{border-top:1px solid #e3def8}details:first-of-type{border-top:0}
 summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font:700 13px 'Montserrat',sans-serif;color:#100e28;min-height:44px}
 summary::-webkit-details-marker{display:none}summary::after{content:'\25BE';color:#306BF0;transition:transform .2s}details[open]>summary::after{transform:rotate(180deg)}
@@ -97,9 +98,9 @@ details>.dbody{padding:0 2px 10px}
 </div></details>
 </div>
 </div>
-<div class="card" title="Klicka på en del för att markera den. Dra i en etikett för att flytta den."><div class="tbar"><button class="ib" id="bun" title="Ångra">↶</button><button class="ib" id="bre" title="Gör om">↷</button><span class="sp"></span><button class="fb" id="bsv" title="Spara figuren som fil">Spara</button><button class="fb" id="bop" title="Öppna en sparad figur">Öppna</button><input type="file" id="fo" accept=".json,application/json" hidden></div>
+<div class="card" title="Klicka på en del för att markera den. Dra i en etikett för att flytta den. Klicka på en etikett och tryck Delete för att ta bort den."><div class="tbar"><button class="ib" id="bun" title="Ångra">↶</button><button class="ib" id="bre" title="Gör om">↷</button><span class="sp"></span><button class="fb" id="bsv" title="Spara figuren som fil">Spara</button><button class="fb" id="bop" title="Öppna en sparad figur">Öppna</button><input type="file" id="fo" accept=".json,application/json" hidden></div>
 <svg id="cv" viewBox="0 0 640 480"></svg>
-<div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn alt" id="rl" title="Lägger tillbaka flyttade etiketter">Återställ etikettpositioner</button></div>
+<div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn alt" id="rl" title="Lägger tillbaka flyttade etiketter">Återställ etikettpositioner</button><button class="btn alt" id="rh" title="Visar de etiketter du har tagit bort med Delete" disabled>Visa borttagna etiketter</button></div>
 </div>
 </main>
 <script>
@@ -112,7 +113,7 @@ const TY={box:'Rätblock',prism:'Prisma',pyr:'Pyramid',cyl:'Cylinder',cone:'Kon'
 const DEF={box:{w:5,d:4,h:3},prism:{w:5,d:4,h:3},pyr:{w:4,d:4,h:4},cyl:{r:2,h:4},cone:{r:2,h:3},icone:{r:2,h:3},hemi:{r:2},sph:{r:2}};
 const PAL=['#66C7C2','#F4A261','#EC6095','#306BF0','#bfbfbf','#ffffff'];
 const IC={box:'<path d="M5 12h16v16H5ZM5 12l6-6h16l-6 6M21 12l6-6v16l-6 6"/>',prism:'<path d="M4 26h14l-7-14ZM11 12l10-6M18 26l10-6M21 6l7 14"/>',pyr:'<path d="M4 24h16l8-6H12ZM16 5L4 24M16 5l4 19M16 5l12 13"/>',cyl:'<ellipse cx="16" cy="8" rx="10" ry="4"/><path d="M6 8v16a10 4 0 0 0 20 0V8"/>',cone:'<path d="M6 24a10 4 0 0 0 20 0M16 4L6 24M16 4l10 20"/>',icone:'<ellipse cx="16" cy="8" rx="10" ry="4"/><path d="M6 8L16 28L26 8"/>',hemi:'<path d="M4 22a12 12 0 0 1 24 0Z"/><path d="M4 22a12 4 0 0 0 24 0" stroke-dasharray="3 3"/>',sph:'<circle cx="16" cy="16" r="12"/><path d="M4 16a12 4 0 0 0 24 0"/>'};
-let S=[],SEL=0,TI=0,OFF={},LST={},LABS=[],LIST=[],NOTE='';
+let S=[],SEL=0,TI=0,OFF={},LST={},HID={},SELL=null,LABS=[],LIST=[],NOTE='';
 const esc2=q=>String(q).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const UF={mm:.001,cm:.01,dm:.1,m:1,km:1000},cvu=(v,a,b)=>{const x=UF[String(a).trim().toLowerCase()],y=UF[String(b).trim().toLowerCase()];return x&&y?v*x/y:v},labU=(o,v,own,nu)=>{own=(own||'').trim();const x=own?cvu(v,o.unit,own):v,un=own||(o.um==0?o.unit:'');return fmt(x)+(un&&!nu?' '+un:'')};
 const mk=(t,c,o)=>({t,...DEF[t],c:c||PAL[S.length%4],lab:'',lh:'',hole:{t:0,r:1,dp:''},...o});
@@ -121,13 +122,13 @@ const PS={'Cylinder på rätblock':()=>[mk('box',PAL[0],{w:6,d:4,h:3}),mk('cyl',
 let hist=[],redo=[];
 const snapJ=()=>JSON.stringify(S);
 function push(){hist.push(snapJ());if(hist.length>80)hist.shift();redo=[]}
-function setS(j){const d=JSON.parse(j);if(!Array.isArray(d)||!d.length||!d.every(p=>TY[p.t]&&p.hole))throw 0;S=d;SEL=Math.min(SEL,S.length-1);OFF={};LST={};ui();render()}
+function setS(j){const d=JSON.parse(j);if(!Array.isArray(d)||!d.length||!d.every(p=>TY[p.t]&&p.hole))throw 0;S=d;SEL=Math.min(SEL,S.length-1);OFF={};LST={};HID={};ui();render()}
 function undo(){if(!hist.length)return;redo.push(snapJ());setS(hist.pop())}
 function redoF(){if(!redo.length)return;hist.push(snapJ());setS(redo.pop())}
 let lastSig='';
 function labPanel(){const el=$('labs');if(!el)return;const list=LABS.filter(l=>!l.t.startsWith('(')),sig=JSON.stringify(LST)+list.map(l=>l.k+':'+l.t).join('|');if(sig==lastSig)return;lastSig=sig;el.innerHTML='';
 list.forEach(l=>{const lb=document.createElement('label'),i=document.createElement('input');lb.textContent=(LST[l.k]?LST[l.k]+' = ':'')+l.t;i.type='checkbox';i.checked=!!LST[l.k];i.onchange=()=>{if(i.checked){const used=Object.values(LST);LST[l.k]=[...'abcdefghijklmnopqrstuvwxyz'].find(c=>!used.includes(c))||'x'+l.k}else delete LST[l.k];render()};lb.appendChild(i);el.appendChild(lb)})}
-function updBtns(){$('bun').disabled=!hist.length;$('bre').disabled=!redo.length}
+function updBtns(){$('bun').disabled=!hist.length;$('bre').disabled=!redo.length;$('rh').disabled=!Object.keys(HID).length}
 function opts(){const bw=$('bw').checked;return{unit:$('unit').value,um:+$('um').value,nm:$('nm').checked,md:$('md').checked,hm:+$('hm').value,sep:$('sep').checked,rest:$('rest').checked,hid:$('hid').checked,s:bw?'#000000':$('stroke').value,w:+$('sw').value,fs:+$('fs').value,lj:+$('lj').value/100,bw}}
 function fig(o){TI=0;LABS=[];LIST=[];const Z=[];let z=0;S.forEach(p=>{Z.push(z);z+=ht(p)});const pts=[];
 S.forEach((p,i)=>{const a=Z[i],b=a+ht(p);
@@ -139,7 +140,7 @@ const xs=pts.map(p=>p[0]),zs=pts.map(p=>p[1]),minx=Math.min(...xs),maxx=Math.max
 s=Math.min((W-230)/((maxx-minx)||1),(H-110)/((maxz-minz)||1)),ox=W/2-s*(minx+maxx)/2,oy=H/2+s*(minz+maxz)/2,P3=(x,y,zz)=>[ox+s*(x+y*KC),oy-s*(zz+y*KS)];
 const sw=`stroke="${o.s}" stroke-width="${o.w}"`,dsh=' stroke-dasharray="6 5"',u=o.unit?' '+o.unit:'',fc=p=>{const c=mix(p.c,o.lj);return o.bw?gr(c):c};
 const lab=(v,own,nu)=>labU(o,v,own,nu);
-const T=(x,y,t,a)=>{const k=TI++,f=OFF[k]||{dx:0,dy:0},ls=LST[k];LABS.push({k,t:String(t)});let tt=t;if(ls){LIST.push([ls,t]);tt=ls}return`<text class="lab" data-k="${k}" x="${(x+f.dx).toFixed(1)}" y="${(y+f.dy).toFixed(1)}" text-anchor="${a||'middle'}" dominant-baseline="central" font-size="${o.fs}" fill="${o.s}" font-family="Arial,Helvetica,sans-serif">${esc2(tt)}</text>`};
+const T=(x,y,t,a)=>{const k=TI++;if(HID[k])return'';const f=OFF[k]||{dx:0,dy:0},ls=LST[k];LABS.push({k,t:String(t)});let tt=t;if(ls){LIST.push([ls,t]);tt=ls}return`<text class="lab${SELL===k?' sel':''}" data-k="${k}" x="${(x+f.dx).toFixed(1)}" y="${(y+f.dy).toFixed(1)}" text-anchor="${a||'middle'}" dominant-baseline="central" font-size="${o.fs}" fill="${o.s}" font-family="Arial,Helvetica,sans-serif">${esc2(tt)}</text>`};
 const L=(a,b,c,d,x)=>`<line x1="${a.toFixed(1)}" y1="${b.toFixed(1)}" x2="${c.toFixed(1)}" y2="${d.toFixed(1)}" ${sw} ${x||''}/>`;
 const ah=(x,y,dy)=>`<path d="M${x} ${y} L${x-3.5} ${y-dy*9} L${x+3.5} ${y-dy*9}Z" fill="${o.s}"/>`;
 const poly=(V,F,col)=>{const Pp=V.map(v=>P3(...v)),c=V.reduce((a,v)=>a.map((q,k)=>q+v[k]/V.length),[0,0,0]);let r='';
@@ -182,7 +183,7 @@ const msg=t=>{$('msg').textContent=t};
 function lst(){const el=$('lst');el.innerHTML='';for(let i=S.length-1;i>=0;i--){const b=document.createElement('button');b.className=i==SEL?'on':'';b.textContent=(i+1)+'. '+TY[S[i].t];b.onclick=()=>{SEL=i;ui();render()};el.appendChild(b)}}
 function add(t){const q=S[S.length-1];if(!FLAT[q.t]){msg('Det går bara att lägga något ovanpå en cylinder eller ett rätblock.');return}
 const rn=q.t=='cyl'||q.t=='icone',fw=rn?2*q.r:q.w,fd=rn?2*q.r:q.d,o={};if(POLY.includes(t)){o.w=Math.min(DEF[t].w,fw);o.d=Math.min(DEF[t].d,fd)}else o.r=Math.min(DEF[t].r,Math.min(fw,fd)/2);
-push();OFF={};LST={};q.hole={t:0,r:1,dp:''};S.push(mk(t,PAL[S.length%4],o));SEL=S.length-1;msg('');ui();render()}
+push();OFF={};LST={};HID={};q.hole={t:0,r:1,dp:''};S.push(mk(t,PAL[S.length%4],o));SEL=S.length-1;msg('');ui();render()}
 function ui(){lst();const el=$('insp');el.innerHTML='';const p=S[SEL];if(!p)return;
 const row=(lb,i)=>{const l=document.createElement('label');l.textContent=lb;l.appendChild(i);el.appendChild(l)},
 txt=(v,fn,ph)=>{const i=document.createElement('input');i.type='text';i.value=v;if(ph)i.placeholder=ph;i.onfocus=push;i.oninput=()=>{fn(i.value);render()};return i},
@@ -192,8 +193,8 @@ if(POLY.includes(p.t)){nf('Bredd','w');nf('Djup','d');nf('Höjd','h')}else if(p.
 const sp=document.createElement('span');sp.className='pre';PAL.forEach(c=>{const b=document.createElement('button');b.style.background=mix(c,.45);b.setAttribute('aria-label','Färg');b.onclick=()=>{push();p.c=c;render()};sp.appendChild(b)});
 const ci=document.createElement('input');ci.type='color';ci.value=p.c;ci.onfocus=push;ci.oninput=()=>{p.c=ci.value;render()};sp.appendChild(ci);row('Färg',sp);
 row('Måttetikett',txt(p.lab,v=>p.lab=v,'automatiskt, - = ingen'));row('Enhet för mått',txt(p.un||'',v=>p.un=v.trim(),'allmän'));if(p.t!='hemi'&&p.t!='sph'){row('Höjdetikett',txt(p.lh,v=>p.lh=v,'automatiskt'));row('Enhet för höjd',txt(p.uh||'',v=>p.uh=v.trim(),'allmän'))}
-if(SEL==S.length-1&&FLAT[p.t]){row('Hål uppifrån',sel(['Inget','Cylinder','Kon','Halvklot'],p.hole.t,v=>{p.hole.t=v;OFF={};LST={}}));row('Hålets radie',txt(String(p.hole.r).replace('.',','),v=>{const n=num(v);if(n>0)p.hole.r=n}));row('Hålets djup',txt(p.hole.dp,v=>p.hole.dp=v,'genomgående'))}
-if(S.length>1){const b=document.createElement('button');b.className='btn alt';b.textContent='Ta bort delen';b.onclick=()=>{push();OFF={};LST={};S.splice(SEL,1);SEL=Math.min(SEL,S.length-1);ui();render()};el.appendChild(b)}}
+if(SEL==S.length-1&&FLAT[p.t]){row('Hål uppifrån',sel(['Inget','Cylinder','Kon','Halvklot'],p.hole.t,v=>{p.hole.t=v;OFF={};LST={};HID={}}));row('Hålets radie',txt(String(p.hole.r).replace('.',','),v=>{const n=num(v);if(n>0)p.hole.r=n}));row('Hålets djup',txt(p.hole.dp,v=>p.hole.dp=v,'genomgående'))}
+if(S.length>1){const b=document.createElement('button');b.className='btn alt';b.textContent='Ta bort delen';b.onclick=()=>{push();OFF={};LST={};HID={};S.splice(SEL,1);SEL=Math.min(SEL,S.length-1);ui();render()};el.appendChild(b)}}
 function exp(){return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${$('tpb').checked?'':`<rect width="${W}" height="${H}" fill="#fff"/>`}${fig(opts())}</svg>`}
 function toPng(cb){const img=new Image(),u=URL.createObjectURL(new Blob([exp()],{type:'image/svg+xml'}));img.onload=()=>{const c=document.createElement('canvas');c.width=W*3;c.height=H*3;c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(cb)};img.src=u}
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
@@ -201,9 +202,9 @@ $('png').onclick=()=>toPng(b=>dl(b,'kroppar.png'));
 $('svg').onclick=()=>dl(new Blob([exp()],{type:'image/svg+xml'}),'kroppar.svg');
 $('cp').onclick=()=>toPng(async b=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);$('cp').textContent='Kopierad!'}catch(e){$('cp').textContent='Gick inte – ladda ner istället'}setTimeout(()=>$('cp').textContent='Kopiera bild',2200)});
 svg.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('[data-i]');if(g){SEL=+g.dataset.i;ui();render()}});
-Object.keys(PS).forEach(n=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{push();OFF={};LST={};S=PS[n]();SEL=S.length-1;msg('');ui();render()};$('ps').appendChild(b)});
+Object.keys(PS).forEach(n=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{push();OFF={};LST={};HID={};S=PS[n]();SEL=S.length-1;msg('');ui();render()};$('ps').appendChild(b)});
 Object.keys(TY).forEach(t=>{const b=document.createElement('button');b.innerHTML=`<svg viewBox="0 0 32 32" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">${IC[t]}</svg><span>${TY[t]}</span>`;b.onclick=()=>add(t);$('add').appendChild(b)});
-['unit','um','nm','md','hm','sep','rest','hid','stroke','sw','fs','lj','bw','tpb'].forEach(i=>$(i).oninput=()=>{if(['nm','md','hm'].includes(i)){OFF={};LST={}}render()});
+['unit','um','nm','md','hm','sep','rest','hid','stroke','sw','fs','lj','bw','tpb'].forEach(i=>$(i).oninput=()=>{if(['nm','md','hm'].includes(i)){OFF={};LST={};HID={}}render()});
 $('bun').onclick=undo;$('bre').onclick=redoF;
 $('note').oninput=()=>{NOTE=$('note').value;render()};
 $('cz').onchange=()=>{const z=[[640,480],[800,600],[1000,750]][+$('cz').value];W=z[0];H=z[1];svg.setAttribute('viewBox','0 0 '+W+' '+H);render()};
@@ -211,10 +212,12 @@ $('bsv').onclick=()=>dl(new Blob([JSON.stringify({v:1,S,unit:$('unit').value})],
 $('bop').onclick=()=>$('fo').click();
 $('fo').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t),arr=Array.isArray(d)?d:d.S;push();setS(JSON.stringify(arr));if(d.unit!=null)$('unit').value=d.unit;render()}catch(x){hist.pop();updBtns();msg('Filen kunde inte öppnas.')}});e.target.value=''};
 let dg=null;const sp=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());return[q.x,q.y]};
-svg.addEventListener('pointerdown',e=>{const t=e.target;if(!t.classList||!t.classList.contains('lab'))return;const k=t.dataset.k,f=OFF[k]||(OFF[k]={dx:0,dy:0});dg={f,p:sp(e),dx:f.dx,dy:f.dy};svg.setPointerCapture(e.pointerId);e.preventDefault()});
+svg.addEventListener('pointerdown',e=>{const t=e.target.closest?e.target.closest('.lab'):null;if(!t){if(SELL!=null){SELL=null;render()}return}const k=t.dataset.k,f=OFF[k]||(OFF[k]={dx:0,dy:0});SELL=+k;render();dg={f,p:sp(e),dx:f.dx,dy:f.dy};svg.setPointerCapture(e.pointerId);e.preventDefault()});
 svg.addEventListener('pointermove',e=>{if(!dg)return;const p=sp(e);dg.f.dx=dg.dx+p[0]-dg.p[0];dg.f.dy=dg.dy+p[1]-dg.p[1];render()});
 ['pointerup','pointercancel'].forEach(v=>svg.addEventListener(v,()=>dg=null));
 $('rl').onclick=()=>{OFF={};render()};
+$('rh').onclick=()=>{HID={};render()};
+document.addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName||''))return;if((e.key=='Delete'||e.key=='Backspace')&&SELL!=null){e.preventDefault();HID[SELL]=true;SELL=null;render()}else if(e.key=='Escape'&&SELL!=null){SELL=null;render()}});
 let sv=null;try{sv=JSON.parse(localStorage.getItem('sk_last'))}catch(e){}
 if(sv&&Array.isArray(sv.S)&&sv.S.length&&sv.S.every(p=>TY[p.t]&&p.hole)){S=sv.S;SEL=Math.min(sv.SEL||0,S.length-1)}else S=PS['Cylinder på rätblock']();
 ui();render();
