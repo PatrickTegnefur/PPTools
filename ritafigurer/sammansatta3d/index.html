@@ -37,7 +37,13 @@ input[type=checkbox]{width:20px;height:20px;accent-color:#306BF0}
 .pre{display:flex;gap:8px;align-items:center}
 .pre button{width:26px;height:26px;border-radius:50%;border:2px solid #ccc5f0;cursor:pointer;padding:0}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #306BF0;outline-offset:2px}
-#cv{width:100%;height:auto;background:#fff;border-radius:14px;border:1px solid #ccc5f0;display:block;touch-action:none}
+#cv{width:100%;height:auto;max-height:72vh;background:#fff;border-radius:14px;border:1px solid #ccc5f0;display:block;touch-action:none}
+.qbar2{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-bottom:10px}
+.qbar2 .qi{margin:0;gap:8px;font-size:12px;white-space:nowrap}
+.qbar2 input[type=range]{width:96px}
+.qbar2 .pre button{width:22px;height:22px}
+.qbar2 .qb{min-height:34px;padding:0 12px;font-size:12px;margin:0}
+.btn.alt.on{background:#306BF0;color:#fff;border-color:#306BF0}
 .tbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
 .tbar .sp{width:1px;height:26px;background:#ccc5f0;margin:0 4px}
 .ib{width:36px;height:36px;border-radius:9px;border:1.5px solid #ccc5f0;background:#fff;color:#100e28;cursor:pointer;font-size:18px;padding:0;line-height:1}
@@ -83,9 +89,9 @@ details>.dbody{padding:0 2px 10px}
 </div></details>
 <details><summary>Linjer och text</summary><div class="dbody">
 <label>Linjefärg<input type="color" id="stroke" value="#100e28"></label>
-<label>Linjetjocklek<input type="range" id="sw" min="1" max="6" step=".5" value="2.5"></label>
-<label>Textstorlek<input type="range" id="fs" min="12" max="28" value="21"></label>
-<label>Ljushet på färger<input type="range" id="lj" min="0" max="85" value="45"></label>
+
+
+
 <label>Ritytans storlek<select id="cz"><option value="0">Normal</option><option value="1">Stor</option><option value="2">Extra stor</option></select></label>
 </div></details>
 <details><summary title="Bocka i de etiketter som ska stå i en lista vid sidan. På figuren ersätts de av bokstäver.">Lista vid sidan</summary><div class="dbody">
@@ -99,6 +105,7 @@ details>.dbody{padding:0 2px 10px}
 </div>
 </div>
 <div class="card" title="Klicka på en del för att markera den. Dra i en etikett för att flytta den. Klicka på en etikett och tryck Delete för att ta bort den."><div class="tbar"><button class="ib" id="bun" title="Ångra">↶</button><button class="ib" id="bre" title="Gör om">↷</button><span class="sp"></span><button class="fb" id="bsv" title="Spara figuren som fil">Spara</button><button class="fb" id="bop" title="Öppna en sparad figur">Öppna</button><input type="file" id="fo" accept=".json,application/json" hidden></div>
+<div class="qbar2"><label class="qi">Text <input type="range" id="fs" min="12" max="28" value="21"></label><label class="qi">Linje <input type="range" id="sw" min="1" max="6" step=".5" value="2.5"></label><label class="qi" title="Gör färgerna ljusare">Ljushet <input type="range" id="lj" min="0" max="85" value="45"></label></div>
 <svg id="cv" viewBox="0 0 640 480"></svg>
 <div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn alt" id="rl" title="Lägger tillbaka flyttade etiketter">Återställ etikettpositioner</button><button class="btn alt" id="rh" title="Visar de etiketter du har tagit bort med Delete" disabled>Visa borttagna etiketter</button></div>
 </div>

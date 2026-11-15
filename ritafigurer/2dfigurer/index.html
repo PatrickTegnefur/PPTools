@@ -44,7 +44,14 @@ input[type=checkbox]{width:20px;height:20px;accent-color:#306BF0}
 .tp button{min-height:30px;padding:0 8px;border:1.5px solid #ccc5f0;background:#eae6ff;color:#306BF0;border-radius:7px;cursor:pointer;font:600 11px 'Sora',sans-serif}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #306BF0;outline-offset:2px}
 #fig{background:#fff;border-radius:14px;padding:8px;display:flex;justify-content:center;border:1px solid #ccc5f0}
-#fig svg{width:100%;height:auto;touch-action:none}
+#fig svg{width:100%;height:auto;max-height:70vh;touch-action:none}
+#fig.vz1 svg{max-width:520px;max-height:none}#fig.vz2 svg{max-width:720px;max-height:none}#fig.vz3 svg{max-height:none}
+.qbar2{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-bottom:10px}
+.qbar2 .qi{margin:0;gap:8px;font-size:12px;white-space:nowrap}
+.qbar2 input[type=range]{width:96px}
+.qbar2 .pre button{width:22px;height:22px}
+.qbar2 .qb{min-height:34px;padding:0 12px;font-size:12px;margin:0}
+.btn.alt.on{background:#306BF0;color:#fff;border-color:#306BF0}
 .lab{cursor:move;user-select:none;-webkit-user-select:none}.lab:hover{fill:#306BF0}
 .lab.sel{fill:#306BF0;text-decoration:underline}g.lab.sel text{fill:#306BF0}g.lab.sel line{stroke:#306BF0}
 .bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -72,7 +79,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <div class="card"><h2 title="Tips: skriv enheten efter måttet, till exempel 5 dm, för att få olika enheter på olika sidor.">Mått</h2><div id="fields"></div></div>
 <div class="card">
 <details open><summary>Färger</summary><div class="dbody">
-<label>Färgtema<span class="pre" id="pre"></span></label>
+
 <label class="d2">Fyllning (2D)<input type="color" id="fill" value="#cdeeec"></label>
 <label class="d2">Fyllning på<input type="checkbox" id="fillon"></label>
 <div id="surf" class="d3"></div>
@@ -80,8 +87,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 </div></details>
 <details><summary>Linjer och text</summary><div class="dbody">
 <label>Linjefärg<input type="color" id="stroke" value="#100e28"></label>
-<label>Linjetjocklek<input type="range" id="sw" min="1" max="6" step=".5" value="2.5"></label>
-<label>Textstorlek<input type="range" id="fs" min="12" max="28" value="21"></label>
+
+
 <label>Storlek på markeringar<input type="range" id="ms" min="10" max="40" value="20"></label>
 <label title="Visar handtag i figuren som du kan dra i för att ändra måtten">Dra i figuren (handtag)<input type="checkbox" id="hon" checked></label>
 <label>Ritytans storlek<select id="cz"><option value="0">Normal</option><option value="1">Stor</option><option value="2">Extra stor</option></select></label>
@@ -100,7 +107,14 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 </div></details>
 </div>
 </div>
-<div class="card"><div id="fig" title="Dra i en etikett för att flytta den, till exempel in i figuren. Klicka på en etikett och tryck Delete för att ta bort den."></div><div id="msg"></div>
+<div class="card"><div class="qbar2" id="qbar">
+<label class="qi" title="Färgtema">Färg <span class="pre" id="pre"></span></label>
+<label class="qi">Text <input type="range" id="fs" min="12" max="28" value="21"></label>
+<label class="qi">Linje <input type="range" id="sw" min="1" max="6" step=".5" value="2.5"></label>
+<label class="qi" title="Gör figuren större eller mindre på ritytan utan att ändra måtten">Figur <input type="range" id="zm" min="30" max="250" step="5" value="100"></label>
+<button class="btn alt qb" id="lk" title="Behåller nuvarande skala så att figurer med olika mått ritas i samma skala, till exempel cirklar med radie 2 cm och 5 cm">Lås skala</button>
+<label class="qi" title="Hur stor ritytan visas på skärmen">Visning <select id="vz"><option value="0">Anpassa</option><option value="1">Liten</option><option value="2">Medel</option><option value="3">Stor</option></select></label>
+</div><div id="fig" title="Dra i en etikett för att flytta den, till exempel in i figuren. Klicka på en etikett och tryck Delete för att ta bort den."></div><div id="msg"></div>
 <div class="bar"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn alt" id="rl" title="Lägger tillbaka alla flyttade etiketter på sina ursprungliga platser">Återställ etikettpositioner</button><button class="btn alt" id="rh" title="Visar de etiketter du har tagit bort med Delete" disabled>Visa borttagna etiketter</button></div>
 </div>
 </main>
@@ -170,13 +184,13 @@ const hSv=x=>Math.max(.5,Math.round(x*2)/2),hSa=a=>{a=Math.round(a);for(const m 
 const hnd=(f,ux,uy,fn,c)=>{if(HON)HND.push({p:f([ux,uy]),q:f,fn,c:c||'move'})};
 const gr=c=>{if(!c||c=='none')return c;const n=parseInt(c.slice(1),16),y=.3*(n>>16)+.59*(n>>8&255)+.11*(n&255),v=Math.round(255-(255-y)*.55);return'#'+(v*65793).toString(16).padStart(6,'0')};
 function st(){const b=$('bw').checked,tn=+$('lj').value/100,q=c=>{if(!c||c=='none')return c;const t=tn?mix(c,tn):c;return b?gr(t):t};return{lj:tn,fill:q($('fillon').checked?$('fill').value:'none'),base:q(C.base.on?C.base.c:'none'),side:q(C.side.on?C.side.c:'none'),top:q(C.top.on?C.top.c:'none'),bot:q(C.bot.on?C.bot.c:'none'),s:b?'#000000':$('stroke').value,w:$('sw').value,fs:$('fs').value,ms:+$('ms').value,bw:b}}
-let TI=0,UM=0,UN='',LABS=[],LIST=[],LOCK=null,HND=[],HON=true,SELL=null,SELF='';const OFF={},LST={},NOTE={},HID={},esc2=q=>String(q).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+let TI=0,UM=0,UN='',LABS=[],LIST=[],LOCK=null,HND=[],HON=true,SELL=null,SELF='',ZOOM=1,FIX=null,LASTB=0;const sc=a=>{LASTB=a;return(FIX||a)*ZOOM};const OFF={},LST={},NOTE={},HID={},esc2=q=>String(q).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const uo=q=>String(q==null?'':q).replace(/^\s*[-+\u2212]?[\d.,]+\s*/,'').trim(),fu=(val,raw)=>{const own=uo(raw);return fmt(val)+(own?' '+own:(UM==0&&UN?' '+UN:''))};
 const T=(x,y,t,o,a='middle')=>{const k=TI++;if(t==='-'||(HID[cur]||{})[k])return'';const f=(OFF[cur]||{})[k]||{dx:0,dy:0},ls=(LST[cur]||{})[k];LABS.push({k,t:String(t)});let tt=t;if(ls){LIST.push([ls,t]);tt=ls}return`<text class="lab${SELL===k?' sel':''}" data-k="${k}" x="${(x+f.dx).toFixed(1)}" y="${(y+f.dy).toFixed(1)}" text-anchor="${a}" ${o.halo?'paint-order="stroke" stroke="#fff" stroke-width="5" stroke-linejoin="round" ':''}dominant-baseline="central" font-size="${o.fs}" fill="${o.s}" font-family="Arial,Helvetica,sans-serif">${tt}</text>`};
 const L=(x1,y1,x2,y2,c,w,x='')=>`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${c}" stroke-width="${w}" ${x}/>`;
 const ah=(x,y,dx,dy,o,z=10)=>{const px=-dy,py=dx;return`<path d="M${x} ${y} L${x-dx*z+px*z*.42} ${y-dy*z+py*z*.42} L${x-dx*z-px*z*.42} ${y-dy*z-py*z*.42}Z" fill="${o.s}"/>`};
 function fit(p,pad){if(LOCK&&LOCK.q)return LOCK.q;const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]);const x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0,h=Math.max(...ys)-y0;
-const s=Math.min((W-2*pad)/w,(H-2*pad)/h),ox=(W-w*s)/2-x0*s,oy=(H+h*s)/2+y0*s;const q=z=>[ox+z[0]*s,oy-z[1]*s];q.s=s;q.inv=(px,py)=>[(px-ox)/s,(oy-py)/s];return q}
+const s=sc(Math.min((W-2*pad)/w,(H-2*pad)/h)),ox=(W-w*s)/2-x0*s,oy=(H+h*s)/2+y0*s;const q=z=>[ox+z[0]*s,oy-z[1]*s];q.s=s;q.inv=(px,py)=>[(px-ox)/s,(oy-py)/s];return q}
 function tk(p,q,n,o){let r='';if(!n)return r;const dx=q[0]-p[0],dy=q[1]-p[1],l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l,m=[(p[0]+q[0])/2,(p[1]+q[1])/2],h=o.ms*.4;
 for(let i=0;i<n;i++){const k=(i-(n-1)/2)*8,cx=m[0]+ux*k,cy=m[1]+uy*k;r+=L(cx+uy*h,cy-ux*h,cx-uy*h,cy+ux*h,o.s,o.w)}return r}
 function grid(v,o){const x0=num(v.xmin),x1=num(v.xmax),y0=num(v.ymin),y1=num(v.ymax),p=num(v.step)||1,ar=+v.arr;
@@ -207,7 +221,7 @@ if(HON){const sx=w/(x1-x0),sy=h/(y1-y0),mg=z=>[X(z[0]),Y(z[1])];mg.s=1;mg.inv=(q
 P.forEach((p,i)=>{if(p.x<x0||p.x>x1||p.y<y0||p.y>y1)return;hnd(mg,p.x,p.y,(x,y)=>{P[i].x=Math.round(Math.max(x0,Math.min(x1,x))*2)/2;P[i].y=Math.round(Math.max(y0,Math.min(y1,y))*2)/2;GS.grid.gpts=P.map(q=>(q.n||'')+'('+(+q.x.toFixed(2))+','+(+q.y.toFixed(2))+')').join(' ')},'move')})}
 return r}
 function circF(v,o){const R0=num(v.r);if(!(R0>0))throw'Radien måste vara större än 0.';
-const s=LOCK&&LOCK.s?LOCK.s:Math.min((W-230)/(2*R0),(H-170)/(2*R0)),R=R0*s,cx=W/2,cy=H/2,O=[cx,cy],D=Math.PI/180;
+const s=LOCK&&LOCK.s?LOCK.s:sc(Math.min((W-230)/(2*R0),(H-170)/(2*R0))),R=R0*s,cx=W/2,cy=H/2,O=[cx,cy],D=Math.PI/180;
 const P=(a,k)=>{const t=num(a)*D,q=k||R;return[cx+q*Math.cos(t),cy-q*Math.sin(t)]},ln=(a,b,d)=>L(a[0],a[1],b[0],b[1],o.s,o.w,d||''),dot=p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="${o.s}"/>`;
 const a1=num(v.s1)||0,a2=num(v.s2)||0,dl=(((a2-a1)%360)+360)%360,lg=dl>180?1:0;
 const cm=+v.cs;let r=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${o.fill}" ${cm==2?'stroke="none"':`stroke="${o.s}" stroke-width="${o.w}"${cm==1?' stroke-dasharray="6 5"':''}`}/>`;
@@ -227,7 +241,7 @@ if(v.corn)r+=T(cx-14,cy+14,'O',o);
 hnd(f2,...at(v.ra),(x,y)=>{GS.circ.r=hSv(Math.hypot(x,y));GS.circ.ra=ang(x,y)},'move');
 if(v.ch){pa([v.c1,'c1']);pa([v.c2,'c2'])}if(v.tg)pa([v.ta,'ta']);if(v.sc||v.bg){pa([v.s1,'s1']);pa([v.s2,'s2'])}}
 return r}
-function fitN(pts,pad){if(LOCK&&LOCK.q)return LOCK.q;const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),s=Math.min((W-2*pad)/((x1-x0)||1),(H-2*pad)/((y1-y0)||1)),ox=(W-(x1-x0)*s)/2-x0*s,oy=(H-(y1-y0)*s)/2-y0*s,f=p=>[ox+p[0]*s,oy+p[1]*s];f.s=s;f.inv=(px,py)=>[(px-ox)/s,(py-oy)/s];return f}
+function fitN(pts,pad){if(LOCK&&LOCK.q)return LOCK.q;const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),s=sc(Math.min((W-2*pad)/((x1-x0)||1),(H-2*pad)/((y1-y0)||1))),ox=(W-(x1-x0)*s)/2-x0*s,oy=(H-(y1-y0)*s)/2-y0*s,f=p=>[ox+p[0]*s,oy+p[1]*s];f.s=s;f.inv=(px,py)=>[(px-ox)/s,(py-oy)/s];return f}
 const spts=(f,pts)=>pts.map(p=>f(p).map(z=>z.toFixed(1)).join(',')).join(' ');
 function netDraw(f,o,v,faces,outline,folds){let r=faces.map(([p,t])=>`<polygon points="${spts(f,p)}" fill="${t=='b'?o.base:o.side}"/>`).join('');
 r+=`<polygon points="${spts(f,outline)}" fill="none" stroke="${o.s}" stroke-width="${o.w}" stroke-linejoin="round"/>`;
@@ -414,7 +428,7 @@ function prism(v,o){if(+v.lg)return prismL(v,o);const[w,d,h]=[num(v.w),num(v.d),
 function prismL(v,o){const[w,d,h]=[num(v.w),num(v.d),num(v.h)];return solid([[0,0,0],[w,0,0],[w/2,0,h],[0,d,0],[w,d,0],[w/2,d,h]],[[[0,1,2],'b'],[[3,4,5],'b'],[[0,1,4,3],'g'],[[1,2,5,4],'s'],[[2,0,3,5],'s']],v,o,'tri',[1,4],0,f=>{const dep=(X,Z,x0,z0)=>hSv(((X-x0)*KC+(Z-z0)*KS)/(KC*KC+KS*KS));hnd(f,w,0,X=>{GS.prism.w=hSv(X)},'ew-resize');hnd(f,w/2,h,(X,Z)=>{GS.prism.h=hSv(Z)},'ns-resize');hnd(f,w+d*KC,d*KS,(X,Z)=>{GS.prism.d=dep(X,Z,w,0)},'move')})}
 function pyr(v,o){const[w,d,h]=[num(v.w),num(v.d),num(v.h)];return solid([[0,0,0],[w,0,0],[w,d,0],[0,d,0],[w/2,d/2,h]],[[[0,1,2,3],'b'],[[0,1,4],'s'],[[1,2,4],'s'],[[2,3,4],'s'],[[3,0,4],'s']],v,o,'ap',null,0,f=>{const dep=(X,Z,x0,z0)=>hSv(((X-x0)*KC+(Z-z0)*KS)/(KC*KC+KS*KS));hnd(f,w,0,X=>{GS.pyr.w=hSv(X)},'ew-resize');hnd(f,w+d*KC,d*KS,(X,Z)=>{GS.pyr.d=dep(X,Z,w,0)},'move');hnd(f,w/2+(d/2)*KC,h+(d/2)*KS,(X,Z)=>{GS.pyr.h=hSv(Z-(d/2)*KS)},'ns-resize')})}
 function round(v,o,cone){if(+v.lg==1)return roundL(v,o,cone);if(cone&&+v.lg==2)return coneInv(v,o);const R=num(v.r),h=num(v.h);if(!(R>0&&h>0))throw'Radie och höjd måste vara större än 0.';
-const s=LOCK&&LOCK.s?LOCK.s:Math.min((W-200)/(2*R),(H-110)/(h+.6*R)),RR=R*s,ry=RR*.3,cx=W/2+(+v.hm==2?24:0),by=LOCK&&LOCK.by!=null?LOCK.by:H/2+h*s/2,ty=by-h*s,u=v.unit?' '+v.unit:'',see=v.tr||o.side=='none',op=v.tr?.6:1,ln=(x1,y1,x2,y2)=>L(x1,y1,x2,y2,o.s,o.w),
+const s=LOCK&&LOCK.s?LOCK.s:sc(Math.min((W-200)/(2*R),(H-110)/(h+.6*R))),RR=R*s,ry=RR*.3,cx=W/2+(+v.hm==2?24:0),by=LOCK&&LOCK.by!=null?LOCK.by:H/2+h*s/2,ty=by-h*s,u=v.unit?' '+v.unit:'',see=v.tr||o.side=='none',op=v.tr?.6:1,ln=(x1,y1,x2,y2)=>L(x1,y1,x2,y2,o.s,o.w),
 sw=`stroke="${o.s}" stroke-width="${o.w}"`,fr=`<path d="M${cx-RR} ${by} A${RR} ${ry} 0 0 0 ${cx+RR} ${by}" fill="none" ${sw}/>`;
 let r='';if(see)r+=`<ellipse cx="${cx}" cy="${by}" rx="${RR}" ry="${ry}" fill="${o.base}" fill-opacity=".6"/>`;
 r+=cone?`<path d="M${cx-RR} ${by} A${RR} ${ry} 0 0 0 ${cx+RR} ${by} L${cx} ${ty} Z" fill="${o.side}" fill-opacity="${op}"/>`+ln(cx-RR,by,cx,ty)+ln(cx+RR,by,cx,ty)+fr
@@ -427,7 +441,7 @@ if(hm==1)r+=L(cx,ty,cx,by,o.s,o.w,dash)+T(cx+8,(ty+by)/2+(v.rad?10:0),hl,o,'star
 if(hm==2)r+=dimv(cx-RR-46,ty,by,cone?cx:cx-RR,cx-RR,hl,o);{const k=cone?'cone':'cyl',fz=z=>[cx+z[0]*s,by-z[1]*s];fz.s=s;fz.inv=(px,py)=>[(px-cx)/s,(by-py)/s];fz.lk={by};hnd(fz,R,0,x=>{GS[k].r=hSv(x)},'ew-resize');hnd(fz,0,h,(x,y)=>{GS[k].h=hSv(y)},'ns-resize');if(!cone)hnd(fz,R,h,(x,y)=>{GS[k].r=hSv(x);GS[k].h=hSv(y)},'nesw-resize')}
 return r}
 function coneInv(v,o){const R=num(v.r),h=num(v.h);if(!(R>0&&h>0))throw'Radie och höjd måste vara större än 0.';
-const s=LOCK&&LOCK.s?LOCK.s:Math.min((W-200)/(2*R),(H-110)/(h+.6*R)),RR=R*s,ry=RR*.3,cx=W/2+(+v.hm==2?24:0),ya=LOCK&&LOCK.ya!=null?LOCK.ya:H/2+(h*s+ry)/2,yc=ya-h*s,u=v.unit?' '+v.unit:'',op=v.tr?.6:1,ln=(a,b,c,d)=>L(a,b,c,d,o.s,o.w);
+const s=LOCK&&LOCK.s?LOCK.s:sc(Math.min((W-200)/(2*R),(H-110)/(h+.6*R))),RR=R*s,ry=RR*.3,cx=W/2+(+v.hm==2?24:0),ya=LOCK&&LOCK.ya!=null?LOCK.ya:H/2+(h*s+ry)/2,yc=ya-h*s,u=v.unit?' '+v.unit:'',op=v.tr?.6:1,ln=(a,b,c,d)=>L(a,b,c,d,o.s,o.w);
 let r=`<path d="M${cx-RR} ${yc} L${cx} ${ya} L${cx+RR} ${yc}Z" fill="${o.side}" fill-opacity="${op}"/>`+ln(cx-RR,yc,cx,ya)+ln(cx+RR,yc,cx,ya);
 r+=`<ellipse cx="${cx}" cy="${yc}" rx="${RR}" ry="${ry}" fill="${o.base}" fill-opacity="${op}" stroke="${o.s}" stroke-width="${o.w}"/>`;
 if(v.rad)r+=ln(cx,yc,cx+RR,yc)+`<circle cx="${cx}" cy="${yc}" r="3" fill="${o.s}"/>`+T(cx+RR/2,yc+14,v.lr||fu(R,v.r),o);
@@ -437,7 +451,7 @@ if(hm==2)r+=dimv(cx-RR-46,yc,ya,cx-RR,cx,hl,o);
 {const fz=z=>[cx+z[0]*s,ya-z[1]*s];fz.s=s;fz.inv=(px,py)=>[(px-cx)/s,(ya-py)/s];fz.lk={ya};hnd(fz,R,h,(x,y)=>{GS.cone.r=hSv(x);GS.cone.h=hSv(y)},'nesw-resize');hnd(fz,0,h,(x,y)=>{GS.cone.h=hSv(y)},'ns-resize')}
 return r}
 function roundL(v,o,cone){const R=num(v.r),h=num(v.h);if(!(R>0&&h>0))throw'Radie och längd måste vara större än 0.';
-const s=LOCK&&LOCK.s?LOCK.s:Math.min((W-170)/(h+.6*R),(H-150)/(2*R)),RR=R*s,rx=RR*.3,len=h*s,xL=LOCK&&LOCK.xl!=null?LOCK.xl:W/2-len/2,xR=xL+len,cy=LOCK&&LOCK.cy!=null?LOCK.cy:H/2-(+v.hm==2?16:0),u=v.unit?' '+v.unit:'',see=v.tr||o.side=='none',op=v.tr?.6:1,sw=`stroke="${o.s}" stroke-width="${o.w}"`,ln=(a,b,c,d)=>L(a,b,c,d,o.s,o.w);
+const s=LOCK&&LOCK.s?LOCK.s:sc(Math.min((W-170)/(h+.6*R),(H-150)/(2*R))),RR=R*s,rx=RR*.3,len=h*s,xL=LOCK&&LOCK.xl!=null?LOCK.xl:W/2-len/2,xR=xL+len,cy=LOCK&&LOCK.cy!=null?LOCK.cy:H/2-(+v.hm==2?16:0),u=v.unit?' '+v.unit:'',see=v.tr||o.side=='none',op=v.tr?.6:1,sw=`stroke="${o.s}" stroke-width="${o.w}"`,ln=(a,b,c,d)=>L(a,b,c,d,o.s,o.w);
 let r='';if(see&&!cone)r+=`<ellipse cx="${xR}" cy="${cy}" rx="${rx}" ry="${RR}" fill="${o.base}" fill-opacity=".6"/>`;
 if(cone)r+=`<path d="M${xL} ${cy-RR} L${xR} ${cy} L${xL} ${cy+RR}Z" fill="${o.side}" fill-opacity="${op}"/>`+ln(xL,cy-RR,xR,cy)+ln(xL,cy+RR,xR,cy);
 else r+=`<path d="M${xL} ${cy-RR} H${xR} A${rx} ${RR} 0 0 1 ${xR} ${cy+RR} H${xL}Z" fill="${o.side}" fill-opacity="${op}"/>`+ln(xL,cy-RR,xR,cy-RR)+ln(xL,cy+RR,xR,cy+RR)+`<path d="M${xR} ${cy-RR} A${rx} ${RR} 0 0 1 ${xR} ${cy+RR}" fill="none" ${sw}/>`;
@@ -451,7 +465,7 @@ if(hm==2){const y=cy+RR+34;r+=L(xL,cy+RR,xL,y+6,o.s,1,dash+' opacity=".55"')+L(x
 return r}
 function cyl(v,o){return round(v,o,0)}function cone(v,o){return round(v,o,1)}
 function sph(v,o){const R=num(v.r);if(!(R>0))throw'Radien måste vara större än 0.';
-const hs=v.hs,s=LOCK&&LOCK.s?LOCK.s:Math.min((W-200)/(2*R),(H-110)/(hs?1.3*R:2*R)),RR=R*s,ry=RR*.3,cx=W/2,cy=LOCK&&LOCK.cy!=null?LOCK.cy:(hs?H/2+RR/2:H/2),u=v.unit?' '+v.unit:'',see=v.tr||o.side=='none',op=v.tr?.6:1,sw=`stroke="${o.s}" stroke-width="${o.w}"`;
+const hs=v.hs,s=LOCK&&LOCK.s?LOCK.s:sc(Math.min((W-200)/(2*R),(H-110)/(hs?1.3*R:2*R))),RR=R*s,ry=RR*.3,cx=W/2,cy=LOCK&&LOCK.cy!=null?LOCK.cy:(hs?H/2+RR/2:H/2),u=v.unit?' '+v.unit:'',see=v.tr||o.side=='none',op=v.tr?.6:1,sw=`stroke="${o.s}" stroke-width="${o.w}"`;
 let r='';
 if(hs){if(see)r+=`<ellipse cx="${cx}" cy="${cy}" rx="${RR}" ry="${ry}" fill="${o.base}" fill-opacity=".6"/>`;r+=`<path d="M${cx-RR} ${cy} A${RR} ${RR} 0 0 1 ${cx+RR} ${cy} A${RR} ${ry} 0 0 1 ${cx-RR} ${cy}Z" fill="${o.side}" fill-opacity="${op}" ${sw} stroke-linejoin="round"/>`}
 else r+=`<circle cx="${cx}" cy="${cy}" r="${RR}" fill="${o.side}" fill-opacity="${op}" ${sw}/><path d="M${cx-RR} ${cy} A${RR} ${ry} 0 0 0 ${cx+RR} ${cy}" fill="none" ${sw}/>`;
@@ -491,6 +505,7 @@ if(v.corn)r+=T(Q[2][0]-14,Q[2][1],'m',o)+T(Q[0][0]-14,Q[0][1],'n',o)+T(Q[5][0]+1
 let last='';
 function draw(){TI=0;LABS=[];LIST=[];HND=[];if(SELF!==cur){SELL=null;SELF=cur}HON=$('hon')?$('hon').checked:true;$('msg').textContent='';try{UN=S[cur].unit||'';UM=+$('um').value;const body=F[cur].d(S[cur],st()),bg=$('tp').checked?'':'<rect width="'+W+'" height="'+H+'" fill="#fff"/>';
 last=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${bg}<g id="fg">${body}</g></svg>`;
+if(FIX||ZOOM>1){try{$('fig').innerHTML=last;const g0=$('fig').querySelector('#fg'),b0=g0&&g0.getBBox();if(b0&&b0.width>0&&(b0.width>W||b0.height>H))$('msg').textContent='Figuren är större än ritytan. Välj en större rityta eller lås upp skalan.'}catch(e){}}
 const note=String(NOTE[cur]||'').split('\n').map(z=>z.trim()).filter(Boolean),lines=LIST.map(([a,t])=>a+' = '+t).concat(note),needU=UM==1&&UN;
 if(needU||lines.length){let bb=null;try{$('fig').innerHTML=last;const g=$('fig').querySelector('#fg');bb=g?g.getBBox():null}catch(e){}
 const ok=bb&&bb.width>0,o=st();let ex='';
@@ -526,6 +541,9 @@ $('psv').onclick=()=>{let ok=1;try{localStorage.setItem('mf_prefs',JSON.stringif
 $('prs').onclick=()=>{try{localStorage.removeItem('mf_prefs')}catch(e){}applyP(P0);$('surf').innerHTML='';surf();fields();draw();$('prs').textContent='Standard återställd!';setTimeout(()=>$('prs').textContent='Återställ standard',2200)};
 const CZS=[[560,400],[840,600],[1120,800]];{const z=CZS[+$('cz').value]||CZS[0];W=z[0];H=z[1]}
 $('cz').onchange=()=>{const z=CZS[+$('cz').value];W=z[0];H=z[1];draw()};
+$('zm').oninput=()=>{ZOOM=+$('zm').value/100;draw()};
+$('lk').onclick=()=>{FIX=FIX?null:(LASTB||null);$('lk').classList.toggle('on',!!FIX);$('lk').textContent=FIX?'Skala låst':'Lås skala';draw()};
+$('vz').onchange=()=>{$('fig').className=['','vz1','vz2','vz3'][+$('vz').value]};
 pre();surf();tabs();fields();draw();
 
 (function(){const ME='figurer',DEF=[['figurer','Matematikfigurer','https://patricktegnefur.github.io/PPTools/ritafigurer/2dfigurer/index.html'],['sammansatta','Sammansatta figurer','https://patricktegnefur.github.io/PPTools/ritafigurer/sammansatta2d/index.html'],['kroppar','Sammansatta kroppar','https://patricktegnefur.github.io/PPTools/ritafigurer/sammansatta3d/index.html']];
