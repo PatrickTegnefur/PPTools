@@ -68,6 +68,8 @@ details>.dbody{padding:0 2px 10px}
 #navp label{display:flex;flex-direction:column;gap:3px;margin:6px 0;font-size:12px;color:#585078}
 #navp input[type=text]{width:100%}
 #navp .row2{display:flex;align-items:center;gap:8px;margin:8px 0}
+body.emb header,body.emb .amb{display:none}
+body.emb nav{padding-top:12px}
 </style>
 </head>
 <body>
@@ -116,7 +118,7 @@ details>.dbody{padding:0 2px 10px}
 <button class="fb" id="bsv" title="Spara figur som fil (Ctrl+S)">Spara</button><button class="fb" id="bop" title="Öppna sparad figur (Ctrl+O)">Öppna</button><button class="fb" id="blast" title="Öppna senast autosparade figur">Senaste</button><input type="file" id="fo" accept=".json,application/json" hidden></div>
 <div class="qbar2"><label class="qi">Text <input type="range" id="fs" min="12" max="28" value="21"></label><label class="qi">Linje <input type="range" id="sw" min="1" max="6" step=".5" value="2.5"></label><label class="qi" title="Gör fyllningen ljusare">Ljushet <input type="range" id="lj" min="0" max="80" step="5" value="0"></label></div>
 <div id="wrap" title="Klicka på en sida för att lägga till eller dra bort en figur där. Dra i hörn och etiketter. Dra i figurens insida eller använd piltangenterna för att flytta hela figuren."><svg id="cv" viewBox="0 0 960 720"></svg><div id="pop"></div></div>
-<div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn alt" id="rl" title="Lägger tillbaka flyttade etiketter">Återställ etikettpositioner</button></div></div>
+<div style="margin-top:12px"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn" id="ub" style="display:none">Använd i uppgiftsbanken</button><button class="btn alt" id="rl" title="Lägger tillbaka flyttade etiketter">Återställ etikettpositioner</button></div></div>
 </main>
 <script>
 let GW=22,GH=16;const C=40,OX=40,OY=40;let W=OX*2+GW*C,H=OY*2+GH*C;const ABC='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -318,6 +320,16 @@ pn.querySelector('#navsv').onclick=()=>{const urls={};pn.querySelectorAll('input
 pn.querySelector('#navrs').onclick=()=>{cfg={same:GH,urls:{}};try{localStorage.removeItem('pt_nav')}catch(e){}build();panel()};
 pn.querySelector('#navcl').onclick=()=>{pn.style.display='none'}}
 build()})();
+// ===== UB-EMBED v1 (Uppgiftsbanken) – behåll detta block när verktyget uppdateras =====
+// Aktivt bara när sidan öppnas inbäddad med ?embed=1. Kräver knappen #ub och adaptern längst ned i blocket.
+(function(A){if(!/[?&]embed/.test(location.search)||window.parent===window)return;document.body.classList.add('emb');
+const b=document.getElementById('ub');
+if(b){b.style.display='';b.onclick=()=>{try{const r=A.hamta();parent.postMessage({type:'ub-figur',svg:r.svg,kalla:{verktyg:A.id,v:1,tillstand:r.tillstand}},'*')}catch(e){alert('Kunde inte skicka figuren: '+e.message)}}}
+addEventListener('message',e=>{const m=e.data;if(!m||m.type!='ub-ladda'||!m.kalla||m.kalla.verktyg!=A.id)return;try{A.satt(m.kalla.tillstand)}catch(x){alert('Kunde inte läsa in figurens inställningar (verktyget kan ha uppdaterats).')}});
+parent.postMessage({type:'ub-redo',verktyg:A.id,v:1},'*')})({id:'sammansatta2d',
+hamta:()=>{if(!N.length)throw new Error('Rita en figur först.');const ui={};['unit','um','per','len','names','dots','snap','grid','cz','fillon','fill','lj','stroke','sw','fs','ms','bw','tp'].forEach(i=>{const e=$(i);if(e)ui[i]=e.type=='checkbox'?e.checked:e.value});return{svg:exp().svg,tillstand:{fig:JSON.parse(snapJ()),ui:ui}}},
+satt:t=>{push();if(t.ui){if(t.ui.cz!=null&&$('cz')){$('cz').value=t.ui.cz;$('cz').onchange()}Object.keys(t.ui).forEach(i=>{const e=$(i);if(e&&i!='cz'){if(e.type=='checkbox')e.checked=!!t.ui[i];else e.value=t.ui[i]}})}setS(JSON.stringify(t.fig))}});
+// ===== slut UB-EMBED =====
 </script>
 </body>
 </html>

@@ -68,6 +68,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 #navp label{display:flex;flex-direction:column;gap:3px;margin:6px 0;font-size:12px;color:#585078}
 #navp input[type=text]{width:100%}
 #navp .row2{display:flex;align-items:center;gap:8px;margin:8px 0}
+body.emb header,body.emb .amb{display:none}
+body.emb nav{padding-top:12px}
 </style>
 </head>
 <body>
@@ -115,7 +117,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <button class="btn alt qb" id="lk" title="Behåller nuvarande skala så att figurer med olika mått ritas i samma skala, till exempel cirklar med radie 2 cm och 5 cm">Lås skala</button>
 <label class="qi" title="Hur stor ritytan visas på skärmen">Visning <select id="vz"><option value="0">Anpassa</option><option value="1">Liten</option><option value="2">Medel</option><option value="3">Stor</option></select></label>
 </div><div id="fig" title="Dra i en etikett för att flytta den, till exempel in i figuren. Klicka på en etikett och tryck Delete för att ta bort den."></div><div id="msg"></div>
-<div class="bar"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn alt" id="rl" title="Lägger tillbaka alla flyttade etiketter på sina ursprungliga platser">Återställ etikettpositioner</button><button class="btn alt" id="rh" title="Visar de etiketter du har tagit bort med Delete" disabled>Visa borttagna etiketter</button></div>
+<div class="bar"><button class="btn" id="cp">Kopiera bild</button><button class="btn alt" id="png">Ladda ner PNG</button><button class="btn alt" id="svg">Ladda ner SVG</button><button class="btn" id="ub" style="display:none">Använd i uppgiftsbanken</button><button class="btn alt" id="rl" title="Lägger tillbaka alla flyttade etiketter på sina ursprungliga platser">Återställ etikettpositioner</button><button class="btn alt" id="rh" title="Visar de etiketter du har tagit bort med Delete" disabled>Visa borttagna etiketter</button></div>
 </div>
 </main>
 <script>
@@ -557,6 +559,16 @@ pn.querySelector('#navsv').onclick=()=>{const urls={};pn.querySelectorAll('input
 pn.querySelector('#navrs').onclick=()=>{cfg={same:GH,urls:{}};try{localStorage.removeItem('pt_nav')}catch(e){}build();panel()};
 pn.querySelector('#navcl').onclick=()=>{pn.style.display='none'}}
 build()})();
+// ===== UB-EMBED v1 (Uppgiftsbanken) – behåll detta block när verktyget uppdateras =====
+// Aktivt bara när sidan öppnas inbäddad med ?embed=1. Kräver knappen #ub och adaptern längst ned i blocket.
+(function(A){if(!/[?&]embed/.test(location.search)||window.parent===window)return;document.body.classList.add('emb');
+const b=document.getElementById('ub');
+if(b){b.style.display='';b.onclick=()=>{try{const r=A.hamta();parent.postMessage({type:'ub-figur',svg:r.svg,kalla:{verktyg:A.id,v:1,tillstand:r.tillstand}},'*')}catch(e){alert('Kunde inte skicka figuren: '+e.message)}}}
+addEventListener('message',e=>{const m=e.data;if(!m||m.type!='ub-ladda'||!m.kalla||m.kalla.verktyg!=A.id)return;try{A.satt(m.kalla.tillstand)}catch(x){alert('Kunde inte läsa in figurens inställningar (verktyget kan ha uppdaterats).')}});
+parent.postMessage({type:'ub-redo',verktyg:A.id,v:1},'*')})({id:'2dfigurer',
+hamta:()=>{const cp=o=>JSON.parse(JSON.stringify(o));return{svg:last,tillstand:{typ:cur,matt:cp(S[cur]),stil:getP(),etikettpos:cp(OFF[cur]||{}),lista:cp(LST[cur]||{}),notering:NOTE[cur]||''}}},
+satt:k=>{if(!F[k.typ])throw 0;if(k.stil)applyP(k.stil);cur=k.typ;Object.assign(S[cur],k.matt||{});if(k.etikettpos)OFF[cur]=k.etikettpos;else delete OFF[cur];if(k.lista)LST[cur]=k.lista;else delete LST[cur];NOTE[cur]=k.notering||'';$('surf').innerHTML='';surf();tabs();fields();draw()}});
+// ===== slut UB-EMBED =====
 </script>
 </body>
 </html>
