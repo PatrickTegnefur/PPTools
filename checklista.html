@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="sv" data-theme="dark"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#212121">
+<title>Checklistor – Tegnefurs Matte</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>try{var t=localStorage.getItem('pt-tema');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+:root{--grad:linear-gradient(120deg,#66C7C2 0%,#F4A261 50%,#EC6095 100%);--bg:#f6f4ff;--panel:#ffffff;--text:#100e28;--muted:#585078;--accent:#306BF0;--onacc:#ffffff;--border:#ccc5f0;--field:#ffffff;--hd:var(--grad);--hdt:#ffffff;--hl:0px;--trough:#e8e5f5}
+[data-theme=dark]{--bg:#272727;--panel:#303030;--text:#E6E5E1;--muted:#a7a6a2;--accent:#66C7C2;--onacc:#1b1b1b;--border:#4f4f4f;--field:#262626;--hd:#212121;--hdt:#D7D6D3;--hl:3px;--trough:#303030}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 .92rem/1.45 Inter,Arial,sans-serif;font-feature-settings:"zero" 0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{background:var(--hd);color:var(--hdt);border-bottom:solid;border-width:0 0 var(--hl);border-image:var(--grad) 1;padding:10px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+header h1{font:700 1.15rem Montserrat,sans-serif;margin:0 auto 0 0}
+button{font:600 .85rem Inter,sans-serif;cursor:pointer;color:inherit}
+.hb{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid currentColor;background:transparent;color:var(--hdt)}
+.hb.p{background:#fff;color:#100e28;border-color:#fff}
+.app{display:grid;grid-template-columns:minmax(340px,450px) 1fr;gap:20px;padding:20px;max-width:1320px;margin:auto}
+@media(max-width:1000px){.app{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px}
+h3{font:700 .95rem Montserrat,sans-serif;margin:0 0 10px}
+label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:8px}
+input,textarea,select{width:100%;min-height:44px;margin-top:3px;padding:9px 11px;border-radius:8px;border:1px solid var(--border);background:var(--field);color:var(--text);font:400 .9rem Inter,sans-serif}
+textarea{min-height:60px;resize:vertical}
+input[type=checkbox]{width:20px;min-height:20px;margin:0 8px 0 0;vertical-align:middle}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:.78rem;color:var(--muted)}
+.lvl{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:600;font-size:.78rem;color:#100e28}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;padding:6px;border-radius:12px;background:var(--trough);box-shadow:inset 3px 3px 6px rgba(0,0,0,.18),inset -3px -3px 6px rgba(255,255,255,.08)}
+.tab{min-height:44px;padding:0 12px;border:0;border-radius:8px;background:transparent;color:var(--text)}
+.tab.on{background:var(--panel);box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.mini{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text)}
+.mini.d{color:#e02020}
+.pl{display:grid;grid-template-columns:64px 1fr;gap:8px;align-items:center}
+.pl input{margin:0}
+.lh{display:flex;justify-content:space-between;align-items:center;margin:12px 0 6px}
+.cw{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-width:44px;min-height:44px;padding:0 10px;border-radius:8px;border:2px solid var(--c);background:transparent;color:var(--text)}
+.chip.on{background:var(--c);color:#100e28}
+.chip.oth{opacity:.4;border-style:dashed}
+.bar{display:flex;gap:8px;flex-wrap:wrap}
+.warn{background:#e02020;color:#fff;border-radius:8px;padding:8px 12px;margin:0 0 8px;font-weight:600;max-width:148mm}
+#prev h3{margin:12px 0 8px}
+#prev .sheet{box-shadow:0 6px 24px rgba(0,0,0,.35)}
+/* ===== Utskriftsark (A5) ===== */
+.sheet{width:148mm;height:210mm;overflow:hidden;background:#fff;color:#000;font-family:Inter,Arial,sans-serif;position:relative}
+.in{min-height:210mm;padding:6mm 8mm 5mm;display:flex;flex-direction:column}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:.6mm solid #000;padding-bottom:1.5mm;margin:0 -8mm;padding-left:8mm;padding-right:8mm}
+.hd h2{font:700 17pt Montserrat,Arial,sans-serif;margin:0}
+.hd b{font-size:8.5pt;padding-right:4mm}
+.ins{font-size:7.5pt;margin:2.5mm 0 3mm 4mm}
+.sy{width:2.6mm;height:2.6mm;vertical-align:-.4mm;margin:0 .6mm}
+.sec{border:.4mm solid #000;border-bottom-width:.8mm;border-right-width:.8mm;margin-bottom:3.5mm}
+.sh{background:#e6e6e6;padding:1mm 2.5mm;font-size:7.5pt;border-bottom:.4mm solid #000}
+.sh b{font-family:Montserrat,Arial,sans-serif;margin-right:4mm}
+.rw{display:grid;grid-template-columns:16mm repeat(var(--n),1fr);height:var(--s);border-top:.2mm solid #555}
+.rw:first-of-type{border-top:0}
+.rw>div{display:flex;align-items:center;justify-content:center;font-size:clamp(2mm,min(calc(var(--s)*.42),calc(var(--w)*.38)),3.2mm);border-left:.2mm solid #888;white-space:nowrap;overflow:hidden}
+.rw>div:first-child{border-left:0;font-size:clamp(2.2mm,calc(var(--s)*.4),2.9mm)}
+.rw>.e{background:repeating-linear-gradient(90deg,#f6f6f6 0 .5mm,#d4d4d4 .5mm .65mm)}
+.ft{margin-top:auto;border-top:.3mm solid #000;padding-top:2mm;display:flex;justify-content:space-around;font-size:7.5pt;gap:4mm}
+.ft svg{width:3.4mm;height:3.4mm;vertical-align:-.7mm}
+.rb{display:grid;grid-template-columns:repeat(var(--k),1fr);height:var(--s);border-top:.2mm solid #555}.rb>div{display:flex;align-items:center;justify-content:center;font-size:clamp(2.2mm,calc(var(--s)*.45),3.4mm);border-left:.2mm solid #888}.rb>div:first-child{border-left:0}.rb>.e{background:repeating-linear-gradient(90deg,#f6f6f6 0 .5mm,#d4d4d4 .5mm .65mm)}
+.bkw{display:flex;gap:6mm;align-items:flex-start}.bkp{width:calc(var(--k)*var(--cw));min-width:30mm}.bkp .sh{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rl{font:700 3mm/1 Montserrat,Arial,sans-serif;margin:0 0 1.6mm}
+.chip.bk2{background:radial-gradient(circle,var(--c) 2.3px,transparent 2.8px) 0 0/8px 8px;color:var(--text);font-weight:700}
+.lg{display:grid;grid-template-columns:repeat(var(--k),1fr);border:.4mm solid #000;margin-bottom:2.5mm;font:600 2.8mm/1 Inter,Arial,sans-serif}.lg>div{padding:1.3mm 0;text-align:center;border-left:.2mm solid #888}.lg>div:first-child{border-left:0}
+.seg{display:flex;gap:6px;margin:12px 0 8px}.seg .mini.on{background:var(--accent);color:var(--onacc);border-color:var(--accent)}.inl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--text)}.inl input{width:70px;margin:0}
+.chip.bk{background:repeating-linear-gradient(135deg,var(--c) 0 4px,transparent 4px 8px);color:var(--text);font-weight:700}
+#pr{display:none}#meas{position:absolute;left:-9999px;top:0;visibility:hidden}.grp{display:inline-flex;gap:3px;padding:3px;border-radius:10px;border:1px solid var(--border)}.chip.sub{min-width:34px;padding:0 6px}.chip.part{box-shadow:inset 0 -7px 0 var(--c)}
+@media print{
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #meas{display:none}body{background:#fff}header,.app{display:none!important}#pr{display:block}
+ .pg{break-after:page;page-break-after:always;overflow:hidden}.pg:last-child{break-after:auto;page-break-after:auto}
+ .pg.u2{display:flex;justify-content:center;width:297mm;height:210mm}
+ .pg.u2 .sheet+.sheet{box-shadow:-.2mm 0 0 #999}
+ .pg.a4 .sheet{zoom:1.41}
+}
+</style><style id="ps"></style></head>
+<body>
+<header><h1>Checklistor</h1>
+<button class="hb" id="bTema"></button>
+<button class="hb" id="bEx">Exempel</button>
+<button class="hb" id="bNew">Töm</button>
+<button class="hb" id="bSave">Spara fil</button>
+<button class="hb" id="bOpen">Öppna fil</button><input type="file" id="fOpen" accept=".json" hidden>
+<button class="hb p" id="bPrint">Skriv ut</button></header>
+<div class="app"><div>
+<div class="card"><h3>1. Dokument</h3>
+<label>Huvudrubrik<input id="d_title"></label>
+<label>Namnrad<input id="d_name"></label>
+<label>Instruktion <span class="hint">({/} blir ett snedstreck, {X} ett kryss)</span><input id="d_instr"></label>
+<div class="r2"><label>Facit<input id="d_facit"></label><label>Sammanfattning<input id="d_summ"></label></div>
+<div class="r2"><label>Rubrik baksida<input id="d_bt"></label><label>Ordning på baksidan<select id="d_bm"><option value="blocks">Ett block per område</option><option value="mixed">Blandat, växla mellan områden</option></select></label></div>
+<div class="r2"><label>Repetitionsomgångar<select id="d_rn"><option>1</option><option>2</option></select></label><label>Namn på omgångar<input id="d_r1" aria-label="Omgång 1"><input id="d_r2" aria-label="Omgång 2" style="margin-top:6px"></label></div>
+<label>Planerat antal områden per sida <span class="hint">(styr radhöjden på framsidan, färre ger mer vit yta längst ned)</span><select id="d_slots"><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+<label>Utskrift<select id="d_layout"><option value="u2">2 × A5 på A4 liggande (klipp isär)</option><option value="a5">A5, ett ark per sida</option><option value="a4">A4, ett ark per sida</option></select></label>
+<label style="color:var(--text)"><input type="checkbox" id="d_back">Skriv ut baksida med repetition</label></div>
+<div class="card"><h3>2. Områden och uppgifter</h3>
+<p class="hint" style="margin-top:0">Varje område har en egen bank per nivå. Skriv uppgifterna som finns att välja på och fördela dem sedan på framsidan eller baksidan (repetition). Ett område som bara har uppgifter på baksidan syns inte på framsidan, så det går bra att repetera äldre områden.</p>
+<div class="tabs" id="tabs"></div><div id="secF"></div><div id="tgt"></div><div id="lv"></div>
+<p class="hint">Skriv uppgifter åtskilda med komma eller mellanslag. 1-5 blir 1, 2, 3, 4, 5. Deluppgifter: <b>16:4</b> = uppgift 16 med delarna a–d (<b>16:a-c</b> = a–c), <b>1-20:3</b> = uppgift 1–20 med tre delar var, <b>16ac</b> = bara a och c erbjuds. Du kan också ange delar med knapparna ovanför.</p></div>
+</div>
+<div id="prev"></div></div>
+<div id="meas"></div><div id="pr"></div>
+<script>
+var LV=['y','b','g','r'],NM={y:'Gul',b:'Blå',g:'Grön',r:'Röd'},C={y:['#FFE27A','#FFF3C4'],b:['#A9C4F5','#D5E3FC'],g:['#A9DDB1','#D8F1DC'],r:['#F6A5AD','#FFD6D9']},CW=116;
+var $=function(i){return document.getElementById(i)},S;
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function E(){return{y:'',b:'',g:'',r:''}}
+function parseBank(s){var m={},o=[];function add(id,subs,w){var t=m[id];if(!t){t=m[id]={id:id,subs:[],whole:false};o.push(t)}subs.forEach(function(x){if(t.subs.indexOf(x)<0)t.subs.push(x)});t.subs.sort();if(w&&subs.length)t.whole=true}
+ (s||'').split(/[,;\s]+/).forEach(function(tok){if(!tok)return;var a;
+  if(a=tok.match(/^(\d+)[-–](\d+)$/)){if(+a[2]>=+a[1]&&a[2]-a[1]<300)for(var i=+a[1];i<=+a[2];i++)add(''+i,[],0);return}
+  if(a=tok.match(/^(\d+)[-–](\d+):(\d+)$/)){if(+a[2]>=+a[1]&&a[2]-a[1]<300)for(var i=+a[1];i<=+a[2];i++)add(''+i,LET.slice(0,Math.min(+a[3],26)).split(''),1);return}
+  if(a=tok.match(/^(\d+):(\d+)$/)){add(a[1],'abcdefghijklmnopqrstuvwxyz'.slice(0,Math.min(+a[2],26)).split(''),1);return}
+  if(a=tok.match(/^(\d+):([a-z])[-–]([a-z])$/i)){var r=[];for(var c=a[2].toLowerCase().charCodeAt(0);c<=a[3].toLowerCase().charCodeAt(0);c++)r.push(String.fromCharCode(c));add(a[1],r,1);return}
+  if(a=tok.match(/^(\d+)([a-zåäö]+)$/i)){add(a[1],a[2].toLowerCase().split(''),0);return}
+  add(tok,[],0)});return o}
+function unitsOf(t){return t.subs.length?t.subs.map(function(x){return t.id+x}):[t.id]}
+var LET='abcdefghijklmnopqrstuvwxyz';
+function bankTasks(s,l){var p=(s.parts||{})[l]||{};return parseBank(s.bank[l]).map(function(t){var n=p[t.id];if(n>0){t.subs=LET.slice(0,n).split('');t.whole=true}return t})}
+function setParts(s,l,id,n){var m=s.sel[l],o=bankTasks(s,l).filter(function(t){return t.id===id})[0];if(!o)return;var ou=unitsOf(o),nu=n>0?LET.slice(0,n).split('').map(function(x){return id+x}):[id],same=ou.every(function(u){return m[u]===m[ou[0]]})?m[ou[0]]:null;
+ ou.forEach(function(u){if(nu.indexOf(u)<0)delete m[u]});if(same)nu.forEach(function(u){if(!m[u])m[u]=same});
+ var p=(s.parts=s.parts||{y:{},b:{},g:{},r:{}})[l];if(n>0)p[id]=n;else delete p[id]}
+function put(s,l,tok,mode){parseBank(tok).forEach(function(t){unitsOf(t).forEach(function(u){s.sel[l][u]=mode})})}
+function newSec(id,t){return{id:id,title:t,sub:'',pages:E(),bank:E(),sel:{y:{},b:{},g:{},r:{}},parts:{y:{},b:{},g:{},r:{}},split:false}}
+function blank(){return{v:3,doc:{title:'Ny checklista',nameLbl:'Namn och klass:',instr:'Gör ett {/} när du genomfört uppgiften och gör ett {X} när du rättat uppgiften.',facit:'',summ:'',layout:'u2',back:true,slots:5,backTitle:'Repetition',backMode:'blocks',rounds:1,r1:'Omgång 1',r2:'Omgång 2'},sections:[newSec('s1','Del 1')],active:'s1',target:'f'}}
+function sample(){
+ var s=blank();s.doc.title='Geometri åk 8';s.doc.facit='304 – 308';s.doc.summ='56 – 97 & 280 – 285';s.sections=[];
+ s.doc.rounds=2;
+ var ex=[['Geometri 1','Omkrets av cirkel',{y:['24 – 27','1 2 5 6 8 9 11 12a','3 4 7','10 13 14'],b:['76 – 77','1 4 6 8 9 10 12 13','2 3 5','7 11 14'],g:['56 – 59','1 7 9 11 12 14 18 19','2 3 4','5 6 8'],r:['86 – 87','1 4 6 7 8a 9a 10a','2 3 5','8 9 11']}],
+ ['Geometri 2','Area av cirkel',{y:['28 – 31','13 17 18 19 22 23 25','14 15 16','20 21 24'],b:['78 – 79','14 15 16ac 17a 18ab 20 21a 22a','19 23 24','25 26 27'],g:['60 – 63','22 24 26 27 36 38ab 41 43ab','23 25 28','29 30 31'],r:['88 – 89','11 12 15 16 17ab 19 20','13 14 18','21 22 23']}],
+ ['Procent','Repetition från åk 8.5',{y:['','','','4 8 12'],b:['','','','5 9 13'],g:['','','','6 10 14'],r:['','','','7 11 15']}]];
+ ex.forEach(function(e,i){var x=newSec('s'+(i+1),e[0]);x.sub=e[1];if(i===2)x.r1=false;LV.forEach(function(l){var d=e[2][l];x.pages[l]=d[0];x.bank[l]=(d[1]+' '+d[2]+' '+d[3]).trim().split(/\s+/).join(', ');put(x,l,d[1],'f');put(x,l,d[2],'b');put(x,l,d[3],'c')});s.sections.push(x)});
+ s.active='s1';return s}
+function migrate(o){if(o.v===3)return o;var n=blank();Object.assign(n.doc,o.doc||{});n.sections=[];
+ (o.sections||[]).concat(o.mix?[Object.assign({},o.mix,{id:'mix'})]:[]).forEach(function(s){var x=newSec(s.id,s.id==='mix'?(s.title||'Repetition'):s.title),any=0;x.sub=s.sub||'';x.pages=s.pages||E();x.split=!!s.split;
+  LV.forEach(function(l){var ks=[];parseBank((o.bank||{})[l]).forEach(function(t){unitsOf(t).forEach(function(u){if(((o.assign||{})[l]||{})[u]===s.id){ks.push(u);x.sel[l][u]=s.id==='mix'?'b':'f';any=1}})});x.bank[l]=ks.join(', ')});
+  if(any||s.id!=='mix')n.sections.push(x)});
+ if(!n.sections.length)n.sections=[newSec('s1','Del 1')];n.active=n.sections[0].id;return n}
+function save(){try{localStorage.setItem('pt-checklista',JSON.stringify(S))}catch(e){}}
+function sec(id){id=id||S.active;return S.sections.filter(function(x){return x.id===id})[0]||S.sections[0]}
+/* ---- ark ---- */
+var SL='<svg class="sy" viewBox="0 0 10 10"><path d="M1 9L9 1" stroke="#000" stroke-width="1" fill="none"/></svg>',SX='<svg class="sy" viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9" stroke="#000" stroke-width="1" fill="none"/></svg>';
+var ICK='<svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="none" stroke="#000" stroke-width="1.3"/><path d="M5 8l2 2 4-4" fill="none" stroke="#000" stroke-width="1.3"/></svg>',ICD='<svg viewBox="0 0 16 16"><path d="M3 1h7l3 3v11H3z" fill="none" stroke="#000" stroke-width="1.3"/><path d="M5 7h6M5 10h6" stroke="#000" stroke-width="1.1"/></svg>';
+function cells(s,l,mode){var o=[],m=s.sel[l];if(mode==='b'&&s.r1===false)return o;if(mode==='c'&&(s.r2===false||(S.doc.rounds||1)<2))return o;bankTasks(s,l).forEach(function(t){if(!t.subs.length){if(m[t.id]===mode)o.push(t.id);return}var a=t.subs.filter(function(x){return m[t.id+x]===mode});if(!a.length)return;if(s.split)a.forEach(function(x){o.push(t.id+x)});else o.push(t.whole&&a.length===t.subs.length?t.id:t.id+a.join(''))});return o}
+function rowsOf(s){return LV.map(function(l){return{l:l,p:s.pages[l]||'',t:cells(s,l,'f')}}).filter(function(r){return r.t.length||r.p})}
+function maxN(){var n=1;S.sections.forEach(function(x){rowsOf(x).forEach(function(r){n=Math.max(n,r.t.length)})});return n}
+function backOn(){return S.sections.some(function(s){return LV.some(function(l){return cells(s,l,'b').length||cells(s,l,'c').length})})}
+function seq(l,md){var ls=S.sections.map(function(s){return cells(s,l,md)}).filter(function(a){return a.length}),o=[],i=0,more=true;while(more){more=false;ls.forEach(function(a){if(i<a.length){o.push(a[i]);more=true}});i++}return o}
+function secHTML(s,nc){var rows=rowsOf(s);if(!rows.length)return'';
+ return'<div class="sec"><div class="sh"><b>'+esc(s.title)+'</b>'+esc(s.sub)+'</div>'+rows.map(function(r){return'<div class="rw" style="--n:'+nc+';--w:'+(CW/nc).toFixed(2)+'mm"><div style="background:'+C[r.l][0]+'">'+esc(r.p)+'</div>'+r.t.map(function(t){return'<div style="background:'+C[r.l][1]+'">'+esc(t)+'</div>'}).join('')+new Array(nc-r.t.length+1).join('<div class="e"></div>')+'</div>'}).join('')+'</div>'}
+function backPanel(md,nm,multi){
+ var L=LV.filter(function(l){return S.sections.some(function(s){return cells(s,l,md).length})});if(!L.length)return'';var cw=(CW/Math.max(maxN(),10)).toFixed(2);
+ function row(cs){return'<div class="rb">'+L.map(function(l,i){return cs[i]?'<div style="background:'+C[l][1]+'">'+esc(cs[i])+'</div>':'<div class="e"></div>'}).join('')+'</div>'}
+ function rows(q){var n=Math.max.apply(null,q.map(function(a){return a.length})),r='';for(var i=0;i<n;i++)r+=row(q.map(function(a){return a[i]}));return r}
+ var h='<div class="bkp" style="--k:'+L.length+';--cw:'+cw+'mm">'+(multi?'<div class="rl">'+esc(nm)+'</div>':'')+'<div class="lg">'+L.map(function(l){return'<div style="background:'+C[l][0]+'">'+NM[l]+'</div>'}).join('')+'</div>';
+ if(S.doc.backMode==='mixed')return h+'<div class="sec">'+rows(L.map(function(l){return seq(l,md)}))+'</div></div>';
+ return h+S.sections.map(function(s){var q=L.map(function(l){return cells(s,l,md)});if(!q.some(function(a){return a.length}))return'';return'<div class="sec"><div class="sh"><b>'+esc(s.title)+'</b>'+esc(s.sub)+'</div>'+rows(q)+'</div>'}).join('')+'</div>'}
+function backHTML(){var two=(S.doc.rounds||1)>1;return'<div class="bkw">'+backPanel('b',S.doc.r1||'Omgång 1',two)+(two?backPanel('c',S.doc.r2||'Omgång 2',two):'')+'</div>'}
+function sheet(back,sz,ov){
+ var d=S.doc,nc=Math.max(maxN(),10),b=ov!==undefined?ov:back?backHTML():S.sections.map(function(x){return secHTML(x,nc)}).join('');
+ var ft=back||!(d.facit||d.summ||ov!==undefined)?'':'<div class="ft"><div>'+(d.facit?ICK+' FACIT: '+esc(d.facit):'')+'</div><div>'+(d.summ?ICD+' Sammanfattning:<br>'+esc(d.summ):'')+'</div></div>';
+ return'<div class="sheet" style="--s:'+sz+'mm"><div class="in"><div class="hd"><h2>'+esc(back?d.title+' – '+(d.backTitle||'Repetition'):d.title)+'</h2><b>'+esc(d.nameLbl)+'</b></div><p class="ins">'+esc(d.instr).replace('{/}',SL).replace('{X}',SX)+'</p>'+b+ft+'</div></div>'}
+function fit(back){var m=$('meas'),s=7,k=S.doc.slots||5,row='<div class="rw" style="--n:10;--w:11.6mm"><div>x</div>'+new Array(11).join('<div>x</div>')+'</div>',slot='<div class="sec"><div class="sh"><b>x</b>x</div>'+new Array(5).join(row)+'</div>',ov=new Array(k+1).join(slot);
+ function ok(h){m.innerHTML=h;var e=m.firstChild;return e.scrollHeight<=e.clientHeight+1}
+ if(!back)for(;s>4.5&&!ok(sheet(false,s,ov));s-=.25);
+ for(;s>4.5&&!ok(sheet(back,s));s-=.25);m.innerHTML='';return s}
+function renderPrev(){
+ $('prev').innerHTML='<h3>Framsida</h3>'+sheet(false,fit(false))+(backOn()?'<h3>Baksida</h3>'+sheet(true,fit(true)):'');
+ Array.prototype.forEach.call(document.querySelectorAll('#prev .sheet'),function(s){if(s.scrollHeight>s.clientHeight+2)s.insertAdjacentHTML('beforebegin','<p class="warn">Innehållet ryms inte på arket, ens med minsta radhöjd. Flytta uppgifter till baksidan eller ta bort ett område.</p>')})}
+/* ---- redigerare ---- */
+function renderTabs(){$('tabs').innerHTML=S.sections.map(function(s){return'<button class="tab'+(s.id===S.active?' on':'')+'" data-id="'+s.id+'">'+esc(s.title||'Område')+'</button>'}).join('')+'<button class="tab" data-add="1">+ Område</button>'}
+function renderFields(){
+ var s=sec(),h='<div class="r2"><label>Rubrik<input data-k="title" value="'+esc(s.title)+'"></label><label>Delrubrik<input data-k="sub" value="'+esc(s.sub)+'"></label></div>';
+ h+='<p class="hint" style="margin:0 0 6px">Sidhänvisningar (visas på framsidan)</p>'+LV.map(function(l){return'<label class="pl"><span class="lvl" style="background:'+C[l][0]+'">'+NM[l]+'</span><input data-p="'+l+'" placeholder="t.ex. 24 – 27" value="'+esc(s.pages[l])+'"></label>'}).join('');
+ var two=(S.doc.rounds||1)>1;h+='<p class="hint" style="margin:8px 0 4px">Ingår i repetitionen på baksidan</p><div><label style="color:var(--text);display:inline-block;margin-right:14px"><input type="checkbox" data-k="r1"'+(s.r1!==false?' checked':'')+'>'+esc(S.doc.r1||'Omgång 1')+'</label>'+(two?'<label style="color:var(--text);display:inline-block"><input type="checkbox" data-k="r2"'+(s.r2!==false?' checked':'')+'>'+esc(S.doc.r2||'Omgång 2')+'</label>':'')+'</div>';
+ h+='<label style="color:var(--text)"><input type="checkbox" data-k="split"'+(s.split?' checked':'')+'>Dela upp deluppgifter i egna rutor</label><div class="bar"><button class="mini" data-mv="-1">↑ Flytta upp</button><button class="mini" data-mv="1">↓ Flytta ned</button><button class="mini d" data-del="1">Ta bort område</button></div>';
+ $('secF').innerHTML=h;
+ $('lv').innerHTML=LV.map(function(l){return'<div class="lh"><span class="lvl" style="background:'+C[l][0]+'">'+NM[l]+'</span><span class="hint" id="cnt_'+l+'"></span><button class="mini" data-all="'+l+'">Alla lediga</button></div><textarea data-b="'+l+'" placeholder="Uppgifter att välja på, t.ex. 1-10, 11:4">'+esc(s.bank[l])+'</textarea><div class="cw" id="cw_'+l+'"></div>'}).join('');renderTgt();renderChips()}
+var RN=3,PS={l:'*',f:'',t:'',n:3};
+function fixTarget(){var s=sec(),two=(S.doc.rounds||1)>1;if((S.target==='b'&&s.r1===false)||(S.target==='c'&&(!two||s.r2===false)))S.target='f'}
+function renderTgt(){fixTarget();var s=sec(),bt=[['f','Framsidan'],['b',S.doc.r1||'Omgång 1']];if((S.doc.rounds||1)>1)bt.push(['c',S.doc.r2||'Omgång 2']);bt.push(['p','Ange delar']);
+ $('tgt').innerHTML='<p class="hint" style="margin:12px 0 4px">Placera uppgifter på:</p><div class="seg">'+bt.map(function(x){var d=(x[0]==='b'&&s.r1===false)||(x[0]==='c'&&s.r2===false);return'<button class="mini'+(S.target===x[0]?' on':'')+'" data-tg="'+x[0]+'"'+(d?' disabled style="opacity:.4"':'')+'>'+esc(x[1])+'</button>'}).join('')+'</div><div class="inl"><span>Slumpa</span><input type="number" id="rn" min="0" max="30" value="'+RN+'" aria-label="Antal"><span>per nivå och omgång</span><button class="mini" data-rand="one">Det här området</button><button class="mini" data-rand="all">Alla områden</button></div><div class="inl" style="margin-top:10px"><span>Delar:</span><select id="pl" style="width:auto;margin:0" aria-label="Nivå"><option value="*">alla nivåer</option>'+LV.map(function(l){return'<option value="'+l+'"'+(PS.l===l?' selected':'')+'>'+NM[l]+'</option>'}).join('')+'</select><span>uppgift</span><input id="pf" type="number" min="0" value="'+PS.f+'" aria-label="Från"><span>–</span><input id="pt" type="number" min="0" value="'+PS.t+'" aria-label="Till"><span>har</span><input id="pn" type="number" min="0" max="26" value="'+PS.n+'" aria-label="Antal delar"><span>delar</span><button class="mini" data-setp="1">Sätt</button></div><p class="hint">Delar skapas automatiskt som a, b, c … Du kan också välja &quot;Ange delar&quot; ovan och klicka på en uppgift för att växla antal delar (inga, 2, 3 … 6). Slumpen väljer bland uppgifter som inte ligger på framsidan, utan överlapp mellan omgångarna, och bara för områden som ingår i omgången. Fylld = framsidan, randig = första omgången, prickad = andra.</p>'}
+function randomize(secs){secs.forEach(function(s){LV.forEach(function(l){var m=s.sel[l];[['b',s.r1!==false],['c',(S.doc.rounds||1)>1&&s.r2!==false]].forEach(function(r){if(!r[1])return;Object.keys(m).forEach(function(k){if(m[k]===r[0])delete m[k]});var el=bankTasks(s,l).filter(function(t){return unitsOf(t).every(function(u){return!m[u]})});for(var i=el.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),x=el[i];el[i]=el[j];el[j]=x}el.slice(0,RN).forEach(function(t){unitsOf(t).forEach(function(u){m[u]=r[0]})})})})})}
+function renderChips(){
+ var s=sec(),two=(S.doc.rounds||1)>1;
+ function chip(l,k,txt,cls,att){return'<button class="chip '+cls+'" style="--c:'+C[l][0]+'" '+att+'>'+esc(txt)+'</button>'}
+ function st(l,k){var v=s.sel[l][k];return v==='f'?'on':v==='b'?'bk':v==='c'?'bk2':''}
+ LV.forEach(function(l){var ts=bankTasks(s,l),m=s.sel[l],cn={f:0,b:0,c:0},tot=0;
+  var h=ts.map(function(t){var us=unitsOf(t),q={f:0,b:0,c:0};us.forEach(function(u){tot++;if(m[u]){cn[m[u]]++;q[m[u]]++}});
+   if(!t.subs.length)return chip(l,t.id,t.id,st(l,t.id),'data-l="'+l+'" data-k="'+esc(t.id)+'"');
+   var cls=q.f===us.length?'on':q.b===us.length?'bk':q.c===us.length?'bk2':q.f+q.b+q.c?'part':'';
+   return'<span class="grp">'+chip(l,'',t.id,cls,'data-l="'+l+'" data-task="'+esc(t.id)+'"')+t.subs.map(function(x){return chip(l,t.id+x,x,'sub '+st(l,t.id+x),'data-l="'+l+'" data-k="'+esc(t.id+x)+'"')}).join('')+'</span>'}).join('');
+  $('cw_'+l).innerHTML=h||'<span class="hint">Inga uppgifter i banken.</span>';$('cnt_'+l).textContent='Framsida '+cn.f+' · '+(S.doc.r1||'Omgång 1')+' '+cn.b+(two?' · '+(S.doc.r2||'Omgång 2')+' '+cn.c:'')+' av '+tot})}
+function renderAll(){renderTabs();renderFields();renderPrev()}
+function loadUI(){var d=S.doc;$('d_title').value=d.title;$('d_name').value=d.nameLbl;$('d_instr').value=d.instr;$('d_facit').value=d.facit;$('d_summ').value=d.summ;$('d_bt').value=d.backTitle||'';$('d_bm').value=d.backMode||'blocks';$('d_layout').value=d.layout;$('d_slots').value=d.slots||5;$('d_rn').value=d.rounds||1;$('d_r1').value=d.r1||'Omgång 1';$('d_r2').value=d.r2||'Omgång 2';$('d_back').checked=d.back;renderAll()}
+/* ---- händelser ---- */
+[['d_title','title'],['d_name','nameLbl'],['d_instr','instr'],['d_facit','facit'],['d_summ','summ'],['d_bt','backTitle']].forEach(function(p){$(p[0]).addEventListener('input',function(e){S.doc[p[1]]=e.target.value;save();renderPrev()})});
+$('d_bm').onchange=function(e){S.doc.backMode=e.target.value;save();renderPrev()};
+$('d_rn').onchange=function(e){S.doc.rounds=+e.target.value;save();renderAll()};
+[['d_r1','r1'],['d_r2','r2']].forEach(function(p){$(p[0]).addEventListener('input',function(e){S.doc[p[1]]=e.target.value;save();renderFields();renderPrev()})});
+$('d_slots').onchange=function(e){S.doc.slots=+e.target.value;save();renderPrev()};
+$('d_layout').onchange=function(e){S.doc.layout=e.target.value;save()};
+$('d_back').onchange=function(e){S.doc.back=e.target.checked;save()};
+$('tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+ if(b.dataset.add){var id='s'+Date.now().toString(36);S.sections.push(newSec(id,'Del '+(S.sections.length+1)));S.active=id}else S.active=b.dataset.id;save();renderAll()});
+$('secF').addEventListener('input',function(e){var s=sec(),t=e.target;if(t.dataset.k)s[t.dataset.k]=t.type==='checkbox'?t.checked:t.value;else if(t.dataset.p)s.pages[t.dataset.p]=t.value;save();if(t.dataset.k==='r1'||t.dataset.k==='r2'){renderTgt();renderChips()}renderTabs();renderPrev()});
+$('secF').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var i=S.sections.indexOf(sec());
+ if(b.dataset.mv){var j=i+ +b.dataset.mv;if(j>=0&&j<S.sections.length){var x=S.sections[i];S.sections[i]=S.sections[j];S.sections[j]=x}}
+ if(b.dataset.del){if(S.sections.length<2){alert('Det måste finnas minst ett område.');return}if(!confirm('Ta bort området och dess uppgifter?'))return;S.sections.splice(i,1);S.active=S.sections[0].id}
+ save();renderAll()});
+$('lv').addEventListener('input',function(e){var l=e.target.dataset.b;if(!l)return;sec().bank[l]=e.target.value;save();renderChips();renderPrev()});
+$('lv').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var s=sec(),tg=S.target;
+ if(tg==='p'){var id=b.dataset.task||(b.classList.contains('sub')||b.dataset.all?null:b.dataset.k);if(id){var l0=b.dataset.l,t0=bankTasks(s,l0).filter(function(x){return x.id===id})[0];if(t0){var cur=t0.subs.length;setParts(s,l0,id,cur<2?2:cur>=6?0:cur+1)}}save();renderChips();renderPrev();return}
+ if(b.dataset.all){var l=b.dataset.all;bankTasks(s,l).forEach(function(t){unitsOf(t).forEach(function(k){if(!s.sel[l][k])s.sel[l][k]=tg})})}
+ else if(b.dataset.task){var l=b.dataset.l,t=bankTasks(s,l).filter(function(x){return x.id===b.dataset.task})[0],us=unitsOf(t),all=us.every(function(k){return s.sel[l][k]===tg});us.forEach(function(k){if(all)delete s.sel[l][k];else s.sel[l][k]=tg})}
+ else if(b.dataset.k){var m=s.sel[b.dataset.l],k=b.dataset.k;if(m[k]===tg)delete m[k];else m[k]=tg}
+ save();renderChips();renderPrev()});
+$('tgt').addEventListener('input',function(e){var i=e.target.id;if(i==='rn')RN=Math.max(0,+e.target.value||0);if(i==='pl')PS.l=e.target.value;if(i==='pf')PS.f=e.target.value;if(i==='pt')PS.t=e.target.value;if(i==='pn')PS.n=e.target.value});
+$('tgt').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+ if(b.dataset.tg){S.target=b.dataset.tg;save();renderTgt();renderChips();return}
+ if(b.dataset.setp){var s=sec(),f0=+PS.f,t1=+PS.t||f0,n=Math.max(0,Math.min(26,+PS.n||0));if(f0>0)LV.forEach(function(l){if(PS.l!=='*'&&PS.l!==l)return;bankTasks(s,l).forEach(function(tk){var v=+tk.id;if(/^\d+$/.test(tk.id)&&v>=f0&&v<=t1)setParts(s,l,tk.id,n)})});save();renderChips();renderPrev();return}
+ if(b.dataset.rand){randomize(b.dataset.rand==='all'?S.sections:[sec()]);save();renderChips();renderPrev()}});
+$('bEx').onclick=function(){if(confirm('Ersätt nuvarande innehåll med exemplet?')){S=sample();save();loadUI()}};
+$('bNew').onclick=function(){if(confirm('Töm allt och börja om?')){S=blank();save();loadUI()}};
+$('bSave').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download=(S.doc.title||'checklista').replace(/[^\wåäöÅÄÖ-]+/g,'_')+'.json';a.click()};
+$('bOpen').onclick=function(){$('fOpen').click()};
+$('fOpen').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result);if(!o.doc||!o.sections)throw 0;S=migrate(o);save();loadUI()}catch(x){alert('Filen kunde inte läsas.')}};r.readAsText(f);e.target.value=''};
+$('bPrint').onclick=function(){var L=S.doc.layout,sh=[sheet(false,fit(false))];if(S.doc.back&&backOn())sh.push(sheet(true,fit(true)));
+ $('pr').innerHTML=sh.map(function(s){return'<div class="pg '+L+'">'+(L==='u2'?s+s:s)+'</div>'}).join('');
+ $('ps').textContent='@page{margin:0;size:'+(L==='u2'?'A4 landscape':L==='a5'?'A5 portrait':'A4 portrait')+'}';window.print()};
+function tema(){var d=document.documentElement.dataset.theme==='dark';$('bTema').textContent=d?'Ljust läge':'Mörkt läge';document.querySelector('meta[name=theme-color]').content=d?'#212121':'#66C7C2'}
+$('bTema').onclick=function(){var n=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=n;try{localStorage.setItem('pt-tema',n)}catch(e){}tema()};
+try{S=JSON.parse(localStorage.getItem('pt-checklista'))}catch(e){}
+try{S=(S&&S.doc&&S.sections)?migrate(S):sample()}catch(e){S=sample()}
+tema();loadUI();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(renderPrev);
+</script></body></html>
